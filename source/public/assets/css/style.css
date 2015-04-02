@@ -99,18 +99,22 @@ td a {
 footer {
   font-size: 0.9em;
   text-align: right;
-  padding-top: 30px;
-  padding-right: 4%;
+  bottom: 0;
+  padding-top: 20px;
+  padding-right: 40px;
   min-height: 80px;
   width: 100%;
   position: absolute;
-  bottom: 0;
   background-color: #3e3f3a;
 }
 
 footer a {
   color: #fff;
   text-decoration: none !important;
+}
+
+footer ul {
+  padding-top: 10px;
 }
 
 footer li {
@@ -137,5 +141,6 @@ footer li {
 @media only screen and (max-width: 768px) {
   footer {
     text-align: center;
+    padding-right: 0;
   }
 }
