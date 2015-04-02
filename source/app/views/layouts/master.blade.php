@@ -15,7 +15,7 @@
     <meta property="og:title" content="monelytics - シンプルな家計簿アプリ">
     <meta property="og:description" content="シンプルで使いやすい無料の家計簿アプリ。タブレットやスマホにも対応しています。">
     <meta property="og:url" content="{{Config::get('app.url')}}">
-    <meta property="og:image" content="/assets/images/logo-128.png">
+    <meta property="og:image" content="/assets/images/logo_ogp.png">
     <meta property="og:site_name" content="monelytics">
     <meta property="og:locale" content="ja_JP">
     {{HTML::style('assets/bootstrap/3.3.2/sandstone/bootstrap.min.css')}}
