@@ -18,7 +18,7 @@
 
 @if ($summary['cost_size'][ActivityCategory::COST_TYPE_VARIABLE] || $summary['cost_size'][ActivityCategory::COST_TYPE_CONSTANT])
   <div id="tab-container">
-    <table class="table table-hover table-bordered tabs-table" id="table-selector">
+    <table class="table table-hover table-bordered table-highlight" id="table-selector">
       <colgroup span="3" style="width: 10%">
       <colgroup span="5" style="width: 14%">
       <thead>

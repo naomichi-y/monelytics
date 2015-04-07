@@ -68,5 +68,18 @@ $(function() {
       $(".ui-datepicker").css("display", "block");
     });
   }
+
+  /**
+   * テーブルの行が選択された際に背景色を変更する。
+   */
+  $(document).on("click", ".table-highlight tr", function() {
+    if ($(this).attr("data-active") == "1") {
+      $(this).css("background-color", "#fff");
+      $(this).attr("data-active", "0");
+    } else {
+      $(this).css("background-color", "#fff8e7");
+      $(this).attr("data-active", "1");
+    }
+  });
 });
 

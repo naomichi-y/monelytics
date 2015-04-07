@@ -19,7 +19,7 @@
 
 @if (sizeof($summary['data']))
   <div id="tab-container">
-    <table class="table table-hover table-bordered tabs-table" id="table-selector">
+    <table class="table table-hover table-bordered table-highlight" id="table-selector">
       <colgroup style="width: 10%"></colgroup>
       <colgroup>
         <col span="{{$summary['header_size']['total']}}" style="width: {{floor(66 / $summary['header_size']['total'])}}%" />
