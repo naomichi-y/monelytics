@@ -73,7 +73,7 @@
                   @if (Agent::isDesktop())
                     {{Form::text("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", $activity_category_group->activity_date), array('class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off'))}}
                   @else
-                    {{Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", $activity_category_group->activity_date), array('class' => 'form-control'))}}
+                    {{Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), array('class' => 'form-control'))}}
                   @endif
                 </td>
                 <td>{{Form::number("amount[$selected_date_month][$activity_category_group->id]", Input::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), array('class' => 'form-control text-right', 'autocomplete' => 'off'))}}</td>
