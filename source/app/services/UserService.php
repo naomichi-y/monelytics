@@ -2,15 +2,19 @@
 class UserService
 {
   private $user;
+  private $activity_category;
+  private $activity_category_group;
 
   /**
    * コンストラクタ。
    *
    * @param User $user
    */
-  public function __construct(User $user)
+  public function __construct(User $user, ActivityCategory $activity_category, ActivityCategoryGroup $activity_category_group)
   {
     $this->user = $user;
+    $this->activity_category = $activity_category;
+    $this->activity_category_group = $activity_category_group;
   }
 
 
@@ -29,14 +33,59 @@ class UserService
       $raw_password = $fields['password'];
       $fields['password'] = Hash::make($fields['password']);
 
-      $this->user->create($fields);
+      $user = $this->user->create($fields);
 
       if ($this->login($fields['email'], $raw_password, false, $errors)) {
+        $this->setup($user->id);
         $result = true;
       }
 
     } else {
       $errors = $this->user->getErrors();
+    }
+
+    return $result;
+  }
+
+  /**
+   * ユーザの初期データを登録する。
+   *
+   * @param int $user_id
+   * @return array
+   */
+  public function setup($user_id)
+  {
+    $result = array();
+    $path = base_path() . '/app/storage/meta/setup.json';
+    $activity_category_datum = json_decode(File::get($path));
+
+    // 科目カテゴリの登録
+    foreach ($activity_category_datum as $activity_category_data) {
+      $data = $activity_category_data->record;
+      $data->user_id = $user_id;
+
+      $activity_category = new $this->activity_category((array) $data);
+      $activity_category->save();
+
+      // 科目カテゴリグループの登録
+      if (isset($activity_category_data->relations)) {
+        $activity_category_group_datum = $activity_category_data->relations->activity_category_groups;
+
+        foreach ($activity_category_group_datum as $activity_category_group_data) {
+          $data = $activity_category_group_data->record;
+          $data->activity_category_id = $activity_category->id;
+
+          $activity_category_group = new $this->activity_category_group((array) $data);
+          $activity_category_group->user_id = $user_id;
+          $activity_category_group->save();
+
+          $result[] = array(
+            'id' => $activity_category_group->id,
+            'balance_type' => $activity_category->balance_type,
+            'cost_type' => $activity_category->cost_type
+          );
+        }
+      }
     }
 
     return $result;

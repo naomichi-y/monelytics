@@ -34,8 +34,9 @@ class CreateDemoData extends Command {
     $this->activity = App::make('Activity');
     $this->activity_category = App::make('ActivityCategory');
     $this->activity_category_group = App::make('ActivityCategoryGroup');
+    $this->user_service = App::make('UserService');
 
-		parent::__construct();
+    parent::__construct();
 	}
 
 	/**
@@ -45,9 +46,6 @@ class CreateDemoData extends Command {
 	 */
 	public function fire()
   {
-    $path = base_path() . '/app/storage/meta/demo_data.json';
-    $data = json_decode(File::get($path));
-    $activity_category_group_ids = array();
     $user_id = 0;
 
     // 既存データの削除
@@ -68,43 +66,7 @@ class CreateDemoData extends Command {
 
     // データの作成
     $this->comment('creating sample data');
-
-    $i = 1;
-    $j = 1;
-
-    foreach ($data as $activity_category) {
-      // activity_categoriesレコードの作成
-      $this->comment("inserting table [activity_categories#$i]");
-      $i++;
-
-      $activity_category_record = (array) $activity_category->record;
-      $model = new $this->activity_category($activity_category_record);
-      $model->user_id = $user_id;
-      $model->save();
-      $activity_category_id = $model->id;
-
-      if (isset($activity_category->relations)) {
-        $activity_category_groups = (array) $activity_category->relations->activity_category_groups;
-
-        foreach ($activity_category_groups as $activity_category_group) {
-          // activity_category_groupsレコードの作成
-          $this->comment("inserting table [activity_category_groups#$j]");
-          $j++;
-
-          $activity_category_group_record = (array) $activity_category_group->record;
-          $activity_category_group_record['activity_category_id'] = $activity_category_id;
-
-          $model = new $this->activity_category_group($activity_category_group_record);
-          $model->user_id = $user_id;
-          $model->save();
-          $activity_category_group_ids[] = array(
-            'id' => $model->id,
-            'balance_type' => $activity_category_record['balance_type'],
-            'cost_type' => $activity_category_record['cost_type']
-          );
-        }
-      }
-    }
+    $activity_category_group_ids = $this->user_service->setup($user_id);
 
     // activitiesレコードの登録
     $calc_date = new DateTime();
@@ -118,7 +80,6 @@ class CreateDemoData extends Command {
       $j = mt_rand(0, 2);
 
       for ($i = 0; $i < $j; $i++) {
-        $this->comment("inserting table [activities#$k]");
         $k++;
 
         $index = mt_rand(0, sizeof($activity_category_group_ids) - 1);
@@ -171,12 +132,6 @@ class CreateDemoData extends Command {
 	protected function getArguments()
   {
     return array();
-
-    /**
-		return array(
-			array('example', InputArgument::REQUIRED, 'An example argument.'),
-    );
-     */
 	}
 
 	/**
@@ -187,12 +142,6 @@ class CreateDemoData extends Command {
 	protected function getOptions()
   {
     return array();
-
-    /**
-		return array(
-			array('example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null),
-    );
-     */
 	}
 
 }
