@@ -81,7 +81,23 @@ class UserController extends BaseController {
    */
   public function postUpdate()
   {
-    return Redirect::to('user');
+    $fields = Input::only(
+      'nickname',
+      'email',
+      'password',
+      'password_confirmation'
+    );
+
+    $errors = array();
+
+    if (!$this->user->update(Auth::id(), $fields, $errors)) {
+      return Redirect::back()
+        ->withErrors($errors)
+        ->withInput();
+    }
+
+    return Redirect::back()
+      ->with('success', Lang::get('validation.custom.update_success'));
   }
 
   /**

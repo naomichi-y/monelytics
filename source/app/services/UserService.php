@@ -72,6 +72,38 @@ class UserService
   }
 
   /**
+   * ユーザデータを更新する。
+   *
+   * @param $int user_id
+   * @param array $fields
+   * @param &$fields
+   * @return bool
+   */
+  public function update($user_id, array $fields, &$errors = array())
+  {
+    $fields['id'] = $user_id;
+    $result = false;
+
+    if ($this->user->updateValidate($fields)) {
+      $user = $this->user->find($user_id);
+      $user->email = $fields['email'];
+      $user->nickname = $fields['nickname'];
+
+      if (strlen($fields['password'])) {
+        $user->password = Hash::make($fields['password']);
+      }
+
+      $user->save();
+      $result = true;
+
+    } else {
+      $errors = $this->user->getErrors();
+    }
+
+    return $result;
+  }
+
+  /**
    * ログアウト処理を行う。
    */
   public function logout()

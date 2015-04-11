@@ -36,10 +36,6 @@
     </div>
   </div>
 
-  <div class="alert alert-dismissible alert-info">
-    <p>アカウントの更新機能は未実装です。</p>
-  </div>
-
   <div class="row">
     <div class="col-md-5">
       {{Form::open(array('url' => 'user/update', 'method' => 'post', 'class' => 'form-horizontal'))}}
@@ -66,9 +62,9 @@
         </div>
 
         <div class="form-group">
-          {{Form::label('password', 'パスワード (再入力)', array('class' => 'col-md-4 control-label'))}}
+          {{Form::label('password_confirmation', 'パスワード (再入力)', array('class' => 'col-md-4 control-label'))}}
           <div class="col-md-8">
-            {{Form::password('password', array('class' => 'form-control'))}}
+            {{Form::password('password_confirmation', array('class' => 'form-control'))}}
           </div>
         </div>
 
@@ -77,7 +73,7 @@
             @if (Auth::user()->type == User::TYPE_DEMO)
               {{Form::submit('更新 (デモでは利用不可)', array('class' => 'btn btn-primary disabled'))}}
             @else
-              {{Form::submit('更新', array('class' => 'btn btn-primary disabled'))}}
+              {{Form::submit('更新', array('class' => 'btn btn-primary'))}}
             @endif
           </div>
         </div>

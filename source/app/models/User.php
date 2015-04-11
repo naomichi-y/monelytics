@@ -39,6 +39,25 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
     return $this->validate($fields);
   }
 
+  public function updateValidate(array $fields)
+  {
+    $this->validate_rules = array(
+      'id' => 'required'
+    );
+
+    $user = $this->find($fields['id']);
+
+    if ($user->email != $fields['email']) {
+      $this->validate_rules['email'] = 'required|not_exists:users,email';
+    }
+
+    if (strlen($fields['password'])) {
+      $this->validate_rules['password'] = 'required|min:8|confirmed';
+    }
+
+    return $this->validate($fields);
+  }
+
 	/**
 	 * Get the unique identifier for the user.
 	 *

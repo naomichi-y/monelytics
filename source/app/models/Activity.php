@@ -41,6 +41,7 @@ class Activity extends BaseModel {
   /**
    * @param array $fields
    * @param array &$valid_fields
+   * @return bool
    */
   public function validateVariableFields(array $fields, array &$valid_fields = array())
   {

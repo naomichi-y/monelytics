@@ -1,8 +1,8 @@
 <script>
   $(function() {
     $(document).on("change", "#date_month", function() {
-        $("#begin_date").val('');
-        $("#end_date").val('');
+      $("#begin_date").val('');
+      $("#end_date").val('');
     });
 
     $(document).on("change", "#begin_date, #end_date", function() {
@@ -52,7 +52,7 @@
 
             <div class="form-group">
               {{Form::label('begin_date', '日付範囲指定', array('class' => 'col-md-3 control-label'))}}
-              @if (Agent::isDesktop())
+              @if (!Agent::isDesktop())
                 <div class="col-md-3">
                   {{Form::text('begin_date', Input::get('begin_date'), array('class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off'))}}
                 </div>

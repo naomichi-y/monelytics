@@ -1,8 +1,8 @@
 <script>
   $(function() {
     $(document).on("change", "#date_month", function() {
-        $("#begin_date").val('');
-        $("#end_date").val('');
+      $("#begin_date").val('');
+      $("#end_date").val('');
     });
 
     $(document).on("change", "#begin_date, #end_date", function() {
