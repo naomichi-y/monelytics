@@ -7,18 +7,11 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
   const TYPE_GENERAL = 1;
   const TYPE_DEMO = 9;
 
-	/**
-	 * The database table used by the model.
-	 *
-	 * @var string
-	 */
-	protected $table = 'users';
-
   protected $guarded = array('id');
 
   public function activityCategory()
   {
-    return $this->belongsTo('ActivityCategory', 'activity_category_id', 'id');
+    return $this->hasMany('ActivityCategory');
   }
 
 	/**
@@ -37,11 +30,8 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
         ->where('user_id', '=', $user->id)
         ->get();
 
-
       foreach ($activity_category_groups as $activity_category_group) {
-        $activity_category_id = $activity_category_group->activity_category_id;
-
-        $activity_category = App::make('ActivityCategory')->find($activity_category_id);
+        $activity_category = $activity_category_group->activityCategory();
 
         if ($activity_category) {
           $activity_category->delete();

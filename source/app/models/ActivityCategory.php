@@ -5,7 +5,6 @@ class ActivityCategory extends BaseModel {
   const BALANCE_TYPE_EXPENSE = 1;
   const BALANCE_TYPE_INCOME = 2;
 
-  protected $table = 'activity_categories';
   protected $guarded = array('id');
   protected $validate_rules = array(
     'category_name' => 'required|max:32',
@@ -14,9 +13,14 @@ class ActivityCategory extends BaseModel {
     'balance_type' => 'required'
   );
 
+  public function user()
+  {
+    return $this->belongTo('User');
+  }
+
   public function activityCategoryGroup()
   {
-    return $this->hasMany('ActivityCategoryGroup', 'activity_category_id', 'id');
+    return $this->hasMany('ActivityCategoryGroup');
   }
 
   public static function boot()
@@ -24,9 +28,7 @@ class ActivityCategory extends BaseModel {
     parent::boot();
 
     static::deleting(function($activity_category) {
-      $activity_category_groups = App::make('ActivityCategoryGroup')
-        ->where('activity_category_id', '=', $activity_category->id)
-        ->get();
+      $activity_category_groups = $activity_category->activityCategoryGroup()->get();
 
       foreach ($activity_category_groups as $activity_category_group) {
         $activity_category_group->delete();

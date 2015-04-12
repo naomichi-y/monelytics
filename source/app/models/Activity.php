@@ -5,7 +5,6 @@ class Activity extends BaseModel {
   const SPECIAL_FLAG_USE = 1;
   const SPECIAL_FLAG_UNUSE = 0;
 
-  protected $table = 'activities';
   protected $guarded = array('id');
   protected $validate_rules = array(
     'activity_date' => 'required|date',
@@ -15,9 +14,14 @@ class Activity extends BaseModel {
     'amount' => 'required|numeric'
   );
 
+  public function user()
+  {
+    return $this->belongTo('User');
+  }
+
   public function activityCategoryGroup()
   {
-    return $this->belongsTo('ActivityCategoryGroup', 'activity_category_group_id', 'id');
+    return $this->belongsTo('ActivityCategoryGroup');
   }
 
   /**

@@ -1,6 +1,5 @@
 <?php
 class ActivityCategoryGroup extends BaseModel {
-  protected $table = 'activity_category_groups';
   protected $guarded = array('id');
   protected $validate_rules = array(
     'activity_category_id' => 'required',
@@ -10,7 +9,12 @@ class ActivityCategoryGroup extends BaseModel {
 
   public function activityCategory()
   {
-    return $this->belongsTo('ActivityCategory', 'activity_category_id', 'id');
+    return $this->belongsTo('ActivityCategory');
+  }
+
+  public function activity()
+  {
+    return $this->hasMany('Activity');
   }
 
   public static function boot()
@@ -18,9 +22,7 @@ class ActivityCategoryGroup extends BaseModel {
     parent::boot();
 
     static::deleting(function($activity_category_group) {
-      App::make('Activity')
-        ->where('activity_category_group_id', '=', $activity_category_group->id)
-        ->delete();
+      $activity_category_group->activity()->delete();
     });
   }
 }
