@@ -14,11 +14,6 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
     return $this->hasMany('ActivityCategory');
   }
 
-  public function activityCategoryGroup()
-  {
-    return $this->hasMany('ActivityCategoryGroup');
-  }
-
 	/**
 	 * The attributes excluded from the model's JSON form.
 	 *
@@ -31,7 +26,9 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
     parent::boot();
 
     static::deleting(function($user) {
-      $activity_category_groups = $user->activityCategoryGroup()->get();
+      $activity_category_groups = App::make('ActivityCategoryGroup')
+        ->where('user_id', '=', $user->id)
+        ->get();
 
       foreach ($activity_category_groups as $activity_category_group) {
         $activity_category = $activity_category_group->activityCategory();
