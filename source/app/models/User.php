@@ -14,12 +14,12 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
     return $this->hasMany('ActivityCategory');
   }
 
-	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var array
-	 */
-	protected $hidden = array('password');
+  /**
+   * The attributes excluded from the model's JSON form.
+   *
+   * @var array
+   */
+  protected $hidden = array('password');
 
   public static function boot()
   {
@@ -75,64 +75,64 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
     return $this->validate($fields);
   }
 
-	/**
-	 * Get the unique identifier for the user.
-	 *
-	 * @return mixed
-	 */
-	public function getAuthIdentifier()
-	{
-		return $this->getKey();
-	}
-
-	/**
-	 * Get the password for the user.
-	 *
-	 * @return string
-	 */
-	public function getAuthPassword()
+  /**
+   * Get the unique identifier for the user.
+   *
+   * @return mixed
+   */
+  public function getAuthIdentifier()
   {
-		return $this->password;
-	}
+    return $this->getKey();
+  }
 
-	/**
-	 * Get the token value for the "remember me" session.
-	 *
-	 * @return string
-	 */
-	public function getRememberToken()
-	{
-		return $this->remember_token;
-	}
+  /**
+   * Get the password for the user.
+   *
+   * @return string
+   */
+  public function getAuthPassword()
+  {
+    return $this->password;
+  }
 
-	/**
-	 * Set the token value for the "remember me" session.
-	 *
-	 * @param  string  $value
-	 * @return void
-	 */
-	public function setRememberToken($value)
-	{
-		$this->remember_token = $value;
-	}
+  /**
+   * Get the token value for the "remember me" session.
+   *
+   * @return string
+   */
+  public function getRememberToken()
+  {
+    return $this->remember_token;
+  }
 
-	/**
-	 * Get the column name for the "remember me" token.
-	 *
-	 * @return string
-	 */
-	public function getRememberTokenName()
-	{
-		return 'remember_token';
-	}
+  /**
+   * Set the token value for the "remember me" session.
+   *
+   * @param  string  $value
+   * @return void
+   */
+  public function setRememberToken($value)
+  {
+    $this->remember_token = $value;
+  }
 
-	/**
-	 * Get the e-mail address where password reminders are sent.
-	 *
-	 * @return string
-	 */
-	public function getReminderEmail()
-	{
-		return $this->email;
-	}
+  /**
+   * Get the column name for the "remember me" token.
+   *
+   * @return string
+   */
+  public function getRememberTokenName()
+  {
+    return 'remember_token';
+  }
+
+  /**
+   * Get the e-mail address where password reminders are sent.
+   *
+   * @return string
+   */
+  public function getReminderEmail()
+  {
+    return $this->email;
+  }
 }
