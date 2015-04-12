@@ -25,7 +25,8 @@ class ActivityCategoryService
    */
   public function findAll($user_id, $cost_type)
   {
-    $builder = $this->activity_category->where('user_id', '=', $user_id)
+    $builder = $this->activity_category->with('activityCategoryGroup')
+      ->where('user_id', '=', $user_id)
       ->where('cost_type', '=', $cost_type)
       ->orderBy('sort_order', 'asc');
 

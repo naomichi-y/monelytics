@@ -87,8 +87,9 @@ class ActivityService
    */
   public function getDailyPaginate($user_id, DailyPaginateCondition $condition)
   {
-    $builder = $this->activity->where('user_id', '=', $user_id)
-;
+    $builder = $this->activity->with('activityCategoryGroup')
+      ->where('user_id', '=', $user_id);
+
     // 収支タイプ
     if ($condition->cost_type !== null) {
       $builder->whereHas('activityCategoryGroup', function($builder) use ($condition) {

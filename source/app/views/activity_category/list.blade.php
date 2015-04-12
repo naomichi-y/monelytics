@@ -21,7 +21,12 @@
     <tbody id="{{$id}}_sortable">
       @foreach ($activity_categories as $activity_category)
         <tr data-id="{{$activity_category->id}}">
-          <td>{{{$activity_category->category_name}}}</td>
+          <td>
+            {{{$activity_category->category_name}}}
+            <p class="note">
+            {{{collection_to_string($activity_category->activityCategoryGroup, 'group_name')}}}
+            </p>
+          </td>
           <td>{{nl2br(e($activity_category->content))}}</td>
           <td class="text-center">
             @if ($activity_category->balance_type == ActivityCategory::BALANCE_TYPE_EXPENSE)
