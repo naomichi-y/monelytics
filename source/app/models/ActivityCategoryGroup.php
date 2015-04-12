@@ -7,6 +7,11 @@ class ActivityCategoryGroup extends BaseModel {
     'content' => 'max:255'
   );
 
+  public function user()
+  {
+    return $this->belongTo('User');
+  }
+
   public function activityCategory()
   {
     return $this->belongsTo('ActivityCategory');
