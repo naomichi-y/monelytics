@@ -24,10 +24,15 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 
-$env = $app->detectEnvironment(array(
-  'local' => array('dev-local'),
-  'production' => array('delta2')
-));
+$env = $app->detectEnvironment(function() {
+  $path = __DIR__ . '/../.env.php';
+
+  if (is_file($path)) {
+    return require $path;
+  }
+
+  return 'local';
+});
 
 /*
 |--------------------------------------------------------------------------
