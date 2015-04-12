@@ -16,12 +16,39 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
 
   protected $guarded = array('id');
 
+  public function activityCategory()
+  {
+    return $this->belongsTo('ActivityCategory', 'activity_category_id', 'id');
+  }
+
 	/**
 	 * The attributes excluded from the model's JSON form.
 	 *
 	 * @var array
 	 */
 	protected $hidden = array('password');
+
+  public static function boot()
+  {
+    parent::boot();
+
+    static::deleting(function($user) {
+      $activity_category_groups = App::make('ActivityCategoryGroup')
+        ->where('user_id', '=', $user->id)
+        ->get();
+
+
+      foreach ($activity_category_groups as $activity_category_group) {
+        $activity_category_id = $activity_category_group->activity_category_id;
+
+        $activity_category = App::make('ActivityCategory')->find($activity_category_id);
+
+        if ($activity_category) {
+          $activity_category->delete();
+        }
+      }
+    });
+  }
 
   protected $validate_rules = array(
     'nickname' => 'required|max:32',

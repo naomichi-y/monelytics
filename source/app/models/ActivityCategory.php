@@ -18,4 +18,19 @@ class ActivityCategory extends BaseModel {
   {
     return $this->hasMany('ActivityCategoryGroup', 'activity_category_id', 'id');
   }
+
+  public static function boot()
+  {
+    parent::boot();
+
+    static::deleting(function($activity_category) {
+      $activity_category_groups = App::make('ActivityCategoryGroup')
+        ->where('activity_category_id', '=', $activity_category->id)
+        ->get();
+
+      foreach ($activity_category_groups as $activity_category_group) {
+        $activity_category_group->delete();
+      }
+    });
+  }
 }

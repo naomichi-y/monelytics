@@ -12,4 +12,15 @@ class ActivityCategoryGroup extends BaseModel {
   {
     return $this->belongsTo('ActivityCategory', 'activity_category_id', 'id');
   }
+
+  public static function boot()
+  {
+    parent::boot();
+
+    static::deleting(function($activity_category_group) {
+      App::make('Activity')
+        ->where('activity_category_group_id', '=', $activity_category_group->id)
+        ->delete();
+    });
+  }
 }

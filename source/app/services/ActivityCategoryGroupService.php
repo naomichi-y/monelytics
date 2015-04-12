@@ -155,12 +155,9 @@ class ActivityCategoryGroupService
    */
   public function delete($user_id, $activity_category_group_id)
   {
-    $this->activity->where('activity_category_group_id', '=', $activity_category_group_id)
+    $activity_category_group = $this->activity_category_group->where('id', '=', $activity_category_group_id)
       ->where('user_id', '=', $user_id)
-      ->delete();
-
-    $this->activity_category_group->where('id', '=', $activity_category_group_id)
-      ->where('user_id', '=', $user_id)
-      ->delete();
+      ->get()->first();
+    $activity_category_group->delete();
   }
 }

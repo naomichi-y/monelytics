@@ -2,18 +2,15 @@
 class ActivityCategoryService
 {
   private $activity_category;
-  private $activity_category_group;
 
   /**
    * コンストラクタ。
    *
    * @param ActivityCategory $activity_category
-   * @param ActivityCategoryGroupService $activity_category_group
    */
-  public function __construct(ActivityCategory $activity_category, ActivityCategoryGroupService $activity_category_group)
+  public function __construct(ActivityCategory $activity_category)
   {
     $this->activity_category = $activity_category;
-    $this->activity_category_group = $activity_category_group;
   }
 
   /**
@@ -309,14 +306,10 @@ class ActivityCategoryService
    */
   public function delete($user_id, $activity_category_id)
   {
-    $collection = $this->activity_category_group->findAll($user_id, $activity_category_id);
-
-    foreach ($collection as $activity_category_group) {
-      $this->activity_category_group->delete($user_id, $activity_category_group->id);
-    }
-
-    $this->activity_category->where('id', '=', $activity_category_id)
+    $activity_category = $this->activity_category->where('id', '=', $activity_category_id)
       ->where('user_id', '=', $user_id)
-      ->delete();
+      ->get()->first();
+
+    $activity_category->delete();
   }
 }
