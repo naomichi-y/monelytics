@@ -31,7 +31,7 @@ $env = $app->detectEnvironment(function() {
     return require $path;
   }
 
-  return 'local';
+  return 'production';
 });
 
 /*
