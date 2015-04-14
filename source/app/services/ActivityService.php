@@ -264,12 +264,11 @@ class ActivityService
     }
 
     // 翌月分の要素を追加
-    /**
     $next_date = new DateTime();
     $next_date->add(new DateInterval('P1M'));
+
     $first_array = array($next_date->format('Y-m') => $next_date->format('Y/m'));
-    $result = $first_array + $array;
-    */
+    $array = $first_array + $array;
 
     return $array;
   }
