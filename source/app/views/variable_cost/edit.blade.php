@@ -63,7 +63,7 @@
                 @if (Agent::isDesktop())
                   {{Form::text('activity_date', HTML::date($activity->activity_date, false), array('class' => 'form-control date-picker', 'placeholder' => '月/日'))}}
                 @else
-                  {{Form::date('activity_date', HTML::date($activity->activity_date, false), array('class' => 'form-control'))}}
+                  {{Form::date('activity_date', str_replace('/', '-', HTML::date($activity->activity_date, false)), array('class' => 'form-control'))}}
                 @endif
               </div>
             </div>
