@@ -6,30 +6,30 @@ use Symfony\Component\Console\Input\InputArgument;
 
 class CreateDemoData extends Command {
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'batch:createDemoData';
+  /**
+   * The console command name.
+   *
+   * @var string
+   */
+  protected $name = 'batch:createDemoData';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'Command description.';
+  /**
+   * The console command description.
+   *
+   * @var string
+   */
+  protected $description = 'Command description.';
 
   private $activity;
   private $activity_category;
   private $activity_category_group;
 
-	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
+  /**
+   * Create a new command instance.
+   *
+   * @return void
+   */
+  public function __construct()
   {
     $this->activity = App::make('Activity');
     $this->activity_category = App::make('ActivityCategory');
@@ -37,14 +37,14 @@ class CreateDemoData extends Command {
     $this->user_service = App::make('UserService');
 
     parent::__construct();
-	}
+  }
 
-	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function fire()
+  /**
+   * Execute the console command.
+   *
+   * @return mixed
+   */
+  public function fire()
   {
     $user_id = 0;
 
@@ -122,26 +122,26 @@ class CreateDemoData extends Command {
     }
 
     $this->comment('created sample data');
-	}
+  }
 
-	/**
-	 * Get the console command arguments.
-	 *
-	 * @return array
-	 */
-	protected function getArguments()
+  /**
+   * Get the console command arguments.
+   *
+   * @return array
+   */
+  protected function getArguments()
   {
     return array();
-	}
+  }
 
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
-	protected function getOptions()
+  /**
+   * Get the console command options.
+   *
+   * @return array
+   */
+  protected function getOptions()
   {
     return array();
-	}
+  }
 
 }

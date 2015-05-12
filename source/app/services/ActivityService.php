@@ -713,7 +713,14 @@ class ActivityService
       ->orderBy('ac.balance_type', 'ASC')
       ->orderBy('acg.sort_order', 'ASC');
     $result = $builder->get();
+
     $data = array();
+    $footers = array(
+      'yearly_total_activity_categories' => array(),
+      'yearly_total_expense_amount' => 0,
+      'yearly_total_income_amount' => 0,
+      'yearly_total_result_amount' => 0
+    );
 
     if (count($result)) {
       foreach ($result as $name => $value) {
@@ -725,22 +732,31 @@ class ActivityService
 
         if (!isset($data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_group_id])) {
           $data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_group_id] = 0;
-
         }
 
         $data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_group_id] += $value->group_amount;
 
         if ($value->balance_type == ActivityCategory::BALANCE_TYPE_EXPENSE) {
           $data[$value->date_group]['total_expense_amount'] += $value->group_amount;
+          $footers['yearly_total_expense_amount'] += $value->group_amount;
+
         } else {
           $data[$value->date_group]['total_income_amount'] += $value->group_amount;
+          $footers['yearly_total_income_amount'] += $value->group_amount;
         }
 
         $data[$value->date_group]['total_amount'] += $value->group_amount;
+        $footers['yearly_total_result_amount'] += $value->group_amount;
+
+        if (!isset($footers['yearly_total_activity_categories'][$value->activity_category_group_id])) {
+          $footers['yearly_total_activity_categories'][$value->activity_category_group_id] = 0;
+        }
+
+        $footers['yearly_total_activity_categories'][$value->activity_category_group_id] += $value->group_amount;
       }
     }
 
-    $activity_category_group_data = $this->activity_category->getCategoryGroupData($user_id);
+    $headers = $this->activity_category->getCategoryGroupData($user_id);
 
     // 科目数を取得
     $header_size = array(
@@ -751,7 +767,7 @@ class ActivityService
       )
     );
 
-    foreach ($activity_category_group_data as $cost_type => $activity_category_groups) {
+    foreach ($headers as $cost_type => $activity_category_groups) {
       foreach ($activity_category_groups as $activity_categories) {
         $count = sizeof($activity_categories['activity_category_groups']);
 
@@ -761,9 +777,10 @@ class ActivityService
     }
 
     $summary = array();
-    $summary['headers'] = $activity_category_group_data;
+    $summary['headers'] = $headers;
     $summary['header_size'] = $header_size;
     $summary['data'] = $data;
+    $summary['footers'] = $footers;
 
     return $summary;
   }

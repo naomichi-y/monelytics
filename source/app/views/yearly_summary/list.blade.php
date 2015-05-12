@@ -80,7 +80,28 @@
             <td class="text-right">{{number_format($data['total_amount'])}}</td>
           </tr>
         @endforeach
-    </tbody>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th class="text-center">合計</th>
+          @foreach ($summary['headers'] as $cost_type => $activity_categories)
+            @foreach ($activity_categories as $activity_categories)
+              @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_id => $activity_category_group_name)
+                <td class="text-right">
+                  @if (isset($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id]))
+                    {{number_format($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id])}}
+                  @else
+                    0
+                  @endif
+                </td>
+              @endforeach
+            @endforeach
+          @endforeach
+          <td class="text-right">{{number_format($summary['footers']['yearly_total_expense_amount'])}}</td>
+          <td class="text-right">{{number_format($summary['footers']['yearly_total_income_amount'])}}</td>
+          <td class="text-right">{{number_format($summary['footers']['yearly_total_result_amount'])}}</td>
+        </tr>
+      </tfoot>
     </table>
   </div>
 @else

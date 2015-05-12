@@ -7,9 +7,12 @@
     $tag .= 'value="'. $default .'" ';
   }
 
-  if (is_array($attributes)) {
-    foreach ($attributes as $key => $value)
-      $tag .= $key .'="'. $value .'" ';
+  if (empty($attributes['id'])) {
+    $attributes['id'] = $name;
+  }
+
+  foreach ($attributes as $key => $value) {
+    $tag .= $key .'="'. $value .'" ';
   }
 
   $tag .= '>';
