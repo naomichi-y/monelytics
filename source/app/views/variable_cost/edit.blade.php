@@ -4,6 +4,11 @@
       doSubmit();
     });
 
+    // @see https://github.com/naomichi-y/monelytics/issues/1
+    $(this).on('hidden.bs.modal', function () {
+      $(".modal").remove();
+    })
+
     var doSubmit = function() {
       var creditFlag = $("#credit_flag").prop("checked") ? 1 : 0;
       var specialFlag = $("#special_flag").prop("checked") ? 1 : 0;
