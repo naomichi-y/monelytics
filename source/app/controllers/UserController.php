@@ -44,7 +44,7 @@ class UserController extends BaseController {
         ->withInput();
     }
 
-    return Redirect::intended('home');
+    return Redirect::intended('dashboard');
   }
 
   /**

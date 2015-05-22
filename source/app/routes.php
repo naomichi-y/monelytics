@@ -16,15 +16,24 @@
 #});
 
 Route::get('/', 'IndexController@getLogin');
-Route::controller('/user', 'UserController');
-Route::controller('/home', 'HomeController');
-Route::controller('/contact', 'ContactController');
-Route::controller('/gadget', 'GadgetController');
-Route::controller('/variableCost', 'VariableCostController');
-Route::controller('/constantCost', 'ConstantCostController');
-Route::controller('/dailySummary', 'DailySummaryController');
-Route::controller('/monthlySummary', 'MonthlySummaryController');
-Route::controller('/yearlySummary', 'YearlySummaryController');
-Route::controller('/activityCategory', 'ActivityCategoryController');
-Route::controller('/activityCategoryGroup', 'ActivityCategoryGroupController');
 
+Route::controller('user', 'UserController');
+Route::controller('dashboard', 'DashboardController');
+Route::controller('contact', 'ContactController');
+Route::controller('gadget', 'GadgetController');
+
+Route::group(array('prefix' => 'cost'), function() {
+  Route::controller('variable', 'VariableController');
+  Route::controller('constant', 'ConstantController');
+});
+
+Route::group(array('prefix' => 'summary'), function() {
+  Route::controller('daily', 'DailyController');
+  Route::controller('monthly', 'MonthlyController');
+  Route::controller('yearly', 'YearlyController');
+});
+
+Route::group(array('prefix' => 'settings'), function() {
+  Route::controller('activityCategory', 'ActivityCategoryController');
+  Route::controller('activityCategoryGroup', 'ActivityCategoryGroupController');
+});

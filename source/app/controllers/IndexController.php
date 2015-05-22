@@ -11,6 +11,6 @@ class IndexController extends BaseController {
       return View::make('index/login');
     }
 
-    return Redirect::to('home');
+    return Redirect::to('dashboard');
   }
 }

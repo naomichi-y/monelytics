@@ -93,7 +93,7 @@
 
     function redirect(target) {
       var date = target.attr("data-date");
-      location.href = "/dailySummary?begin_date=" + date + "&end_date=" + date;
+      location.href = "/summary/daily?begin_date=" + date + "&end_date=" + date;
     }
   });
 </script>

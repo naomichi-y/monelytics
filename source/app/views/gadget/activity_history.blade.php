@@ -7,7 +7,7 @@
   $(function() {
     $(document).on("click", ".activity-history", function() {
       var activityDate = $(this).attr("data-date");
-      var url = "/dailySummary?begin_date=" + activityDate + "&end_date=" + activityDate;
+      var url = "/summary/daily?begin_date=" + activityDate + "&end_date=" + activityDate;
 
       location.href = url;
     });

@@ -19,13 +19,13 @@ class DailySummaryTest extends TestCase {
 
   public function testGetIndex()
   {
-    $response = $this->call('GET', '/dailySummary/index');
+    $response = $this->call('GET', '/summary/daily/index');
     $this->assertTrue($response->isOk());
   }
 
   public function testGetCondition()
   {
-    $response = $this->call('GET', '/dailySummary/condition');
+    $response = $this->call('GET', '/summary/daily/condition');
     $this->assertTrue($response->isOk());
   }
 }

@@ -2,7 +2,7 @@ $(function () {
   $.fn.loadPieChart = function(params) {
     var $element = $(this);
 
-    $.get("/monthlySummary/pie-chart-data",
+    $.get("/summary/monthly/pie-chart-data",
       params,
       function(data) {
         var result = [];

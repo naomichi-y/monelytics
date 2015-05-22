@@ -8,7 +8,7 @@
   <script>
     $(function() {
       $(":button").click(function() {
-        location.href = '/home';
+        location.href = '/dashboard';
       });
     });
   </script>
