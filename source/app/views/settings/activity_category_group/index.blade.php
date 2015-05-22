@@ -73,7 +73,7 @@
             {{Form::select('activity_category_id', $activity_category_list, Input::get('activity_category_id'), array('class' => 'form-control', 'id' => 'search_activity_category_id'))}}
          {{Form::close()}}
         </div>
-        <div class="col-md-2">
+        <div class="col-md-4">
           <a class="btn btn-info btn-sm" id="open_create">科目の登録</a>
         </div>
       </div>

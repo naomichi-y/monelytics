@@ -19,7 +19,10 @@ class MonthlyController extends BaseController {
    */
   public function getIndex()
   {
-    return View::make('summary/monthly/index');
+    $data = array();
+    $data['month_list'] = $this->activity->getMonthList(Auth::id(), true);
+
+    return View::make('summary/monthly/index', $data);
   }
 
   /**
