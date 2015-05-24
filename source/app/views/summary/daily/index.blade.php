@@ -9,6 +9,10 @@
   {{HTML::script('assets/js/responsive_table.js')}}
   <script>
     $(function() {
+      $("#date_month").change(function() {
+        $("#search_form").submit();
+      });
+
       $("table").responsiveTable();
 
       // 詳細検索押下
@@ -49,7 +53,16 @@
 
 @section('function')
   <div class="well bs-component">
-    <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
+    {{Form::open(array('url' => 'summary/daily', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get'))}}
+      <div class="form-group form-group-sm form-group-adjust">
+        <div class="col-md-8">
+          {{Form::select('date_month', $month_list, Input::get('date_month', date('Y-m')), array('class' => 'form-control', 'id' => 'date_month'))}}
+        </div>
+        <div class="col-md-4">
+          <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
+        </div>
+      </div>
+    {{Form::close()}}
   </div>
 @stop
 

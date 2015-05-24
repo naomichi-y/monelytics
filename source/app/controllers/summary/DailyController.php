@@ -33,10 +33,12 @@ class DailyController extends BaseController {
       'sort_type'
     );
 
+    $user_id = Auth::id();
     $condition = new DailyPaginateCondition($fields);
 
     $data = array();
-    $data['activities'] = $this->activity->getDailyPaginate(Auth::id(), $condition);
+    $data['month_list'] = $this->activity->getMonthList($user_id, true);
+    $data['activities'] = $this->activity->getDailyPaginate($user_id, $condition);
 
     return View::make('summary/daily/index', $data);
   }
@@ -51,7 +53,6 @@ class DailyController extends BaseController {
 
     // 月リスト
     $data['month_list'] = $this->activity->getMonthList($user_id, true);
-    $data['default_date_month'] = date('Y-m');
 
     // クレジットカードの規定値
     $credit_flag = Input::get('credit_flag');
