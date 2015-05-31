@@ -6,7 +6,7 @@ class Activity extends BaseModel {
   const SPECIAL_FLAG_UNUSE = 0;
 
   protected $guarded = array('id');
-  protected $validate_rules = array(
+  protected $rules = array(
     'activity_date' => 'required|date',
     'activity_category_group_id' => 'required',
     'location' => 'max:64',
@@ -58,11 +58,11 @@ class Activity extends BaseModel {
       // 日付が入力されている場合は検証対象
       if (strlen($fields['activity_date'][$i])) {
         $rules = array(
-          sprintf('activity_date.%s', $i) => $this->validate_rules['activity_date'],
-          sprintf('activity_category_group_id.%s', $i) => $this->validate_rules['activity_category_group_id'],
-          sprintf('location.%s', $i) => $this->validate_rules['location'],
-          sprintf('content.%s', $i) => $this->validate_rules['content'],
-          sprintf('amount.%s', $i) => $this->validate_rules['amount']
+          sprintf('activity_date.%s', $i) => $this->rules['activity_date'],
+          sprintf('activity_category_group_id.%s', $i) => $this->rules['activity_category_group_id'],
+          sprintf('location.%s', $i) => $this->rules['location'],
+          sprintf('content.%s', $i) => $this->rules['content'],
+          sprintf('amount.%s', $i) => $this->rules['amount']
         );
 
         $attribute_names = array(

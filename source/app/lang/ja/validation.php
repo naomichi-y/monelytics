@@ -77,8 +77,13 @@ return array(
   */
 
   'custom' => array(
-    'login' => array(
-      'error' => 'ログインに失敗しました。'
+    'user' => array(
+      'login' => array(
+        'authentication' => 'ログインに失敗しました。'
+      ),
+      'createWithOAuth' => array(
+        'registration' => '既に会員登録が完了しています。'
+      ),
     ),
     'create_record_none' => '登録対象データがありません。',
     'create_success' => '登録が完了しました。',

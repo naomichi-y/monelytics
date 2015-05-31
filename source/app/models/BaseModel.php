@@ -9,7 +9,8 @@ class BaseModel extends Eloquent {
   const UPDATED_AT = 'last_update_date';
   const DELETED_AT = 'delete_date';
 
-  protected $validate_rules = array();
+  protected $rules = array();
+  protected $messages = array();
   protected $errors;
 
   /**
@@ -18,7 +19,7 @@ class BaseModel extends Eloquent {
    */
   public function validate(array $fields)
   {
-    $validator = Validator::make($fields, $this->validate_rules);
+    $validator = Validator::make($fields, $this->rules, $this->messages);
     $result = true;
 
     if ($validator->fails()) {

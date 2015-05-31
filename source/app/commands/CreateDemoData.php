@@ -23,6 +23,7 @@ class CreateDemoData extends Command {
   private $activity;
   private $activity_category;
   private $activity_category_group;
+  private $user_service;
 
   /**
    * Create a new command instance.
@@ -66,7 +67,7 @@ class CreateDemoData extends Command {
 
     // データの作成
     $this->comment('creating sample data');
-    $activity_category_group_ids = $this->user_service->setup($user_id);
+    $activity_category_group_ids = $this->user_service->registrationSetup($user_id);
 
     // activitiesレコードの登録
     $calc_date = new DateTime();

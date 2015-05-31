@@ -1,7 +1,7 @@
 <?php
 class ActivityCategoryGroup extends BaseModel {
   protected $guarded = array('id');
-  protected $validate_rules = array(
+  protected $rules = array(
     'activity_category_id' => 'required',
     'group_name' => 'required|max:32',
     'content' => 'max:255'

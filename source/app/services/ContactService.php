@@ -29,14 +29,14 @@ class ContactService
    */
   public function send($fields, $user_id = null, &$errors = array())
   {
-    $validate_rules = array(
+    $rules = array(
       'contact_name' => 'required',
       'email' => 'required|email',
       'contact_type' => 'required',
       'contact_message' => 'required'
     );
 
-    $validator = Validator::make($fields, $validate_rules);
+    $validator = Validator::make($fields, $rules);
     $result = false;
 
     if ($validator->fails()) {

@@ -9,7 +9,14 @@ class UserController extends BaseController {
 
     $action_name = Route::getCurrentRoute()->getActionName();
     $action_name = substr($action_name, strpos($action_name, '@') + 1);
-    $excludes = array('postLogin', 'postCreate');
+    $excludes = array(
+      'postCreate',
+      'postCreateWithOAuth',
+      'postLogin',
+      'postLoginWithOAuth',
+      'getLoginWithOAuth',
+      'getCreateWithOAuth'
+    );
 
     if (in_array($action_name, $excludes)) {
       $this->required_auth = false;
@@ -24,6 +31,72 @@ class UserController extends BaseController {
   public function getIndex()
   {
     return View::make('user/index');
+  }
+
+  /**
+   * 会員登録を行なう。
+   */
+  public function postCreate()
+  {
+    $fields = Input::only(
+      'nickname',
+      'email',
+      'password'
+    );
+
+    $errors = array();
+
+    if (!$this->user->create($fields, $errors)) {
+      return Redirect::route('home')
+        ->withErrors($errors)
+        ->withInput();
+    }
+
+    return Redirect::to('user/create');
+  }
+
+  /**
+   * OAuthで会員登録を行う。
+   */
+  public function postCreateWithOAuth()
+  {
+    return Redirect::to((string) OAuth::consumer('Facebook')->getAuthorizationUri());
+  }
+
+  /**
+   * OAuthで会員登録を行う (コールバックパス)
+   */
+  public function getCreateWithOAuth()
+  {
+    $oauth = new OAuthCredential(
+      UserCredential::CREDENTIAL_TYPE_FACEBOOK,
+      array('code' => Input::get('code'))
+    );
+
+    $profile = $oauth->getProfile();
+
+    if ($profile) {
+      $errors = array();
+
+      if (!$this->user->createWithOAuth($profile, $oauth->access_token, $errors)) {
+        return Redirect::back()
+          ->withErrors($errors)
+          ->withInput();
+      }
+
+      return Redirect::to('user/create');
+
+    } else {
+      return Redirect::route('home');
+    }
+  }
+
+  /**
+   * 会員登録完了ページを表示する。
+   */
+  public function getCreate()
+  {
+    return View::make('user/create');
   }
 
   /**
@@ -48,32 +121,30 @@ class UserController extends BaseController {
   }
 
   /**
-   * 会員登録完了ページを表示する。
+   * OAuthでシステムにログインする。
    */
-  public function getCreate()
+  public function postLoginWithOAuth()
   {
-    return View::make('user/create');
+    return Redirect::to((string) OAuth::consumer('Facebook')->getAuthorizationUri());
   }
 
   /**
-   * 会員登録を行なう。
+   * OAuthでシステムにログインする。(コールバックパス)
    */
-  public function postCreate()
+  public function getLoginWithOAuth()
   {
-    $fields = Input::only(
-      'nickname',
-      'email',
-      'password'
+    $params = array(
+      'code' => Input::get('code')
     );
     $errors = array();
 
-    if (!$this->user->create($fields, $errors)) {
-      return Redirect::back()
+    if (!$this->user->loginWithOAuth(UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
+      return Redirect::route('home')
         ->withErrors($errors)
         ->withInput();
     }
 
-    return Redirect::to('user/create');
+    return Redirect::intended('dashboard');
   }
 
   /**

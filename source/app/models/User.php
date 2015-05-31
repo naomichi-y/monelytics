@@ -9,6 +9,11 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
 
   protected $guarded = array('id');
 
+  public function userCredential()
+  {
+    return $this->hasMany('UserCredential');
+  }
+
   public function activityCategory()
   {
     return $this->hasMany('ActivityCategory');
@@ -31,27 +36,38 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
     parent::boot();
 
     static::deleting(function($user) {
-      $activity_category_groups = $user->activityCategoryGroup()->get();
+      $activity_categories = $user->activityCategory()->get();
 
-      foreach ($activity_category_groups as $activity_category_group) {
-        $activity_category = $activity_category_group->activityCategory();
-
-        if ($activity_category) {
-          $activity_category->delete();
-        }
+      foreach ($activity_categories as $activity_category) {
+        $activity_category->delete();
       }
+
+      $user->userCredential()->delete();
     });
   }
 
-  protected $validate_rules = array(
+  protected $rules = array(
     'nickname' => 'required|max:32',
     'email' => 'required|not_exists:users,email',
     'password' => 'required|min:8'
   );
 
-  public function authValidate(array $fields)
+  public function oauthValidate(array $fields)
   {
-    $this->validate_rules = array(
+    $this->rules = array(
+      'nickname' => 'required|max:32',
+      'email' => 'required|not_exists:users,email'
+    );
+    $this->messages = array(
+      'email.not_exists' => Lang::get('validation.custom.user.createWithOAuth.registration')
+    );
+
+    return $this->validate($fields);
+  }
+
+  public function loginValidate(array $fields)
+  {
+    $this->rules = array(
       'email' => 'required',
       'password' => 'required'
     );
@@ -61,18 +77,18 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
 
   public function updateValidate(array $fields)
   {
-    $this->validate_rules = array(
+    $this->rules = array(
       'id' => 'required'
     );
 
     $user = $this->find($fields['id']);
 
     if ($user->email != $fields['email']) {
-      $this->validate_rules['email'] = 'required|not_exists:users,email';
+      $this->rules['email'] = 'required|not_exists:users,email';
     }
 
     if (strlen($fields['password'])) {
-      $this->validate_rules['password'] = 'required|min:8|confirmed';
+      $this->rules['password'] = 'required|min:8|confirmed';
     }
 
     return $this->validate($fields);

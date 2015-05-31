@@ -2,6 +2,7 @@
 class UserService
 {
   private $user;
+  private $user_credential;
   private $activity_category;
   private $activity_category_group;
 
@@ -10,13 +11,13 @@ class UserService
    *
    * @param User $user
    */
-  public function __construct(User $user, ActivityCategory $activity_category, ActivityCategoryGroup $activity_category_group)
+  public function __construct(User $user, UserCredential $user_credential, ActivityCategory $activity_category, ActivityCategoryGroup $activity_category_group)
   {
     $this->user = $user;
+    $this->user_credential = $user_credential;
     $this->activity_category = $activity_category;
     $this->activity_category_group = $activity_category_group;
   }
-
 
   /**
    * ユーザを登録する。
@@ -25,7 +26,7 @@ class UserService
    * @param bool &$errors
    * @return bool
    */
-  public function create(array $fields, array &$errors = array())
+  public function create($fields, array &$errors = array())
   {
     $result = false;
 
@@ -35,10 +36,39 @@ class UserService
 
       $user = $this->user->create($fields);
 
+      $this->user_credential->create(array(
+        'user_id' => $user->id,
+        'credential_type' => UserCredential::CREDENTIAL_TYPE_GENERAL
+      ));
+
       if ($this->login($fields['email'], $raw_password, false, $errors)) {
-        $this->setup($user->id);
+        $this->registrationSetup($user->id);
         $result = true;
       }
+
+    } else {
+      $errors = $this->user->getErrors();
+    }
+
+    return $result;
+  }
+
+  public function createWithOAuth($fields, $access_token, array &$errors = array())
+  {
+    $result = false;
+
+    if ($this->user->oauthValidate($fields)) {
+      $user = $this->user->create($fields);
+      $this->user_credential->create(array(
+        'user_id' => $user->id,
+        'credential_type' => UserCredential::CREDENTIAL_TYPE_FACEBOOK,
+        'access_token' => $access_token
+      ));
+
+      Auth::loginUsingId($user->id);
+
+      $this->registrationSetup($user->id);
+      $result = true;
 
     } else {
       $errors = $this->user->getErrors();
@@ -53,7 +83,7 @@ class UserService
    * @param int $user_id
    * @return array
    */
-  public function setup($user_id)
+  public function registrationSetup($user_id)
   {
     $result = array();
     $path = base_path() . '/app/storage/meta/setup.json';
@@ -105,17 +135,47 @@ class UserService
     $fields = array('email' => $email, 'password' => $password);
     $result = false;
 
-    if ($this->user->authValidate($fields)) {
+    if ($this->user->loginValidate($fields)) {
       if (Auth::attempt($fields, $remember_me)) {
         $result = Auth::getUser();
 
       } else {
-        $errors[] = Lang::get('validation.custom.login.error');
+        $errors[] = Lang::get('validation.custom.user.login.authentication');
       }
 
     } else {
       $errors = $this->user->getErrors();
     }
+
+    return $result;
+  }
+
+  public function loginWithOAuth($credential_type, array $params, &$errors = array())
+  {
+    $result = false;
+
+    if ($credential_type == UserCredential::CREDENTIAL_TYPE_FACEBOOK && isset($params['code'])) {
+      $facebook = OAuth::consumer('Facebook');
+      $token = $facebook->requestAccessToken($params['code']);
+      $data = json_decode($facebook->request('/me'), true);
+
+      $user = $this->user->where('email', '=', $data['email'])
+        ->whereHas('userCredential', function($builder) use ($credential_type) {
+          $builder->where('credential_type', '=', $credential_type);
+        })->first();
+
+      if ($user) {
+        $user_credential = $user->userCredential()->first();
+        $user_credential->access_token = $token->getAccessToken();
+        $user_credential->save();
+
+        Auth::loginUsingId($user->id);
+
+        return true;
+      }
+    }
+
+    $errors[] = Lang::get('validation.custom.user.login.authentication');
 
     return $result;
   }
@@ -140,6 +200,16 @@ class UserService
 
       if (strlen($fields['password'])) {
         $user->password = Hash::make($fields['password']);
+        $count = $user->userCredential()
+          ->where('credential_type', '=', UserCredential::CREDENTIAL_TYPE_GENERAL)
+          ->count();
+
+        if ($count == 0) {
+          $this->user_credential->create(array(
+            'user_id' => $user->id,
+            'credential_type' => UserCredential::CREDENTIAL_TYPE_GENERAL
+          ));
+        }
       }
 
       $user->save();

@@ -18,6 +18,10 @@
   border-bottom: 0;
   margin-bottom: 0;
 }
+
+hr {
+  border: 1px solid #585858;
+}
 </style>
 <script>
   $(function() {
@@ -40,8 +44,8 @@
 @section('content')
   <div class="row">
     <div class="col-md-5 col-md-offset-1">
-      {{Form::open(array('url' => 'user/login', 'class' => 'form-horizontal'))}}
-        <div class="well bs-component">
+      <div class="well bs-component">
+        {{Form::open(array('url' => 'user/login', 'class' => 'form-horizontal'))}}
           <fieldset>
             <div class="form-group">
               {{Form::label('email', 'メールアドレス', array('class' => 'col-md-4 control-label'))}}
@@ -67,12 +71,22 @@
               </div>
             </div>
           </fieldset>
-        </div>
-      {{Form::close()}}
+        {{Form::close()}}
+        <hr />
+        {{Form::open(array('url' => 'user/login-with-oauth', 'class' => 'form-horizontal'))}}
+          <fieldset>
+            <div class="form-group form-group-adjust text-right">
+              <div class="col-md-8 col-md-offset-4">
+                {{Form::submit('facebookでログイン', array('name' => 'facebook', 'class' => 'btn btn-primary btn-sm'))}}
+              </div>
+            </div>
+          </fieldset>
+        {{Form::close()}}
+      </div>
     </div>
     <div class="col-md-5">
-      {{Form::open(array('url' => 'user/create', 'class' => 'form-horizontal'))}}
-        <div class="well bs-component">
+      <div class="well bs-component">
+        {{Form::open(array('url' => 'user/create', 'class' => 'form-horizontal'))}}
           <fieldset>
             <div class="form-group">
               {{Form::label('nickname', '名前', array('class' => 'col-md-4 control-label'))}}
@@ -93,13 +107,24 @@
               </div>
             </div>
             <div class="form-group form-group-adjust">
-              <div class="col-md-3 col-md-offset-4">
-                {{Form::submit('会員登録', array('class' => 'btn btn-primary'))}}
+              <div class="col-md-8 col-md-offset-4">
+                {{Form::submit('会員登録', array('name' => 'registration', 'class' => 'btn btn-primary'))}}
               </div>
             </div>
           </fieldset>
-        </div>
-      {{Form::close()}}
+        {{Form::close()}}
+        <hr />
+
+        {{Form::open(array('url' => 'user/create-with-oauth', 'class' => 'form-horizontal'))}}
+          <fieldset>
+            <div class="form-group form-group-adjust text-right">
+              <div class="col-md-8 col-md-offset-4">
+                {{Form::submit('facebookで登録', array('name' => 'facebook', 'class' => 'btn btn-primary btn-sm'))}}
+              </div>
+            </div>
+          </fieldset>
+        {{Form::close()}}
+      </div>
     </div>
   </div>
   {{Form::open(array('url' => 'user/login', 'class' => 'form-horizontal', 'id' => 'trial'))}}
