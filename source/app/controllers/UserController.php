@@ -79,7 +79,7 @@ class UserController extends BaseController {
       $errors = array();
 
       if (!$this->user->createWithOAuth($profile, $oauth->access_token, $errors)) {
-        return Redirect::back()
+        return Redirect::route('home')
           ->withErrors($errors)
           ->withInput();
       }
