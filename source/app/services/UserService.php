@@ -236,10 +236,6 @@ class UserService
    * @param int $user_id
    */
   public function delete($user_id) {
-    $user = $this->user->find($user_id);
-
-    if ($user->type != User::TYPE_DEMO) {
-      $user->delete();
-    }
+    $this->user->find($user_id)->delete();
   }
 }

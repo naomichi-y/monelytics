@@ -1,138 +1,57 @@
-@extends('layouts.master')
-
-@section('include_header')
-{{HTML::script('assets/js/jquery.backstretch.min.js')}}
-<style>
-.lead {
-  margin-top: 60px;
-  margin-bottom: 60px;
-}
-
-.well {
-  background-color: #333;
-  color: #fff;
-  opacity: 0.9;
-}
-
-.page-header {
-  border-bottom: 0;
-  margin-bottom: 0;
-}
-
-hr {
-  border: 1px solid #585858;
-}
-</style>
-<script>
-  $(function() {
-    $.backstretch("/assets/images/top_image.jpg");
-
-    $("#trial").click(function() {
-      $("#trial_email").val("demo@monelytics.me");
-      $("#trial_password").val("demo");
-    });
-  });
-</script>
-@stop
-
-@section('content_header')
-  <div class="lead">
-    ようこそ! monelyticsはシンプルで使いやすい無料の家計簿アプリです。
-  </div>
-@stop
+@extends('layouts.parallax')
 
 @section('content')
-  <div class="row">
-    <div class="col-md-5 col-md-offset-1">
-      <div class="well bs-component">
-        {{Form::open(array('url' => 'user/login', 'class' => 'form-horizontal'))}}
-          <fieldset>
-            <div class="form-group">
-              {{Form::label('email', 'メールアドレス', array('class' => 'col-md-4 control-label'))}}
-              <div class="col-md-8">
-                {{Form::email('email', null, array('class' => 'form-control', 'autofocus'))}}
-              </div>
-            </div>
-            <div class="form-group">
-              {{Form::label('password', 'パスワード', array('class' => 'col-md-4 control-label'))}}
-              <div class="col-md-8">
-                {{Form::password('password', array('class' => 'form-control'))}}
-              </div>
-            </div>
-            <div class="form-group form-group-adjust">
-              <div class="col-md-3 col-md-offset-4">
-                {{Form::submit('ログイン', array('class' => 'btn btn-primary'))}}
-              </div>
-              <div class="col-md-5">
-                <div class="checkbox-inline">
-                  {{Form::checkbox('remember_me', '1', null, array('id' => 'remember_me'))}}
-                  {{Form::label('remember_me', '保存する')}}
-                </div>
-              </div>
-            </div>
-          </fieldset>
-        {{Form::close()}}
-        <hr />
-        {{Form::open(array('url' => 'user/login-with-oauth', 'class' => 'form-horizontal'))}}
-          <fieldset>
-            <div class="form-group form-group-adjust text-right">
-              <div class="col-md-8 col-md-offset-4">
-                {{Form::submit('facebookでログイン', array('name' => 'facebook', 'class' => 'btn btn-primary btn-sm'))}}
-              </div>
-            </div>
-          </fieldset>
-        {{Form::close()}}
-      </div>
+  <div class="parallax parallax_view_1" data-parallax="scroll" data-bleed="60" data-speed="0.2" data-image-src="/assets/images/parallax/01.jpg">
+    <div class="lead">
+      <h2>シンプルな家計簿</h2>
     </div>
-    <div class="col-md-5">
-      <div class="well bs-component">
-        {{Form::open(array('url' => 'user/create', 'class' => 'form-horizontal'))}}
-          <fieldset>
-            <div class="form-group">
-              {{Form::label('nickname', '名前', array('class' => 'col-md-4 control-label'))}}
-              <div class="col-md-8">
-                {{Form::text('nickname', null, array('class' => 'form-control', 'id' => null))}}
-              </div>
-            </div>
-            <div class="form-group">
-              {{Form::label('email', 'メールアドレス', array('class' => 'col-md-4 control-label'))}}
-              <div class="col-md-8">
-                {{Form::email('email', null, array('class' => 'form-control', 'id' => null))}}
-              </div>
-            </div>
-            <div class="form-group">
-              {{Form::label('password', 'パスワード', array('class' => 'col-md-4 control-label'))}}
-              <div class="col-md-8">
-                {{Form::password('password', array('class' => 'form-control', 'id' => null))}}
-              </div>
-            </div>
-            <div class="form-group form-group-adjust">
-              <div class="col-md-8 col-md-offset-4">
-                {{Form::submit('会員登録', array('name' => 'registration', 'class' => 'btn btn-primary'))}}
-              </div>
-            </div>
-          </fieldset>
-        {{Form::close()}}
-        <hr />
+  </div>
 
-        {{Form::open(array('url' => 'user/create-with-oauth', 'class' => 'form-horizontal'))}}
-          <fieldset>
-            <div class="form-group form-group-adjust text-right">
-              <div class="col-md-8 col-md-offset-4">
-                {{Form::submit('facebookで登録', array('name' => 'facebook', 'class' => 'btn btn-primary btn-sm'))}}
-              </div>
-            </div>
-          </fieldset>
-        {{Form::close()}}
+  <div class="parallax parallax_view_2" data-parallax="scroll" data-speed="0.4" data-image-src="/assets/images/parallax/02.jpg">
+    <div class="lead">
+      <h2>money + analytics = monelytics</h2>
+      <p>monelyticsはシンプルで使いやすい無料の家計簿アプリです。</p>
+    </div>
+  </div>
+
+  <div class="parallax parallax_view_3" data-parallax="scroll" data-speed="0.6">
+    <div class="lead">
+      <div class="row">
+        <div class="col-md-6">
+          <h3>使いやすさ</h3>
+          <p>xxx</p>
+        </div>
+        <div class="col-md-6 text-center">
+          {{HTML::image('assets/images/overview/01.png', '', array('class' => 'overview_fig'))}}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 text-center">
+          {{HTML::image('assets/images/overview/02.png', '', array('class' => 'overview_fig'))}}
+        </div>
+        <div class="col-md-6">
+          <h3>スマートフォン対応</h3>
+          <p>xxx</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <h3>REST APIの提供</h3>
+          <p>xxx</p>
+        </div>
+        <div class="col-md-6 text-center">
+          {{HTML::image('assets/images/overview/03.png', '', array('class' => 'overview_fig'))}}
+        </div>
       </div>
     </div>
   </div>
-  {{Form::open(array('url' => 'user/login', 'class' => 'form-horizontal', 'id' => 'trial'))}}
-    <div class="text-center">
-      <p>monelyticsは試用版としてログインすることもできます。</p>
-      {{Form::hidden('email', '', array('id' => 'trial_email'))}}
-      {{Form::hidden('password', '', array('id' => 'trial_password'))}}
-      {{Form::submit('体験する', array('class' => 'btn btn-info btn-lg'))}}
+
+  <div class="parallax parallax_view_4" data-parallax="scroll" data-bleed="20" data-speed="0.8" data-image-src="/assets/images/parallax/04.jpg">
+    <div class="lead">
+      <h2>新しい生活を始めよう</h2>
+      <div class="start">{{link_to('user/create', '会員登録')}}</div>
     </div>
-  {{Form::close()}}
+  </div>
 @stop

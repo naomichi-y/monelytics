@@ -10,8 +10,10 @@ class UserController extends BaseController {
     $action_name = Route::getCurrentRoute()->getActionName();
     $action_name = substr($action_name, strpos($action_name, '@') + 1);
     $excludes = array(
+      'getCreate',
       'postCreate',
       'postCreateWithOAuth',
+      'getLogin',
       'postLogin',
       'postLoginWithOAuth',
       'getLoginWithOAuth',
@@ -47,12 +49,12 @@ class UserController extends BaseController {
     $errors = array();
 
     if (!$this->user->create($fields, $errors)) {
-      return Redirect::route('home')
+      return Redirect::to('user/create')
         ->withErrors($errors)
         ->withInput();
     }
 
-    return Redirect::to('user/create');
+    return Redirect::to('user/create-done');
   }
 
   /**
@@ -68,35 +70,45 @@ class UserController extends BaseController {
    */
   public function getCreateWithOAuth()
   {
-    $oauth = new OAuthCredential(
-      UserCredential::CREDENTIAL_TYPE_FACEBOOK,
-      array('code' => Input::get('code'))
-    );
+    try {
+      $oauth = new OAuthCredential(
+        UserCredential::CREDENTIAL_TYPE_FACEBOOK,
+        array('code' => Input::get('code'))
+      );
+      $oauth->build();
 
-    $profile = $oauth->getProfile();
-
-    if ($profile) {
+      $profile = $oauth->getProfile();
       $errors = array();
 
       if (!$this->user->createWithOAuth($profile, $oauth->access_token, $errors)) {
-        return Redirect::route('home')
+        return Redirect::to('user/create')
           ->withErrors($errors)
           ->withInput();
       }
 
-      return Redirect::to('user/create');
+      return Redirect::to('user/create-done');
 
-    } else {
-      return Redirect::route('home');
+    } catch (Exception $e) {
+      return Redirect::to('user/create');
     }
+  }
+
+  public function getCreate()
+  {
+    return View::make('user/create');
   }
 
   /**
    * 会員登録完了ページを表示する。
    */
-  public function getCreate()
+  public function getCreateDone()
   {
-    return View::make('user/create');
+    return View::make('user/create_done');
+  }
+
+  public function getLogin()
+  {
+    return View::make('user/login');
   }
 
   /**
@@ -139,7 +151,7 @@ class UserController extends BaseController {
     $errors = array();
 
     if (!$this->user->loginWithOAuth(UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
-      return Redirect::route('home')
+      return Redirect::to('user/login')
         ->withErrors($errors)
         ->withInput();
     }

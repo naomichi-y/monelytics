@@ -1,5 +1,9 @@
 @extends('layouts.master')
 
+@section('title')
+ダッシュボード
+@stop
+
 @section('include_header')
   <script>
     $(function() {
@@ -32,24 +36,12 @@
   </script>
 @stop
 
-@section('announce')
-  @if (Auth::user()->type == User::TYPE_DEMO)
-    <div class="alert alert-dismissible alert-info">
-      <strong>トライアルモードでログイン中です。</strong>
-      <p>
-        この画面はデモページ専用のため、本アカウントとは一部動作が異なります。
-        全てのデータは自由に追加・変更・削除して頂いて構いません。
-      </p>
-    </div>
-  @endif
-@stop
-
 @section('content')
   <div class="row">
     <div class="col-md-4">
       <h2>かんたん入力</h2>
       {{Form::open(array('url' => 'cost/variable/create', 'class' => 'form-horizontal'))}}
-        <div class="well bs-component">
+        <div class="well">
           <fieldset>
             <div class="form-group">
               {{Form::label('activity_date', '発生日', array('class' => 'col-md-3 control-label'))}}

@@ -5,7 +5,6 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 
 class User extends BaseModel implements UserInterface, RemindableInterface {
   const TYPE_GENERAL = 1;
-  const TYPE_DEMO = 9;
 
   protected $guarded = array('id');
 

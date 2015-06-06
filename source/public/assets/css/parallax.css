@@ -1,0 +1,77 @@
+h2 {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.overview_fig {
+  max-width: 100%;
+  height: auto;
+}
+
+.parallax {
+  color: #fff;
+  display: table;
+  width: 100%;
+  background: transparent;
+}
+
+.parallax_view_1 {
+  min-height: 800px;
+  text-align: center;
+}
+
+.parallax_view_1 .lead {
+  margin-top: 25%;
+}
+
+.parallax_view_2 {
+  min-height: 600px;
+  text-align: center;
+}
+
+.parallax_view_2 .lead {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.parallax_view_3 {
+  min-height: 400px;
+  background-color: #424242;
+  padding: 4%;
+}
+
+.parallax_view_3 .lead {
+  color: #fff;
+  margin: 0;
+}
+
+.parallax_view_3 .lead p {
+  font-size: 0.8em !important;
+}
+
+.parallax_view_4 {
+  min-height: 600px;
+  text-align: center;
+}
+
+.parallax_view_4 .lead {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.parallax_view_4 .start {
+  padding: 10px;
+}
+
+.parallax_view_4 .start a {
+  padding: 10px;
+  color: #fff;
+  border: 1px solid #fff;
+  text-decoration: none;
+  border-radius: 4px;
+}

@@ -24,11 +24,11 @@
       $("#tabs").startTabs("yearly_summary-tab");
     });
   </script>
-  {{HTML::script('assets/js/jquery.tablefix_1.0.1.js')}}
+  {{HTML::script('assets/components/jquery_plugins/jquery.tablefix_1.0.1.js')}}
 @stop
 
 @section('function')
-  <div class="well bs-component">
+  <div class="well">
     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
   </div>
 @stop

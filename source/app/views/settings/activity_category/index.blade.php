@@ -77,7 +77,7 @@
 @stop
 
 @section('function')
-  <div class="well bs-component">
+  <div class="well">
     <a class="btn btn-info btn-sm" id="open_create">科目カテゴリの登録</a>
   </div>
 @stop

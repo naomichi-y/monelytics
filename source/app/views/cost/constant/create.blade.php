@@ -21,7 +21,7 @@
 @stop
 
 @section('function')
-  <div class="well bs-component">
+  <div class="well">
     {{Form::open(array('url' => 'cost/constant/create', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get'))}}
       <div class="form-group form-group-sm form-group-adjust">
         <div class="col-md-6 col-md-offset-6">

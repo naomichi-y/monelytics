@@ -65,7 +65,7 @@
 @stop
 
 @section('function')
-  <div class="well bs-component">
+  <div class="well">
     <div class="row">
       <div class="form-group form-group-sm form-group-adjust">
         <div class="col-md-8">

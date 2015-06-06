@@ -7,21 +7,24 @@ class OAuthCredential {
 
   public function __construct($credential_type, array $params = array())
   {
-    switch ($credential_type) {
+    $this->credential_type = $credential_type;
+    $this->params = $params;
+  }
+
+  public function build()
+  {
+    switch ($this->credential_type) {
       case UserCredential::CREDENTIAL_TYPE_FACEBOOK:
-        if (!isset($params['code'])) {
+        if (!isset($this->params['code'])) {
           throw new InvalidArgumentException('"code" parameter is required.');
         }
 
         $this->service = OAuth::consumer('Facebook');
-        $token = $this->service->requestAccessToken($params['code']);
+        $token = $this->service->requestAccessToken($this->params['code']);
         $this->access_token = $token->getAccessToken();
 
         break;
     }
-
-    $this->credential_type = $credential_type;
-    $this->params = $params;
   }
 
   public function getProfile()

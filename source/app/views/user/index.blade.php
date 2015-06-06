@@ -4,7 +4,7 @@
 アカウント
 @stop
 
-@section('content_header')
+@section('include_header')
 <script>
   $(function() {
     // 確認モーダルの表示
@@ -70,11 +70,7 @@
 
         <div class="form-group">
           <div class="col-md-8 col-md-offset-4">
-            @if (Auth::user()->type == User::TYPE_DEMO)
-              {{Form::submit('更新 (デモでは利用不可)', array('class' => 'btn btn-primary disabled'))}}
-            @else
-              {{Form::submit('更新', array('class' => 'btn btn-primary'))}}
-            @endif
+            {{Form::submit('更新', array('class' => 'btn btn-primary'))}}
           </div>
         </div>
       {{Form::close()}}
@@ -84,11 +80,7 @@
   <hr />
   <div class="text-right">
     {{Form::open(array('url' => 'user/withdrawal'))}}
-      @if (Auth::user()->type == User::TYPE_DEMO)
-        {{Form::button('サービスの退会 (デモでは利用不可)', array('class' => 'btn btn-danger disabled'))}}
-      @else
-        {{Form::button('サービスの退会', array('class' => 'btn btn-danger', 'data-toggle' => 'modal', 'data-target' => '#confirm-modal'))}}
-      @endif
+      {{Form::button('サービスの退会', array('class' => 'btn btn-danger', 'data-toggle' => 'modal', 'data-target' => '#confirm-modal'))}}
     {{Form::close()}}
   </div>
 @stop

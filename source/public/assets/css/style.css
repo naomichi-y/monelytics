@@ -43,8 +43,8 @@ h3 {
   font-size: 1.2em;
 }
 
-.title_none {
-  margin-bottom: 40px;
+hr {
+  border-bottom: 1px solid #dcdcdc;
 }
 
 .table-highlight th {

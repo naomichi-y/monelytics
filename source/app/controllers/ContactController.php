@@ -20,6 +20,7 @@ class ContactController extends BaseController {
     $data = array();
     $data['contact_type_list'] = $this->contact->getContactTypeList();
 
+
     return View::make('contact/create', $data);
   }
 
@@ -46,6 +47,8 @@ class ContactController extends BaseController {
       return Redirect::back()->withErrors($errors)->withInput();
     }
 
+    Session::flash('send_email', true);
+
     return Redirect::to('contact/done')
       ->with('success', Lang::get('validation.custom.send_success'));
   }
@@ -55,6 +58,10 @@ class ContactController extends BaseController {
    v*/
   public function getDone()
   {
+    if (!Session::has('send_email')) {
+      return Redirect::back();
+    }
+
     return View::make('contact/done');
   }
 }

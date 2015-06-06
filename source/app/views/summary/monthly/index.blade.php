@@ -5,7 +5,8 @@
 @stop
 
 @section('include_header')
-  {{HTML::script('assets/js/highcharts/4.1.1/js/highcharts.js')}}
+  {{HTML::script('assets/components/highcharts/4.1.1/js/highcharts.js')}}
+  {{HTML::script('assets/js/gcalendar-holidays.js')}}
   {{HTML::script('assets/js/pie-chart.js')}}
   <script>
     $(function() {
@@ -30,11 +31,11 @@
       $("#tabs").startTabs("monthly_summary-tab");
     });
   </script>
-  {{HTML::script('assets/js/jquery.tablefix_1.0.1.js')}}
+  {{HTML::script('assets/components/jquery_plugins/jquery.tablefix_1.0.1.js')}}
 @stop
 
 @section('function')
-  <div class="well bs-component">
+  <div class="well">
     {{Form::open(array('url' => 'summary/monthly', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get'))}}
       <div class="form-group form-group-sm form-group-adjust">
         <div class="col-md-8">

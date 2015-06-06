@@ -89,7 +89,7 @@ return array(
     'create_success' => '登録が完了しました。',
     'update_success' => '更新が完了しました。',
     'delete_success' => '削除が完了しました。',
-    'send_success' => '送信が完了しました。'
+    'send_success' => 'お問い合わせありがとうございました。 内容を確認次第、ご返信させて頂きます。'
   ),
 
   /*
