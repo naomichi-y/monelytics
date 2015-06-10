@@ -1,5 +1,4 @@
-/source/bootstrap/compiled.php
-/source/app/config/packages/artdarek/oauth-4-larave/config.php
+source/app/config/packages/artdarek/oauth-4-larave/config.php
 composer.phar
 composer.lock
 
