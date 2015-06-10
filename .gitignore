@@ -1,4 +1,4 @@
-source/app/config/packages/artdarek/oauth-4-larave/config.php
+source/app/config/packages/artdarek/oauth-4-laravel/config.php
 composer.phar
 composer.lock
 

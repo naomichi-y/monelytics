@@ -20,6 +20,13 @@ class UserController extends BaseController {
       'getCreateWithOAuth'
     );
 
+    $this->beforeFilter(function() {
+      if (Auth::user()) {
+        return Redirect::to('dashboard/index');
+      }
+
+    }, array('only' => $expect));
+
     if (in_array($action_name, $expect)) {
       $this->required_auth = false;
     }
