@@ -30,7 +30,7 @@
             </div>
             <div class="form-group form-group-adjust">
               <div class="col-md-8 col-md-offset-4">
-                {{Form::submit('会員登録', array('name' => 'registration', 'class' => 'btn btn-primary'))}}
+                {{Form::submit('会員登録', array('class' => 'btn btn-primary'))}}
               </div>
             </div>
           </fieldset>

@@ -35,6 +35,7 @@ class OAuthCredential {
       case UserCredential::CREDENTIAL_TYPE_FACEBOOK:
         $result = json_decode($this->service->request('/me'), true);
         $data = array(
+          'id' => $result['id'],
           'nickname' => $result['name'],
           'email' => $result['email']
         );

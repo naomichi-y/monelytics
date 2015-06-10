@@ -15,7 +15,7 @@
 #  var_dump($sql);
 #});
 
-Route::get('/', array('uses' => 'IndexController@getLogin', 'as' => 'home'));
+Route::get('/', array('uses' => 'IndexController@getIndex', 'as' => 'home'));
 
 Route::controller('user', 'UserController');
 Route::controller('dashboard', 'DashboardController');

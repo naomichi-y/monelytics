@@ -24,9 +24,6 @@
       "app/libraries",
       "app/tests/TestCase.php"
     ],
-    "psr-0": {
-      "AccountBook": "app/libraries"
-    },
     "files": [
       "app/helpers.php"
     ]

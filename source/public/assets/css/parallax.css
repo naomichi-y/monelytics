@@ -13,6 +13,10 @@ h3 {
   height: auto;
 }
 
+.float_right {
+  float: right;
+}
+
 .parallax {
   color: #fff;
   display: table;
@@ -21,7 +25,7 @@ h3 {
 }
 
 .parallax_view_1 {
-  min-height: 800px;
+  height: 800px;
   text-align: center;
 }
 
@@ -30,8 +34,9 @@ h3 {
 }
 
 .parallax_view_2 {
-  min-height: 600px;
+  height: 600px;
   text-align: center;
+  padding: 0 8% 0 8%;
 }
 
 .parallax_view_2 .lead {
@@ -40,9 +45,9 @@ h3 {
 }
 
 .parallax_view_3 {
-  min-height: 400px;
+  height: 400px;
   background-color: #424242;
-  padding: 4%;
+  padding: 4% 8% 4% 8%;
 }
 
 .parallax_view_3 .lead {
@@ -55,7 +60,7 @@ h3 {
 }
 
 .parallax_view_4 {
-  min-height: 600px;
+  height: 600px;
   text-align: center;
 }
 

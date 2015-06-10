@@ -3,12 +3,12 @@ class IndexController extends BaseController {
   protected $required_auth = false;
 
   /**
-   * ログイン画面を表示する。
+   * トップページを表示する。
    */
-  public function getLogin()
+  public function getIndex()
   {
     if (Auth::guest()) {
-      return View::make('index/login');
+      return View::make('index/index');
     }
 
     return Redirect::to('dashboard');

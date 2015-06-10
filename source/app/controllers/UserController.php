@@ -9,7 +9,7 @@ class UserController extends BaseController {
 
     $action_name = Route::getCurrentRoute()->getActionName();
     $action_name = substr($action_name, strpos($action_name, '@') + 1);
-    $excludes = array(
+    $expect = array(
       'getCreate',
       'postCreate',
       'postCreateWithOAuth',
@@ -20,7 +20,7 @@ class UserController extends BaseController {
       'getCreateWithOAuth'
     );
 
-    if (in_array($action_name, $excludes)) {
+    if (in_array($action_name, $expect)) {
       $this->required_auth = false;
     }
 
@@ -70,29 +70,23 @@ class UserController extends BaseController {
    */
   public function getCreateWithOAuth()
   {
-    try {
-      $oauth = new OAuthCredential(
-        UserCredential::CREDENTIAL_TYPE_FACEBOOK,
-        array('code' => Input::get('code'))
-      );
-      $oauth->build();
+    $params = array(
+      'code' => Input::get('code')
+    );
+    $errors = array();
 
-      $profile = $oauth->getProfile();
-      $errors = array();
-
-      if (!$this->user->createWithOAuth($profile, $oauth->access_token, $errors)) {
-        return Redirect::to('user/create')
-          ->withErrors($errors)
-          ->withInput();
-      }
-
-      return Redirect::to('user/create-done');
-
-    } catch (Exception $e) {
-      return Redirect::to('user/create');
+    if (!$this->user->createWithOAuth(UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
+      return Redirect::to('user/create')
+        ->withErrors($errors)
+        ->withInput();
     }
+
+    return Redirect::to('user/create-done');
   }
 
+  /**
+   * 会員登録ページを表示する。
+   */
   public function getCreate()
   {
     return View::make('user/create');
@@ -106,6 +100,9 @@ class UserController extends BaseController {
     return View::make('user/create_done');
   }
 
+  /**
+   * ログインページを表示する。
+   */
   public function getLogin()
   {
     return View::make('user/login');

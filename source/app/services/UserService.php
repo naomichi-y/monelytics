@@ -42,7 +42,7 @@ class UserService
       ));
 
       if ($this->login($fields['email'], $raw_password, false, $errors)) {
-        $this->registrationSetup($user->id);
+        $this->seed($user->id);
         $result = true;
       }
 
@@ -53,25 +53,37 @@ class UserService
     return $result;
   }
 
-  public function createWithOAuth($fields, $access_token, array &$errors = array())
+  public function createWithOAuth($credential_type, $fields, array &$errors = array())
   {
     $result = false;
 
-    if ($this->user->oauthValidate($fields)) {
-      $user = $this->user->create($fields);
-      $this->user_credential->create(array(
-        'user_id' => $user->id,
-        'credential_type' => UserCredential::CREDENTIAL_TYPE_FACEBOOK,
-        'access_token' => $access_token
-      ));
+    try {
+      $oauth = new OAuthCredential($credential_type, $fields);
+      $oauth->build();
 
-      Auth::loginUsingId($user->id);
+      $fields = $oauth->getProfile();
 
-      $this->registrationSetup($user->id);
-      $result = true;
+      if ($this->user->oauthValidate($fields)) {
+        $user = $this->user->create($fields);
+        $this->user_credential->create(array(
+          'user_id' => $user->id,
+          'credential_type' => $credential_type,
+          'credential_id' => $fields['id'],
+          'access_token' => $oauth->access_token,
+        ));
 
-    } else {
-      $errors = $this->user->getErrors();
+        Auth::loginUsingId($user->id);
+
+        $this->seed($user->id);
+        $result = true;
+
+      } else {
+        $errors = $this->user->getErrors();
+      }
+
+    } catch (Exception $e) {
+      $errors = array(Lang::get('validation.custom.user.create_with_oauth.oauth_failed'));
+      Log::error($e);
     }
 
     return $result;
@@ -83,7 +95,7 @@ class UserService
    * @param int $user_id
    * @return array
    */
-  public function registrationSetup($user_id)
+  public function seed($user_id)
   {
     $result = array();
     $path = base_path() . '/app/storage/meta/setup.json';
@@ -154,10 +166,10 @@ class UserService
   {
     $result = false;
 
-    if ($credential_type == UserCredential::CREDENTIAL_TYPE_FACEBOOK && isset($params['code'])) {
-      $facebook = OAuth::consumer('Facebook');
-      $token = $facebook->requestAccessToken($params['code']);
-      $data = json_decode($facebook->request('/me'), true);
+    try {
+      $oauth = new OAuthCredential($credential_type, $params);
+      $oauth->build();
+      $data = $oauth->getProfile();
 
       $user = $this->user->where('email', '=', $data['email'])
         ->whereHas('userCredential', function($builder) use ($credential_type) {
@@ -166,13 +178,16 @@ class UserService
 
       if ($user) {
         $user_credential = $user->userCredential()->first();
-        $user_credential->access_token = $token->getAccessToken();
+        $user_credential->access_token = $oauth->access_token;
         $user_credential->save();
 
         Auth::loginUsingId($user->id);
 
         return true;
       }
+
+    } catch (Exception $e) {
+      // login failure
     }
 
     $errors[] = Lang::get('validation.custom.user.login.authentication');

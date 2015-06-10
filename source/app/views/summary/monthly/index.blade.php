@@ -6,7 +6,6 @@
 
 @section('include_header')
   {{HTML::script('assets/components/highcharts/4.1.1/js/highcharts.js')}}
-  {{HTML::script('assets/js/gcalendar-holidays.js')}}
   {{HTML::script('assets/js/pie-chart.js')}}
   <script>
     $(function() {
