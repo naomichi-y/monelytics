@@ -13,12 +13,12 @@
 
 ClassLoader::addDirectories(array(
 
-	app_path().'/commands',
-	app_path().'/controllers',
-	app_path().'/models',
-	app_path().'/database/seeds',
-	app_path().'/services',
-	app_path().'/libraries',
+  app_path().'/commands',
+  app_path().'/controllers',
+  app_path().'/models',
+  app_path().'/database/seeds',
+  app_path().'/services',
+  app_path().'/libraries',
 
 ));
 
@@ -52,7 +52,10 @@ Log::useDailyFiles(storage_path() . '/logs/laravel.log');
 App::error(function(Exception $exception, $code)
 {
   Log::error($exception);
-  ob_clean();
+
+  if (ob_get_length()) {
+    ob_clean();
+  }
 
   // デバッグモードが無効な場合 (本番環境)
   if (!Config::get('app.debug')) {
@@ -64,7 +67,10 @@ App::error(function(Exception $exception, $code)
 App::error(function(Symfony\Component\HttpKernel\Exception\NotFoundHttpException $exception, $code)
   {
   Log::warning($exception);
-  ob_clean();
+
+  if (ob_get_length()) {
+    ob_clean();
+  }
 
   $view = null;
 
@@ -117,7 +123,7 @@ Log::listen(function($level, $message, $context) {
 
 App::down(function()
 {
-	return Response::make("Be right back!", 503);
+  return Response::make("Be right back!", 503);
 });
 
 /*
