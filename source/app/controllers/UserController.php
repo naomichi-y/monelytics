@@ -188,6 +188,16 @@ class UserController extends BaseController {
   }
 
   /**
+   * システムからログアウトする。
+   */
+  public function getLogout()
+  {
+    $this->user->logout();
+
+    return Redirect::to('/');
+  }
+
+  /**
    * 退会処理を行う。
    */
   public function postWithdrawal()
@@ -196,15 +206,5 @@ class UserController extends BaseController {
     Auth::logout();
 
     return View::make('user/withdrawal');
-  }
-
-  /**
-   * システムからログアウトする。
-   */
-  public function getLogout()
-  {
-    $this->user->logout();
-
-    return Redirect::to('/');
   }
 }

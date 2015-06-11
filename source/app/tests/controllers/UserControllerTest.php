@@ -22,4 +22,29 @@ class UserControllerTest extends TestCase {
     $this->call('POST', '/user/login', $params);
     $this->assertRedirectedTo('/dashboard');
   }
+
+  public function testGetIndex()
+  {
+    $this->assertUserOnlyContent('GET', '/user');
+  }
+
+  public function testLogot()
+  {
+    $this->assertGuestInaccessibleContent('GET', '/user/logout');
+
+    $this->login();
+    $this->call('GET', '/user/logout');
+    $this->assertRedirectedTo('/');
+    $this->assertTrue(Auth::guest());
+  }
+
+  public function testWithdrawal()
+  {
+    $this->assertUserOnlyContent('POST', '/user/withdrawal');
+    $this->seed();
+
+    $this->login();
+    $this->call('POST', '/user/withdrawal');
+    $this->assertTrue(Auth::guest());
+  }
 }

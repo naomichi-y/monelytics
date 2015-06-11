@@ -20,7 +20,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
   {
     parent::setUp();
 
-    Artisan::call('db:seed');
+    $this->seed();
   }
 
   public function login()
@@ -53,6 +53,12 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
     $this->login();
     call_user_func_array(array($this, 'call'), func_get_args());
     $this->assertRedirectedTo('/dashboard');
+  }
+
+  public function assertAnyAccessibleContent()
+  {
+    call_user_func_array(array($this, 'assertGuestAccessibleContent'), func_get_args());
+    call_user_func_array(array($this, 'assertUserAccessibleContent'), func_get_args());
   }
 
   public function assertGuestOnlyContent()
