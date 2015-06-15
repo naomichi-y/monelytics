@@ -187,16 +187,17 @@ class ActivityService
   /**
    * 変動収支データを更新する。
    *
+   * @param int $id
    * @param array $fields
    * @param array &$errors
    * @return bool
    */
-  public function update(array $fields, &$errors = array())
+  public function update($id, array $fields, &$errors = array())
   {
     $result = false;
 
     if ($this->activity->validate($fields)) {
-      $activity = $this->activity->findOrFail($fields['id']);
+      $activity = $this->activity->findOrFail($id);
       $activity->fill($fields);
 
       $balance_type = $activity->activityCategoryGroup->activityCategory->balance_type;

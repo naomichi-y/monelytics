@@ -17,7 +17,7 @@ class ActivityCategoryGroupController extends BaseController {
   /**
    * 科目リストを表示する。
    */
-  public function getIndex()
+  public function index()
   {
     $user_id = Auth::id();
     $activity_category_id = Input::get('activity_category_id');
@@ -36,7 +36,7 @@ class ActivityCategoryGroupController extends BaseController {
   /**
    * 科目の並び順を更新する。
    */
-  public function postSort()
+  public function sort()
   {
     $user_id = Auth::id();
     $ids = Input::get('ids');
@@ -52,7 +52,7 @@ class ActivityCategoryGroupController extends BaseController {
   /**
    * 科目を新規入力する。
    */
-  public function getCreate()
+  public function create()
   {
     $data = array();
     $data['category_list'] = $this->activity_category->getCategoryList(Auth::id(), true);
@@ -63,7 +63,7 @@ class ActivityCategoryGroupController extends BaseController {
   /**
    * 科目を新規登録する。
    */
-  public function postCreate()
+  public function store()
   {
     $fields = Input::only(
       'activity_category_id',
@@ -91,13 +91,13 @@ class ActivityCategoryGroupController extends BaseController {
   /**
    * 科目を編集する。
    */
-  public function getEdit()
+  public function edit($id)
   {
     $user_id = Auth::id();
-    $id = Input::get('id');
     $activity_category_group = $this->activity_category_group->find($user_id, $id);
 
     $data = array();
+    $data['id'] = $id;
     $data['category_list'] = $this->activity_category->getCategoryList($user_id, true);
     $data['activity_category_group'] = $activity_category_group;
 
@@ -113,13 +113,12 @@ class ActivityCategoryGroupController extends BaseController {
   /**
    * 科目を更新する。
    */
-  public function postUpdate()
+  public function update($id)
   {
     $data = array();
     $errors = array();
 
     $fields = Input::only(
-      'id',
       'activity_category_id',
       'group_name',
       'content',
@@ -127,7 +126,7 @@ class ActivityCategoryGroupController extends BaseController {
     );
     $fields['user_id'] = Auth::id();
 
-    if ($this->activity_category_group->update($fields, $errors)) {
+    if ($this->activity_category_group->update($id, $fields, $errors)) {
       $data['result'] = true;
 
     } else {
@@ -141,11 +140,9 @@ class ActivityCategoryGroupController extends BaseController {
   /**
    * 科目を削除する。
    */
-  public function postDelete()
+  public function destroy($id)
   {
-    $activity_category_group_id = Input::get('id');
-
-    $this->activity_category_group->delete(Auth::id(), $activity_category_group_id);
+    $this->activity_category_group->delete(Auth::id(), $id);
 
     return Redirect::back()
       ->with('success', Lang::get('validation.custom.delete_success'));

@@ -40,7 +40,7 @@
   <div class="row">
     <div class="col-md-4">
       <h2>かんたん入力</h2>
-      {{Form::open(array('url' => 'cost/variable/create', 'class' => 'form-horizontal'))}}
+      {{Form::open(array('url' => 'cost/variable', 'class' => 'form-horizontal'))}}
         <div class="well">
           <fieldset>
             <div class="form-group">

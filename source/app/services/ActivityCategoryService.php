@@ -276,16 +276,17 @@ class ActivityCategoryService
    * 科目カテゴリデータを更新する。
    *
    * @param int $user_id
+   * @param int @id
    * @param array $fields
    * @param array &$errors
    * @return bool
    */
-  public function update($user_id, $fields, array &$errors = array())
+  public function update($id, $user_id, $fields, array &$errors = array())
   {
     $result = false;
 
     if ($this->activity_category->validate($fields)) {
-      $this->activity_category->where('id', '=', $fields['id'])
+      $this->activity_category->where('id', '=', $id)
       ->where('user_id', '=', $user_id)
       ->update($fields);
 

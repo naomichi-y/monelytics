@@ -15,7 +15,7 @@ class ActivityCategoryController extends BaseController {
   /**
    * 科目カテゴリリストを表示する。
    */
-  public function getIndex()
+  public function index()
   {
     $user_id = Auth::id();
 
@@ -29,7 +29,7 @@ class ActivityCategoryController extends BaseController {
   /**
    * 科目カテゴリの並び順を更新する。
    */
-  public function postSort()
+  public function sort()
   {
     $user_id = Auth::id();
     $ids = Input::get('ids');
@@ -45,7 +45,7 @@ class ActivityCategoryController extends BaseController {
   /**
    * 科目を新規入力する。
    */
-  public function getCreate()
+  public function create()
   {
     return View::make('settings/activity_category/create');
   }
@@ -53,7 +53,7 @@ class ActivityCategoryController extends BaseController {
   /**
    * 科目を新規登録する。
    */
-  public function postCreate()
+  public function store()
   {
     $fields = Input::only(
       'category_name',
@@ -81,13 +81,12 @@ class ActivityCategoryController extends BaseController {
   /**
    * 科目を編集する。
    */
-  public function getEdit()
+  public function edit($id)
   {
-    $id = Input::get('id');
-
     $activity_category = $this->activity_category->find(Auth::id(), $id);
 
     $data = array();
+    $data['id'] = $id;
     $data['activity_category'] = $activity_category;
 
     if ($activity_category->cost_type == ActivityCategory::COST_TYPE_VARIABLE) {
@@ -114,10 +113,9 @@ class ActivityCategoryController extends BaseController {
   /**
    * 科目を更新する。
    */
-  public function postUpdate()
+  public function update($id)
   {
     $fields = Input::only(
-      'id',
       'category_name',
       'content',
       'cost_type',
@@ -127,7 +125,7 @@ class ActivityCategoryController extends BaseController {
     $data = array();
     $errors = array();
 
-    if ($this->activity_category->update(Auth::id(), $fields, $errors)) {
+    if ($this->activity_category->update($id, Auth::id(), $fields, $errors)) {
       $data['result'] = true;
 
     } else {
@@ -141,11 +139,9 @@ class ActivityCategoryController extends BaseController {
   /**
    * 科目を削除する。
    */
-  public function postDelete()
+  public function destroy($id)
   {
-    $activity_category_group_id = Input::get('id');
-
-    $this->activity_category->delete(Auth::id(), $activity_category_group_id);
+    $this->activity_category->delete(Auth::id(), $id);
 
     return Redirect::back()
       ->with('success', Lang::get('validation.custom.delete_success'));

@@ -38,10 +38,8 @@
         var selected_id = $(".open_edit").index(this) + 1;
         var activity_id = $("tr:eq(" + selected_id + ")").attr("data-id");
 
-        $.get("/cost/variable/edit",
-          {
-            id: activity_id
-          },
+        $.get("/cost/variable/" + activity_id + "/edit",
+          {},
           function(data) {
             $(data).modal();
           }
@@ -67,7 +65,7 @@
 @stop
 
 @section('content')
-  @include('layouts/delete_modal', array('action' => 'cost/variable/delete'))
+  @include('layouts/delete_modal', array('action' => 'cost/variable'))
 
   @if ($activities->getTotal())
   {{Form::open(array('url' => 'summary/daily', 'method' => 'get', 'id' => 'list-form'))}}

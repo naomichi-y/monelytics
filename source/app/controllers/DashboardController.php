@@ -13,7 +13,7 @@ class DashboardController extends BaseController
     $this->activity_category = $activity_category;
   }
 
-  public function getIndex()
+  public function index()
   {
     $data = array();
     $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList(Auth::id(), null, true);

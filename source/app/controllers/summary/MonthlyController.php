@@ -17,7 +17,7 @@ class MonthlyController extends BaseController {
   /**
    * 月別集計を表示する。
    */
-  public function getIndex()
+  public function index()
   {
     $data = array();
     $data['month_list'] = $this->activity->getMonthList(Auth::id(), true);
@@ -28,7 +28,7 @@ class MonthlyController extends BaseController {
   /**
    * 検索条件を表示する。
    */
-  public function getCondition()
+  public function condition()
   {
     $data = array();
     $data['month_list'] = $this->activity->getMonthList(Auth::id(), true);
@@ -39,7 +39,7 @@ class MonthlyController extends BaseController {
   /**
    * 一覧タブを表示する。
    */
-  public function getList()
+  public function report()
   {
     $fields = Input::only(
       'date_month',
@@ -53,13 +53,13 @@ class MonthlyController extends BaseController {
     $data['summary'] = $this->activity->getMonthlySummary(Auth::id(), $condition);
     $data['base_link'] = '/summary/daily?' . $condition->buildQueryString();
 
-    return View::make('summary/monthly/list', $data);
+    return View::make('summary/monthly/report', $data);
   }
 
   /**
    * カレンダーを表示する。
    */
-  public function getCalendar()
+  public function calendar()
   {
     $condition = new BaseDateCondition(Input::only('date_month'));
 
@@ -72,7 +72,7 @@ class MonthlyController extends BaseController {
   /**
    * 収支構成グラフを表示する。
    */
-  public function getPieChart()
+  public function pieChart()
   {
     $fields = Input::only(
       'date_month',
@@ -87,7 +87,7 @@ class MonthlyController extends BaseController {
   /**
    * 収支構成グラフのデータを生成する。
    */
-  public function getPieChartData()
+  public function pieChartData()
   {
     $fields = Input::only(
       'date_month',
@@ -106,7 +106,7 @@ class MonthlyController extends BaseController {
   /**
    * ランキングデータを表示する。
    */
-  public function getRanking()
+  public function ranking()
   {
     $user_id = Auth::id();
     $fields = Input::only(

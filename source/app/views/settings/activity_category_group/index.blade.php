@@ -51,10 +51,8 @@
         var row = $(".open_edit").index(this);
         var id = $("#sortable tr:eq(" + row + ")").attr("data-id");
 
-        $.get("/settings/activityCategoryGroup/edit",
-          {
-            id: id
-          },
+        $.get("/settings/activityCategoryGroup/" + id + "/edit",
+          {},
           function(data) {
             $(data).modal();
           }
@@ -82,7 +80,7 @@
 @stop
 
 @section('content')
-  @include('layouts/delete_modal', array('action' => 'settings/activityCategoryGroup/delete'))
+  @include('layouts/delete_modal', array('action' => 'settings/activityCategoryGroup'))
 
   @if (sizeof($activity_category_groups))
     <table class="table table-striped table-hover">

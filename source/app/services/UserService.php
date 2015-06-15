@@ -53,7 +53,7 @@ class UserService
     return $result;
   }
 
-  public function createWithOAuth($credential_type, $fields, array &$errors = array())
+  public function createOAuth($credential_type, $fields, array &$errors = array())
   {
     $result = false;
 
@@ -82,7 +82,7 @@ class UserService
       }
 
     } catch (Exception $e) {
-      $errors = array(Lang::get('validation.custom.user.create_with_oauth.oauth_failed'));
+      $errors = array(Lang::get('validation.custom.user.create_oauth.oauth_failed'));
       Log::error($e);
     }
 
@@ -162,7 +162,7 @@ class UserService
     return $result;
   }
 
-  public function loginWithOAuth($credential_type, array $params, &$errors = array())
+  public function loginOAuth($credential_type, array $params, &$errors = array())
   {
     $result = false;
 

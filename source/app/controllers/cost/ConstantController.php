@@ -15,7 +15,7 @@ class ConstantController extends BaseController {
   /**
    * 固定収支を入力する。
    */
-  public function getCreate()
+  public function create()
   {
     $user_id = Auth::id();
     $target_month = Input::get('date_month');
@@ -36,7 +36,7 @@ class ConstantController extends BaseController {
   /**
    * 固定収支を登録・更新する
    */
-  public function postCreate()
+  public function store()
   {
     $fields = Input::only(
       'activity_date',
@@ -59,9 +59,8 @@ class ConstantController extends BaseController {
   /**
    * 固定収支レコードを削除する。
    */
-  public function postDelete()
+  public function destroy($id)
   {
-    $id = Input::get('id');
     $this->activity->delete(Auth::id(), $id);
 
     return Redirect::back()

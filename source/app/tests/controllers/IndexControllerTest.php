@@ -1,6 +1,6 @@
 <?php
 class IndexControllerTest extends TestCase {
-  public function testGetIndex()
+  public function testIndex()
   {
     $this->assertGuestOnlyContent('GET', '/');
   }

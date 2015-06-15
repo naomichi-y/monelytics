@@ -43,5 +43,4 @@ return array(
     'Carbon' => array($vendorDir . '/nesbot/carbon/src'),
     'Boris' => array($vendorDir . '/d11wtq/boris/lib'),
     'Artdarek\\OAuth' => array($vendorDir . '/artdarek/oauth-4-laravel/src'),
-    'AccountBook' => array($baseDir . '/app/libraries'),
 );

@@ -17,7 +17,7 @@ class VariableController extends BaseController {
   /**
    * 変動収支を入力する。
    */
-  public function getCreate()
+  public function create()
   {
     $data = array();
     $data['input_size'] = 8;
@@ -29,7 +29,7 @@ class VariableController extends BaseController {
   /**
    * 変動収支を登録する。
    */
-  public function postCreate()
+  public function store()
   {
     $fields = Input::only(
       'activity_date',
@@ -55,13 +55,13 @@ class VariableController extends BaseController {
   /**
    * 変動収支を編集する。
    */
-  public function getEdit()
+  public function edit($id)
   {
     $user_id = Auth::id();
-    $activity_id = Input::get('id');
 
     $data = array();
-    $data['activity'] = $this->activity->find($user_id, $activity_id);
+    $data['id'] = $id;
+    $data['activity'] = $this->activity->find($user_id, $id);
     $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList($user_id);
 
     return View::make('cost/variable/edit', $data);
@@ -70,10 +70,9 @@ class VariableController extends BaseController {
   /**
    * 変動収支を更新する。
    */
-  public function postUpdate()
+  public function update($id)
   {
     $fields = Input::only(
-      'id',
       'activity_date',
       'activity_category_group_id',
       'amount',
@@ -85,7 +84,7 @@ class VariableController extends BaseController {
     $data = array();
     $errors = array();
 
-    if ($this->activity->update($fields, $errors)) {
+    if ($this->activity->update($id, $fields, $errors)) {
       $data['result'] = true;
 
       Session::flash('success', Lang::get('validation.custom.update_success'));
@@ -101,11 +100,9 @@ class VariableController extends BaseController {
   /**
    * 変動収支を削除する。
    */
-  public function postDelete()
+  public function destroy($id)
   {
-    $activity_id = Input::get('id');
-
-    $this->activity->delete(Auth::id(), $activity_id);
+    $this->activity->delete(Auth::id(), $id);
 
     return Redirect::back()
       ->with('success', Lang::get('validation.custom.delete_success'));

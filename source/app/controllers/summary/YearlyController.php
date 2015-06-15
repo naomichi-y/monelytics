@@ -15,7 +15,7 @@ class YearlyController extends BaseController {
   /**
    * 年別集計を表示する。
    */
-  public function getIndex()
+  public function index()
   {
     return View::make('summary/yearly/index');
   }
@@ -23,7 +23,7 @@ class YearlyController extends BaseController {
   /**
    * 検索条件を表示する。
    */
-  public function getCondition()
+  public function condition()
   {
     $output_type = Input::get('output_type');
     $data = array(
@@ -44,7 +44,7 @@ class YearlyController extends BaseController {
   /**
    * 一覧タブを表示する。
    */
-  public function getList()
+  public function report()
   {
     $fields = Input::only(
       'begin_year',
@@ -56,7 +56,7 @@ class YearlyController extends BaseController {
     $data = array();
     $data['summary'] = $this->activity->getYearlySummary(Auth::id(), $condition);
 
-    return View::make('summary/yearly/list', $data);
+    return View::make('summary/yearly/report', $data);
   }
 }
 

@@ -1,5 +1,8 @@
 <?php
 class ActivityCategoryGroup extends BaseModel {
+  const CREDIT_FLAG_ENABLE = 1;
+  const CREDIT_FLAG_DISABLE = 0;
+
   protected $guarded = array('id');
   protected $rules = array(
     'activity_category_id' => 'required',

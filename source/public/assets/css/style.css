@@ -47,6 +47,10 @@ hr {
   border-bottom: 1px solid #dcdcdc;
 }
 
+.navbar .nav > li > a {
+  font-size: 12px;
+}
+
 .table-highlight th {
   background-color: #f8f5f0;
   font-weight: normal;

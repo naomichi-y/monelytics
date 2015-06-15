@@ -19,9 +19,8 @@
         balanceType = $("#balance_type_income").val();
       }
 
-      $.post("/settings/activityCategory/update",
+      $.put("/settings/activityCategory/{{$id}}",
         {
-          id: {{Input::get('id')}},
           category_name: $("#category_name").val(),
           content: $("#content").val(),
           cost_type: costType,
@@ -54,7 +53,7 @@
 <div id="update-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      {{Form::open(array('url' => 'settings/activityCategory/update', 'class' => 'form-horizontal'))}}
+      {{Form::open(array('class' => 'form-horizontal'))}}
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">科目カテゴリの編集</h4>

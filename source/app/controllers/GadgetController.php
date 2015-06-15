@@ -15,7 +15,7 @@ class GadgetController extends BaseController {
   /**
    * 今月の収支状況を表示する。
    */
-  public function getActivityStatus()
+  public function activityStatus()
   {
     $data = array();
     $data['status'] = $this->activity->getBalanceOfPaymentStatus(Auth::id());
@@ -26,7 +26,7 @@ class GadgetController extends BaseController {
   /**
    * アクティビティグラフを表示する。
    */
-  public function getActivityGraph()
+  public function activityGraph()
   {
     $week_day = 7;
     $week_size = 37;
@@ -68,7 +68,7 @@ class GadgetController extends BaseController {
   /**
    * 最近の収支履歴を表示する。
    */
-  public function getActivityHistory()
+  public function activityHistory()
   {
     $data = array();
     $data['histories'] = $this->activity->getHistories(Auth::id(), 4);

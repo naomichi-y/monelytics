@@ -57,10 +57,8 @@
       $(".open_edit").click(function() {
         var id = $(this).parent().parent().attr("data-id");
 
-        $.get("/settings/activityCategory/edit",
-          {
-            id: id
-          },
+        $.get("/settings/activityCategory/" + id + "/edit",
+          {},
           function(data) {
             $(data).modal();
           }
@@ -83,7 +81,7 @@
 @stop
 
 @section('content')
-  @include('layouts/delete_modal', array('action' => 'settings/activityCategory/delete'))
+  @include('layouts/delete_modal', array('action' => 'settings/activityCategory'))
 
   <h2>変動収支</h2>
   @include('settings/activity_category/list', array('id' => 'variable', 'activity_categories' => $variable_categories))

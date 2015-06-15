@@ -1,4 +1,22 @@
 $(function() {
+  jQuery.each(["put", "delete"], function(i, method) {
+    jQuery[method] = function(url, data, callback, type) {
+      if (jQuery.isFunction(data)) {
+        type = type || callback;
+        callback = data;
+        data = undefined;
+      }
+
+      return jQuery.ajax({
+        type: method,
+        url: url,
+        data: data,
+        success: callback,
+        dataType: type
+      });
+    };
+  });
+
   /**
    * Datepickerの初期化。
    */

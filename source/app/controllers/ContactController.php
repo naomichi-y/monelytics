@@ -15,7 +15,7 @@ class ContactController extends BaseController {
   /**
    * お問い合わせページを表示する。
    */
-  public function getIndex()
+  public function index()
   {
     $data = array();
     $data['contact_type_list'] = $this->contact->getContactTypeList();
@@ -27,7 +27,7 @@ class ContactController extends BaseController {
   /**
    * 問い合わせを送信する。
    */
-  public function postSend()
+  public function send()
   {
     $user_id = null;
 
@@ -56,7 +56,7 @@ class ContactController extends BaseController {
   /**
    * お問い合わせ完了ページを表示する。
    v*/
-  public function getDone()
+  public function done()
   {
     if (!Session::has('send_email')) {
       return Redirect::back();

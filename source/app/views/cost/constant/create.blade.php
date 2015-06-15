@@ -33,10 +33,10 @@
 @stop
 
 @section('content')
-  @include('layouts/delete_modal', array('action' => 'cost/constant/delete'))
+  @include('layouts/delete_modal', array('action' => 'cost/constant'))
 
   @if (sizeof($constant_costs))
-    {{Form::open(array('url' => 'cost/constant/create'))}}
+    {{Form::open(array('url' => 'cost/constant'))}}
       <table class="table table-striped table-hover">
         <colgroup>
           <col style="width: 15%" />

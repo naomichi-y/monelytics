@@ -1,6 +1,6 @@
 <?php
 class DailyControllerTest extends TestCase {
-  public function testGetIndex()
+  public function testIndex()
   {
     $this->assertUserOnlyContent('GET', '/summary/daily');
   }

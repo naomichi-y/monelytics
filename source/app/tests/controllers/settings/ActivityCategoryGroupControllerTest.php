@@ -1,6 +1,6 @@
 <?php
 class ActivityCategoryGroupControllerTest extends TestCase {
-  public function testGetIndex()
+  public function testIndex()
   {
     $this->assertUserOnlyContent('GET', '/settings/activityCategoryGroup');
   }

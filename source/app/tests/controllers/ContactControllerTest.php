@@ -5,7 +5,7 @@ class ContactControllerTest extends TestCase {
     $this->assertAnyAccessibleContent('GET', '/contact');
   }
 
-  public function testPostSend()
+  public function testSend()
   {
     $params = array(
       'contact_name' => 'test',

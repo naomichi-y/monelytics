@@ -58,7 +58,7 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
       'email' => 'required|not_exists:users,email'
     );
     $this->messages = array(
-      'email.not_exists' => Lang::get('validation.custom.user.create_with_oauth.registered')
+      'email.not_exists' => Lang::get('validation.custom.user.create_oauth.registered')
     );
 
     return $this->validate($fields);

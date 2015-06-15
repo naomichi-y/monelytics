@@ -125,16 +125,17 @@ class ActivityCategoryGroupService
   /**
    * 科目カテゴリグループデータを更新する。
    *
+   * @param int $id
    * @param array $fields
    * @param array &$errors
    * @return bool
    */
-  public function update($fields, array &$errors = array())
+  public function update($id, $fields, array &$errors = array())
   {
     $result = false;
 
     if ($this->activity_category_group->validate($fields)) {
-      $this->activity_category_group->where('id', '=', $fields['id'])
+      $this->activity_category_group->where('id', '=', $id)
       ->where('user_id', '=', $fields['user_id'])
       ->update($fields);
 

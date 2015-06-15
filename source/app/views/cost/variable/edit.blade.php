@@ -13,9 +13,8 @@
       var creditFlag = $("#credit_flag").prop("checked") ? 1 : 0;
       var specialFlag = $("#special_flag").prop("checked") ? 1 : 0;
 
-      $.post("/cost/variable/update",
+      $.put("/cost/variable/" + {{$id}},
         {
-          id: {{Input::get('id')}},
           activity_date: $("#activity_date").val(),
           activity_category_group_id: $("#activity_category_group_id").val(),
           amount: $("#amount", null, "int").val(),

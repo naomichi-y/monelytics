@@ -81,7 +81,7 @@ return array(
       'login' => array(
         'authentication' => 'ログインに失敗しました。'
       ),
-      'create_with_oauth' => array(
+      'create_oauth' => array(
         'registered' => '既に会員登録が完了しています。',
         'oauth_failed' => '会員登録に失敗しました。'
       ),

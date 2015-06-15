@@ -17,7 +17,7 @@ class DailyController extends BaseController {
   /**
    * 日別集計を表示する。
    */
-  public function getIndex()
+  public function index()
   {
     $fields = Input::only(
       'date_month',
@@ -46,7 +46,7 @@ class DailyController extends BaseController {
   /**
    * 検索条件を指定する。
    */
-  public function getCondition()
+  public function condition()
   {
     $user_id = Auth::id();
     $data = array();

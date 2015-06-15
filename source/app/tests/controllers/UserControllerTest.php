@@ -1,6 +1,6 @@
 <?php
 class UserControllerTest extends TestCase {
-  public function testPostCreate()
+  public function testCreate()
   {
     $params = array(
       'nickname' => 'test',
@@ -8,11 +8,17 @@ class UserControllerTest extends TestCase {
       'password' => 'testtest'
     );
 
-    $this->call('POST', '/user/create', $params);
+    $this->call('POST', '/user', $params);
     $this->assertRedirectedTo('/user/create-done');
+    $this->assertTrue(Auth::check());
+    Auth::logout();
+
+    $this->call('POST', '/user', $params);
+    $this->assertRedirectedTo('/user/create');
+    $this->assertTrue(Auth::guest());
   }
 
-  public function testPostLogin()
+  public function testLogin()
   {
     $params = array(
       'email' => 'test@monelytics.me',
@@ -21,9 +27,10 @@ class UserControllerTest extends TestCase {
 
     $this->call('POST', '/user/login', $params);
     $this->assertRedirectedTo('/dashboard');
+    $this->assertTrue(Auth::check());
   }
 
-  public function testGetIndex()
+  public function testIndex()
   {
     $this->assertUserOnlyContent('GET', '/user');
   }

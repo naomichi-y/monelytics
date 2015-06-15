@@ -16,7 +16,7 @@
 
 @section('content')
   @if (sizeof($activity_category_groups) > 1)
-    {{Form::open(array('url' => 'cost/variable/create'))}}
+    {{Form::open(array('url' => 'cost/variable'))}}
       <table class="table table-striped table-hover">
         <colgroup>
           <col style="width: 15%" />
