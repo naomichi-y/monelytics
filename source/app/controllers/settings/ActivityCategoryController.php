@@ -39,7 +39,7 @@ class ActivityCategoryController extends BaseController {
       $this->activity_category->updateSortOrder($user_id, $ids[$i], $i + 1);
     }
 
-    return Redirect::back();
+    return Redirect::to('settings/activityCategory');
   }
 
   /**
@@ -143,7 +143,7 @@ class ActivityCategoryController extends BaseController {
   {
     $this->activity_category->delete(Auth::id(), $id);
 
-    return Redirect::back()
+    return Redirect::to('settings/activityCategory')
       ->with('success', Lang::get('validation.custom.delete_success'));
   }
 }

@@ -18,7 +18,7 @@ class RegistrationController extends BaseController {
 
     $this->beforeFilter(function() {
       if (Auth::user()) {
-        return Redirect::to('dashboard/index');
+        return Redirect::to('dashboard');
       }
 
     }, array('only' => $expect));
@@ -70,7 +70,7 @@ class RegistrationController extends BaseController {
         ->withInput();
     }
 
-    return Redirect::to('user/create-done');
+    return Redirect::to('user/done');
   }
 
   /**
@@ -92,15 +92,15 @@ class RegistrationController extends BaseController {
         ->withInput();
     }
 
-    return Redirect::to('user/create-done');
+    return Redirect::to('user/done');
   }
 
   /**
    * 会員登録完了ページを表示する。
    */
-  public function createDone()
+  public function done()
   {
-    return View::make('user/registration/create_done');
+    return View::make('user/registration/done');
   }
 
   /**
@@ -126,12 +126,12 @@ class RegistrationController extends BaseController {
     $errors = array();
 
     if (!$this->user->update(Auth::id(), $fields, $errors)) {
-      return Redirect::back()
+      return Redirect::to('/user')
         ->withErrors($errors)
         ->withInput();
     }
 
-    return Redirect::back()
+    return Redirect::to('/user')
       ->with('success', Lang::get('validation.custom.update_success'));
   }
 

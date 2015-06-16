@@ -11,7 +11,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
   {
     $unitTesting = true;
 
-    $testEnvironment = 'staging';
+    $testEnvironment = 'testing';
 
     return require __DIR__.'/../../bootstrap/start.php';
   }
@@ -20,12 +20,19 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
   {
     parent::setUp();
 
+    Route::enableFilters();
+
     $this->seed();
   }
 
   public function login()
   {
     $this->be(User::find(1));
+  }
+
+  public function logout()
+  {
+    Auth::logout();
   }
 
   public function assertGuestAccessibleContent()
@@ -71,5 +78,13 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
   {
     call_user_func_array(array($this, 'assertGuestInaccessibleContent'), func_get_args());
     call_user_func_array(array($this, 'assertUserAccessibleContent'), func_get_args());
+  }
+
+  public function assertValidAjaxResponse()
+  {
+    $response = call_user_func_array(array($this, 'call'), func_get_args());
+    $result = json_decode($response->getContent());
+
+    return empty($result->error);
   }
 }

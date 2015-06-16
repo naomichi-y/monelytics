@@ -17,4 +17,10 @@ class ContactControllerTest extends TestCase {
     $this->call('POST', '/contact/send', $params);
     $this->assertRedirectedTo('/contact/done');
   }
+
+  public function testDone()
+  {
+    $this->call('GET', '/contact/done');
+    $this->assertRedirectedTo('/contact');
+  }
 }

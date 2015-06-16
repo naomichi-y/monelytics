@@ -9,7 +9,6 @@ class ActivityCategoryTableSeeder extends Seeder {
 
     $activity_categories = array(
       array(
-        'id' => 1,
         'user_id' => 1,
         'category_name' => 'test_category',
         'content' => 'test',
@@ -23,15 +22,33 @@ class ActivityCategoryTableSeeder extends Seeder {
       $activity_category = ActivityCategory::create($activity_category);
 
       $activity_category_groups = array(
-        'id' => 1,
-        'activity_category_id' => $activity_category->id,
-        'user_id' => 1,
-        'group_name' => 'test',
-        'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE,
-        'sort_order' => 1
+        array(
+          'activity_category_id' => $activity_category->id,
+          'user_id' => 1,
+          'group_name' => 'test',
+          'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE,
+          'sort_order' => 1
+        )
       );
 
-      ActivityCategoryGroup::create($activity_category_groups);
+      foreach ($activity_category_groups as $activity_category_group) {
+        $activity_category_group = ActivityCategoryGroup::create($activity_category_group);
+
+        $activities = array(
+          array(
+            'user_id' => 1,
+            'activity_date' => date('Y-m-d'),
+            'activity_category_group_id' => $activity_category_group->id,
+            'amount' => -1000,
+            'credit_flag' => Activity::CREDIT_FLAG_UNUSE,
+            'special_flag' => Activity::SPECIAL_FLAG_UNUSE
+          )
+        );
+
+        foreach ($activities as $activity) {
+          Activity::create($activity);
+        }
+      }
     }
   }
 }

@@ -24,7 +24,7 @@ Route::group(array('prefix' => 'user'), function($route) {
   $route->post('login', 'SessionController@postLogin');
   $route->get('logout', 'SessionController@logout');
 
-  $route->get('create-done', 'RegistrationController@createDone');
+  $route->get('done', 'RegistrationController@done');
   $route->post('create-oauth', 'RegistrationController@createOAuth');
   $route->get('create-oauth-callback', 'RegistrationController@createOAuthCallback');
   $route->put('update', 'RegistrationController@update');

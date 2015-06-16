@@ -47,12 +47,12 @@ class ConstantController extends BaseController {
     $errors = array();
 
     if (!$this->activity->createOrUpdateConstantCosts(Auth::id(), $fields, $errors)) {
-      return Redirect::back()
+      return Redirect::to('cost/constant/create')
         ->withErrors($errors)
         ->withInput();
     }
 
-    return Redirect::back()
+    return Redirect::to('cost/constant/create')
       ->with('success', Lang::get('validation.custom.update_success'));
   }
 
@@ -63,7 +63,7 @@ class ConstantController extends BaseController {
   {
     $this->activity->delete(Auth::id(), $id);
 
-    return Redirect::back()
+    return Redirect::to('cost/constant/create')
       ->with('success', Lang::get('validation.custom.delete_success'));
   }
 }

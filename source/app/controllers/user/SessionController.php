@@ -19,7 +19,7 @@ class SessionController extends BaseController {
 
     $this->beforeFilter(function() {
       if (Auth::user()) {
-        return Redirect::to('dashboard/index');
+        return Redirect::to('dashboard');
       }
 
     }, array('only' => $expect));
@@ -52,7 +52,7 @@ class SessionController extends BaseController {
     $user = $this->user->login($email, $password, $remember_me, $errors);
 
     if (!$user) {
-      return Redirect::back()
+      return Redirect::to('/user/login')
         ->withErrors($errors)
         ->withInput();
     }

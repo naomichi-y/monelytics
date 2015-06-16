@@ -43,12 +43,12 @@ class VariableController extends BaseController {
     $errors = array();
 
     if (!$this->activity->createVariableCosts(Auth::id(), $fields, $errors)) {
-      return Redirect::back()
+      return Redirect::to('cost/variable/create')
         ->withErrors($errors)
         ->withInput();
     }
 
-    return Redirect::back()
+    return Redirect::to('cost/variable/create')
       ->with('success', Lang::get('validation.custom.create_success'));
   }
 
@@ -104,7 +104,7 @@ class VariableController extends BaseController {
   {
     $this->activity->delete(Auth::id(), $id);
 
-    return Redirect::back()
+    return Redirect::to('cost/variable/create')
       ->with('success', Lang::get('validation.custom.delete_success'));
   }
 }
