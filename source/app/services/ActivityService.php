@@ -250,8 +250,13 @@ class ActivityService
       $array[date('Y-m')] = date('Y/m');
 
     } else {
+      $current_date = new DateTime();
       $min_datetime = new DateTime($min_date);
       $min_date = sprintf('%s/01', $min_datetime->format('Y/m'));
+
+      if ($min_datetime->getTimestamp() > $current_date->getTimestamp()) {
+        $min_date = $current_date->format('Y/m/01');
+      }
 
       $min_datetime = new DateTime($min_date);
       $max_datetime = new DateTime($max_date);

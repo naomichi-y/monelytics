@@ -64,7 +64,7 @@
             <div class="form-group">
               {{Form::label('amount', '金額', array('class' => 'col-md-3 control-label'))}}
               <div class="col-md-5">
-                {{Form::number('amount[0]', '', array('class' => 'form-control text-right', 'id' => 'amount', 'autocomplete' => 'off'))}}
+                {{Form::text('amount[0]', '', array('class' => 'form-control text-right', 'id' => 'amount', 'autocomplete' => 'off', 'pattern' => '[0-9]*'))}}
               </div>
             </div>
 

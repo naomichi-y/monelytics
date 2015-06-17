@@ -4,4 +4,14 @@ class YearlyControllerTest extends TestCase {
   {
     $this->assertUserOnlyContent('GET', '/summary/yearly');
   }
+
+  public function testCondition()
+  {
+    $this->assertUserOnlyContent('GET', '/summary/yearly/condition');
+  }
+
+  public function testReport()
+  {
+    $this->assertUserOnlyContent('GET', '/summary/yearly/report');
+  }
 }

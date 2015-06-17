@@ -54,7 +54,7 @@ class ContactController extends BaseController {
 
   /**
    * お問い合わせ完了ページを表示する。
-   v*/
+   */
   public function done()
   {
     if (!Session::has('send_email')) {

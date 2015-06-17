@@ -1,5 +1,7 @@
 <?php
 class VariableControllerTest extends TestCase {
+  private $default_count;
+
   public function setUp()
   {
     parent::setUp();
@@ -47,6 +49,6 @@ class VariableControllerTest extends TestCase {
     $this->login();
     $this->call('DELETE', '/cost/variable/1');
     $this->assertRedirectedTo('/cost/variable/create');
-    $this->assertEquals($this->default_count - Activity::all()->count(), 1);
+    $this->assertEquals(Activity::all()->count(), 0);
   }
 }

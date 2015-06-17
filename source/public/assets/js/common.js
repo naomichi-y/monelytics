@@ -1,3 +1,20 @@
+function getQueryParams() {
+  if (location.search.length > 1) {
+    var pair = new Object();
+    var param = location.search.substr(1).split('&');
+
+    for (var i = 0; i < param.length; i++) {
+      var val = param[i].split('=');
+      pair[val[0]] = val[1];
+    }
+
+    return pair;
+
+  } else {
+    return false;
+  }
+}
+
 $(function() {
   jQuery.each(["put", "delete"], function(i, method) {
     jQuery[method] = function(url, data, callback, type) {
@@ -21,9 +38,23 @@ $(function() {
    * Datepickerの初期化。
    */
   $(document).on("focus", ".date-picker", function() {
+    var params = getQueryParams();
+    defaultDate = '';
+
+    if (params['date_month']) {
+      var year = params['date_month'].substring(0, 4);
+      var month = params['date_month'].substring(5, 7);
+      var current = new Date();
+
+      if (current.getYear() != year && current.getMonth() + 1 != month) {
+        defaultDate = new Date(year, month - 1, 1);
+      }
+    }
+
     $(this).datepicker({
       dateFormat: "yy/mm/dd",
       constrainInput: false,
+      defaultDate: defaultDate
     });
   });
 
@@ -77,7 +108,7 @@ $(function() {
   }
 
   /**
-   * 初めのフォーム要素が日付フィールドの場合、Datepickerが開かないよう制御する。
+   * 最初のフォーム要素が日付フィールドの場合、Datepickerが開かないよう制御する。
    */
   $.fn.disableDatepickerFocus = function() {
     $(".ui-datepicker").css("display", "none");

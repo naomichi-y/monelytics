@@ -70,6 +70,7 @@ Route::group(array('prefix' => 'summary'), function($route) {
 
   $route->group(array('prefix' => 'yearly'), function($route) {
     $route->get('report', 'YearlyController@report');
+    $route->get('condition', 'YearlyController@condition');
   });
   $route->resource('yearly', 'YearlyController');
 });

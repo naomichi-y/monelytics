@@ -82,7 +82,7 @@
             <div class="form-group">
               {{Form::label('amount', '金額', array('class' => 'col-md-3 control-label'))}}
               <div class="col-md-3">
-                {{Form::number('amount', $activity->amount, array('class' => 'form-control'))}}
+                {{Form::text('amount', $activity->amount, array('class' => 'form-control', 'pattern' => '[0-9]*'))}}
               </div>
             </div>
 

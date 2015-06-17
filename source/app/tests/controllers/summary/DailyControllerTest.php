@@ -4,4 +4,9 @@ class DailyControllerTest extends TestCase {
   {
     $this->assertUserOnlyContent('GET', '/summary/daily');
   }
+
+  public function testCondition()
+  {
+    $this->assertUserOnlyContent('GET', '/summary/daily/condition');
+  }
 }
