@@ -1,4 +1,6 @@
 <?php
+use Monelytics\Models;
+
 class RegistrationControllerTest extends TestCase {
   public function testIndex()
   {
@@ -50,7 +52,7 @@ class RegistrationControllerTest extends TestCase {
 
     $this->call('PUT', '/user/update', $params);
     $this->assertRedirectedTo('/user');
-    $this->assertEquals(User::find(1)->email, 'test2@monelytics.me');
+    $this->assertEquals(Models\User::find(1)->email, 'test2@monelytics.me');
   }
 
   public function testWithdrawal()
@@ -61,5 +63,7 @@ class RegistrationControllerTest extends TestCase {
     $this->login();
     $this->call('POST', '/user/withdrawal');
     $this->assertTrue(Auth::guest());
+
+    $this->assertEquals(Models\User::all()->count(), 0);
   }
 }

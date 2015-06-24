@@ -13,7 +13,7 @@
           {
             begin_year: {{HTML::encodeJsJsonValue('begin_year', date('Y'))}},
             end_year: {{HTML::encodeJsJsonValue('end_year', date('Y'))}},
-            output_type: {{HTML::encodeJsJsonValue('output_type', YearlySummaryCondition::OUTPUT_TYPE_MONTHLY)}}
+            output_type: {{HTML::encodeJsJsonValue('output_type', Monelytics\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY)}}
           },
           function(data) {
             $(data).modal();

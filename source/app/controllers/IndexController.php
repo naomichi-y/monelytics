@@ -1,4 +1,9 @@
 <?php
+namespace Monelytics\Controllers;
+
+use Auth;
+use Redirect;
+
 class IndexController extends BaseController {
   protected $required_auth = false;
 
@@ -8,7 +13,7 @@ class IndexController extends BaseController {
   public function getIndex()
   {
     if (Auth::guest()) {
-      return View::make('index/index');
+      return \View::make('index/index');
     }
 
     return Redirect::to('dashboard');

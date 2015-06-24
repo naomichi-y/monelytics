@@ -1,4 +1,11 @@
 <?php
+namespace Monelytics\Libraries;
+
+use Exception;
+
+use Cache;
+use Log;
+
 class Calendar {
   /**
    * 対象月のカレンダー配列を取得する。

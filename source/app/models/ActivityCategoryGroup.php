@@ -1,4 +1,6 @@
 <?php
+namespace Monelytics\Models;
+
 class ActivityCategoryGroup extends BaseModel {
   const CREDIT_FLAG_ENABLE = 1;
   const CREDIT_FLAG_DISABLE = 0;
@@ -12,17 +14,17 @@ class ActivityCategoryGroup extends BaseModel {
 
   public function user()
   {
-    return $this->belongTo('User');
+    return $this->belongTo('Monelytics\Models\User');
   }
 
   public function activityCategory()
   {
-    return $this->belongsTo('ActivityCategory');
+    return $this->belongsTo('Monelytics\Models\ActivityCategory');
   }
 
   public function activity()
   {
-    return $this->hasMany('Activity');
+    return $this->hasMany('Monelytics\Models\Activity');
   }
 
   public static function boot()

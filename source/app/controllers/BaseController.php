@@ -1,4 +1,8 @@
 <?php
+namespace Monelytics\Controllers;
+
+use Controller;
+use View;
 
 class BaseController extends Controller {
   protected $layout = 'layouts.master';

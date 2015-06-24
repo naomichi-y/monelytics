@@ -78,7 +78,7 @@
               </label>
               <div class="col-md-6">
                 <div class="checkbox-inline">
-                  {{Form::checkbox('credit_flag', Activity::CREDIT_FLAG_USE, false, array('id' => 'credit_flag_use'))}}
+                  {{Form::checkbox('credit_flag', Monelytics\Models\Activity::CREDIT_FLAG_USE, false, array('id' => 'credit_flag_use'))}}
                   {{Form::label('credit_flag_use', '使用')}}
                 </div>
               </div>

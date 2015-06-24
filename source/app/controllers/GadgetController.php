@@ -1,11 +1,19 @@
 <?php
+namespace Monelytics\Controllers;
+
+use Agent;
+use Auth;
+use View;
+
+use Monelytics\Services;
+
 class GadgetController extends BaseController {
   private $activity;
 
   /**
    * @see BaseController::__construct()
    */
-  public function __construct(ActivityService $activity)
+  public function __construct(Services\ActivityService $activity)
   {
     parent::__construct();
 

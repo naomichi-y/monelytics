@@ -1,9 +1,24 @@
 <?php
-class SessionController extends BaseController {
+namespace Monelytics\Controllers\User;
+
+use Auth;
+use Input;
+use URL;
+use Redirect;
+use Route;
+use View;
+
+use OAuth;
+
+use Monelytics\Controllers;
+use Monelytics\Services;
+use Monelytics\Models;
+
+class SessionController extends Controllers\BaseController {
   protected $required_auth = true;
   private $user;
 
-  public function __construct(UserService $user)
+  public function __construct(Services\UserService $user)
   {
     $this->user = $user;
 
@@ -78,7 +93,7 @@ class SessionController extends BaseController {
     );
     $errors = array();
 
-    if (!$this->user->loginOAuth(UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
+    if (!$this->user->loginOAuth(Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
       return Redirect::to('user/login')
         ->withErrors($errors)
         ->withInput();

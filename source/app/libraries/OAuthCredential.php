@@ -1,4 +1,12 @@
 <?php
+namespace Monelytics\Libraries;
+
+use InvalidArgumentException;
+
+use Artdarek\OAuth\OAuth;
+
+use Monelytics\Models;
+
 class OAuthCredential {
   private $credential_type;
   private $params;
@@ -14,12 +22,13 @@ class OAuthCredential {
   public function build()
   {
     switch ($this->credential_type) {
-      case UserCredential::CREDENTIAL_TYPE_FACEBOOK:
+      case Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK:
         if (!isset($this->params['code'])) {
           throw new InvalidArgumentException('"code" parameter is required.');
         }
 
-        $this->service = OAuth::consumer('Facebook');
+        $oauth = new OAuth();
+        $this->service = $oauth->consumer('Facebook');
         $token = $this->service->requestAccessToken($this->params['code']);
         $this->access_token = $token->getAccessToken();
 
@@ -32,7 +41,7 @@ class OAuthCredential {
     $data = false;
 
     switch ($this->credential_type) {
-      case UserCredential::CREDENTIAL_TYPE_FACEBOOK:
+      case Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK:
         $result = json_decode($this->service->request('/me'), true);
         $data = array(
           'id' => $result['id'],

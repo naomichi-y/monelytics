@@ -1,11 +1,13 @@
 <?php
+use Monelytics\Models;
+
 class ConstantControllerTest extends TestCase {
   private $default_count;
 
   public function setUp()
   {
     parent::setUp();
-    $this->default_count = Activity::all()->count();
+    $this->default_count = Models\Activity::all()->count();
   }
 
   public function testCreate()
@@ -24,11 +26,11 @@ class ConstantControllerTest extends TestCase {
     );
 
     $this->call('POST', '/cost/constant', $params);
-    $this->assertEquals($this->default_count + 1, Activity::all()->count());
+    $this->assertEquals($this->default_count + 1, Models\Activity::all()->count());
     $this->assertRedirectedTo('/cost/constant/create');
 
     $this->call('POST', '/cost/constant', $params);
-    $this->assertEquals($this->default_count + 1, Activity::all()->count());
+    $this->assertEquals($this->default_count + 1, Models\Activity::all()->count());
   }
 
   public function testDestroy()
@@ -36,6 +38,6 @@ class ConstantControllerTest extends TestCase {
     $this->login();
     $this->call('DELETE', '/cost/constant/1');
     $this->assertRedirectedTo('/cost/constant/create');
-    $this->assertEquals($this->default_count - 1, Activity::all()->count());
+    $this->assertEquals($this->default_count - 1, Models\Activity::all()->count());
   }
 }

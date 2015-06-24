@@ -1,4 +1,7 @@
 <?php
+namespace Monelytics\Models;
+
+use Lang;
 
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
@@ -10,17 +13,17 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
 
   public function userCredential()
   {
-    return $this->hasMany('UserCredential');
+    return $this->hasMany('Monelytics\Models\UserCredential');
   }
 
-  public function activityCategory()
+  public function activityCategories()
   {
-    return $this->hasMany('ActivityCategory');
+    return $this->hasMany('Monelytics\Models\ActivityCategory');
   }
 
-  public function activityCategoryGroup()
+  public function activityCategoryGroups()
   {
-    return $this->hasMany('ActivityCategoryGroup');
+    return $this->hasMany('Monelytics\Models\ActivityCategoryGroup');
   }
 
   /**
@@ -35,7 +38,7 @@ class User extends BaseModel implements UserInterface, RemindableInterface {
     parent::boot();
 
     static::deleting(function($user) {
-      $activity_categories = $user->activityCategory()->get();
+      $activity_categories = $user->activityCategories()->get();
 
       foreach ($activity_categories as $activity_category) {
         $activity_category->delete();

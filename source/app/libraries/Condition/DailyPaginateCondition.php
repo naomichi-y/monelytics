@@ -1,4 +1,6 @@
 <?php
+namespace Monelytics\Libraries\Condition;
+
 class DailyPaginateCondition extends BaseDateCondition {
   public $activity_category_group_id = array();
   public $keyword;
@@ -17,7 +19,7 @@ class DailyPaginateCondition extends BaseDateCondition {
     }
 
     if (empty($fields['limit'])) {
-      $fields['limit'] = Agent::isMobile() ? 5 : 30;
+      $fields['limit'] = \Agent::isMobile() ? 5 : 30;
     }
 
     parent::__construct($fields);

@@ -1,4 +1,11 @@
 <?php
+namespace Monelytics\Controllers;
+
+use Auth;
+use View;
+
+use Monelytics\Services;
+
 class DashboardController extends BaseController
 {
   private $activity_category;
@@ -6,7 +13,7 @@ class DashboardController extends BaseController
   /**
    * @see BaseController::__construct()
    */
-  public function __construct(ActivityCategoryService $activity_category)
+  public function __construct(Services\ActivityCategoryService $activity_category)
   {
     parent::__construct();
 

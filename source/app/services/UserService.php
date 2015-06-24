@@ -1,4 +1,17 @@
 <?php
+namespace Monelytics\Services;
+
+use Exception;
+
+use Auth;
+use File;
+use Hash;
+use Lang;
+use Log;
+
+use Monelytics\Libraries;
+use Monelytics\Models;
+
 class UserService
 {
   private $user;
@@ -9,9 +22,16 @@ class UserService
   /**
    * コンストラクタ。
    *
-   * @param User $user
+   * @param \Models\User $user
+   * @param \Models\UserCredential $user_credential
+   * @param \Models\ActivityCategory $activity_category
+   * @param \Models\ActivityCategoryGroup $activity_category_group
    */
-  public function __construct(User $user, UserCredential $user_credential, ActivityCategory $activity_category, ActivityCategoryGroup $activity_category_group)
+  public function __construct(
+    Models\User $user,
+    Models\UserCredential $user_credential,
+    Models\ActivityCategory $activity_category,
+    Models\ActivityCategoryGroup $activity_category_group)
   {
     $this->user = $user;
     $this->user_credential = $user_credential;
@@ -38,7 +58,7 @@ class UserService
 
       $this->user_credential->create(array(
         'user_id' => $user->id,
-        'credential_type' => UserCredential::CREDENTIAL_TYPE_GENERAL
+        'credential_type' => Models\UserCredential::CREDENTIAL_TYPE_GENERAL
       ));
 
       if ($this->login($fields['email'], $raw_password, false, $errors)) {
@@ -58,7 +78,7 @@ class UserService
     $result = false;
 
     try {
-      $oauth = new OAuthCredential($credential_type, $fields);
+      $oauth = new Libraries\OAuthCredential($credential_type, $fields);
       $oauth->build();
 
       $fields = $oauth->getProfile();
@@ -167,7 +187,7 @@ class UserService
     $result = false;
 
     try {
-      $oauth = new OAuthCredential($credential_type, $params);
+      $oauth = new Libraries\OAuthCredential($credential_type, $params);
       $oauth->build();
       $data = $oauth->getProfile();
 
@@ -216,13 +236,13 @@ class UserService
       if (strlen($fields['password'])) {
         $user->password = Hash::make($fields['password']);
         $count = $user->userCredential()
-          ->where('credential_type', '=', UserCredential::CREDENTIAL_TYPE_GENERAL)
+          ->where('credential_type', '=', Models\UserCredential::CREDENTIAL_TYPE_GENERAL)
           ->count();
 
         if ($count == 0) {
           $this->user_credential->create(array(
             'user_id' => $user->id,
-            'credential_type' => UserCredential::CREDENTIAL_TYPE_GENERAL
+            'credential_type' => Models\UserCredential::CREDENTIAL_TYPE_GENERAL
           ));
         }
       }

@@ -1,9 +1,26 @@
 <?php
-class RegistrationController extends BaseController {
+namespace Monelytics\Controllers\User;
+
+use Auth;
+use Input;
+use Lang;
+use Redirect;
+use Route;
+use URL;
+use View;
+
+use OAuth;
+
+use Monelytics\Controllers;
+use Monelytics\Libraries\Condition;
+use Monelytics\Models;
+use Monelytics\Services;
+
+class RegistrationController extends Controllers\BaseController {
   public $required_auth = true;
   private $user;
 
-  public function __construct(UserService $user)
+  public function __construct(Services\UserService $user)
   {
     $this->user = $user;
 
@@ -64,7 +81,7 @@ class RegistrationController extends BaseController {
     );
     $errors = array();
 
-    if (!$this->user->createOAuth(UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
+    if (!$this->user->createOAuth(Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
       return Redirect::to('user/create')
         ->withErrors($errors)
         ->withInput();

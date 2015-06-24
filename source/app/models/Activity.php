@@ -1,4 +1,9 @@
 <?php
+namespace Monelytics\Models;
+
+use Lang;
+use Validator;
+
 class Activity extends BaseModel {
   const CREDIT_FLAG_USE = 1;
   const CREDIT_FLAG_UNUSE = 0;
@@ -16,12 +21,12 @@ class Activity extends BaseModel {
 
   public function user()
   {
-    return $this->belongTo('User');
+    return $this->belongTo('Monelytics\Models\User');
   }
 
   public function activityCategoryGroup()
   {
-    return $this->belongsTo('ActivityCategoryGroup');
+    return $this->belongsTo('Monelytics\Models\ActivityCategoryGroup');
   }
 
   /**

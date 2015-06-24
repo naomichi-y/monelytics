@@ -1,4 +1,6 @@
 <?php
+namespace Monelytics\Libraries\Condition;
+
 class BaseDateCondition extends BaseCondition {
   public $date_month;
   public $begin_date;
@@ -33,7 +35,7 @@ class BaseDateCondition extends BaseCondition {
       $end_date = null;
     }
 
-    $date_range = new stdClass();
+    $date_range = new \stdClass();
     $date_range->begin_date = $begin_date;
     $date_range->end_date = $end_date;
 

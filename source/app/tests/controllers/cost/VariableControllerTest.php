@@ -1,11 +1,13 @@
 <?php
+use Monelytics\Models;
+
 class VariableControllerTest extends TestCase {
   private $default_count;
 
   public function setUp()
   {
     parent::setUp();
-    $this->default_count = Activity::all()->count();
+    $this->default_count = Models\Activity::all()->count();
   }
 
   public function testCreate()
@@ -23,8 +25,8 @@ class VariableControllerTest extends TestCase {
       'amount' => array(-1000)
     );
 
-    $this->call('POST', '/cost/variable', $params);
-    $this->assertEquals(Activity::all()->count() - $this->default_count, 1);
+    $this->call('POST', '/cost/variable', $params, array(), array('HTTP_REFERER' => 'http://localhost/cost/variable/create'));
+    $this->assertEquals(Models\Activity::all()->count() - $this->default_count, 1);
     $this->assertRedirectedTo('/cost/variable/create');
   }
 
@@ -37,18 +39,18 @@ class VariableControllerTest extends TestCase {
   {
     $this->login();
 
-    $params = Activity::find(1)->toArray();
+    $params = Models\Activity::find(1)->toArray();
     $params['amount'] = -2000;
 
     $this->assertValidAjaxResponse('PUT', '/cost/variable/1', $params);
-    $this->assertEquals(Activity::find(1)->amount, -2000);
+    $this->assertEquals(Models\Activity::find(1)->amount, -2000);
   }
 
   public function testDestroy()
   {
     $this->login();
-    $this->call('DELETE', '/cost/variable/1');
+    $this->call('DELETE', '/cost/variable/1', array(), array(), array('HTTP_REFERER' => 'http://localhost/cost/variable/create'));
     $this->assertRedirectedTo('/cost/variable/create');
-    $this->assertEquals(Activity::all()->count(), 0);
+    $this->assertEquals(Models\Activity::all()->count(), 0);
   }
 }

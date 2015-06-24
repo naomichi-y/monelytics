@@ -1,4 +1,6 @@
 <?php
+namespace Monelytics\Libraries\Condition;
+
 class YearlySummaryCondition extends BaseDateCondition {
   const OUTPUT_TYPE_MONTHLY = 1;
   const OUTPUT_TYPE_YEARLY = 2;

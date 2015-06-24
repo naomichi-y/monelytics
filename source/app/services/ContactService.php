@@ -1,4 +1,10 @@
 <?php
+namespace Monelytics\Services;
+
+use Config;
+use Mail;
+use Validator;
+
 class ContactService
 {
   /**

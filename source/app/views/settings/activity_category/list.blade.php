@@ -24,12 +24,12 @@
           <td>
             {{{$activity_category->category_name}}}
             <p class="note">
-            {{{collection_to_string($activity_category->activityCategoryGroup, 'group_name')}}}
+            {{{collection_to_string($activity_category->activityCategoryGroups, 'group_name')}}}
             </p>
           </td>
           <td>{{nl2br(e($activity_category->content))}}</td>
           <td class="text-center">
-            @if ($activity_category->balance_type == ActivityCategory::BALANCE_TYPE_EXPENSE)
+            @if ($activity_category->balance_type == Monelytics\Models\ActivityCategory::BALANCE_TYPE_EXPENSE)
               支出
             @else
               収入

@@ -1,4 +1,6 @@
 <?php
+namespace Monelytics\Libraries\Condition;
+
 class BaseCondition {
   /**
    * @param array $condition
@@ -11,7 +13,7 @@ class BaseCondition {
           $this->$name = $value;
         } else {
           $message = sprintf('%s property does not exist.', $name);
-          throw new InvalidArgumentException($message);
+          throw new \InvalidArgumentException($message);
         }
       }
     }
@@ -22,7 +24,7 @@ class BaseCondition {
    */
   public function toArray()
   {
-    $class = new ReflectionClass($this);
+    $class = new \ReflectionClass($this);
     $properties = $class->getProperties();
 
     $array = array();

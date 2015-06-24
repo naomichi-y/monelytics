@@ -1,4 +1,16 @@
 <?php
+namespace Monelytics\Services;
+
+use DateInterval;
+use DateTime;
+
+use DB;
+
+use Monelytics\Libraries;
+use Monelytics\Libraries\Condition;
+use Monelytics\Services;
+use Monelytics\Models;
+
 class ActivityService
 {
   private $activity;
@@ -8,10 +20,14 @@ class ActivityService
   /**
    * コンストラクタ。
    *
-   * @param Activity $activity
-   * @param ActivityCategoryService $activity_category
+   * @param Models\Activity $activity
+   * @param Servicss\ActivityCategoryService $activity_category
+   * @param Services\ActivityCategoryGroupService $activity_category_group
    */
-  public function __construct(Activity $activity, ActivityCategoryService $activity_category, ActivityCategoryGroupService $activity_category_group)
+  public function __construct(
+    Models\Activity $activity,
+    Services\ActivityCategoryService $activity_category,
+    Services\ActivityCategoryGroupService $activity_category_group)
   {
     $this->activity = $activity;
     $this->activity_category = $activity_category;
@@ -61,7 +77,7 @@ class ActivityService
   private function adjustSignAmount($amount, $balance_type)
   {
     // 支出の入力を検知
-    if ($balance_type == ActivityCategory::BALANCE_TYPE_EXPENSE) {
+    if ($balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) {
       // 入力値がプラス値で登録された場合、マイナス額に変換
       if ($amount > 0) {
         $amount = -$amount;
@@ -82,10 +98,10 @@ class ActivityService
    * 日別集計の結果を取得する。
    *
    * @param int $user_id
-   * @param DailyPaginateCondition $condition
+   * @param Condition\DailyPaginateCondition $condition
    * @return Illuminate\Pagination\Paginator
    */
-  public function getDailyPaginate($user_id, DailyPaginateCondition $condition)
+  public function getDailyPaginate($user_id, Condition\DailyPaginateCondition $condition)
   {
     $builder = $this->activity->with('activityCategoryGroup')
       ->where('user_id', '=', $user_id);
@@ -238,7 +254,7 @@ class ActivityService
     $builder = $this->activity->where('user_id', '=', $user_id)
       ->whereHas('activityCategoryGroup', function($builder) {
         $builder->whereHas('activityCategory', function($builder) {
-          $builder->where('cost_type', '=', ActivityCategory::COST_TYPE_CONSTANT);
+          $builder->where('cost_type', '=', Models\ActivityCategory::COST_TYPE_CONSTANT);
         });
       });
     $min_date = $builder->min('activity_date');
@@ -304,7 +320,7 @@ class ActivityService
       })
       ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
       ->where('ac.user_id', '=', $user_id)
-      ->where('ac.cost_type', '=', ActivityCategory::COST_TYPE_CONSTANT)
+      ->where('ac.cost_type', '=', Models\ActivityCategory::COST_TYPE_CONSTANT)
       ->where('acg.delete_date')
       ->orderBy('ac.sort_order', 'asc')
       ->orderBy('acg.sort_order', 'asc');
@@ -405,7 +421,7 @@ class ActivityService
 
           $value['user_id'] = $user_id;
           $value['amount'] = $amount;
-          $value['special_flag'] = Activity::SPECIAL_FLAG_UNUSE;
+          $value['special_flag'] = Models\Activity::SPECIAL_FLAG_UNUSE;
 
           $this->activity->create($value);
         }
@@ -424,10 +440,10 @@ class ActivityService
    * 月別集計の結果を取得する。
    *
    * @param int $user_id
-   * @param MonthlySummaryCondition $condition
+   * @param Condition\MonthlySummaryCondition $condition
    * @return stdClass
    */
-  public function getMonthlySummary($user_id, MonthlySummaryCondition $condition)
+  public function getMonthlySummary($user_id, Condition\MonthlySummaryCondition $condition)
   {
     $date_range = $condition->getDateRange();
 
@@ -470,8 +486,8 @@ class ActivityService
   private function calculateMonthlySummary(array $data)
   {
     $category_summary = array(
-      ActivityCategory::COST_TYPE_VARIABLE => array(),
-      ActivityCategory::COST_TYPE_CONSTANT => array()
+      Models\ActivityCategory::COST_TYPE_VARIABLE => array(),
+      Models\ActivityCategory::COST_TYPE_CONSTANT => array()
     );
     $income_summary = array(
       'cash_amount' => 0,
@@ -488,8 +504,8 @@ class ActivityService
       'expense_amount' => 0
     );
     $cost_size = array(
-      ActivityCategory::COST_TYPE_VARIABLE => 0,
-      ActivityCategory::COST_TYPE_CONSTANT => 0
+      Models\ActivityCategory::COST_TYPE_VARIABLE => 0,
+      Models\ActivityCategory::COST_TYPE_CONSTANT => 0
     );
 
     foreach ($data as $value) {
@@ -526,7 +542,7 @@ class ActivityService
       }
 
       // 現金収支の計算
-      if ($value->credit_flag == Activity::CREDIT_FLAG_UNUSE) {
+      if ($value->credit_flag == Models\Activity::CREDIT_FLAG_UNUSE) {
         $data['cash_amount'] += $value->amount;
 
       } else {
@@ -534,7 +550,7 @@ class ActivityService
       }
 
       // 特別収支の加算
-      if ($value->special_flag == Activity::SPECIAL_FLAG_USE) {
+      if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
         $data['special_use_amount'] += $value->amount;
       } else {
         $data['special_unuse_amount'] += $value->amount;
@@ -545,13 +561,13 @@ class ActivityService
 
       // 全科目の収入加算
       if ($value->amount > 0) {
-        if ($value->credit_flag == Activity::CREDIT_FLAG_UNUSE) {
+        if ($value->credit_flag == Models\Activity::CREDIT_FLAG_UNUSE) {
           $income_summary['cash_amount'] += $value->amount;
         } else {
           $income_summary['credit_amount'] += $value->amount;
         }
 
-        if ($value->special_flag == Activity::SPECIAL_FLAG_USE) {
+        if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
           $income_summary['special_use_amount'] += $value->amount;
         } else {
           $income_summary['special_unuse_amount'] += $value->amount;
@@ -561,13 +577,13 @@ class ActivityService
 
       // 全科目の支出加算
       } else {
-        if ($value->credit_flag == Activity::CREDIT_FLAG_UNUSE) {
+        if ($value->credit_flag == Models\Activity::CREDIT_FLAG_UNUSE) {
           $expense_summary['cash_amount'] += $value->amount;
         } else {
           $expense_summary['credit_amount'] += $value->amount;
         }
 
-        if ($value->special_flag == Activity::SPECIAL_FLAG_USE) {
+        if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
           $expense_summary['special_use_amount'] += $value->amount;
         } else {
           $expense_summary['special_unuse_amount'] += $value->amount;
@@ -591,10 +607,10 @@ class ActivityService
    * カレンダーを取得する。
    *
    * @param int $user_id
-   * @param BaseDateCondition $condition
+   * @param Condition\BaseDateCondition $condition
    * @return array
    */
-  public function getCalendar($user_id, BaseDateCondition $condition)
+  public function getCalendar($user_id, Condition\BaseDateCondition $condition)
   {
     $date_range = $condition->getDateRange();
 
@@ -637,7 +653,7 @@ class ActivityService
       }
 
       // 祝日情報を配列にセット
-      $holidays = Calendar::getHolidays($condition->date_month);
+      $holidays = Libraries\Calendar::getHolidays($condition->date_month);
 
       foreach ($holidays as $current => $params) {
         $array[$current]['holiday'] = true;
@@ -646,7 +662,7 @@ class ActivityService
 
       // 収支データを配列にセット
       foreach ($builder->get() as $current) {
-        if ($current->cost_type == ActivityCategory::COST_TYPE_VARIABLE) {
+        if ($current->cost_type == Models\ActivityCategory::COST_TYPE_VARIABLE) {
           $array[$current->activity_date]['variable_amount'] = $current->amount;
         } else {
           $array[$current->activity_date]['constant_amount'] = $current->amount;
@@ -693,10 +709,10 @@ class ActivityService
    * 年別集計の結果を取得する。
    *
    * @param int $user_id
-   * @param YearlySummaryCondition $condition
+   * @param Condition\YearlySummaryCondition $condition
    * @return array
    */
-  public function getYearlySummary($user_id, YearlySummaryCondition $condition)
+  public function getYearlySummary($user_id, Condition\YearlySummaryCondition $condition)
   {
     $begin_date = sprintf('%s-01-01 00:00:00', $condition->begin_year);
     $end_date = sprintf('%s-12-31 23:59:59', $condition->end_year);
@@ -742,7 +758,7 @@ class ActivityService
 
         $data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_group_id] += $value->group_amount;
 
-        if ($value->balance_type == ActivityCategory::BALANCE_TYPE_EXPENSE) {
+        if ($value->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) {
           $data[$value->date_group]['total_expense_amount'] += $value->group_amount;
           $footers['yearly_total_expense_amount'] += $value->group_amount;
 
@@ -768,8 +784,8 @@ class ActivityService
     $header_size = array(
       'total' => 0,
       'cost_type' => array(
-        ActivityCategory::COST_TYPE_VARIABLE => 0,
-        ActivityCategory::COST_TYPE_CONSTANT => 0
+        Models\ActivityCategory::COST_TYPE_VARIABLE => 0,
+        Models\ActivityCategory::COST_TYPE_CONSTANT => 0
       )
     );
 
@@ -813,8 +829,8 @@ class ActivityService
 
     $result = array(
       0 => 0,
-      ActivityCategory::BALANCE_TYPE_EXPENSE => 0,
-      ActivityCategory::BALANCE_TYPE_INCOME => 0
+      Models\ActivityCategory::BALANCE_TYPE_EXPENSE => 0,
+      Models\ActivityCategory::BALANCE_TYPE_INCOME => 0
     );
 
     foreach ($builder->get() as $data) {
@@ -983,8 +999,8 @@ class ActivityService
     $builder = $this->activity->where('user_id', '=', $user_id)
       ->whereHas('activityCategoryGroup', function($builder) {
         $builder->whereHas('activityCategory', function($builder) {
-          $builder->where('cost_type', '=', ActivityCategory::COST_TYPE_VARIABLE);
-          $builder->where('balance_type', '=', ActivityCategory::BALANCE_TYPE_EXPENSE);
+          $builder->where('cost_type', '=', Models\ActivityCategory::COST_TYPE_VARIABLE);
+          $builder->where('balance_type', '=', Models\ActivityCategory::BALANCE_TYPE_EXPENSE);
         });
       })
       ->activityDate($condition->getDateRange())

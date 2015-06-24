@@ -1,8 +1,11 @@
 <?php
+namespace Monelytics\Models;
+
+use Validator;
 
 use Illuminate\Database\Eloquent\SoftDeletingTrait;
 
-class BaseModel extends Eloquent {
+class BaseModel extends \Eloquent {
   use SoftDeletingTrait;
 
   const CREATED_AT = 'create_date';

@@ -16,7 +16,7 @@
   });
 </script>
 
-@if ($summary['cost_size'][ActivityCategory::COST_TYPE_VARIABLE] || $summary['cost_size'][ActivityCategory::COST_TYPE_CONSTANT])
+@if ($summary['cost_size'][Monelytics\Models\ActivityCategory::COST_TYPE_VARIABLE] || $summary['cost_size'][Monelytics\Models\ActivityCategory::COST_TYPE_CONSTANT])
   <div id="tab-container">
     <table class="table table-hover table-bordered table-highlight" id="table-selector">
       <colgroup span="3" style="width: 10%">
@@ -37,7 +37,7 @@
         @foreach ($summary['category_summary'] as $cost_type => $cost_summary)
           <tr>
             <th rowspan="{{$summary['cost_size'][$cost_type]}}">
-              @if ($cost_type == ActivityCategory::COST_TYPE_VARIABLE)
+              @if ($cost_type == Monelytics\Models\ActivityCategory::COST_TYPE_VARIABLE)
                 変動収支
               @else
                 固定収支
@@ -57,16 +57,16 @@
                     <tr>
                   @endif
                     <th>{{{$activity_category_group_summary['group_name']}}}</th>
-                    <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => Activity::CREDIT_FLAG_UNUSE), number_format($activity_category_group_summary['cash_amount']))}}</td>
-                    <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => Activity::CREDIT_FLAG_USE), number_format($activity_category_group_summary['credit_amount']))}}</td>
+                    <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => Monelytics\Models\Activity::CREDIT_FLAG_UNUSE), number_format($activity_category_group_summary['cash_amount']))}}</td>
+                    <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => Monelytics\Models\Activity::CREDIT_FLAG_USE), number_format($activity_category_group_summary['credit_amount']))}}</td>
                     <td class="text-right">
-                      @if ($cost_type == ActivityCategory::COST_TYPE_VARIABLE)
-                       {{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]', $activity_category_group_id, 'special_flag' => Activity::SPECIAL_FLAG_USE), number_format($activity_category_group_summary['special_use_amount']))}}
+                      @if ($cost_type == Monelytics\Models\ActivityCategory::COST_TYPE_VARIABLE)
+                       {{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]', $activity_category_group_id, 'special_flag' => Monelytics\Models\Activity::SPECIAL_FLAG_USE), number_format($activity_category_group_summary['special_use_amount']))}}
                       @else
                        N/A
                       @endif
                     </td>
-                    <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => Activity::SPECIAL_FLAG_UNUSE), number_format($activity_category_group_summary['special_unuse_amount']))}}</td>
+                    <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => Monelytics\Models\Activity::SPECIAL_FLAG_UNUSE), number_format($activity_category_group_summary['special_unuse_amount']))}}</td>
                     <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id), number_format($activity_category_group_summary['group_amount']))}}</td>
                   </tr>
                   {{-- */ $j++ /* --}}

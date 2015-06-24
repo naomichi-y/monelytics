@@ -1,4 +1,5 @@
 <?php
+use Monelytics\Models;
 
 class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
@@ -27,7 +28,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
   public function login()
   {
-    $this->be(User::find(1));
+    $this->be(Models\User::find(1));
   }
 
   public function logout()

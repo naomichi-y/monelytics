@@ -1,4 +1,6 @@
 <?php
+namespace Monelytics\Models;
+
 class UserCredential extends BaseModel {
   const CREDENTIAL_TYPE_GENERAL = 1;
   const CREDENTIAL_TYPE_FACEBOOK = 2;
@@ -7,6 +9,6 @@ class UserCredential extends BaseModel {
 
   public function user()
   {
-    return $this->belongTo('User');
+    return $this->belongTo('Monelytics\Models\User');
   }
 }

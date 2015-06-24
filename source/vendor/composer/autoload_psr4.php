@@ -8,5 +8,9 @@ $baseDir = dirname($vendorDir);
 return array(
     'Orchestra\\Testbench\\' => array($vendorDir . '/orchestra/testbench/src/Testbench'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
+    'Monelytics\\Services\\' => array($baseDir . '/app/services'),
+    'Monelytics\\Models\\' => array($baseDir . '/app/models'),
+    'Monelytics\\Libraries\\' => array($baseDir . '/app/libraries'),
+    'Monelytics\\Controllers\\' => array($baseDir . '/app/controllers'),
     'Jenssegers\\Agent\\' => array($vendorDir . '/jenssegers/agent/src'),
 );

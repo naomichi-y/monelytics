@@ -106,7 +106,7 @@
               </label>
               <div class="col-md-6">
                 <div class="checkbox-inline">
-                  {{Form::checkbox('credit_flag', Activity::CREDIT_FLAG_USE, $activity->credit_flag, array('id' => 'credit_flag'))}}
+                  {{Form::checkbox('credit_flag', Monelytics\Models\Activity::CREDIT_FLAG_USE, $activity->credit_flag, array('id' => 'credit_flag'))}}
                   {{Form::label('credit_flag', 'クレジットカードを使用')}}
                 </div>
               </div>
@@ -118,7 +118,7 @@
               </label>
               <div class="col-md-6">
                 <div class="checkbox-inline">
-                  {{Form::checkbox('special_flag', Activity::SPECIAL_FLAG_USE, $activity->special_flag, array('id' => 'special_flag'))}}
+                  {{Form::checkbox('special_flag', Monelytics\Models\Activity::SPECIAL_FLAG_USE, $activity->special_flag, array('id' => 'special_flag'))}}
                   {{Form::label('special_flag', '特別収支')}}
                 </div>
               </div>

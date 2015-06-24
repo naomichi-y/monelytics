@@ -1,4 +1,11 @@
 <?php
+namespace Monelytics\Services;
+
+use DB;
+
+use Monelytics\Libraries\Condition;
+use Monelytics\Models;
+
 class ActivityCategoryService
 {
   private $activity_category;
@@ -6,9 +13,9 @@ class ActivityCategoryService
   /**
    * コンストラクタ。
    *
-   * @param ActivityCategory $activity_category
+   * @param Models\ActivityCategory $activity_category
    */
-  public function __construct(ActivityCategory $activity_category)
+  public function __construct(Models\ActivityCategory $activity_category)
   {
     $this->activity_category = $activity_category;
   }
@@ -22,7 +29,7 @@ class ActivityCategoryService
    */
   public function findAll($user_id, $cost_type)
   {
-    $builder = $this->activity_category->with('activityCategoryGroup')
+    $builder = $this->activity_category->with('activityCategoryGroups')
       ->where('user_id', '=', $user_id)
       ->where('cost_type', '=', $cost_type)
       ->orderBy('sort_order', 'asc');
@@ -106,8 +113,8 @@ class ActivityCategoryService
     $collection = $builder->get();
     $array = array();
     $group_names = array(
-      ActivityCategory::COST_TYPE_VARIABLE => '変動収支',
-      ActivityCategory::COST_TYPE_CONSTANT => '固定収支'
+      Models\ActivityCategory::COST_TYPE_VARIABLE => '変動収支',
+      Models\ActivityCategory::COST_TYPE_CONSTANT => '固定収支'
     );
 
     foreach ($collection as $data) {
@@ -142,7 +149,7 @@ class ActivityCategoryService
     $result = array();
 
     foreach ($activity_categories as $activity_category) {
-      $builder = $activity_category->activityCategoryGroup()
+      $builder = $activity_category->activityCategoryGroups()
         ->where('user_id', '=', $user_id)
         ->orderBy('sort_order', 'asc');
 
@@ -180,7 +187,7 @@ class ActivityCategoryService
     $result = array();
 
     foreach ($activity_categories as $activity_category) {
-      $builder = $activity_category->activityCategoryGroup()
+      $builder = $activity_category->activityCategoryGroups()
         ->where('user_id', '=', $user_id)
         ->orderBy('sort_order', 'asc');
       $activity_category_groups = array();
@@ -220,10 +227,10 @@ class ActivityCategoryService
    * 収支データにおける科目カテゴリ別の割合比率を取得する。
    *
    * @param int $user_id
-   * @param int $balance_type
+   * @param Condition\PieChartCondition $condition
    * @return array
    */
-  public function getAmountConstituents($user_id, PieChartCondition $condition)
+  public function getAmountConstituents($user_id, Condition\PieChartCondition $condition)
   {
     $date_range = $condition->getDateRange();
     $builder = DB::table('activities AS a')
@@ -309,7 +316,8 @@ class ActivityCategoryService
   {
     $activity_category = $this->activity_category->where('id', '=', $activity_category_id)
       ->where('user_id', '=', $user_id)
-      ->get()->first();
+      ->get()
+      ->first();
 
     $activity_category->delete();
   }

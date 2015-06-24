@@ -1,4 +1,6 @@
 <?php
+namespace Monelytics\Models;
+
 class ActivityCategory extends BaseModel {
   const COST_TYPE_VARIABLE = 1;
   const COST_TYPE_CONSTANT = 2;
@@ -15,12 +17,12 @@ class ActivityCategory extends BaseModel {
 
   public function user()
   {
-    return $this->belongTo('User');
+    return $this->belongTo('Monelytics\Models\User');
   }
 
-  public function activityCategoryGroup()
+  public function activityCategoryGroups()
   {
-    return $this->hasMany('ActivityCategoryGroup');
+    return $this->hasMany('Monelytics\Models\ActivityCategoryGroup');
   }
 
   public static function boot()
@@ -28,7 +30,7 @@ class ActivityCategory extends BaseModel {
     parent::boot();
 
     static::deleting(function($activity_category) {
-      $activity_category_groups = $activity_category->activityCategoryGroup()->get();
+      $activity_category_groups = $activity_category->activityCategoryGroups()->get();
 
       foreach ($activity_category_groups as $activity_category_group) {
         $activity_category_group->delete();

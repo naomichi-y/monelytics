@@ -1,4 +1,15 @@
 <?php
+namespace Monelytics\Controllers;
+
+use Auth;
+use Input;
+use Lang;
+use Redirect;
+use Session;
+use View;
+
+use Monelytics\Services;
+
 class ContactController extends BaseController {
   protected $required_auth = false;
 
@@ -7,7 +18,7 @@ class ContactController extends BaseController {
   /**
    * @see BaseController::__construct()
    */
-  public function __construct(ContactService $contact)
+  public function __construct(Services\ContactService $contact)
   {
     $this->contact = $contact;
   }

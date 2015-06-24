@@ -1,4 +1,5 @@
 <?php
+use Monelytics\Models;
 
 class UserTableSeeder extends Seeder {
   public function run()
@@ -12,19 +13,19 @@ class UserTableSeeder extends Seeder {
         'email' => 'test@monelytics.me',
         'password' => Hash::make('testtest'),
         'nickname' => 'test',
-        'type' => User::TYPE_GENERAL
+        'type' => Models\User::TYPE_GENERAL
       )
     );
 
     foreach ($users as $user) {
-      $user = User::create($user);
+      $user = Models\User::create($user);
 
       $user_credential = array(
         'user_id' => $user->id,
-        'credential_type' => UserCredential::CREDENTIAL_TYPE_GENERAL
+        'credential_type' => Models\UserCredential::CREDENTIAL_TYPE_GENERAL
       );
 
-      UserCredential::create($user_credential);
+      Models\UserCredential::create($user_credential);
     }
   }
 }

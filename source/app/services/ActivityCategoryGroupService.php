@@ -1,4 +1,8 @@
 <?php
+namespace Monelytics\Services;
+
+use Monelytics\Models;
+
 class ActivityCategoryGroupService
 {
   private $activity;
@@ -7,10 +11,10 @@ class ActivityCategoryGroupService
   /**
    * コンストラクタ。
    *
-   * @param ActivityService $activity
-   * @param ActivityCategoryGroup $activity_category_group
+   * @param Models\ActivityService $activity
+   * @param Models\ActivityCategoryGroup $activity_category_group
    */
-  public function __construct(Activity $activity, ActivityCategoryGroup $activity_category_group)
+  public function __construct(Models\Activity $activity, Models\ActivityCategoryGroup $activity_category_group)
   {
     $this->activity = $activity;
     $this->activity_category_group = $activity_category_group;
@@ -158,7 +162,8 @@ class ActivityCategoryGroupService
   {
     $activity_category_group = $this->activity_category_group->where('id', '=', $activity_category_group_id)
       ->where('user_id', '=', $user_id)
-      ->get()->first();
+      ->get()
+      ->first();
     $activity_category_group->delete();
   }
 }
