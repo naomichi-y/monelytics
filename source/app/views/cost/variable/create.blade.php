@@ -55,7 +55,7 @@
               {{Form::select("activity_category_group_id[$i]", $activity_category_groups, Input::old("activity_category_group_id[$i]"), array('class' => 'form-control'))}}
             </td>
             <td>
-              {{Form::text("amount[$i]", Input::old("amount[$i]"), array('class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[0-9]*'))}}
+              {{Form::text("amount[$i]", Input::old("amount[$i]"), array('class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*'))}}
             </td>
             <td>
               {{Form::text("location[$i]", Input::old("location[$i]"), array('class' => 'form-control'))}}
