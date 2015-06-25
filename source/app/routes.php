@@ -17,72 +17,72 @@
 
 Route::get('/', array('uses' => 'Monelytics\Controllers\IndexController@getIndex', 'as' => 'home'));
 
-Route::group(array('prefix' => 'user'), function($route) {
-  $route->get('login', 'Monelytics\Controllers\User\SessionController@getLogin');
-  $route->post('login-oauth', 'Monelytics\Controllers\User\SessionController@loginOAuth');
-  $route->get('login-oauth-callback', 'Monelytics\Controllers\User\SessionController@loginOAuthCallback');
-  $route->post('login', 'Monelytics\Controllers\User\SessionController@postLogin');
-  $route->get('logout', 'Monelytics\Controllers\User\SessionController@logout');
+Route::group(array('namespace' => 'Monelytics\Controllers\User', 'prefix' => 'user'), function($route) {
+  $route->get('login', 'SessionController@getLogin');
+  $route->post('login-oauth', 'SessionController@loginOAuth');
+  $route->get('login-oauth-callback', 'SessionController@loginOAuthCallback');
+  $route->post('login', 'SessionController@postLogin');
+  $route->get('logout', 'SessionController@logout');
 
-  $route->get('done', 'Monelytics\Controllers\User\RegistrationController@done');
-  $route->post('create-oauth', 'Monelytics\Controllers\User\RegistrationController@createOAuth');
-  $route->get('create-oauth-callback', 'Monelytics\Controllers\User\RegistrationController@createOAuthCallback');
-  $route->put('update', 'Monelytics\Controllers\User\RegistrationController@update');
-  $route->post('withdrawal', 'Monelytics\Controllers\User\RegistrationController@withdrawal');
+  $route->get('done', 'RegistrationController@done');
+  $route->post('create-oauth', 'RegistrationController@createOAuth');
+  $route->get('create-oauth-callback', 'RegistrationController@createOAuthCallback');
+  $route->put('update', 'RegistrationController@update');
+  $route->post('withdrawal', 'RegistrationController@withdrawal');
 
-  $route->resource('', 'Monelytics\Controllers\User\RegistrationController', array('only' => array('index', 'create', 'store')));
+  $route->resource('', 'RegistrationController', array('only' => array('index', 'create', 'store')));
 });
 
 Route::resource('dashboard', 'Monelytics\Controllers\DashboardController');
 
-Route::group(array('prefix' => 'contact'), function($route) {
-  $route->post('send', 'Monelytics\Controllers\ContactController@send');
-  $route->get('done', 'Monelytics\Controllers\ContactController@done');
+Route::group(array('namespace' => 'Monelytics\Controllers', 'prefix' => 'contact'), function($route) {
+  $route->post('send', 'ContactController@send');
+  $route->get('done', 'ContactController@done');
 });
 Route::resource('contact', 'Monelytics\Controllers\ContactController', array('only' => array('index')));
 
-Route::group(array('prefix' => 'gadget'), function($route) {
-  $route->get('activity-status', 'Monelytics\Controllers\GadgetController@activityStatus');
-  $route->get('activity-graph', 'Monelytics\Controllers\GadgetController@activityGraph');
-  $route->get('activity-history', 'Monelytics\Controllers\GadgetController@activityHistory');
+Route::group(array('namespace' => 'Monelytics\Controllers', 'prefix' => 'gadget'), function($route) {
+  $route->get('activity-status', 'GadgetController@activityStatus');
+  $route->get('activity-graph', 'GadgetController@activityGraph');
+  $route->get('activity-history', 'GadgetController@activityHistory');
 });
 
-Route::group(array('prefix' => 'cost'), function($route) {
-  $route->resource('variable', 'Monelytics\Controllers\Cost\VariableController');
-  $route->resource('constant', 'Monelytics\Controllers\Cost\ConstantController');
+Route::group(array('namespace' => 'Monelytics\Controllers\Cost', 'prefix' => 'cost'), function($route) {
+  $route->resource('variable', 'VariableController');
+  $route->resource('constant', 'ConstantController');
 });
 
-Route::group(array('prefix' => 'summary'), function($route) {
+Route::group(array('namespace' => 'Monelytics\Controllers\Summary', 'prefix' => 'summary'), function($route) {
   $route->group(array('prefix' => 'daily'), function($route) {
-    $route->get('condition', 'Monelytics\Controllers\Summary\DailyController@condition');
+    $route->get('condition', 'DailyController@condition');
   });
-  $route->resource('daily', 'Monelytics\Controllers\Summary\DailyController', array('only' => array('index')));
+  $route->resource('daily', 'DailyController', array('only' => array('index')));
 
   Route::group(array('prefix' => 'monthly'), function($route) {
-    $route->get('condition', 'Monelytics\Controllers\Summary\MonthlyController@condition');
-    $route->get('report', 'Monelytics\Controllers\Summary\MonthlyController@report');
-    $route->get('calendar', 'Monelytics\Controllers\Summary\MonthlyController@calendar');
-    $route->get('pie-chart', 'Monelytics\Controllers\Summary\MonthlyController@pieChart');
-    $route->get('pie-chart-data', 'Monelytics\Controllers\Summary\MonthlyController@pieChartData');
-    $route->get('ranking', 'Monelytics\Controllers\Summary\MonthlyController@ranking');
+    $route->get('condition', 'MonthlyController@condition');
+    $route->get('report', 'MonthlyController@report');
+    $route->get('calendar', 'MonthlyController@calendar');
+    $route->get('pie-chart', 'MonthlyController@pieChart');
+    $route->get('pie-chart-data', 'MonthlyController@pieChartData');
+    $route->get('ranking', 'MonthlyController@ranking');
   });
-  $route->resource('monthly', 'Monelytics\Controllers\Summary\MonthlyController');
+  $route->resource('monthly', 'MonthlyController', array('only' => array('index')));
 
   $route->group(array('prefix' => 'yearly'), function($route) {
-    $route->get('report', 'Monelytics\Controllers\Summary\YearlyController@report');
-    $route->get('condition', 'Monelytics\Controllers\Summary\YearlyController@condition');
+    $route->get('report', 'YearlyController@report');
+    $route->get('condition', 'YearlyController@condition');
   });
-  $route->resource('yearly', 'Monelytics\Controllers\Summary\YearlyController');
+  $route->resource('yearly', 'YearlyController', array('only' => array('index')));
 });
 
-Route::group(array('prefix' => 'settings'), function($route) {
+Route::group(array('namespace' => 'Monelytics\Controllers\Settings', 'prefix' => 'settings'), function($route) {
   $route->group(array('prefix' => 'activityCategory'), function($route) {
-    $route->post('sort', 'Monelytics\Controllers\Settings\ActivityCategoryController@sort');
+    $route->post('sort', 'ActivityCategoryController@sort');
   });
-  $route->resource('activityCategory', 'Monelytics\Controllers\Settings\ActivityCategoryController');
+  $route->resource('activityCategory', 'ActivityCategoryController');
 
   $route->group(array('prefix' => 'activityCategoryGroup'), function($route) {
-    $route->post('sort', 'Monelytics\Controllers\Settings\ActivityCategoryGroupController@sort');
+    $route->post('sort', 'ActivityCategoryGroupController@sort');
   });
-  $route->resource('activityCategoryGroup', 'Monelytics\Controllers\Settings\ActivityCategoryGroupController');
+  $route->resource('activityCategoryGroup', 'ActivityCategoryGroupController');
 });

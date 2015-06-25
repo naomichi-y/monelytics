@@ -4,6 +4,7 @@ namespace Monelytics\Libraries;
 use Exception;
 
 use Cache;
+use Config;
 use Log;
 
 class Calendar {

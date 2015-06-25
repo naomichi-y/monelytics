@@ -29,6 +29,11 @@ class ActivityCategoryControllerTest extends TestCase {
     $this->assertEquals($sort_orders, array(2, 1));
   }
 
+  public function testCreate()
+  {
+    $this->assertUserOnlyContent('GET', '/settings/activityCategory/create');
+  }
+
   public function testStore()
   {
     $this->login();
@@ -62,6 +67,6 @@ class ActivityCategoryControllerTest extends TestCase {
     $this->login();
     $this->call('DELETE', '/settings/activityCategory/1', array(), array(), array('HTTP_REFERER' => 'http://localhost/settings/activityCategory'));
     $this->assertRedirectedTo('/settings/activityCategory');
-    $this->assertEquals(Models\ActivityCategory::all()->count(), 0);
+    $this->assertEquals(Models\ActivityCategory::find(1), 0);
   }
 }

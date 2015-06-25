@@ -6,11 +6,12 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Activity' => $baseDir . '/app/models/Activity.php',
-    'ActivityCategory' => $baseDir . '/app/models/ActivityCategory.php',
-    'ActivityCategoryGroup' => $baseDir . '/app/models/ActivityCategoryGroup.php',
     'ActivityCategoryTableSeeder' => $baseDir . '/app/database/seeds/ActivityCategoryTableSeeder.php',
-    'BaseModel' => $baseDir . '/app/models/BaseModel.php',
+    'CreateActivitiesTable' => $baseDir . '/app/database/migrations/2015_04_13_211102_create_activities_table.php',
+    'CreateActivityCategoriesTable' => $baseDir . '/app/database/migrations/2015_04_13_211124_create_activity_categories_table.php',
+    'CreateActivityCategoryGroupsTable' => $baseDir . '/app/database/migrations/2015_04_13_211137_create_activity_category_groups_table.php',
+    'CreateUserCredentialsTable' => $baseDir . '/app/database/migrations/2015_04_13_211159_create_user_credentials_table.php',
+    'CreateUsersTable' => $baseDir . '/app/database/migrations/2015_04_13_211017_create_users_table.php',
     'DatabaseSeeder' => $baseDir . '/app/database/seeds/DatabaseSeeder.php',
     'File_Iterator' => $vendorDir . '/phpunit/php-file-iterator/src/Iterator.php',
     'File_Iterator_Facade' => $vendorDir . '/phpunit/php-file-iterator/src/Facade.php',
@@ -362,8 +363,6 @@ return array(
     'SessionHandlerInterface' => $vendorDir . '/symfony/http-foundation/Symfony/Component/HttpFoundation/Resources/stubs/SessionHandlerInterface.php',
     'TestCase' => $baseDir . '/app/tests/TestCase.php',
     'Text_Template' => $vendorDir . '/phpunit/php-text-template/Text/Template.php',
-    'User' => $baseDir . '/app/models/User.php',
-    'UserCredential' => $baseDir . '/app/models/UserCredential.php',
     'UserTableSeeder' => $baseDir . '/app/database/seeds/UserTableSeeder.php',
     'Whoops\\Module' => $vendorDir . '/filp/whoops/src/deprecated/Zend/Module.php',
     'Whoops\\Provider\\Zend\\ExceptionStrategy' => $vendorDir . '/filp/whoops/src/deprecated/Zend/ExceptionStrategy.php',

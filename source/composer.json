@@ -9,9 +9,8 @@
     "artdarek/oauth-4-laravel": "dev-master"
   },
   "require-dev": {
-    "phpunit/phpunit": "3.7.*",
-    "mockery/mockery": "0.7.*",
-    "orchestra/testbench": "2.2.*"
+    "phpunit/phpunit": "*",
+    "guzzle/guzzle": "~3.7"
   },
   "autoload": {
     "classmap": [
