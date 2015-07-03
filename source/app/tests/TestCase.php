@@ -1,7 +1,13 @@
 <?php
+namespace Monelytics\Tests;
+
+use Artisan;
+use Auth;
+use Route;
+
 use Monelytics\Models;
 
-class TestCase extends Illuminate\Foundation\Testing\TestCase {
+class TestCase extends \Illuminate\Foundation\Testing\TestCase {
 
   /**
    * Creates the application.
@@ -11,7 +17,6 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
   public function createApplication()
   {
     $unitTesting = true;
-
     $testEnvironment = 'testing';
 
     return require __DIR__.'/../../bootstrap/start.php';
@@ -21,14 +26,31 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
   {
     parent::setUp();
 
-    Route::enableFilters();
+    $this->setupDatabase();
+    $this->seed('Monelytics\Seeds\TestSeeder');
 
-    $this->seed();
+    Route::enableFilters();
+  }
+
+  public function setupDatabase()
+  {
+    static $initialized = false;
+
+    if (!$initialized) {
+      Artisan::call('migrate:refresh');
+
+      $initialized = true;
+    }
+  }
+
+  public function getUser()
+  {
+    return Models\User::find(1);
   }
 
   public function login()
   {
-    $this->be(Models\User::find(1));
+    $this->be($this->getUser());
   }
 
   public function logout()

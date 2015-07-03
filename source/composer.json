@@ -9,20 +9,20 @@
     "artdarek/oauth-4-laravel": "dev-master"
   },
   "require-dev": {
-    "phpunit/phpunit": "*",
-    "guzzle/guzzle": "~3.7"
+    "phpunit/phpunit": "*"
   },
   "autoload": {
     "classmap": [
       "app/commands",
       "app/database/migrations",
-      "app/database/seeds",
       "app/tests/TestCase.php"
     ],
     "psr-4": {
       "Monelytics\\Controllers\\": "app/controllers",
       "Monelytics\\Libraries\\": "app/libraries",
       "Monelytics\\Services\\": "app/services",
+      "Monelytics\\Seeds\\": "app/database/seeds",
+      "Monelytics\\Tests\\": "app/tests",
       "Monelytics\\Models\\": "app/models"
     },
     "files": [

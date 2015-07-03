@@ -63,7 +63,7 @@ class ConstantController extends Controllers\BaseController {
         ->withInput();
     }
 
-    return Redirect::to('cost/constant/create')
+    return Redirect::back()
       ->with('success', Lang::get('validation.custom.update_success'));
   }
 
@@ -74,7 +74,7 @@ class ConstantController extends Controllers\BaseController {
   {
     $this->activity->delete(Auth::id(), $id);
 
-    return Redirect::to('cost/constant/create')
+    return Redirect::back()
       ->with('success', Lang::get('validation.custom.delete_success'));
   }
 }

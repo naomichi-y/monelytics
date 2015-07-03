@@ -2,44 +2,52 @@
 use Monelytics\Models;
 
 class ActivityCategoryTableSeeder extends Seeder {
+  const TYPE_VARIABLE_EXPENSE = 1;
+  const TYPE_VARIABLE_INCOME = 2;
+  const TYPE_CONSTANT_EXPENSE = 3;
+  const TYPE_CONSTANT_INCOME = 4;
+
   public function run()
   {
     DB::table('activity_categories')->truncate();
-    DB::table('activity_category_groups')->truncate();
-    DB::table('activities')->truncate();
 
-    $activity_category = array(
-      'id' => 1,
-      'user_id' => 1,
-      'category_name' => 'test',
-      'cost_type' => Models\ActivityCategory::COST_TYPE_VARIABLE,
-      'balance_type' => Models\ActivityCategory::BALANCE_TYPE_EXPENSE,
-      'sort_order' => 1
+    $activity_categories = array(
+      array(
+        'id' => self::TYPE_VARIABLE_EXPENSE,
+        'user_id' => 1,
+        'category_name' => 'test',
+        'cost_type' => Models\ActivityCategory::COST_TYPE_VARIABLE,
+        'balance_type' => Models\ActivityCategory::BALANCE_TYPE_EXPENSE,
+        'sort_order' => 1
+      ),
+      array(
+        'id' => self::TYPE_VARIABLE_INCOME,
+        'user_id' => 1,
+        'category_name' => 'test',
+        'cost_type' => Models\ActivityCategory::COST_TYPE_VARIABLE,
+        'balance_type' => Models\ActivityCategory::BALANCE_TYPE_INCOME,
+        'sort_order' => 2
+      ),
+      array(
+        'id' => self::TYPE_CONSTANT_EXPENSE,
+        'user_id' => 1,
+        'category_name' => 'test',
+        'cost_type' => Models\ActivityCategory::COST_TYPE_CONSTANT,
+        'balance_type' => Models\ActivityCategory::BALANCE_TYPE_EXPENSE,
+        'sort_order' => 3
+      ),
+      array(
+        'id' => self::TYPE_CONSTANT_INCOME,
+        'user_id' => 1,
+        'category_name' => 'test',
+        'cost_type' => Models\ActivityCategory::COST_TYPE_CONSTANT,
+        'balance_type' => Models\ActivityCategory::BALANCE_TYPE_INCOME,
+        'sort_order' => 4
+      )
     );
 
-    $activity_category = Models\ActivityCategory::create($activity_category);
-
-    $activity_category_group = array(
-      'id' => 1,
-      'activity_category_id' => $activity_category->id,
-      'user_id' => 1,
-      'group_name' => 'test',
-      'credit_flag' => Models\ActivityCategoryGroup::CREDIT_FLAG_DISABLE,
-      'sort_order' => 1
-    );
-
-    $activity_category_group = Models\ActivityCategoryGroup::create($activity_category_group);
-
-    $activity = array(
-      'id' => 1,
-      'user_id' => 1,
-      'activity_date' => date('Y-m-d'),
-      'activity_category_group_id' => $activity_category_group->id,
-      'amount' => -1000,
-      'credit_flag' => Models\Activity::CREDIT_FLAG_UNUSE,
-      'special_flag' => Models\Activity::SPECIAL_FLAG_UNUSE
-    );
-
-    Models\Activity::create($activity);
+    foreach ($activity_categories as $activity_category) {
+      Models\ActivityCategory::create($activity_category);
+    }
   }
 }
