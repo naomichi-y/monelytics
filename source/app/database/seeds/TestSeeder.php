@@ -1,9 +1,11 @@
 <?php
 namespace Monelytics\Seeds;
 
+use Illuminate\Database\Seeder;
+
 use Eloquent;
 
-class TestSeeder extends \Illuminate\Database\Seeder {
+class TestSeeder extends Seeder {
 
   /**
    * Run the database seeds.
@@ -14,10 +16,10 @@ class TestSeeder extends \Illuminate\Database\Seeder {
   {
     Eloquent::unguard();
 
-    $this->call('UserTableSeeder');
-    $this->call('ActivityTableSeeder');
-    $this->call('ActivityCategoryTableSeeder');
-    $this->call('ActivityCategoryGroupTableSeeder');
+    $this->call('Monelytics\Seeds\Test\UserTableSeeder');
+    $this->call('Monelytics\Seeds\Test\ActivityTableSeeder');
+    $this->call('Monelytics\Seeds\Test\ActivityCategoryTableSeeder');
+    $this->call('Monelytics\Seeds\Test\ActivityCategoryGroupTableSeeder');
   }
 
 }
