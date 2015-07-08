@@ -5,6 +5,15 @@ use Monelytics\Models;
 use Monelytics\Tests\TestCase;
 
 class ActivityCategoryControllerTest extends TestCase {
+  private $activity_category;
+
+  public function setup()
+  {
+    parent::setup();
+
+    $this->activity_category = $this->app->make('Monelytics\Models\ActivityCategory');
+  }
+
   public function testIndex()
   {
     $this->assertUserOnlyContent('GET', '/settings/activityCategory');
@@ -22,13 +31,13 @@ class ActivityCategoryControllerTest extends TestCase {
       'sort_order' => 2
     );
 
-    Models\ActivityCategory::create($activity_category);
+    $this->activity_category->create($activity_category);
     $params = array(2, 1);
 
     $this->call('POST', '/settings/activityCategory/sort', $params);
     $this->assertRedirectedTo('/settings/activityCategory');
 
-    $sort_orders = Models\ActivityCategory::orderBy('id', 'DESC')->lists('sort_order');
+    $sort_orders = $this->activity_category->orderBy('id', 'DESC')->lists('sort_order');
     $this->assertEquals($sort_orders, array(2, 1));
   }
 
@@ -46,9 +55,9 @@ class ActivityCategoryControllerTest extends TestCase {
       'balance_type' => Models\ActivityCategory::BALANCE_TYPE_EXPENSE
     );
 
-    $default_count = Models\ActivityCategory::all()->count();
+    $default_count = $this->activity_category->all()->count();
     $this->assertValidAjaxResponse('POST', '/settings/activityCategory', $params);
-    $this->assertEquals(Models\ActivityCategory::all()->count(), $default_count + 1);
+    $this->assertEquals($this->activity_category->all()->count(), $default_count + 1);
   }
 
   public function testEdit()
@@ -59,11 +68,11 @@ class ActivityCategoryControllerTest extends TestCase {
   public function testUpdate()
   {
     $this->login();
-    $params = Models\ActivityCategory::find(1)->toArray();
+    $params = $this->activity_category->find(1)->toArray();
     $params['category_name'] = 'update';
 
     $this->assertValidAjaxResponse('PUT', '/settings/activityCategory/1', $params);
-    $this->assertEquals(Models\ActivityCategory::find(1)->category_name, 'update');
+    $this->assertEquals($this->activity_category->find(1)->category_name, 'update');
   }
 
   public function testDestroy()
@@ -72,6 +81,6 @@ class ActivityCategoryControllerTest extends TestCase {
     $this->login();
     $this->call('DELETE', '/settings/activityCategory/1', array(), array(), array('HTTP_REFERER' => 'http://localhost/settings/activityCategory'));
     $this->assertRedirectedTo('/settings/activityCategory');
-    $this->assertEquals(Models\ActivityCategory::find(1), null);
+    $this->assertEquals($this->activity_category->find(1), null);
   }
 }

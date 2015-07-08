@@ -7,6 +7,15 @@ use Monelytics\Models;
 use Monelytics\Tests\TestCase;
 
 class RegistrationControllerTest extends TestCase {
+  private $user;
+
+  public function setup()
+  {
+    parent::setup();
+
+    $this->user = $this->app->make('Monelytics\Models\User');
+  }
+
   public function testIndex()
   {
     $this->assertUserOnlyContent('GET', '/user');
@@ -57,7 +66,7 @@ class RegistrationControllerTest extends TestCase {
 
     $this->call('PUT', '/user/update', $params);
     $this->assertRedirectedTo('/user');
-    $this->assertEquals(Models\User::find(1)->email, 'test2@monelytics.me');
+    $this->assertEquals($this->user->find(1)->email, 'test2@monelytics.me');
   }
 
   public function testWithdrawal()
@@ -69,6 +78,6 @@ class RegistrationControllerTest extends TestCase {
     $this->call('POST', '/user/withdrawal');
     $this->assertTrue(Auth::guest());
 
-    $this->assertEquals(Models\User::all()->count(), 0);
+    $this->assertEquals($this->user->all()->count(), 0);
   }
 }

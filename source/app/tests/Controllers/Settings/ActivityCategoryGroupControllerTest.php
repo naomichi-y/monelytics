@@ -5,6 +5,15 @@ use Monelytics\Models;
 use Monelytics\Tests\TestCase;
 
 class ActivityCategoryGroupControllerTest extends TestCase {
+  private $activity_category_group;
+
+  public function setup()
+  {
+    parent::setup();
+
+    $this->activity_category_group = $this->app->make('Monelytics\Models\ActivityCategoryGroup');
+  }
+
   public function testIndex()
   {
     $this->assertUserOnlyContent('GET', '/settings/activityCategoryGroup');
@@ -22,13 +31,13 @@ class ActivityCategoryGroupControllerTest extends TestCase {
       'sort_order' => 2
     );
 
-    Models\ActivityCategoryGroup::create($activity_category_group);
+    $this->activity_category_group->create($activity_category_group);
     $params = array(2, 1);
 
     $this->call('POST', '/settings/activityCategoryGroup/sort', $params);
     $this->assertRedirectedTo('/settings/activityCategoryGroup');
 
-    $sort_orders = Models\ActivityCategoryGroup::orderBy('id', 'DESC')->lists('sort_order');
+    $sort_orders = $this->activity_category_group->orderBy('id', 'DESC')->lists('sort_order');
     $this->assertEquals($sort_orders, array(2, 1));
   }
 
@@ -46,9 +55,9 @@ class ActivityCategoryGroupControllerTest extends TestCase {
       'credit_flag' => Models\ActivityCategoryGroup::CREDIT_FLAG_DISABLE
     );
 
-    $default_count = Models\ActivityCategoryGroup::all()->count();
+    $default_count = $this->activity_category_group->all()->count();
     $this->assertValidAjaxResponse('POST', '/settings/activityCategoryGroup', $params);
-    $this->assertEquals(Models\ActivityCategoryGroup::all()->count(), $default_count + 1);
+    $this->assertEquals($this->activity_category_group->all()->count(), $default_count + 1);
   }
 
   public function testEdit()
@@ -59,11 +68,11 @@ class ActivityCategoryGroupControllerTest extends TestCase {
   public function testUpdate()
   {
     $this->login();
-    $params = Models\ActivityCategoryGroup::find(1)->toArray();
+    $params = $this->activity_category_group->find(1)->toArray();
     $params['group_name'] = 'update';
 
     $this->assertValidAjaxResponse('PUT', '/settings/activityCategoryGroup/1', $params);
-    $this->assertEquals(Models\ActivityCategoryGroup::find(1)->group_name, 'update');
+    $this->assertEquals($this->activity_category_group->find(1)->group_name, 'update');
   }
 
   public function testDestroy()
@@ -72,6 +81,6 @@ class ActivityCategoryGroupControllerTest extends TestCase {
     $this->login();
     $this->call('DELETE', '/settings/activityCategoryGroup/1', array(), array(), array('HTTP_REFERER' => 'http://localhost/settings/activityCategoryGroup'));
     $this->assertRedirectedTo('/settings/activityCategoryGroup');
-    $this->assertEquals(Models\ActivityCategoryGroup::find(1), null);
+    $this->assertEquals($this->activity_category_group->find(1), null);
   }
 }

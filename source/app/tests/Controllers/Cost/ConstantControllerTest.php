@@ -12,7 +12,9 @@ class ConstantControllerTest extends TestCase {
   public function setUp()
   {
     parent::setUp();
-    $this->default_count = Models\Activity::all()->count();
+
+    $activity = $this->app->make('Monelytics\Models\Activity');
+    $this->default_count = $activity->all()->count();
   }
 
   public function testCreate()

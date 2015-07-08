@@ -5,12 +5,14 @@ use Monelytics\Models;
 use Monelytics\Tests\TestCase;
 
 class VariableControllerTest extends TestCase {
-  private $default_count;
+  private $activity;
 
   public function setUp()
   {
     parent::setUp();
-    $this->default_count = Models\Activity::all()->count();
+
+    $this->activity = $this->app->make('Monelytics\Models\Activity');
+    $this->default_count = $this->activity->all()->count();
   }
 
   public function testCreate()
@@ -29,7 +31,7 @@ class VariableControllerTest extends TestCase {
     );
 
     $this->call('POST', '/cost/variable', $params, array(), array('HTTP_REFERER' => 'http://localhost/cost/variable/create'));
-    $this->assertEquals(Models\Activity::all()->count() - $this->default_count, 1);
+    $this->assertEquals($this->activity->all()->count() - $this->default_count, 1);
     $this->assertRedirectedTo('/cost/variable/create');
   }
 
@@ -42,7 +44,7 @@ class VariableControllerTest extends TestCase {
   {
     $this->login();
 
-    $params = Models\Activity::find(1)->toArray();
+    $params = $this->activity->find(1)->toArray();
     $params['amount'] = -2000;
 
     $this->assertValidAjaxResponse('PUT', '/cost/variable/1', $params);
