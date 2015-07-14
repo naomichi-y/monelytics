@@ -72,12 +72,12 @@ class RegistrationControllerTest extends TestCase {
   public function testWithdrawal()
   {
     $this->assertUserOnlyContent('POST', '/user/withdrawal');
-    $this->seed('TestSeeder');
+    $this->seed('Monelytics\Seeds\TestSeeder');
 
     $this->login();
     $this->call('POST', '/user/withdrawal');
     $this->assertTrue(Auth::guest());
 
-    $this->assertEquals($this->user->all()->count(), 0);
+    $this->assertEquals($this->user->find(1), null);
   }
 }

@@ -25,4 +25,5 @@
   {{HTML::script('assets/components/analytics.js')}}
   {{HTML::script('assets/js/common.js')}}
   @yield('extend_head_tags')
+  <script type="text/javascript">(function(){var a;a=function(){var a;return a=a||[],function(){var b,c,d,e;for(c=["init","start","stop","user","track","action","event","goal","chat","buy","page","view","admin","group","alias","ready","link","form","click","submit","cmd","emit","on","send","css","js","style","option","get","set"],b=function(b){return function(){return a.push([b].concat(Array.prototype.slice.call(arguments,0)))}},d=0,e=[];d<c.length;)a[c[d]]=b(c[d]),e.push(d++);return e}(),a.init=function(b,c){var d,e;return a.api_key=b,a.options=c||{},e=document.createElement("script"),e.type="text/javascript",e.async=!0,e.cahrset="utf-8",e.src="https://static.karte.io/libs/tracker.js",d=document.getElementsByTagName("script")[0],d.parentNode.insertBefore(e,d)},a},(window.karte_tracker_names||["tracker"]).map(function(b){return window[b]=a()})}).call(this);tracker.init("712c0318820f83124fa28ddc34800f90");</script>
 </head>

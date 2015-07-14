@@ -1,5 +1,5 @@
 <?php
-namespace Monelytics\Tests\Settings;
+namespace Monelytics\Tests\Controllers\Settings;
 
 use Monelytics\Models;
 use Monelytics\Tests\TestCase;
@@ -22,23 +22,20 @@ class ActivityCategoryControllerTest extends TestCase {
   public function testSort()
   {
     $this->login();
-    $activity_category = array(
-      'id' => 2,
-      'user_id' => 1,
-      'category_name' => 'test',
-      'cost_type' => Models\ActivityCategory::COST_TYPE_VARIABLE,
-      'balance_type' => Models\ActivityCategory::BALANCE_TYPE_EXPENSE,
-      'sort_order' => 2
-    );
+    $request_id_orders = $this->activity_category
+      ->where('balance_type', '=', Models\ActivityCategory::BALANCE_TYPE_EXPENSE)
+      ->lists('id');
+    rsort($request_id_orders);
 
-    $this->activity_category->create($activity_category);
-    $params = array(2, 1);
-
-    $this->call('POST', '/settings/activityCategory/sort', $params);
+    $this->call('POST', '/settings/activityCategory/sort', array('ids' => $request_id_orders));
     $this->assertRedirectedTo('/settings/activityCategory');
 
-    $sort_orders = $this->activity_category->orderBy('id', 'DESC')->lists('sort_order');
-    $this->assertEquals($sort_orders, array(2, 1));
+    $result_id_orders = $this->activity_category
+      ->where('balance_type', '=', Models\ActivityCategory::BALANCE_TYPE_EXPENSE)
+      ->orderBy('sort_order')
+      ->lists('id');
+
+    $this->assertEquals($result_id_orders, $request_id_orders);
   }
 
   public function testCreate()

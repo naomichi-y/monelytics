@@ -22,9 +22,9 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase {
     return require __DIR__.'/../../bootstrap/start.php';
   }
 
-  public function setUp()
+  public function setup()
   {
-    parent::setUp();
+    parent::setup();
 
     $this->setupDatabase();
     $this->seed('Monelytics\Seeds\TestSeeder');

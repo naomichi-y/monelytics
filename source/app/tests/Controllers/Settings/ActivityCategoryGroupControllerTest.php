@@ -1,7 +1,8 @@
 <?php
-namespace Monelytics\Tests\Settings;
+namespace Monelytics\Tests\Controllers\Settings;
 
 use Monelytics\Models;
+use Monelytics\Seeds\Test\ActivityCategoryTableSeeder;
 use Monelytics\Tests\TestCase;
 
 class ActivityCategoryGroupControllerTest extends TestCase {
@@ -22,23 +23,20 @@ class ActivityCategoryGroupControllerTest extends TestCase {
   public function testSort()
   {
     $this->login();
-    $activity_category_group = array(
-      'id' => 2,
-      'activity_category_id' => 1,
-      'user_id' => 1,
-      'group_name' => 'test',
-      'credit_flag' => Models\Activity::CREDIT_FLAG_USE,
-      'sort_order' => 2
-    );
+    $request_id_orders = $this->activity_category_group
+      ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
+      ->lists('id');
+    rsort($request_id_orders);
 
-    $this->activity_category_group->create($activity_category_group);
-    $params = array(2, 1);
-
-    $this->call('POST', '/settings/activityCategoryGroup/sort', $params);
+    $this->call('POST', '/settings/activityCategoryGroup/sort', array('ids' => $request_id_orders));
     $this->assertRedirectedTo('/settings/activityCategoryGroup');
 
-    $sort_orders = $this->activity_category_group->orderBy('id', 'DESC')->lists('sort_order');
-    $this->assertEquals($sort_orders, array(2, 1));
+    $result_id_orders = $this->activity_category_group
+      ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
+      ->orderBy('sort_order')
+      ->lists('id');
+
+    $this->assertEquals($result_id_orders, $request_id_orders);
   }
 
   public function testCreate()
