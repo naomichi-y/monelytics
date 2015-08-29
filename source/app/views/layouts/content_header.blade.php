@@ -1,4 +1,3 @@
-<!doctype html>
 <header class="navbar navbar-default navbar-fixed-top">
   <div class="container">
     <nav>
@@ -11,7 +10,7 @@
         </button>
       </div>
       <div class="collapse navbar-collapse" id="navbar">
-        <ul class="nav navbar-nav navbar-right">
+        <ul class="nav navbar-nav">
           @if (Auth::check())
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">収支管理 <span class="caret"></span></a>
@@ -50,6 +49,12 @@
             <li><a href="/user/login" class="dropdown-toggle">ログイン</a></li>
           @endif
         </ul>
+        {{Form::open(array('url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right'))}}
+          <div class="form-group">
+            {{Form::text('keyword', Input::get('keyword'), array('class' => 'form-control', 'placeholder' => 'キーワード'))}}
+          </div>
+          {{Form::submit('検索', array('class' => 'btn btn-default'))}}
+        {{Form::close()}}
       </div>
     </nav>
   </div>

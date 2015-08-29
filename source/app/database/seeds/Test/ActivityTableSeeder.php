@@ -19,7 +19,7 @@ class ActivityTableSeeder extends Seeder {
       ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE,
       ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_INCOME_CREDIT_DISABLE
     );
-    $activity_category_groups[Models\ActivityCategoryGroup::CREDIT_FLAG_DISABLE] = array(
+    $activity_category_groups[Models\ActivityCategoryGroup::CREDIT_FLAG_ENABLE] = array(
       ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE,
       ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_ENABLE,
       ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_ENABLE,

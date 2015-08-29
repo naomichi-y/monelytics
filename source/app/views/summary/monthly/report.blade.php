@@ -61,7 +61,7 @@
                     <td class="text-right">{{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => Monelytics\Models\Activity::CREDIT_FLAG_USE), number_format($activity_category_group_summary['credit_amount']))}}</td>
                     <td class="text-right">
                       @if ($cost_type == Monelytics\Models\ActivityCategory::COST_TYPE_VARIABLE)
-                       {{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]', $activity_category_group_id, 'special_flag' => Monelytics\Models\Activity::SPECIAL_FLAG_USE), number_format($activity_category_group_summary['special_use_amount']))}}
+                       {{HTML::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => Monelytics\Models\Activity::SPECIAL_FLAG_USE), number_format($activity_category_group_summary['special_use_amount']))}}
                       @else
                        N/A
                       @endif
