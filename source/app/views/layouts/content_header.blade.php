@@ -49,12 +49,14 @@
             <li><a href="/user/login" class="dropdown-toggle">ログイン</a></li>
           @endif
         </ul>
-        {{Form::open(array('url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right'))}}
-          <div class="form-group">
-            {{Form::text('keyword', Input::get('keyword'), array('class' => 'form-control', 'placeholder' => 'キーワード'))}}
-          </div>
-          {{Form::submit('検索', array('class' => 'btn btn-default'))}}
-        {{Form::close()}}
+        @if (Auth::check())
+          {{Form::open(array('url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right'))}}
+            <div class="form-group">
+              {{Form::text('keyword', Input::get('keyword'), array('class' => 'form-control', 'placeholder' => 'キーワード'))}}
+            </div>
+            {{Form::submit('検索', array('class' => 'btn btn-default'))}}
+          {{Form::close()}}
+        @endif
       </div>
     </nav>
   </div>
