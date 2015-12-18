@@ -1,4 +1,13 @@
 <header class="navbar navbar-default navbar-fixed-top">
+  <script src="https://d17xl1w8hmdno9.cloudfront.net/tag/master/spike_loader.js"></script>
+  <script>
+    var spikeLoader = new SpikeLoader('ak_Dkm3eaf');
+    spikeLoader.baseUrl = 'https://d17xl1w8hmdno9.cloudfront.net/tag/master';
+    spikeLoader.config = {
+      'debug': true,
+    };
+    spikeLoader.tracking();
+  </script>
   <div class="container">
     <nav>
       <div class="navbar-header">
