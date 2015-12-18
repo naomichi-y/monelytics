@@ -1,41 +1,45 @@
-<script>
-  $(function() {
-    var doSubmit = function doSubmit() {
-      // クレジットカードの値取得
-      var creditFlag = $("#credit_flag").prop("checked") ? 1 : 0;
-
-      $.put("/settings/activityCategoryGroup/{{$id}}",
-        {
-          activity_category_id: $("#activity_category_id").val(),
-          group_name: $("#group_name").val(),
-          content: $("#content").val(),
-          credit_flag: creditFlag
-        },
-        function(data) {
-          if (data["result"] == false) {
-            $("#ajax-errors").removeClass("hide");
-            $("#ajax-message-list > li").remove();
-
-            $.each(data["errors"], function(key, value) {
-              $("#ajax-message-list").append("<li>" + value + "</li>");
-            });
-
-          } else {
-            location.reload();
-          }
-        },
-        "json"
-      );
-    }
-
-    $.enterCallback(doSubmit);
-
-    $(document).on("click", "#update", function() {
-      doSubmit();
-    });
-  });
-</script>
 <div id="update-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>
+    $(function() {
+      $(this).on('hidden.bs.modal', function() {
+        $(".modal").remove();
+      });
+
+      var doSubmit = function doSubmit() {
+        // クレジットカードの値取得
+        var creditFlag = $("#credit_flag").prop("checked") ? 1 : 0;
+
+        $.put("/settings/activityCategoryGroup/{{$id}}",
+          {
+            activity_category_id: $("#activity_category_id").val(),
+            group_name: $("#group_name").val(),
+            content: $("#content").val(),
+            credit_flag: creditFlag
+          },
+          function(data) {
+            if (data["result"] == false) {
+              $("#ajax-errors").removeClass("hide");
+              $("#ajax-message-list > li").remove();
+
+              $.each(data["errors"], function(key, value) {
+                $("#ajax-message-list").append("<li>" + value + "</li>");
+              });
+
+            } else {
+              location.reload();
+            }
+          },
+          "json"
+        );
+      }
+
+      $.enterCallback(doSubmit);
+
+      $(document).on("click", "#update-{{$id}}", function() {
+        doSubmit();
+      });
+    });
+  </script>
   <div class="modal-dialog">
     <div class="modal-content">
       {{Form::open(array('class' => 'form-horizontal'))}}
@@ -87,7 +91,7 @@
         </div>
 
         <div class="modal-footer">
-          {{Form::button('更新', array('class' => 'btn btn-primary', 'id' => 'update'))}}
+          {{Form::button('更新', array('class' => 'btn btn-primary', 'id' => "update-$id"))}}
           {{Form::button('キャンセル', array('class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true'))}}
         </div>
       {{Form::close()}}

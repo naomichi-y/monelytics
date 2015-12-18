@@ -1,56 +1,60 @@
-<script>
-  $(function() {
-    var doSubmit = function doSubmit() {
-      // 科目タイプの値取得
-      var costType = "";
-
-      if ($("#cost_type_variable").prop("checked")) {
-        costType = $("#cost_type_variable").val();
-      } else if ($("#cost_type_constant").prop("checked")) {
-        costType = $("#cost_type_constant").val();
-      }
-
-      // 収支タイプの値取得
-      var balanceType = "";
-
-      if ($("#balance_type_expense").prop("checked")) {
-        balanceType = $("#balance_type_expense").val();
-      } else if ($("#balance_type_income").prop("checked")) {
-        balanceType = $("#balance_type_income").val();
-      }
-
-      $.put("/settings/activityCategory/{{$id}}",
-        {
-          category_name: $("#category_name").val(),
-          content: $("#content").val(),
-          cost_type: costType,
-          balance_type: balanceType
-        },
-        function(data) {
-          if (data["result"] == false) {
-            $("#ajax-errors").removeClass("hide");
-            $("#ajax-message-list > li").remove();
-
-            $.each(data["errors"], function(key, value) {
-              $("#ajax-message-list").append("<li>" + value + "</li>");
-            });
-
-          } else {
-            location.reload();
-          }
-        },
-      "json"
-      );
-    }
-
-    $.enterCallback(doSubmit);
-
-    $(document).on("click", "#update", function() {
-      doSubmit();
-    });
-  });
-</script>
 <div id="update-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <script>
+    $(function() {
+      $(this).on('hidden.bs.modal', function() {
+        $(".modal").remove();
+      });
+
+      var doSubmit = function doSubmit() {
+        // 科目タイプの値取得
+        var costType = "";
+
+        if ($("#cost_type_variable").prop("checked")) {
+          costType = $("#cost_type_variable").val();
+        } else if ($("#cost_type_constant").prop("checked")) {
+          costType = $("#cost_type_constant").val();
+        }
+
+        // 収支タイプの値取得
+        var balanceType = "";
+
+        if ($("#balance_type_expense").prop("checked")) {
+          balanceType = $("#balance_type_expense").val();
+        } else if ($("#balance_type_income").prop("checked")) {
+          balanceType = $("#balance_type_income").val();
+        }
+
+        $.put("/settings/activityCategory/{{$id}}",
+          {
+            category_name: $("#category_name").val(),
+            content: $("#content").val(),
+            cost_type: costType,
+            balance_type: balanceType
+          },
+          function(data) {
+            if (data["result"] == false) {
+              $("#ajax-errors").removeClass("hide");
+              $("#ajax-message-list > li").remove();
+
+              $.each(data["errors"], function(key, value) {
+                $("#ajax-message-list").append("<li>" + value + "</li>");
+              });
+
+            } else {
+              location.reload();
+            }
+          },
+        "json"
+        );
+      }
+
+      $.enterCallback(doSubmit);
+
+      $(document).on("click", "#update-{{$id}}", function() {
+        doSubmit();
+      });
+    });
+  </script>
   <div class="modal-dialog">
     <div class="modal-content">
       {{Form::open(array('class' => 'form-horizontal'))}}
@@ -111,7 +115,7 @@
         </div>
 
         <div class="modal-footer">
-          {{Form::button('更新', array('class' => 'btn btn-primary', 'id' => 'update'))}}
+          {{Form::button('更新', array('class' => 'btn btn-primary', 'id' => "update-$id"))}}
           {{Form::button('キャンセル', array('class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true'))}}
         </div>
       {{Form::close()}}
