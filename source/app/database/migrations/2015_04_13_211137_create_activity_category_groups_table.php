@@ -21,8 +21,8 @@ class CreateActivityCategoryGroupsTable extends Migration {
       $table->tinyInteger('credit_flag')->default(0)->unsigned();
       $table->string('content', 255)->nullable();
       $table->tinyInteger('sort_order')->default(0)->unsinged();
-      $table->timestamp('create_date');
-      $table->timestamp('last_update_date')->nullableTimestamps();
+      $table->timestamp('create_date')->default(DB::raw('CURRENT_TIMESTAMP'));
+      $table->timestamp('last_update_date')->default(DB::raw('CURRENT_TIMESTAMP'))->nullableTimestamps();
       $table->timestamp('delete_date')->nullableTimestamps()->nullable();
     });
   }

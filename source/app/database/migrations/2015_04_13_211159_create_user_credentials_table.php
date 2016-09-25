@@ -19,8 +19,8 @@ class CreateUserCredentialsTable extends Migration {
       $table->tinyInteger('credential_type')->unsigned();
       $table->string('credential_id', 255)->nullable();
       $table->string('access_token', 255)->nullable();
-      $table->timestamp('create_date');
-      $table->timestamp('last_update_date')->nullableTimestamps();
+      $table->timestamp('create_date')->default(DB::raw('CURRENT_TIMESTAMP'));
+      $table->timestamp('last_update_date')->default(DB::raw('CURRENT_TIMESTAMP'))->nullableTimestamps();
       $table->timestamp('delete_date')->nullableTimestamps()->nullable();
     });
   }
