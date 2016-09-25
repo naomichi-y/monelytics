@@ -1,8 +1,6 @@
 source/app/config/packages/artdarek/oauth-4-laravel/config.php
-composer.phar
-composer.lock
+source/vendor
 
 .env.php
 .DS_Store
-Thumbs.db
 *.bak
