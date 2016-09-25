@@ -3,5 +3,4 @@ source/vendor
 
 .env.php
 .DS_Store
-Thumbs.db
 *.bak

@@ -19,3 +19,5 @@ RUN chown webapp:webapp /var/run/php-fpm
 
 COPY ./php/php.ini /usr/local/etc/php/php.ini
 COPY ./php-fpm/www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
+
+RUN cd /var/www/monelytics/ && p^C artisan migrate
