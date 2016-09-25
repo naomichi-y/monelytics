@@ -1,5 +1,5 @@
 FROM alpine:3.4
-MAINTAINER Naomichi Yamakita
+MAINTAINER "Naomichi Yamakita" <n.yamakita@gmail.com>
 
 RUN mkdir -p /var/www/monelytics
 
