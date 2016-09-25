@@ -21,8 +21,8 @@ class CreateActivityCategoriesTable extends Migration {
       $table->tinyInteger('cost_type')->unsigned();
       $table->tinyInteger('balance_type')->unsigned();
       $table->tinyInteger('sort_order')->default(1)->unsigned();
-      $table->timestamp('create_date');
-      $table->timestamp('last_update_date')->nullableTimestamps();
+      $table->timestamp('create_date')->default(DB::raw('CURRENT_TIMESTAMP'));
+      $table->timestamp('last_update_date')->default(DB::raw('CURRENT_TIMESTAMP'))->nullableTimestamps();
       $table->timestamp('delete_date')->nullableTimestamps()->nullable();
     });
   }

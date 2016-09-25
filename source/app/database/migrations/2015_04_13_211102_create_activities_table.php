@@ -23,8 +23,8 @@ class CreateActivitiesTable extends Migration {
       $table->integer('amount');
       $table->tinyInteger('credit_flag')->default(0)->unsigned();
       $table->tinyInteger('special_flag')->default(0)->unsigned();
-      $table->timestamp('create_date');
-      $table->timestamp('last_update_date')->nullableTimestamps();
+      $table->timestamp('create_date')->default(DB::raw('CURRENT_TIMESTAMP'));
+      $table->timestamp('last_update_date')->default(DB::raw('CURRENT_TIMESTAMP'))->nullableTimestamps();
       $table->timestamp('delete_date')->nullableTimestamps()->nullable();
 
       $table->index('activity_date');
