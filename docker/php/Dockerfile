@@ -1,5 +1,5 @@
 FROM php:7.0.11-fpm
-MAINTAINER Naomichi Yamakita
+MAINTAINER "Naomichi Yamakita" <n.yamakita@gmail.com>
 
 RUN curl -sL http://www.debian.or.jp/using/apt/sources.list.http.ftp.jp.debian.org > /etc/apt/sources.list \
   && apt-get update
