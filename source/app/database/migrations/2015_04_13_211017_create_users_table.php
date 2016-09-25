@@ -20,8 +20,8 @@ class CreateUsersTable extends Migration {
       $table->string('nickname', 32);
       $table->tinyInteger('type')->default(1)->unsigned();
       $table->rememberToken();
-      $table->timestamp('create_date');
-      $table->timestamp('last_update_date')->nullableTimestamps();
+      $table->timestamp('create_date')->default(DB::raw('CURRENT_TIMESTAMP'));
+      $table->timestamp('last_update_date')->default(DB::raw('CURRENT_TIMESTAMP'))->nullableTimestamps();
       $table->timestamp('delete_date')->nullableTimestamps()->nullable();
     });
   }

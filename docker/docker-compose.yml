@@ -1,0 +1,38 @@
+version: "2"
+services:
+  app:
+    container_name: monelytics_app
+    build: "./app"
+    volumes:
+      - "../source:/var/www/monelytics"
+  web:
+    container_name: monelytics_web
+    build: "./web"
+    depends_on:
+      - "php"
+    volumes_from:
+      - "app"
+      - "php"
+    ports:
+      - "8080:80"
+    environment:
+      SERVER_NAME: "localhost"
+    command: /bin/sh -c "envsubst '$$SERVER_NAME' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+  php:
+    container_name: monelytics_php
+    build: "./php"
+    volumes_from:
+      - "app"
+      - "db"
+    volumes:
+      - "/var/run/php-fpm"
+
+  db:
+    container_name: monelytics_db
+    build: "./db"
+    volumes:
+      - "/var/lib/mysql"
+      - "/var/run/mysqld"
+    environment:
+      MYSQL_ROOT_PASSWORD: "jfiWF72Acv"
