@@ -1,15 +1,16 @@
 FROM php:7.0.11-fpm
 MAINTAINER "Naomichi Yamakita" <n.yamakita@gmail.com>
 
-RUN curl -sL http://www.debian.or.jp/using/apt/sources.list.http.ftp.jp.debian.org > /etc/apt/sources.list
+WORKDIR /tmp
+
 RUN apt-get update && \
   apt-get install -y libmcrypt-dev && \
   apt-get clean
 RUN docker-php-ext-install -j$(nproc) \
-    mbstring \
-    mcrypt \
-    pdo \
-    pdo_mysql
+  mbstring \
+  mcrypt \
+  pdo \
+  pdo_mysql
 
 VOLUME ["/var/run/php-fpm"]
 

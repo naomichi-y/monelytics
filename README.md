@@ -42,7 +42,7 @@ Open the http://localhost:8080/ in your browser.
 ```
 docker-compose run composer [COMMAND]
 
-# e.g.
+# e.g. Run install of package
 docker-compose run composer install
 ```
 
@@ -51,6 +51,16 @@ docker-compose run composer install
 ```
 docker-compose run artisan [COMMAND]
 
-# e.g.
+# e.g. Run migration of DB
 docker-compose run artisan migrate
+```
+
+## Test
+
+```
+# Run all tests
+docker-compose run phpunit
+
+# e.g. Specify test class
+docker-compose run phpunit app/tests/Controllers/ContactControllerTest
 ```

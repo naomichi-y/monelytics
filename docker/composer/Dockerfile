@@ -1,4 +1,4 @@
-FROM php:7.0.11-fpm
+FROM php:7.0.11-cli
 MAINTAINER "Naomichi Yamakita" <n.yamakita@gmail.com>
 
 WORKDIR /tmp

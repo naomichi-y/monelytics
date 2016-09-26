@@ -5,6 +5,7 @@ services:
     build: "./data"
     volumes:
       - "../source:/data"
+
   web:
     container_name: "monelytics_web"
     build: "./web"
@@ -26,7 +27,6 @@ services:
     build: "./php"
     volumes_from:
       - "data"
-      - "db"
     volumes:
       - "/var/run/php-fpm"
     networks:
@@ -44,7 +44,18 @@ services:
     build: "./artisan"
     volumes_from:
       - "data"
-      - "db"
+    networks:
+      monelytics_net:
+        ipv4_address: "172.16.238.4"
+
+  phpunit:
+    container_name: "monelytics_phpunit"
+    build: "./phpunit"
+    volumes_from:
+      - "data"
+    networks:
+      monelytics_net:
+        ipv4_address: "172.16.238.5"
 
   db:
     container_name: "monelytics_db"
@@ -57,14 +68,14 @@ services:
       - "3306:3306"
     networks:
       monelytics_net:
-        ipv4_address: "172.16.238.4"
+        ipv4_address: "172.16.238.6"
 
   redis:
     container_name: "monelytics_redis"
     build: "./redis"
     networks:
       monelytics_net:
-        ipv4_address: "172.16.238.5"
+        ipv4_address: "172.16.238.7"
     ports:
       - "6379:6379"
 
