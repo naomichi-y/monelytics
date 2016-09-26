@@ -23,6 +23,7 @@ Application is consists of the following container.
 * monelytics_db
 * monelytics_composer
 * monelytics_artisan
+* monelytics_redis
 
 Setup the containers.
 
