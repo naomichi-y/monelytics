@@ -35,7 +35,7 @@ docker-compose run composer install
 docker-compose run artisan migrate
 ```
 
-Open the http://localhost:8080/ in your browser.
+Open the [http://localhost:8080/](http://localhost:8080/) in your browser.
 
 ### How to use composer
 
