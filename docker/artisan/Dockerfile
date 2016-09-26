@@ -1,7 +1,8 @@
-FROM php:7.0.11-fpm
+FROM php:7.0.11-cli
 MAINTAINER "Naomichi Yamakita" <n.yamakita@gmail.com>
 
-RUN curl -sL http://www.debian.or.jp/using/apt/sources.list.http.ftp.jp.debian.org > /etc/apt/sources.list
+WORKDIR /tmp
+
 RUN apt-get update && \
   apt-get install -y \
   libmcrypt-dev && \
