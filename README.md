@@ -9,9 +9,8 @@ http://monelytics.me/
 
 ### Required tools
 
-* [Docker(https://docs.docker.com/)]
-* [Docker Compose(https://docs.docker.com/compose/)]
-
+* [Docker](https://docs.docker.com/)
+* [Docker Compose](https://docs.docker.com/compose/)
 
 ### Setup containers
 
