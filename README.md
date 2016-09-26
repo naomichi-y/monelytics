@@ -1,6 +1,6 @@
 # monelytics
 
-money + analytics = monelytics
+monelytics is a household account book web service.
 
 ## Web site
 http://monelytics.me/
@@ -37,7 +37,7 @@ docker-compose run artisan migrate
 
 Open the http://localhost:8080/ in your browser.
 
-## How to use composer
+### How to use composer
 
 ```
 docker-compose run composer [COMMAND]
@@ -46,7 +46,7 @@ docker-compose run composer [COMMAND]
 docker-compose run composer install
 ```
 
-## How to use Artisan
+### How to use Artisan
 
 ```
 docker-compose run artisan [COMMAND]
