@@ -4,7 +4,7 @@ services:
     container_name: "monelytics_data"
     build: "./data"
     volumes:
-      - "../source:/data"
+      - "../src:/data"
 
   web:
     container_name: "monelytics_web"
