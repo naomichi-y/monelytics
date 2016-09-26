@@ -9,20 +9,20 @@ http://monelytics.me/
 
 ### Required tools
 
-* [Docker(https://docs.docker.com/)]
-* [Docker Compose(https://docs.docker.com/compose/)]
-
+* [Docker](https://docs.docker.com/)
+* [Docker Compose](https://docs.docker.com/compose/)
 
 ### Setup containers
 
 Application is consists of the following container.
 
 * monelytics_data
-* monelytics_php
 * monelytics_web
-* monelytics_db
+* monelytics_php
 * monelytics_composer
 * monelytics_artisan
+* monelytics_phpunit
+* monelytics_db
 * monelytics_redis
 
 Setup the containers.
