@@ -34,11 +34,11 @@ class RegistrationController extends \App\Http\Controllers\ApplicationController
     );
 
     $this->beforeFilter(function() {
-      if (Auth::user()) {
-        return Redirect::to('dashboard');
+      if (!Auth::user()) {
+        return Redirect::to(route('user.login'));
       }
 
-    }, array('only' => $expect));
+    }, array('expect' => $expect));
 
     if (in_array($action_name, $expect)) {
       $this->required_auth = false;
