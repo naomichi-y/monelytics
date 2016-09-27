@@ -32,7 +32,7 @@ class VariableController extends \App\Http\Controllers\ApplicationController {
    */
   public function create()
   {
-    $data = array();
+    $data = [];
     $data['input_size'] = 8;
     $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList(Auth::id(), Models\ActivityCategory::COST_TYPE_VARIABLE, true);
 
@@ -53,7 +53,7 @@ class VariableController extends \App\Http\Controllers\ApplicationController {
       'credit_flag',
       'special_flag'
     );
-    $errors = array();
+    $errors = [];
 
     if (!$this->activity->createVariableCosts(Auth::id(), $fields, $errors)) {
       return Redirect::back()
@@ -72,7 +72,7 @@ class VariableController extends \App\Http\Controllers\ApplicationController {
   {
     $user_id = Auth::id();
 
-    $data = array();
+    $data = [];
     $data['id'] = $id;
     $data['activity'] = $this->activity->find($user_id, $id);
     $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList($user_id);
@@ -94,8 +94,8 @@ class VariableController extends \App\Http\Controllers\ApplicationController {
       'credit_flag',
       'special_flag'
     );
-    $data = array();
-    $errors = array();
+    $data = [];
+    $errors = [];
 
     if ($this->activity->update($id, $fields, $errors)) {
       $data['result'] = true;

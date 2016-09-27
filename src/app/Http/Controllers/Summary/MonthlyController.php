@@ -29,7 +29,7 @@ class MonthlyController extends \App\Http\Controllers\ApplicationController {
    */
   public function index()
   {
-    $data = array();
+    $data = [];
     $data['month_list'] = $this->activity->getMonthList(Auth::id(), true);
 
     return View::make('summary/monthly/index', $data);
@@ -40,7 +40,7 @@ class MonthlyController extends \App\Http\Controllers\ApplicationController {
    */
   public function condition()
   {
-    $data = array();
+    $data = [];
     $data['month_list'] = $this->activity->getMonthList(Auth::id(), true);
 
     return View::make('summary/monthly/condition', $data);
@@ -59,7 +59,7 @@ class MonthlyController extends \App\Http\Controllers\ApplicationController {
 
     $condition = new Condition\MonthlySummaryCondition($fields);
 
-    $data = array();
+    $data = [];
     $data['summary'] = $this->activity->getMonthlySummary(Auth::id(), $condition);
     $data['base_link'] = '/summary/daily?' . $condition->buildQueryString();
 
@@ -73,7 +73,7 @@ class MonthlyController extends \App\Http\Controllers\ApplicationController {
   {
     $condition = new Condition\BaseDateCondition(Input::only('date_month'));
 
-    $data = array();
+    $data = [];
     $data['calendar'] = $this->activity->getCalendar(Auth::id(), $condition);
 
     return View::make('summary/monthly/calendar', $data);
@@ -107,7 +107,7 @@ class MonthlyController extends \App\Http\Controllers\ApplicationController {
     );
     $condition = new Condition\PieChartCondition($fields);
 
-    $data = array();
+    $data = [];
     $data['constituents'] = $this->activity_category->getAmountConstituents(Auth::id(), $condition);
 
     return json_encode($data);
@@ -126,7 +126,7 @@ class MonthlyController extends \App\Http\Controllers\ApplicationController {
     );
     $condition = new Condition\RankingCondition($fields);
 
-    $data = array();
+    $data = [];
     $data['location_rankings'] = $this->activity->getRankingByLocation($user_id, $condition);
     $data['date_range'] = $condition->getDateRange();
     $data['expense_rankings'] = $this->activity->getRankingByExpense($user_id, $condition);

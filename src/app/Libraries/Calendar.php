@@ -35,7 +35,7 @@ class Calendar {
         31
       );
 
-      $holidays = array();
+      $holidays = [];
 
       try {
         $result = json_decode(file_get_contents($url));

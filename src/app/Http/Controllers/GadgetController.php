@@ -25,7 +25,7 @@ class GadgetController extends ApplicationController {
    */
   public function activityStatus()
   {
-    $data = array();
+    $data = [];
     $data['status'] = $this->activity->getBalanceOfPaymentStatus(Auth::id());
 
     return View::make('gadget/activity_status', $data);
@@ -59,10 +59,10 @@ class GadgetController extends ApplicationController {
     $padding_total_height = ($week_day - 1) * $padding_size;
     $svg_height = $rect_total_height + $padding_total_height + $adjust_y;
 
-    $data = array();
+    $data = [];
     $data['svg_width'] = $svg_width;
     $data['svg_height'] = $svg_height;
-    $data['days'] = array('M', '', 'W', '', 'F', '', 'S');
+    $data['days'] = ['M', '', 'W', '', 'F', '', 'S'];
     $data['week_size'] = $week_size;
     $data['rect_size'] = $rect_size;
     $data['padding_size'] = $padding_size;
@@ -78,7 +78,7 @@ class GadgetController extends ApplicationController {
    */
   public function activityHistory()
   {
-    $data = array();
+    $data = [];
     $data['histories'] = $this->activity->getHistories(Auth::id(), 4);
 
     return View::make('gadget/activity_history', $data);

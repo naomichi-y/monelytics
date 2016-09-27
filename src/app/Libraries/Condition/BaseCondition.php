@@ -5,7 +5,7 @@ class BaseCondition {
   /**
    * @param array $condition
    */
-  public function __construct(array $condition = array())
+  public function __construct(array $condition = [])
   {
     if (sizeof($condition)) {
       foreach ($condition as $name => $value) {
@@ -27,7 +27,7 @@ class BaseCondition {
     $class = new \ReflectionClass($this);
     $properties = $class->getProperties();
 
-    $array = array();
+    $array = [];
 
     foreach ($properties as $property) {
       $array[$property->name] = $this->{$property->name};

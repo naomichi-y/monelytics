@@ -72,10 +72,10 @@ class RegistrationController extends \App\Http\Controllers\ApplicationController
    */
   public function createOAuthCallback()
   {
-    $params = array(
+    $params = [
       'code' => Input::get('code')
-    );
-    $errors = array();
+    ];
+    $errors = [];
 
     if (!$this->user->createOAuth(Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
       return Redirect::to('user/create')
@@ -97,7 +97,7 @@ class RegistrationController extends \App\Http\Controllers\ApplicationController
       'password'
     );
 
-    $errors = array();
+    $errors = [];
 
     if (!$this->user->create($fields, $errors)) {
       return Redirect::to('user/create')
@@ -136,7 +136,7 @@ class RegistrationController extends \App\Http\Controllers\ApplicationController
       'password_confirmation'
     );
 
-    $errors = array();
+    $errors = [];
 
     if (!$this->user->update(Auth::id(), $fields, $errors)) {
       return Redirect::to('/user')

@@ -13,7 +13,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
   const TYPE_GENERAL = 1;
 
-  protected $guarded = array('id');
+  protected $guarded = ['id'];
 
   public function userCredential()
   {
@@ -35,7 +35,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
    *
    * @var array
    */
-  protected $hidden = array('password');
+  protected $hidden = ['password'];
 
   public static function boot()
   {
@@ -52,40 +52,40 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     });
   }
 
-  protected $rules = array(
+  protected $rules = [
     'nickname' => 'required|max:32',
     'email' => 'required|not_exists:users,email',
     'password' => 'required|min:8'
-  );
+  ];
 
   public function oauthValidate(array $fields)
   {
-    $this->rules = array(
+    $this->rules = [
       'nickname' => 'required|max:32',
       'email' => 'required|not_exists:users,email'
-    );
-    $this->messages = array(
+    ];
+    $this->messages = [
       'email.not_exists' => Lang::get('validation.custom.user.create_oauth.registered')
-    );
+    ];
 
     return $this->validate($fields);
   }
 
   public function loginValidate(array $fields)
   {
-    $this->rules = array(
+    $this->rules = [
       'email' => 'required',
       'password' => 'required'
-    );
+    ];
 
     return $this->validate($fields);
   }
 
   public function updateValidate(array $fields)
   {
-    $this->rules = array(
+    $this->rules = [
       'id' => 'required'
-    );
+    ];
 
     $user = $this->find($fields['id']);
 

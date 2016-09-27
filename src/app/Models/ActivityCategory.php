@@ -7,13 +7,13 @@ class ActivityCategory extends BaseModel {
   const BALANCE_TYPE_EXPENSE = 1;
   const BALANCE_TYPE_INCOME = 2;
 
-  protected $guarded = array('id');
-  protected $rules = array(
+  protected $guarded = ['id'];
+  protected $rules = [
     'category_name' => 'required|max:32',
     'content' => 'max:255',
     'cost_type' => 'required',
     'balance_type' => 'required'
-  );
+  ];
 
   public function user()
   {

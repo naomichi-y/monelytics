@@ -5,12 +5,12 @@ class ActivityCategoryGroup extends BaseModel {
   const CREDIT_FLAG_ENABLE = 1;
   const CREDIT_FLAG_DISABLE = 0;
 
-  protected $guarded = array('id');
-  protected $rules = array(
+  protected $guarded = ['id'];
+  protected $rules = [
     'activity_category_id' => 'required',
     'group_name' => 'required|max:32',
     'content' => 'max:255'
-  );
+  ];
 
   public function user()
   {

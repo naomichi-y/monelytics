@@ -48,7 +48,7 @@ class ActivityCategoryService
   {
     $this->activity_category->where('id', '=', $id)
       ->where('user_id', '=', $user_id)
-      ->update(array('sort_order' => $sort_order));
+      ->update(['sort_order' => $sort_order]);
   }
 
   /**
@@ -79,7 +79,7 @@ class ActivityCategoryService
    * @param array &$errors
    * @return bool
    */
-  public function create($user_id, array $fields, array &$errors = array())
+  public function create($user_id, array $fields, array &$errors = [])
   {
     $result = false;
 
@@ -111,18 +111,18 @@ class ActivityCategoryService
       ->orderBy('cost_type', 'asc')
       ->orderBy('sort_order', 'asc');
     $collection = $builder->get();
-    $array = array();
-    $group_names = array(
+    $array = [];
+    $group_names = [
       Models\ActivityCategory::COST_TYPE_VARIABLE => '変動収支',
       Models\ActivityCategory::COST_TYPE_CONSTANT => '固定収支'
-    );
+    ];
 
     foreach ($collection as $data) {
       $array[$group_names[$data->cost_type]][$data->id] = $data->category_name;
     }
 
     if ($header) {
-      $array = array('' => '科目カテゴリの指定') + $array;
+      $array = ['' => '科目カテゴリの指定'] + $array;
     }
 
     return $array;
@@ -146,7 +146,7 @@ class ActivityCategoryService
     $activity_categories = $builder->orderBy('cost_type', 'asc')
       ->orderBy('sort_order', 'asc')
       ->get();
-    $result = array();
+    $result = [];
 
     foreach ($activity_categories as $activity_category) {
       $builder = $activity_category->activityCategoryGroups()
@@ -154,7 +154,7 @@ class ActivityCategoryService
         ->orderBy('sort_order', 'asc');
 
       $activity_category_groups = $builder->get();
-      $array = array();
+      $array = [];
 
       foreach ($activity_category_groups as $activity_category_group) {
         $array[$activity_category_group->id] = $activity_category_group->group_name;
@@ -166,7 +166,7 @@ class ActivityCategoryService
     }
 
     if ($header) {
-      $result = array('' => '科目の指定') + $result;
+      $result = ['' => '科目の指定'] + $result;
     }
 
     return $result;
@@ -184,24 +184,24 @@ class ActivityCategoryService
       ->orderBy('cost_type', 'asc')
       ->orderBy('sort_order', 'asc')
       ->get();
-    $result = array();
+    $result = [];
 
     foreach ($activity_categories as $activity_category) {
       $builder = $activity_category->activityCategoryGroups()
         ->where('user_id', '=', $user_id)
         ->orderBy('sort_order', 'asc');
-      $activity_category_groups = array();
+      $activity_category_groups = [];
 
       foreach ($builder->get() as $activity_category_group) {
         $activity_category_groups[$activity_category_group->id] = $activity_category_group->group_name;
       }
 
       if (sizeof($activity_category_groups)) {
-        $result[$activity_category->cost_type][] = array(
+        $result[$activity_category->cost_type][] = [
           'activity_category_id' => $activity_category->id,
           'activity_category_name' => $activity_category->category_name,
           'activity_category_groups' => $activity_category_groups
-        );
+        ];
       }
     }
 
@@ -241,7 +241,7 @@ class ActivityCategoryService
 
       if (strlen($date_range->begin_date)) {
         if (strlen($date_range->end_date)) {
-          $builder->whereBetween('a.activity_date', array($date_range->begin_date, $date_range->end_date));
+          $builder->whereBetween('a.activity_date', [$date_range->begin_date, $date_range->end_date]);
         } else {
           $builder->where('a.activity_date', '>=', $date_range->begin_date);
         }
@@ -257,18 +257,18 @@ class ActivityCategoryService
       ->groupBy('ac.id')
       ->orderBy('category_amount', 'asc');
 
-    $array = array();
+    $array = [];
     $total_amount = 0;
 
     foreach ($builder->get() as $data) {
-      $array[] = array(
+      $array[] = [
         'category_name' => $data->category_name,
         'category_amount' => $data->category_amount
-      );
+      ];
       $total_amount += $data->category_amount;
     }
 
-    $result = array();
+    $result = [];
 
     foreach ($array as $data) {
       $label = sprintf('%s (%s)', $data['category_name'], number_format($data['category_amount']));
@@ -288,7 +288,7 @@ class ActivityCategoryService
    * @param array &$errors
    * @return bool
    */
-  public function update($id, $user_id, $fields, array &$errors = array())
+  public function update($id, $user_id, $fields, array &$errors = [])
   {
     $result = false;
 

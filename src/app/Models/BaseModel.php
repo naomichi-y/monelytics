@@ -12,8 +12,8 @@ class BaseModel extends \Eloquent {
   const UPDATED_AT = 'last_update_date';
   const DELETED_AT = 'delete_date';
 
-  protected $rules = array();
-  protected $messages = array();
+  protected $rules = [];
+  protected $messages = [];
   protected $errors;
 
   /**

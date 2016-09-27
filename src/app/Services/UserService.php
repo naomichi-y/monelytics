@@ -46,7 +46,7 @@ class UserService
    * @param bool &$errors
    * @return bool
    */
-  public function create($fields, array &$errors = array())
+  public function create($fields, array &$errors = [])
   {
     $result = false;
 
@@ -56,10 +56,10 @@ class UserService
 
       $user = $this->user->create($fields);
 
-      $this->user_credential->create(array(
+      $this->user_credential->create([
         'user_id' => $user->id,
         'credential_type' => Models\UserCredential::CREDENTIAL_TYPE_GENERAL
-      ));
+      ]);
 
       if ($this->login($fields['email'], $raw_password, false, $errors)) {
         $this->seed($user->id);
@@ -73,7 +73,7 @@ class UserService
     return $result;
   }
 
-  public function createOAuth($credential_type, $fields, array &$errors = array())
+  public function createOAuth($credential_type, $fields, array &$errors = [])
   {
     $result = false;
 
@@ -85,12 +85,12 @@ class UserService
 
       if ($this->user->oauthValidate($fields)) {
         $user = $this->user->create($fields);
-        $this->user_credential->create(array(
+        $this->user_credential->create([
           'user_id' => $user->id,
           'credential_type' => $credential_type,
           'credential_id' => $fields['id'],
           'access_token' => $oauth->access_token,
-        ));
+        ]);
 
         Auth::loginUsingId($user->id);
 
@@ -102,7 +102,7 @@ class UserService
       }
 
     } catch (Exception $e) {
-      $errors = array(Lang::get('validation.custom.user.create_oauth.oauth_failed'));
+      $errors = [Lang::get('validation.custom.user.create_oauth.oauth_failed')];
       Log::error($e);
     }
 
@@ -117,7 +117,7 @@ class UserService
    */
   public function seed($user_id)
   {
-    $result = array();
+    $result = [];
     $path = base_path() . '/resources/master/setup.json';
     $activity_category_datum = json_decode(File::get($path));
 
@@ -141,11 +141,11 @@ class UserService
           $activity_category_group->user_id = $user_id;
           $activity_category_group->save();
 
-          $result[] = array(
+          $result[] = [
             'id' => $activity_category_group->id,
             'balance_type' => $activity_category->balance_type,
             'cost_type' => $activity_category->cost_type
-          );
+          ];
         }
       }
     }
@@ -162,9 +162,9 @@ class UserService
    * @param array &$errors
    * @return bool
    */
-  public function login($email, $password, $remember_me = false, array &$errors = array())
+  public function login($email, $password, $remember_me = false, array &$errors = [])
   {
-    $fields = array('email' => $email, 'password' => $password);
+    $fields = ['email' => $email, 'password' => $password];
     $result = false;
 
     if ($this->user->loginValidate($fields)) {
@@ -182,7 +182,7 @@ class UserService
     return $result;
   }
 
-  public function loginOAuth($credential_type, array $params, &$errors = array())
+  public function loginOAuth($credential_type, array $params, &$errors = [])
   {
     $result = false;
 
@@ -223,7 +223,7 @@ class UserService
    * @param &$fields
    * @return bool
    */
-  public function update($user_id, array $fields, &$errors = array())
+  public function update($user_id, array $fields, &$errors = [])
   {
     $fields['id'] = $user_id;
     $result = false;
@@ -240,10 +240,10 @@ class UserService
           ->count();
 
         if ($count == 0) {
-          $this->user_credential->create(array(
+          $this->user_credential->create([
             'user_id' => $user->id,
             'credential_type' => Models\UserCredential::CREDENTIAL_TYPE_GENERAL
-          ));
+          ]);
         }
       }
 
