@@ -28,7 +28,7 @@
           </p>
         </div>
         <div class="col-md-6 text-center">
-          {!! Html::image('assets/images/overview/01.png', '', array('class' => 'overview_fig')) !!}
+          {!! Html::image('assets/images/overview/01.png', '', ['class' => 'overview_fig']) !!}
         </div>
       </div>
 
@@ -41,7 +41,7 @@
           </p>
         </div>
         <div class="col-md-6 text-center">
-          {!! Html::image('assets/images/overview/02.png', '', array('class' => 'overview_fig')) !!}
+          {!! Html::image('assets/images/overview/02.png', '', ['class' => 'overview_fig']) !!}
         </div>
       </div>
 
@@ -54,7 +54,7 @@
           </p>
         </div>
         <div class="col-md-6 text-center">
-          {!! Html::image('assets/images/overview/03.png', '', array('class' => 'overview_fig')) !!}
+          {!! Html::image('assets/images/overview/03.png', '', ['class' => 'overview_fig']) !!}
         </div>
       </div>
     </div>

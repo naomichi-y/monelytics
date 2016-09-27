@@ -25,7 +25,7 @@
             <tr>
               <td class="text-center">{{$i++}}</td>
               <td>{{{$location_ranking->group_name}}}</td>
-              <td>{!! Html::linkWithQueryString('/summary/daily', array('begin_date' => $date_range->begin_date, 'end_date' => $date_range->end_date, 'location' => $location_ranking->location), $location_ranking->location) !!}</td>
+              <td>{!! Html::linkWithQueryString('/summary/daily', ['begin_date' => $date_range->begin_date, 'end_date' => $date_range->end_date, 'location' => $location_ranking->location], $location_ranking->location) !!}</td>
               <td class="text-right">{{number_format($location_ranking->count)}}回</td>
               <td class="text-right">{{number_format($location_ranking->amount)}}</td>
             </tr>

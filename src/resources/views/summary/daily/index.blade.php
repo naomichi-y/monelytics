@@ -51,10 +51,10 @@
 
 @section('function')
   <div class="well">
-    {!! Form::open(array('url' => 'summary/daily', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get')) !!}
+    {!! Form::open(['url' => 'summary/daily', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
       <div class="form-group form-group-sm form-group-adjust">
         <div class="col-md-8">
-          {!! Form::select('date_month', $month_list, Input::get('date_month', date('Y-m')), array('class' => 'form-control', 'id' => 'date_month')) !!}
+          {!! Form::select('date_month', $month_list, Input::get('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
         </div>
         <div class="col-md-4">
           <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
@@ -65,10 +65,10 @@
 @stop
 
 @section('content')
-  @include('layouts/delete_modal', array('action' => 'cost/variable'))
+  @include('layouts/delete_modal', ['action' => 'cost/variable'])
 
   @if ($activities->total())
-  {!! Form::open(array('url' => 'summary/daily', 'method' => 'get', 'id' => 'list-form')) !!}
+  {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'id' => 'list-form']) !!}
     <table class="table table-striped table-hover">
       <colgroup>
         <col style="width: 11%" />
@@ -132,8 +132,8 @@
           </td>
           <td class="text-center">{{Html::datetime($activity->create_date)}}</td>
           <td class="text-center">
-            {!! Form::button('編集', array('class' => 'btn btn-primary open_edit')) !!}
-            {!! Form::button('削除', array('class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal')) !!}
+            {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}
+            {!! Form::button('削除', ['class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
           </td>
         </tr>
         @endforeach

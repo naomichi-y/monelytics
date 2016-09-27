@@ -16,7 +16,7 @@
 
 @section('content')
   @if (sizeof($activity_category_groups) > 1)
-    {!! Form::open(array('url' => 'cost/variable')) !!}
+    {!! Form::open(['url' => 'cost/variable']) !!}
       <table class="table table-striped table-hover">
         <colgroup>
           <col style="width: 15%" />
@@ -46,22 +46,22 @@
             @endif
             <td>
               @if (Agent::isDesktop())
-                {!! Form::text("activity_date[$i]", Input::old("activity_date[$i]"), array('class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off')) !!}
+                {!! Form::text("activity_date[$i]", Input::old("activity_date[$i]"), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
               @else
-                {!! Form::date("activity_date[$i]", Input::old("activity_date[$i]"), array('class' => 'form-control', 'placeholder' => '月/日')) !!}
+                {!! Form::date("activity_date[$i]", Input::old("activity_date[$i]"), ['class' => 'form-control', 'placeholder' => '月/日']) !!}
               @endif
             </td>
             <td>
-              {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Input::old("activity_category_group_id[$i]"), array('class' => 'form-control')) !!}
+              {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Input::old("activity_category_group_id[$i]"), ['class' => 'form-control']) !!}
             </td>
             <td>
-              {!! Form::text("amount[$i]", Input::old("amount[$i]"), array('class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*')) !!}
+              {!! Form::text("amount[$i]", Input::old("amount[$i]"), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
             </td>
             <td>
-              {!! Form::text("location[$i]", Input::old("location[$i]"), array('class' => 'form-control')) !!}
+              {!! Form::text("location[$i]", Input::old("location[$i]"), ['class' => 'form-control']) !!}
             </td>
             <td>
-              {!! Form::text("content[$i]", Input::old("content[$i]"), array('class' => 'form-control')) !!}
+              {!! Form::text("content[$i]", Input::old("content[$i]"), ['class' => 'form-control']) !!}
             </td>
             <td>
               <div class="text-center">
@@ -78,8 +78,8 @@
         </tbody>
       </table>
       <div class="text-center">
-        {!! Form::submit('登録', array('class' => 'btn btn-primary')) !!}
-        {!! Form::reset('リセット', array('class' => 'btn btn-default')) !!}
+        {!! Form::submit('登録', ['class' => 'btn btn-primary']) !!}
+        {!! Form::reset('リセット', ['class' => 'btn btn-default']) !!}
       </div>
     {!! Form::close() !!}
   @else

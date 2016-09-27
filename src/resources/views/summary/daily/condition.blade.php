@@ -33,10 +33,11 @@
     $("#end_date").dateFormat();
   });
 </script>
+
 <div id="search_modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      {!! Form::open(array('url' => 'summary/daily', 'method' => 'get', 'class' => 'form-horizontal')) !!}
+      {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'form-horizontal']) !!}
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">検索条件</h4>
@@ -44,45 +45,45 @@
         <div class="modal-body">
           <div class="row">
             <div class="form-group">
-              {!! Form::label('date_month', '月指定', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('date_month', '月指定', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-3">
-                {!! Form::select('date_month', $month_list, Input::get('date_month'), array('class' => 'form-control')) !!}
+                {!! Form::select('date_month', $month_list, Input::get('date_month'), ['class' => 'form-control']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('begin_date', '日付範囲指定', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('begin_date', '日付範囲指定', ['class' => 'col-md-3 control-label']) !!}
               @if (Agent::isDesktop())
                 <div class="col-md-3">
-                  {!! Form::text('begin_date', Input::get('begin_date'), array('class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off')) !!}
+                  {!! Form::text('begin_date', Input::get('begin_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                 </div>
-                {!! Form::label('end_date', '〜', array('class' => 'col-md-1 control-label label-range-text')) !!}
+                {!! Form::label('end_date', '〜', ['class' => 'col-md-1 control-label label-range-text']) !!}
                 <div class="col-md-3">
-                  {!! Form::text('end_date', Input::get('end_date'), array('class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off')) !!}
+                  {!! Form::text('end_date', Input::get('end_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                 </div>
               @else
                 <div class="col-md-3">
-                  {!! Form::date('begin_date', Input::get('begin_date'), array('class' => 'form-control')) !!}
+                  {!! Form::date('begin_date', Input::get('begin_date'), ['class' => 'form-control']) !!}
                 </div>
-                {!! Form::label('end_date', '〜', array('class' => 'col-md-1 control-label label-range-text')) !!}
+                {!! Form::label('end_date', '〜', ['class' => 'col-md-1 control-label label-range-text']) !!}
                 <div class="col-md-3">
-                  {!! Form::date('end_date', Input::get('end_date'), array('class' => 'form-control')) !!}
+                  {!! Form::date('end_date', Input::get('end_date'), ['class' => 'form-control']) !!}
                 </div>
               @endif
-              {!! Form::button('クリア', array('class' => 'btn btn-default', 'id' => 'clear_date_range')) !!}
+              {!! Form::button('クリア', ['class' => 'btn btn-default', 'id' => 'clear_date_range']) !!}
             </div>
 
             <div class="form-group">
-              {!! Form::label('activity_category_group_id', '科目名', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('activity_category_group_id', '科目名', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-5">
-                {!! Form::select('activity_category_group_id[]', $activity_category_groups, Input::get('activity_category_group_id'), array('class' => 'form-control', 'multiple' => 'multiple', 'id' => 'activity_category_group_id')) !!}
+                {!! Form::select('activity_category_group_id[]', $activity_category_groups, Input::get('activity_category_group_id'), ['class' => 'form-control', 'multiple' => 'multiple', 'id' => 'activity_category_group_id']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('keyword', '場所・用途', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('keyword', '場所・用途', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-8">
-                {!! Form::text('keyword', Input::get('keyword'), array('class' => 'form-control')) !!}
+                {!! Form::text('keyword', Input::get('keyword'), ['class' => 'form-control']) !!}
               </div>
             </div>
 
@@ -92,15 +93,15 @@
               </label>
               <div class="col-md-6">
                 <div class="radio-inline">
-                  {!! Form::radio('credit_flag', '', $credit_flag_all, array('id' => 'credit_flag_all')) !!}
+                  {!! Form::radio('credit_flag', '', $credit_flag_all, ['id' => 'credit_flag_all']) !!}
                   {!! Form::label('credit_flag_all', '全て') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('credit_flag', '1', $credit_flag_on, array('id' => 'credit_flag_on')) !!}
+                  {!! Form::radio('credit_flag', '1', $credit_flag_on, ['id' => 'credit_flag_on']) !!}
                   {!! Form::label('credit_flag_on', '含む') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('credit_flag', '0', $credit_flag_off, array('id' => 'credit_flag_off')) !!}
+                  {!! Form::radio('credit_flag', '0', $credit_flag_off, ['id' => 'credit_flag_off']) !!}
                   {!! Form::label('credit_flag_off', '含まない') !!}
                 </div>
               </div>
@@ -112,15 +113,15 @@
               </label>
               <div class="col-md-6">
                 <div class="radio-inline">
-                  {!! Form::radio('special_flag', '', $special_flag_all, array('id' => 'special_flag_all')) !!}
+                  {!! Form::radio('special_flag', '', $special_flag_all, ['id' => 'special_flag_all']) !!}
                   {!! Form::label('special_flag_all', '全て') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('special_flag', '1', $special_flag_on, array('id' => 'special_flag_on')) !!}
+                  {!! Form::radio('special_flag', '1', $special_flag_on, ['id' => 'special_flag_on']) !!}
                   {!! Form::label('special_flag_on', '含む') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('special_flag', '0', $special_flag_off, array('id' => 'special_flag_off')) !!}
+                  {!! Form::radio('special_flag', '0', $special_flag_off, ['id' => 'special_flag_off']) !!}
                   {!! Form::label('special_flag_off', '含まない') !!}
                 </div>
               </div>
@@ -129,9 +130,9 @@
 
         </div>
         <div class="modal-footer">
-          {!! Form::submit('検索', array('class' => 'btn btn-primary', 'id' => 'search')) !!}
-          {!! Form::button('リセット', array('class' => 'btn btn-default', 'id' => 'reset')) !!}
-          {!! Form::button('閉じる', array('class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true')) !!}
+          {!! Form::submit('検索', ['class' => 'btn btn-primary', 'id' => 'search']) !!}
+          {!! Form::button('リセット', ['class' => 'btn btn-default', 'id' => 'reset']) !!}
+          {!! Form::button('閉じる', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
         </div>
       {!! Form::close() !!}
     </div>

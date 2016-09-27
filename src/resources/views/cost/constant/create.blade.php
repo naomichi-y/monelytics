@@ -22,10 +22,10 @@
 
 @section('function')
   <div class="well">
-    {!! Form::open(array('url' => 'cost/constant/create', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get')) !!}
+    {!! Form::open(['url' => 'cost/constant/create', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
       <div class="form-group form-group-sm form-group-adjust">
         <div class="col-md-6 col-md-offset-6">
-          {!! Form::select('date_month', $date_months, $selected_date_month, array('class' => 'form-control', 'id' =>  'date_month')) !!}
+          {!! Form::select('date_month', $date_months, $selected_date_month, ['class' => 'form-control', 'id' =>  'date_month']) !!}
         </div>
       </div>
     {!! Form::close() !!}
@@ -33,10 +33,10 @@
 @stop
 
 @section('content')
-  @include('layouts/delete_modal', array('action' => 'cost/constant'))
+  @include('layouts/delete_modal', ['action' => 'cost/constant'])
 
   @if (sizeof($constant_costs))
-    {!! Form::open(array('url' => 'cost/constant')) !!}
+    {!! Form::open(['url' => 'cost/constant']) !!}
       <table class="table table-striped table-hover">
         <colgroup>
           <col style="width: 15%" />
@@ -71,13 +71,13 @@
                 <td>{{{$activity_category_group->group_name}}}</td>
                 <td>
                   @if (Agent::isDesktop())
-                    {!! Form::text("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", $activity_category_group->activity_date), array('class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off')) !!}
+                    {!! Form::text("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", $activity_category_group->activity_date), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                   @else
-                    {!! Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), array('class' => 'form-control')) !!}
+                    {!! Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), ['class' => 'form-control']) !!}
                   @endif
                 </td>
-                <td>{!! Form::text("amount[$selected_date_month][$activity_category_group->id]", Input::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), array('class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*')) !!}</td>
-                <td>{!! Form::text("content[$selected_date_month][$activity_category_group->id]", Input::old("content[$selected_date_month][$activity_category_group->id]", $activity_category_group->content), array('class' => 'form-control')) !!}</td>
+                <td>{!! Form::text("amount[$selected_date_month][$activity_category_group->id]", Input::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}</td>
+                <td>{!! Form::text("content[$selected_date_month][$activity_category_group->id]", Input::old("content[$selected_date_month][$activity_category_group->id]", $activity_category_group->content), ['class' => 'form-control']) !!}</td>
                 <td>
                   <div class="text-center">
                     @if ($activity_category_group->credit_flag === null)
@@ -89,7 +89,7 @@
                 </td>
                 <td class="text-center">
                   @if ($activity_category_group->activity_id !== null)
-                    {!! Form::button('削除', array('class' => 'btn btn-primary open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal')) !!}
+                    {!! Form::button('削除', ['class' => 'btn btn-primary open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
                   @endif
                 </td>
               </tr>
@@ -99,7 +99,7 @@
         </tbody>
       </table>
       <div class="text-center">
-        {!! Form::submit('更新', array('class' => 'btn btn-primary')) !!}
+        {!! Form::submit('更新', ['class' => 'btn btn-primary']) !!}
       </div>
     {!! Form::close() !!}
   @else

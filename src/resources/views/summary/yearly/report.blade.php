@@ -67,7 +67,7 @@
                 @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_id => $activity_category_groups)
                   <td class="text-right">
                   @if (isset($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id]))
-                    {{Html::linkWithQueryString('/summary/daily', array('date_month' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id), number_format($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id]))}}
+                    {{Html::linkWithQueryString('/summary/daily', ['date_month' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id), number_format($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id]])}}
                   @else
                     0
                   @endif

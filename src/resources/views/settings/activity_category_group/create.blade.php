@@ -35,10 +35,11 @@
     });
   });
 </script>
+
 <div id="create-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      {!! Form::open(array('class' => 'form-horizontal')) !!}
+      {!! Form::open(['class' => 'form-horizontal']) !!}
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">科目の登録</h4>
@@ -52,23 +53,23 @@
 
           <div class="row">
             <div class="form-group">
-              {!! Form::label('activity_category_id', '科目カテゴリ', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('activity_category_id', '科目カテゴリ', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-4">
-                {!! Form::select('activity_category_id', $category_list, Input::get('activity_category_id'), array('class' => 'form-control')) !!}
+                {!! Form::select('activity_category_id', $category_list, Input::get('activity_category_id'), ['class' => 'form-control']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('group_name', '科目名', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('group_name', '科目名', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
-                {!! Form::text('group_name', Input::get('group_name'), array('class' => 'form-control')) !!}
+                {!! Form::text('group_name', Input::get('group_name'), ['class' => 'form-control']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('content', '用途', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('content', '用途', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
-                {!! Form::textarea('content', Input::get('content'), array('class' => 'form-control')) !!}
+                {!! Form::textarea('content', Input::get('content'), ['class' => 'form-control']) !!}
               </div>
             </div>
 
@@ -78,7 +79,7 @@
               </label>
               <div class="col-md-6">
                 <div class="checkbox-inline">
-                  {!! Form::checkbox('credit_flag', App\Models\Activity::CREDIT_FLAG_USE, false, array('id' => 'credit_flag_use')) !!}
+                  {!! Form::checkbox('credit_flag', App\Models\Activity::CREDIT_FLAG_USE, false, ['id' => 'credit_flag_use']) !!}
                   {!! Form::label('credit_flag_use', '使用') !!}
                 </div>
               </div>
@@ -87,8 +88,8 @@
         </div>
 
         <div class="modal-footer">
-          {!! Form::button('登録', array('class' => 'btn btn-primary', 'id' => 'create')) !!}
-          {!! Form::button('キャンセル', array('class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true')) !!}
+          {!! Form::button('登録', ['class' => 'btn btn-primary', 'id' => 'create']) !!}
+          {!! Form::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
         </div>
       {!! Form::close() !!}
     </div>

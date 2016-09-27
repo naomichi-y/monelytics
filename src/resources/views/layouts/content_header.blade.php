@@ -50,11 +50,11 @@
           @endif
         </ul>
         @if (Auth::check())
-          {!! Form::open(array('url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right')) !!}
+          {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right']) !!}
             <div class="form-group">
-              {!! Form::text('keyword', Input::get('keyword'), array('class' => 'form-control', 'placeholder' => 'キーワード')) !!}
+              {!! Form::text('keyword', Input::get('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
             </div>
-            {!! Form::submit('検索', array('class' => 'btn btn-default')) !!}
+            {!! Form::submit('検索', ['class' => 'btn btn-default']) !!}
           {!! Form::close() !!}
         @endif
       </div>
