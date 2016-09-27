@@ -11,8 +11,6 @@ use View;
 use App\Services;
 
 class ContactController extends ApplicationController {
-  protected $required_auth = false;
-
   private $contact;
 
   /**

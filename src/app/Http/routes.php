@@ -18,7 +18,7 @@
 Route::get('/', array('uses' => 'IndexController@getIndex', 'as' => 'home'));
 
 Route::group(array('namespace' => 'User', 'prefix' => 'user'), function($route) {
-  $route->get('login', array('uses' => 'SessionController@getLogin', 'as' => 'user.login'));
+  $route->get('login', 'SessionController@getLogin');
   $route->post('login-oauth', 'SessionController@loginOAuth');
   $route->get('login-oauth-callback', 'SessionController@loginOAuthCallback');
   $route->post('login', 'SessionController@postLogin');

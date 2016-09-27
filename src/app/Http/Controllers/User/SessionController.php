@@ -15,33 +15,20 @@ use App\Services;
 use App\Models;
 
 class SessionController extends \App\Http\Controllers\ApplicationController {
-  protected $required_auth = true;
   private $user;
 
   public function __construct(Services\UserService $user)
   {
     $this->user = $user;
-
-    $action_name = Route::getCurrentRoute()->getActionName();
-    $action_name = substr($action_name, strpos($action_name, '@') + 1);
-    $expect = array(
-      'getLogin',
-      'postLogin',
-      'postLogin',
-      'loginOAuth',
-      'loginOAuthCallback',
-    );
-
-    $this->beforeFilter(function() {
-      if (Auth::user()) {
-        return Redirect::to('dashboard');
-      }
-
-    }, array('only' => $expect));
-
-    if (in_array($action_name, $expect)) {
-      $this->required_auth = false;
-    }
+    $this->middleware('guest', [
+      'only' => [
+        'getLogin',
+        'postLogin',
+        'loginOAuth',
+        'loginOAuthCallback',
+      ]
+    ]);
+    $this->middleware('auth', ['only' => 'logout']);
 
     parent::__construct();
   }

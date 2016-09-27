@@ -17,37 +17,33 @@ use App\Models;
 use App\Services;
 
 class RegistrationController extends \App\Http\Controllers\ApplicationController {
-  public $required_auth = true;
   private $user;
 
   public function __construct(Services\UserService $user)
   {
     $this->user = $user;
+    $this->middleware('guest', [
+      'only' => [
+        'create',
+        'createOAuth',
+        'createOAuthCallback',
+        'store'
+      ]
+    ]);
 
-    $action_name = Route::getCurrentRoute()->getActionName();
-    $action_name = substr($action_name, strpos($action_name, '@') + 1);
-    $expect = array(
-      'create',
-      'createOAuth',
-      'createOAuthCallback',
-      'store'
-    );
-
-    $this->beforeFilter(function() {
-      if (!Auth::user()) {
-        return Redirect::to(route('user.login'));
-      }
-
-    }, array('expect' => $expect));
-
-    if (in_array($action_name, $expect)) {
-      $this->required_auth = false;
-    }
+    $this->middleware('auth', [
+      'only' => [
+        'done',
+        'edit',
+        'update',
+        'withdrawal'
+      ]
+    ]);
 
     parent::__construct();
   }
 
-  /**
+   /**
    * 会員情報を表示する。
    */
   public function index()
