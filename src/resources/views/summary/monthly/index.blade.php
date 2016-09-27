@@ -17,9 +17,9 @@
       $("#open_condition").click(function() {
         $.get("/summary/monthly/condition",
           {
-            date_month: {{Html::encodeJsJsonValue('date_month', date('Y-m'))}},
-            begin_date: {{Html::encodeJsJsonValue('begin_date')}},
-            end_date: {{Html::encodeJsJsonValue('end_date')}}
+            date_month: {!! Html::encodeJsJsonValue('date_month', date('Y-m')) !!},
+            begin_date: {!! Html::encodeJsJsonValue('begin_date') !!},
+            end_date: {!! Html::encodeJsJsonValue('end_date') !!}
           },
           function(data) {
             $(data).modal();

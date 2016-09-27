@@ -29,10 +29,7 @@
 			"App\\": "app/",
       "Monelytics\\Seeds\\": "app/database/seeds",
       "Monelytics\\Tests\\": "app/tests"
-    },
-    "files": [
-      "app/helpers.php"
-    ]
+    }
   },
 	"autoload-dev": {
 		"classmap": [

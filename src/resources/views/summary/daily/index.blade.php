@@ -19,13 +19,13 @@
       $("#open_condition").click(function() {
         $.get("/summary/daily/condition",
           {
-            date_month: {{Html::encodeJsJsonValue('date_month', date('Y-m'))}},
-            begin_date: {{Html::encodeJsJsonValue('begin_date')}},
-            end_date: {{Html::encodeJsJsonValue('end_date')}},
-            activity_category_group_id: {{Html::encodeJsJsonValue('activity_category_group_id', null, 'array')}},
-            keyword: {{Html::encodeJsJsonValue('keyword')}},
-            credit_flag: {{Html::encodeJsJsonValue('credit_flag')}},
-            special_flag: {{Html::encodeJsJsonValue('special_flag')}}
+            date_month: {!! Html::encodeJsJsonValue('date_month', date('Y-m')) !!},
+            begin_date: {!! Html::encodeJsJsonValue('begin_date') !!},
+            end_date: {!! Html::encodeJsJsonValue('end_date') !!},
+            activity_category_group_id: {!! Html::encodeJsJsonValue('activity_category_group_id', null, 'array') !!},
+            keyword: {!! Html::encodeJsJsonValue('keyword') !!},
+            credit_flag: {!! Html::encodeJsJsonValue('credit_flag') !!},
+            special_flag: {!! Html::encodeJsJsonValue('special_flag') !!}
           },
           function(data) {
             $(data).modal();
@@ -67,7 +67,7 @@
 @section('content')
   @include('layouts/delete_modal', array('action' => 'cost/variable'))
 
-  @if ($activities->getTotal())
+  @if ($activities->total())
   {!! Form::open(array('url' => 'summary/daily', 'method' => 'get', 'id' => 'list-form')) !!}
     <table class="table table-striped table-hover">
       <colgroup>
@@ -142,7 +142,7 @@
     <div class="text-right">
       合計金額: {{number_format($activities->total_amount)}}
     </div>
-    <div class="text-right">{{$activities->links()}}</div>
+    <div class="text-right">{{$activities->render()}}</div>
     {!! Form::close() !!}
   @else
     <p>データがありません。</p>
