@@ -5,8 +5,6 @@ use Auth;
 use Redirect;
 
 class IndexController extends ApplicationController {
-  protected $required_auth = false;
-
   /**
    * トップページを表示する。
    */

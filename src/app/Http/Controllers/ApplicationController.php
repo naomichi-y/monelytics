@@ -11,11 +11,7 @@ class ApplicationController extends Controller {
    * @see Controller::__construct()
    */
   public function __construct()
-  {
-    if ($this->required_auth) {
-      $this->beforeFilter('auth');
-    }
-  }
+  {}
 
   /**
    * @see Controller::setupLayout()
