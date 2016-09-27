@@ -29,7 +29,7 @@
           </td>
           <td>{{nl2br(e($activity_category->content))}}</td>
           <td class="text-center">
-            @if ($activity_category->balance_type == Monelytics\Models\ActivityCategory::BALANCE_TYPE_EXPENSE)
+            @if ($activity_category->balance_type == App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE)
               支出
             @else
               収入

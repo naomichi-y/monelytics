@@ -53,8 +53,8 @@
     <ul>
       <li><a href="/summary/monthly/report?date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">集計表</a></li>
       <li><a href="/summary/monthly/calendar?date_month={{{Input::get('date_month', date('Y-m'))}}}">カレンダー</a></li>
-      <li><a href="/summary/monthly/pie-chart?balance_type={{Monelytics\Models\ActivityCategory::BALANCE_TYPE_EXPENSE}}&amp;date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">支出構成グラフ</a></li>
-      <li><a href="/summary/monthly/pie-chart?balance_type={{Monelytics\Models\ActivityCategory::BALANCE_TYPE_INCOME}}&amp;date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">収入構成グラフ</a></li>
+      <li><a href="/summary/monthly/pie-chart?balance_type={{App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE}}&amp;date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">支出構成グラフ</a></li>
+      <li><a href="/summary/monthly/pie-chart?balance_type={{App\Models\ActivityCategory::BALANCE_TYPE_INCOME}}&amp;date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">収入構成グラフ</a></li>
       <li><a href="/summary/monthly/ranking?date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">ランキング</a></li>
     </ul>
   </div>

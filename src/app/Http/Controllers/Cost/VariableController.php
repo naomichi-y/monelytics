@@ -1,5 +1,5 @@
 <?php
-namespace Monelytics\Controllers\Cost;
+namespace App\Http\Controllers\Cost;
 
 use Auth;
 use Input;
@@ -8,11 +8,11 @@ use Redirect;
 use Session;
 use View;
 
-use Monelytics\Controllers;
-use Monelytics\Services;
-use Monelytics\Models;
+use App\Controllers;
+use App\Services;
+use App\Models;
 
-class VariableController extends ApplicationController {
+class VariableController extends \App\Http\Controllers\ApplicationController {
   private $activity;
   private $activity_category;
 

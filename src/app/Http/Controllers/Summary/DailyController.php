@@ -1,15 +1,15 @@
 <?php
-namespace Monelytics\Controllers\Summary;
+namespace App\Http\Controllers\Summary;
 
 use Auth;
 use Input;
 use View;
 
-use Monelytics\Controllers;
-use Monelytics\Libraries\Condition;
-use Monelytics\Services;
+use App\Controllers;
+use App\Libraries\Condition;
+use App\Services;
 
-class DailyController extends ApplicationController {
+class DailyController extends \App\Http\Controllers\ApplicationController {
   private $activity;
   private $activity_category;
 

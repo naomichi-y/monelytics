@@ -84,11 +84,11 @@
               {!! Form::label('', '科目タイプ', array('class' => 'col-md-3 control-label')) !!}
               <div class="col-md-6">
                 <div class="radio-inline">
-                  {!! Form::radio('cost_type', Monelytics\Models\ActivityCategory::COST_TYPE_VARIABLE, false, array('id' => 'cost_type_variable')) !!}
+                  {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_VARIABLE, false, array('id' => 'cost_type_variable')) !!}
                   {!! Form::label('cost_type_variable', '変動収支') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('cost_type', Monelytics\Models\ActivityCategory::COST_TYPE_CONSTANT, false, array('id' => 'cost_type_constant')) !!}
+                  {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_CONSTANT, false, array('id' => 'cost_type_constant')) !!}
                   {!! Form::label('cost_type_constant', '固定収支') !!}
                 </div>
               </div>
@@ -98,11 +98,11 @@
               {!! Form::label('', '収支タイプ', array('class' => 'col-md-3 control-label')) !!}
               <div class="col-md-6">
                 <div class="radio-inline">
-                  {!! Form::radio('balance_type', Monelytics\Models\ActivityCategory::BALANCE_TYPE_INCOME, false, array('id' => 'balance_type_income')) !!}
+                  {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_INCOME, false, array('id' => 'balance_type_income')) !!}
                   {!! Form::label('balance_type_income', '収入') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('balance_type', Monelytics\Models\ActivityCategory::BALANCE_TYPE_EXPENSE, false, array('id' => 'balance_type_expense')) !!}
+                  {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE, false, array('id' => 'balance_type_expense')) !!}
                   {!! Form::label('balance_type_expense', '支出') !!}
                 </div>
               </div>

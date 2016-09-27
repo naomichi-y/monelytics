@@ -4,57 +4,9 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1d8a79a746f98a109306189bed3a3404",
-    "content-hash": "5e194d475b00586155dcc4b0459ebdf5",
+    "hash": "86382b780d95b6cd914019ef2484189c",
+    "content-hash": "0a59c54dd2f8274efedc0122c9aa078b",
     "packages": [
-        {
-            "name": "artdarek/oauth-4-laravel",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/artdarek/oauth-4-laravel.git",
-                "reference": "d7226ea17932ee31143bb33b499e6f0aeb7d8ce2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/artdarek/oauth-4-laravel/zipball/d7226ea17932ee31143bb33b499e6f0aeb7d8ce2",
-                "reference": "d7226ea17932ee31143bb33b499e6f0aeb7d8ce2",
-                "shasum": ""
-            },
-            "require": {
-                "lusitanian/oauth": "~0.3",
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "illuminate/support": "~4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Artdarek\\OAuth": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Artdarek",
-                    "email": "artdarek@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "OAuth Service Provider for Laravel 4",
-            "homepage": "https://github.com/artdarek/oauth-4-laravel",
-            "keywords": [
-                "Lusitanian",
-                "laravel",
-                "oauth",
-                "php"
-            ],
-            "time": "2015-01-08 16:40:21"
-        },
         {
             "name": "classpreloader/classpreloader",
             "version": "1.4.0",
@@ -1105,6 +1057,61 @@
                 "php"
             ],
             "time": "2015-09-19 14:15:08"
+        },
+        {
+            "name": "oriceon/oauth-5-laravel",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/oriceon/oauth-5-laravel.git",
+                "reference": "3f6c663b48c9878cc1d8c56e16ad6c2c3d019dc8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/oriceon/oauth-5-laravel/zipball/3f6c663b48c9878cc1d8c56e16ad6c2c3d019dc8",
+                "reference": "3f6c663b48c9878cc1d8c56e16ad6c2c3d019dc8",
+                "shasum": ""
+            },
+            "require": {
+                "lusitanian/oauth": "~0.3",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "illuminate/support": "~5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Artdarek\\OAuth": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Artdarek",
+                    "email": "artdarek@gmail.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "oriceon",
+                    "email": "oriceon@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "OAuth Service Provider for Laravel 5",
+            "homepage": "https://github.com/oriceon/oauth-5-laravel",
+            "keywords": [
+                "Lusitanian",
+                "OAuth",
+                "laravel",
+                "php"
+            ],
+            "support": {
+                "source": "https://github.com/oriceon/oauth-5-laravel/tree/master"
+            },
+            "time": "2016-04-27 17:19:16"
         },
         {
             "name": "paragonie/random_compat",
@@ -2480,16 +2487,16 @@
         },
         {
             "name": "phpspec/phpspec",
-            "version": "2.5.2",
+            "version": "2.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/phpspec.git",
-                "reference": "7e7e104de01b5052195cefefcd0b29f1add4c116"
+                "reference": "153ebd99d9b842e0c99a024c41f970d79db46475"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/phpspec/zipball/7e7e104de01b5052195cefefcd0b29f1add4c116",
-                "reference": "7e7e104de01b5052195cefefcd0b29f1add4c116",
+                "url": "https://api.github.com/repos/phpspec/phpspec/zipball/153ebd99d9b842e0c99a024c41f970d79db46475",
+                "reference": "153ebd99d9b842e0c99a024c41f970d79db46475",
                 "shasum": ""
             },
             "require": {
@@ -2554,7 +2561,7 @@
                 "testing",
                 "tests"
             ],
-            "time": "2016-09-04 11:59:15"
+            "time": "2016-09-26 20:28:11"
         },
         {
             "name": "phpspec/prophecy",
@@ -3465,7 +3472,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "predis/predis": 20,
-        "artdarek/oauth-4-laravel": 20
+        "oriceon/oauth-5-laravel": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

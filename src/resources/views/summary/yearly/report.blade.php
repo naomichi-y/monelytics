@@ -30,7 +30,7 @@
           <th class="text-center" rowspan="3">年月</th>
           @foreach ($summary['headers'] as $cost_type => $activity_categories)
             <th colspan="{{$summary['header_size']['cost_type'][$cost_type]}}" class="text-center">
-              @if ($cost_type == Monelytics\Models\ActivityCategory::COST_TYPE_VARIABLE)
+              @if ($cost_type == App\Models\ActivityCategory::COST_TYPE_VARIABLE)
                 変動収支
               @else
                 固定収支

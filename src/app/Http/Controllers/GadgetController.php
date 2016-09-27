@@ -1,11 +1,11 @@
 <?php
-namespace Monelytics\Controllers;
+namespace App\Http\Controllers;
 
 use Agent;
 use Auth;
 use View;
 
-use Monelytics\Services;
+use App\Services;
 
 class GadgetController extends ApplicationController {
   private $activity;

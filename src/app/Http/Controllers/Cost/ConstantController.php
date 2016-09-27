@@ -1,5 +1,5 @@
 <?php
-namespace Monelytics\Controllers\Cost;
+namespace App\Http\Controllers\Cost;
 
 use Auth;
 use Input;
@@ -7,10 +7,10 @@ use Lang;
 use Redirect;
 use View;
 
-use Monelytics\Controllers;
-use Monelytics\Services;
+use App\Controllers;
+use App\Services;
 
-class ConstantController extends ApplicationController {
+class ConstantController extends \App\Http\Controllers\ApplicationController {
   private $activity;
 
   /**
