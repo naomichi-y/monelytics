@@ -204,13 +204,13 @@ return [
 	],
 
   // Custom config
-  'notice' => array(
+  'notice' => [
     'contact' => env('NOTICE_CONTACT')
-  ),
-  'google' => array(
+  ],
+  'google' => [
     'api_key' => env('GOOGLE_API_KEY'),
-    'calendar' => array(
+    'calendar' => [
       'id' => 'outid3el0qkcrsuf89fltf7a4qbacgt9@import.calendar.google.com'
-    )
-  )
+    ]
+  ]
 ];

@@ -22,7 +22,7 @@ class DashboardController extends ApplicationController
 
   public function index()
   {
-    $data = array();
+    $data = [];
     $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList(Auth::id(), null, true);
 
     return View::make('dashboard/index', $data);

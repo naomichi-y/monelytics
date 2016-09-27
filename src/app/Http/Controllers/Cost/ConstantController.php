@@ -31,7 +31,7 @@ class ConstantController extends \App\Http\Controllers\ApplicationController {
     $user_id = Auth::id();
     $target_month = Input::get('date_month');
 
-    $data = array();
+    $data = [];
     $data['date_months'] = $this->activity->getConstantCostMonthlyList($user_id);
 
     if ($target_month === null) {
@@ -55,7 +55,7 @@ class ConstantController extends \App\Http\Controllers\ApplicationController {
       'content',
       'credit_flag'
     );
-    $errors = array();
+    $errors = [];
 
     if (!$this->activity->createOrUpdateConstantCosts(Auth::id(), $fields, $errors)) {
       return Redirect::to('cost/constant/create')

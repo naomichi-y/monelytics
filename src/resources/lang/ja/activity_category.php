@@ -1,6 +1,6 @@
 <?php
-return array(
-  'title' => array(
+return [
+  'title' => [
     'index' => '科目カテゴリ'
-  )
-);
+  ]
+];

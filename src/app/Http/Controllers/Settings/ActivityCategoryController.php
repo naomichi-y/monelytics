@@ -32,7 +32,7 @@ class ActivityCategoryController extends \App\Http\Controllers\ApplicationContro
   {
     $user_id = Auth::id();
 
-    $data = array();
+    $data = [];
     $data['variable_categories'] = $this->activity_category->findAll($user_id, Models\ActivityCategory::COST_TYPE_VARIABLE);
     $data['constant_categories'] = $this->activity_category->findAll($user_id, Models\ActivityCategory::COST_TYPE_CONSTANT);
 
@@ -75,8 +75,8 @@ class ActivityCategoryController extends \App\Http\Controllers\ApplicationContro
       'balance_type'
     );
 
-    $data = array();
-    $errors = array();
+    $data = [];
+    $errors = [];
 
     if ($this->activity_category->create(Auth::id(), $fields, $errors)) {
       $data['result'] = true;
@@ -98,7 +98,7 @@ class ActivityCategoryController extends \App\Http\Controllers\ApplicationContro
   {
     $activity_category = $this->activity_category->find(Auth::id(), $id);
 
-    $data = array();
+    $data = [];
     $data['id'] = $id;
     $data['activity_category'] = $activity_category;
 
@@ -135,8 +135,8 @@ class ActivityCategoryController extends \App\Http\Controllers\ApplicationContro
       'balance_type'
     );
 
-    $data = array();
-    $errors = array();
+    $data = [];
+    $errors = [];
 
     if ($this->activity_category->update($id, Auth::id(), $fields, $errors)) {
       $data['result'] = true;

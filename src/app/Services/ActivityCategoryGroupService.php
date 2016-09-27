@@ -31,7 +31,7 @@ class ActivityCategoryGroupService
   {
     $this->activity_category_group->where('id', '=', $id)
       ->where('user_id', '=', $user_id)
-      ->update(array('sort_order' => $sort_order));
+      ->update(['sort_order' => $sort_order]);
   }
 
   /**
@@ -64,7 +64,7 @@ class ActivityCategoryGroupService
    * @param array &$errors
    * @return bool
    */
-  public function create($user_id, array $fields, array &$errors = array())
+  public function create($user_id, array $fields, array &$errors = [])
   {
     $result = false;
 
@@ -134,7 +134,7 @@ class ActivityCategoryGroupService
    * @param array &$errors
    * @return bool
    */
-  public function update($id, $fields, array &$errors = array())
+  public function update($id, $fields, array &$errors = [])
   {
     $result = false;
 

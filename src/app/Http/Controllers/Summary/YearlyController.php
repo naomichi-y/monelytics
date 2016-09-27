@@ -36,10 +36,10 @@ class YearlyController extends \App\Http\Controllers\ApplicationController {
   public function condition()
   {
     $output_type = Input::get('output_type');
-    $data = array(
+    $data = [
       'output_type_monthly' => true,
       'output_type_yearly' => false
-    );
+    ];
 
     if ($output_type == Condition\YearlySummaryCondition::OUTPUT_TYPE_YEARLY) {
       $data['output_type_monthly'] = false;
@@ -63,7 +63,7 @@ class YearlyController extends \App\Http\Controllers\ApplicationController {
     );
     $condition = new Condition\YearlySummaryCondition($fields);
 
-    $data = array();
+    $data = [];
     $data['summary'] = $this->activity->getYearlySummary(Auth::id(), $condition);
 
     return View::make('summary/yearly/report', $data);

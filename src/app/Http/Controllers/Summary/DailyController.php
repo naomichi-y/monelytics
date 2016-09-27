@@ -46,7 +46,7 @@ class DailyController extends \App\Http\Controllers\ApplicationController {
     $user_id = Auth::id();
     $condition = new Condition\DailyPaginateCondition($fields);
 
-    $data = array();
+    $data = [];
     $data['month_list'] = $this->activity->getMonthList($user_id, true);
     $data['activities'] = $this->activity->getDailyPaginate($user_id, $condition);
 
@@ -59,7 +59,7 @@ class DailyController extends \App\Http\Controllers\ApplicationController {
   public function condition()
   {
     $user_id = Auth::id();
-    $data = array();
+    $data = [];
 
     // 月リスト
     $data['month_list'] = $this->activity->getMonthList($user_id, true);

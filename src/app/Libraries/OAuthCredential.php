@@ -13,7 +13,7 @@ class OAuthCredential {
   private $service;
   public $access_token;
 
-  public function __construct($credential_type, array $params = array())
+  public function __construct($credential_type, array $params = [])
   {
     $this->credential_type = $credential_type;
     $this->params = $params;
@@ -43,11 +43,11 @@ class OAuthCredential {
     switch ($this->credential_type) {
       case Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK:
         $result = json_decode($this->service->request('/me'), true);
-        $data = array(
+        $data = [
           'id' => $result['id'],
           'nickname' => $result['name'],
           'email' => $result['email']
-        );
+        ];
 
         break;
     }

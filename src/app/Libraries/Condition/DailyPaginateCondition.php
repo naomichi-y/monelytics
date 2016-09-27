@@ -2,7 +2,7 @@
 namespace App\Libraries\Condition;
 
 class DailyPaginateCondition extends BaseDateCondition {
-  public $activity_category_group_id = array();
+  public $activity_category_group_id = [];
   public $keyword;
   public $location;
   public $credit_flag;
@@ -12,7 +12,7 @@ class DailyPaginateCondition extends BaseDateCondition {
   public $sort_type;
   public $limit;
 
-  public function __construct(array $fields = array())
+  public function __construct(array $fields = [])
   {
     if (empty($fields['sort_field'])) {
       $fields['sort_field'] = 'activity_date';

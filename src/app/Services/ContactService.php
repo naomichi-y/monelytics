@@ -14,13 +14,13 @@ class ContactService
    */
   public function getContactTypeList()
   {
-    $array = array(
+    $array = [
       '' => '種別の指定',
       '1' => 'サービスへの質問',
       '2' => 'サービスへの要望',
       '3' => '不具合の報告',
       '4' => 'その他'
-    );
+    ];
 
     return $array;
   }
@@ -33,14 +33,14 @@ class ContactService
    * @param array &$errors
    * @return bool
    */
-  public function send($fields, $user_id = null, &$errors = array())
+  public function send($fields, $user_id = null, &$errors = [])
   {
-    $rules = array(
+    $rules = [
       'contact_name' => 'required',
       'email' => 'required|email',
       'contact_type' => 'required',
       'contact_message' => 'required'
-    );
+    ];
 
     $validator = Validator::make($fields, $rules);
     $result = false;
@@ -55,7 +55,7 @@ class ContactService
       $data['user_id'] = $user_id;
       $data['contact_type'] = $contact_type_list[$data['contact_type']];
 
-      Mail::send(array('text' => 'emails/contact'), $data, function($message) use ($data) {
+      Mail::send(['text' => 'emails/contact'], $data, function($message) use ($data) {
         $subject = '[CONTACT] ' . $data['contact_type'];
         $message->to(Config::get('app.notice.contact'))
           ->subject($subject);

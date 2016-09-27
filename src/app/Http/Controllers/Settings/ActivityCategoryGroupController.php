@@ -35,7 +35,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\ApplicationC
     $user_id = Auth::id();
     $activity_category_id = Input::get('activity_category_id');
 
-    $data = array();
+    $data = [];
     $data['activity_category_list'] = $this->activity_category->getCategoryList($user_id, true);
     $data['activity_category_groups'] = null;
 
@@ -67,7 +67,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\ApplicationC
    */
   public function create()
   {
-    $data = array();
+    $data = [];
     $data['category_list'] = $this->activity_category->getCategoryList(Auth::id(), true);
 
     return View::make('settings/activity_category_group/create', $data);
@@ -85,8 +85,8 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\ApplicationC
       'credit_flag'
     );
 
-    $data = array();
-    $errors = array();
+    $data = [];
+    $errors = [];
 
     if ($this->activity_category_group->create(Auth::id(), $fields, $errors)) {
       $data['result'] = true;
@@ -109,7 +109,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\ApplicationC
     $user_id = Auth::id();
     $activity_category_group = $this->activity_category_group->find($user_id, $id);
 
-    $data = array();
+    $data = [];
     $data['id'] = $id;
     $data['category_list'] = $this->activity_category->getCategoryList($user_id, true);
     $data['activity_category_group'] = $activity_category_group;
@@ -128,8 +128,8 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\ApplicationC
    */
   public function update($id)
   {
-    $data = array();
-    $errors = array();
+    $data = [];
+    $errors = [];
 
     $fields = Input::only(
       'activity_category_id',

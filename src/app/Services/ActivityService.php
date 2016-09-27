@@ -41,10 +41,10 @@ class ActivityService
    * @param array $fields
    * @param array &$errors
    */
-  public function createVariableCosts($user_id, array $fields, array &$errors = array())
+  public function createVariableCosts($user_id, array $fields, array &$errors = [])
   {
     $result = false;
-    $valid_fields = array();
+    $valid_fields = [];
 
     if ($this->activity->validateVariableFields($fields, $valid_fields)) {
       foreach ($valid_fields as $name => $value) {
@@ -180,7 +180,7 @@ class ActivityService
     });
 
     if ($header) {
-      $array = array('all' => '未指定') + $array;
+      $array = ['all' => '未指定'] + $array;
     }
 
     return $array;
@@ -208,7 +208,7 @@ class ActivityService
    * @param array &$errors
    * @return bool
    */
-  public function update($id, array $fields, &$errors = array())
+  public function update($id, array $fields, &$errors = [])
   {
     $result = false;
 
@@ -260,7 +260,7 @@ class ActivityService
     $min_date = $builder->min('activity_date');
     $max_date = $builder->max('activity_date');
 
-    $array = array();
+    $array = [];
 
     if ($min_date === null) {
       $array[date('Y-m')] = date('Y/m');
@@ -289,7 +289,7 @@ class ActivityService
     $next_date = new DateTime();
     $next_date->add(new DateInterval('P1M'));
 
-    $first_array = array($next_date->format('Y-m') => $next_date->format('Y/m'));
+    $first_array = [$next_date->format('Y-m') => $next_date->format('Y/m')];
     $array = $first_array + $array;
 
     return $array;
@@ -325,15 +325,15 @@ class ActivityService
       ->orderBy('ac.sort_order', 'asc')
       ->orderBy('acg.sort_order', 'asc');
 
-    $result = array();
+    $result = [];
     $previous_id = null;
 
     foreach ($builder->get() as $data) {
       if (!isset($result[$data->activity_category_id])) {
-        $result[$data->activity_category_id] = array(
+        $result[$data->activity_category_id] = [
           'category_name' => $data->category_name,
-          'activity_category_groups' => array()
-        );
+          'activity_category_groups' => []
+        ];
       }
 
       $result[$data->activity_category_id]['activity_category_groups'][] = $data;
@@ -357,7 +357,7 @@ class ActivityService
     $end_date = sprintf('%s-%s', $target_month, $last_day);
 
     $builder = $this->activity->where('user_id', '=', $user_id)
-      ->whereBetween('activity_date', array($begin_date, $end_date))
+      ->whereBetween('activity_date', [$begin_date, $end_date])
       ->where('activity_category_group_id', '=', $activity_category_group_id);
 
     return $builder->first();
@@ -371,10 +371,10 @@ class ActivityService
    * @param array &$errors
    * @return bool
    */
-  public function createOrUpdateConstantCosts($user_id, array $fields, array &$errors = array())
+  public function createOrUpdateConstantCosts($user_id, array $fields, array &$errors = [])
   {
     $result = false;
-    $valid_fields = array();
+    $valid_fields = [];
 
     if ($this->activity->validateConstantFields($fields, $valid_fields)) {
       $target_month = key($fields['activity_date']);
@@ -485,28 +485,28 @@ class ActivityService
    */
   private function calculateMonthlySummary(array $data)
   {
-    $category_summary = array(
-      Models\ActivityCategory::COST_TYPE_VARIABLE => array(),
-      Models\ActivityCategory::COST_TYPE_CONSTANT => array()
-    );
-    $income_summary = array(
+    $category_summary = [
+      Models\ActivityCategory::COST_TYPE_VARIABLE => [],
+      Models\ActivityCategory::COST_TYPE_CONSTANT => []
+    ];
+    $income_summary = [
       'cash_amount' => 0,
       'credit_amount' => 0,
       'special_use_amount' => 0,
       'special_unuse_amount' => 0,
       'income_amount' => 0
-    );
-    $expense_summary = array(
+    ];
+    $expense_summary = [
       'cash_amount' => 0,
       'credit_amount' => 0,
       'special_use_amount' => 0,
       'special_unuse_amount' => 0,
       'expense_amount' => 0
-    );
-    $cost_size = array(
+    ];
+    $cost_size = [
       Models\ActivityCategory::COST_TYPE_VARIABLE => 0,
       Models\ActivityCategory::COST_TYPE_CONSTANT => 0
-    );
+    ];
 
     foreach ($data as $value) {
       // 科目配列の初期化
@@ -593,7 +593,7 @@ class ActivityService
       }
     }
 
-    $summary = array();
+    $summary = [];
     $summary['cost_size'] = $cost_size;
     $summary['category_summary'] = $category_summary;
     $summary['income_summary'] = $income_summary;
@@ -623,13 +623,13 @@ class ActivityService
         ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
         ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
         ->where('a.user_id', '=', $user_id)
-        ->whereBetween('a.activity_date', array($begin_date, $end_date))
+        ->whereBetween('a.activity_date', [$begin_date, $end_date])
         ->whereNull('a.delete_date')
         ->groupBy('a.activity_date')
         ->groupBy('ac.cost_type')
         ->orderBy('a.activity_date', 'asc');
 
-      $array = array();
+      $array = [];
 
       // 1日〜月末までの配列を生成
       $calc_date = new DateTime($date_range->begin_date);
@@ -638,7 +638,7 @@ class ActivityService
 
       while ($calc_date->getTimestamp() <= $calc_end_date->getTimestamp()) {
         $date = $calc_date->format('Y-m-d');
-        $array[$date] = array(
+        $array[$date] = [
           'short_date' => $calc_date->format('j'),
           'date' => $date,
           'day' => $calc_date->format('w'),
@@ -647,7 +647,7 @@ class ActivityService
           'holiday' => false,
           'holiday_name' => null,
           'current_date' => ($date === $current) ? true : false
-        );
+        ];
 
         $calc_date->add(new DateInterval('P1D'));
       }
@@ -670,7 +670,7 @@ class ActivityService
       }
 
       // 週の配列に変換
-      $result = array();
+      $result = [];
       $i = 1;
       $week = ceil($calc_end_date->format('d') / 7);
 
@@ -723,7 +723,7 @@ class ActivityService
       ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
       ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
       ->where('a.user_id', $user_id)
-      ->whereBetween('a.activity_date', array($begin_date, $end_date))
+      ->whereBetween('a.activity_date', [$begin_date, $end_date])
       ->whereNull('a.delete_date')
       ->whereNull('acg.delete_date')
       ->whereNull('ac.delete_date')
@@ -736,13 +736,13 @@ class ActivityService
       ->orderBy('acg.sort_order', 'ASC');
     $result = $builder->get();
 
-    $data = array();
-    $footers = array(
-      'yearly_total_activity_categories' => array(),
+    $data = [];
+    $footers = [
+      'yearly_total_activity_categories' => [],
       'yearly_total_expense_amount' => 0,
       'yearly_total_income_amount' => 0,
       'yearly_total_result_amount' => 0
-    );
+    ];
 
     if (count($result)) {
       foreach ($result as $name => $value) {
@@ -781,13 +781,13 @@ class ActivityService
     $headers = $this->activity_category->getCategoryGroupData($user_id);
 
     // 科目数を取得
-    $header_size = array(
+    $header_size = [
       'total' => 0,
-      'cost_type' => array(
+      'cost_type' => [
         Models\ActivityCategory::COST_TYPE_VARIABLE => 0,
         Models\ActivityCategory::COST_TYPE_CONSTANT => 0
-      )
-    );
+      ]
+    ];
 
     foreach ($headers as $cost_type => $activity_category_groups) {
       foreach ($activity_category_groups as $activity_categories) {
@@ -798,7 +798,7 @@ class ActivityService
       }
     }
 
-    $summary = array();
+    $summary = [];
     $summary['headers'] = $headers;
     $summary['header_size'] = $header_size;
     $summary['data'] = $data;
@@ -823,15 +823,15 @@ class ActivityService
       ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
       ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
       ->where('a.user_id', '=', $user_id)
-      ->whereBetween('a.activity_date', array($begin_date, $end_date))
+      ->whereBetween('a.activity_date', [$begin_date, $end_date])
       ->whereNull('a.delete_date')
       ->groupBy('ac.balance_type');
 
-    $result = array(
+    $result = [
       0 => 0,
       Models\ActivityCategory::BALANCE_TYPE_EXPENSE => 0,
       Models\ActivityCategory::BALANCE_TYPE_INCOME => 0
-    );
+    ];
 
     foreach ($builder->get() as $data) {
       $result[0] += $data->amount;
@@ -872,7 +872,7 @@ class ActivityService
     $result = $builder->lists('amount', 'activity_date');
 
     // $days日分の日付配列を生成
-    $day_array = array();
+    $day_array = [];
     $current_date = new DateTIme();
 
     while ($calc_date->getTimestamp() <= $current_date->getTimestamp()) {
@@ -880,18 +880,18 @@ class ActivityService
       $search_date = $calc_date->format('Y-m-d');
 
       if (isset($result[$search_date])) {
-        $array = array(
+        $array = [
           'amount' => $result[$search_date],
           'heat_level' => $this->calculateHeatLevel($result[$search_date])
-        );
+        ];
 
         $day_array[$week][$search_date] = $array;
 
       } else {
-        $array = array(
+        $array = [
           'amount' => 0,
           'heat_level' => $this->calculateHeatLevel(0)
-        );
+        ];
         $day_array[$week][$search_date] = $array;
       }
 
@@ -915,7 +915,7 @@ class ActivityService
       $level = 0;
 
     } else {
-      $levels = array(50000, 10000, 5000, 3000, 1000, 0, -1000, -3000, -5000, -10000, -50000);
+      $levels = [50000, 10000, 5000, 3000, 1000, 0, -1000, -3000, -5000, -10000, -50000];
       $j = sizeof($levels);
 
       for ($i = 0; $i < $j; $i++) {
@@ -968,7 +968,7 @@ class ActivityService
 
     if (strlen($date_range->begin_date)) {
       if (strlen($date_range->end_date)) {
-        $builder->whereBetween('a.activity_date', array($date_range->begin_date, $date_range->end_date));
+        $builder->whereBetween('a.activity_date', [$date_range->begin_date, $date_range->end_date]);
       } else {
         $builder->where('a.activity_date', '>=', $date_range->begin_date);
       }

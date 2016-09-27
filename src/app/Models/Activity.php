@@ -10,14 +10,14 @@ class Activity extends BaseModel {
   const SPECIAL_FLAG_USE = 1;
   const SPECIAL_FLAG_UNUSE = 0;
 
-  protected $guarded = array('id');
-  protected $rules = array(
+  protected $guarded = ['id'];
+  protected $rules = [
     'activity_date' => 'required|date',
     'activity_category_group_id' => 'required',
     'location' => 'max:64',
     'content' => 'max:255',
     'amount' => 'required|numeric'
-  );
+  ];
 
   public function user()
   {
@@ -37,7 +37,7 @@ class Activity extends BaseModel {
   {
     if (strlen($date_range->begin_date)) {
       if (strlen($date_range->end_date)) {
-        $builder->whereBetween('activity_date', array($date_range->begin_date, $date_range->end_date));
+        $builder->whereBetween('activity_date', [$date_range->begin_date, $date_range->end_date]);
       } else {
         $builder->where('activity_date', '>=', $date_range->begin_date);
       }
@@ -52,7 +52,7 @@ class Activity extends BaseModel {
    * @param array &$valid_fields
    * @return bool
    */
-  public function validateVariableFields(array $fields, array &$valid_fields = array())
+  public function validateVariableFields(array $fields, array &$valid_fields = [])
   {
     $has_error = false;
     $result = false;
@@ -62,21 +62,21 @@ class Activity extends BaseModel {
     for ($i = 0; $i < $j; $i++) {
       // 日付が入力されている場合は検証対象
       if (strlen($fields['activity_date'][$i])) {
-        $rules = array(
+        $rules = [
           sprintf('activity_date.%s', $i) => $this->rules['activity_date'],
           sprintf('activity_category_group_id.%s', $i) => $this->rules['activity_category_group_id'],
           sprintf('location.%s', $i) => $this->rules['location'],
           sprintf('content.%s', $i) => $this->rules['content'],
           sprintf('amount.%s', $i) => $this->rules['amount']
-        );
+        ];
 
-        $attribute_names = array(
+        $attribute_names = [
           sprintf('activity_date.%s', $i) => Lang::get('validation.attributes.activity_date'),
           sprintf('activity_category_group_id.%s', $i) => Lang::get('validation.attributes.group_name'),
           sprintf('location.%s', $i) => Lang::get('validation.attributes.location'),
           sprintf('content.%s', $i) => Lang::get('validation.attributes.content'),
           sprintf('amount.%s', $i) => Lang::get('validation.attributes.amount')
-        );
+        ];
 
         $validator = Validator::make($fields, $rules);
         $validator->setAttributeNames($attribute_names);
@@ -111,7 +111,7 @@ class Activity extends BaseModel {
     }
 
     if (sizeof($valid_fields) == 0 && !$has_error) {
-      $validator = Validator::make(array(), array());
+      $validator = Validator::make([], []);
       $validator->messages()->add('none', Lang::get('validation.custom.create_record_none'));
       $this->errors = $validator->messages();
 
@@ -126,7 +126,7 @@ class Activity extends BaseModel {
    * @param array $fields
    * @param array &$valid_fields
    */
-  public function validateConstantFields(array $fields, array &$valid_fields = array())
+  public function validateConstantFields(array $fields, array &$valid_fields = [])
   {
     $result = false;
     $has_error = false;
@@ -137,15 +137,15 @@ class Activity extends BaseModel {
     foreach ($fields['activity_date'][$target_month] as $activity_category_group_id => $activity_date) {
       // 日付が入力されている場合は検証対象
       if (strlen($activity_date)) {
-        $rules = array(
+        $rules = [
           sprintf('activity_date.%s.%s', $target_month, $activity_category_group_id) => 'date',
           sprintf('amount.%s.%s', $target_month, $activity_category_group_id) => 'required|numeric'
-        );
+        ];
 
-        $attribute_names = array(
+        $attribute_names = [
           sprintf('activity_date.%s.%s', $target_month, $activity_category_group_id) => Lang::get('validation.attributes.activity_date'),
           sprintf('amount.%s.%s', $target_month, $activity_category_group_id) => Lang::get('validation.attributes.amount')
-        );
+        ];
 
         $validator = Validator::make($fields, $rules);
         $validator->setAttributeNames($attribute_names);
@@ -173,7 +173,7 @@ class Activity extends BaseModel {
     }
 
     if (sizeof($valid_fields) == 0 && !$has_error) {
-      $validator = Validator::make(array(), array());
+      $validator = Validator::make([], []);
       $validator->messages()->add('none', Lang::get('validation.custom.create_record_none'));
       $this->errors = $validator->messages();
 

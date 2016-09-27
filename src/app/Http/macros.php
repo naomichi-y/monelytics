@@ -1,5 +1,5 @@
 <?php
-Form::macro('date', function($name, $default = NULL, $attributes = array())
+Form::macro('date', function($name, $default = NULL, $attributes = [])
 {
   $tag = '<input type="date" name="'. $name .'" ';
 
@@ -38,7 +38,7 @@ Html::macro('collection_to_string', function($collection, $target, $delimiter = 
   return $string;
 });
 
-Html::macro('linkWithQueryString', function($url, array $queries = array(), $title, array $attributes = array(), $secure = null) {
+Html::macro('linkWithQueryString', function($url, array $queries = [], $title, array $attributes = [], $secure = null) {
   $append_query_string = http_build_query($queries, '', '&amp;');
 
   if (strpos($url, '?') === false) {
@@ -79,7 +79,7 @@ Html::macro('formatDate', function($date, $format, $append_week) {
 
   if ($append_week) {
     $week = $date->format('w');
-    $week_alias = array(
+    $week_alias = [
       0 => '日',
       1 => '月',
       2 => '火',
@@ -87,7 +87,7 @@ Html::macro('formatDate', function($date, $format, $append_week) {
       4 => '木',
       5 => '金',
       6 => '土'
-    );
+    ];
 
     $new_date = sprintf('%s (%s)', $format_date, $week_alias[$week]);
 
@@ -188,7 +188,7 @@ Html::macro('sortLabel', function($field, $label, $default_sort = false) {
     }
 
   } else {
-    $parse_query = array();
+    $parse_query = [];
   }
 
   $new_query = null;

@@ -26,7 +26,7 @@ class ContactController extends ApplicationController {
    */
   public function index()
   {
-    $data = array();
+    $data = [];
     $data['contact_type_list'] = $this->contact->getContactTypeList();
 
     return View::make('contact/create', $data);
@@ -49,7 +49,7 @@ class ContactController extends ApplicationController {
       'contact_type',
       'contact_message'
     );
-    $errors = array();
+    $errors = [];
 
     if (!$this->contact->send($fields, $user_id, $errors)) {
       return Redirect::to('contact')->withErrors($errors)->withInput();

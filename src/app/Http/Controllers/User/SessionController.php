@@ -49,7 +49,7 @@ class SessionController extends \App\Http\Controllers\ApplicationController {
     $email = Input::get('email');
     $password = Input::get('password');
     $remember_me = (bool) Input::get('remember_me');
-    $errors = array();
+    $errors = [];
 
     $user = $this->user->login($email, $password, $remember_me, $errors);
 
@@ -75,10 +75,10 @@ class SessionController extends \App\Http\Controllers\ApplicationController {
    */
   public function loginOAuthCallback()
   {
-    $params = array(
+    $params = [
       'code' => Input::get('code')
-    );
-    $errors = array();
+    ];
+    $errors = [];
 
     if (!$this->user->loginOAuth(Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
       return Redirect::to('user/login')
