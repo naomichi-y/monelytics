@@ -1,6 +1,7 @@
 # monelytics
 
 monelytics is a household account book web service.
+This is an application that has been made in Laravel5.
 
 ## Web site
 http://monelytics.me/
@@ -29,6 +30,11 @@ Setup the containers.
 
 ```
 cd docker
+cp .env.sample .env
+
+# please change settings
+cat .env
+
 docker-compose build
 docker-compose up -d
 docker-compose run composer install

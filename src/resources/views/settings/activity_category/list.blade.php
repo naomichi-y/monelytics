@@ -24,7 +24,7 @@
           <td>
             {{{$activity_category->category_name}}}
             <p class="note">
-            {{{collection_to_string($activity_category->activityCategoryGroups, 'group_name')}}}
+            {{{Html::collection_to_string($activity_category->activityCategoryGroups, 'group_name')}}}
             </p>
           </td>
           <td>{{nl2br(e($activity_category->content))}}</td>

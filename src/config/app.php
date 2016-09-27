@@ -145,6 +145,7 @@ return [
 		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
     'App\Providers\ValidatorServiceProvider',
+    'App\Providers\MacroServiceProvider',
 
     'Illuminate\Html\HtmlServiceProvider',
     'Jenssegers\Agent\AgentServiceProvider',
@@ -204,7 +205,6 @@ return [
 
   // Custom config
   'notice' => array(
-    'alert' => env('NOTICE_ALERT'),
     'contact' => env('NOTICE_CONTACT')
   ),
   'google' => array(
