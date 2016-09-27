@@ -1,5 +1,5 @@
 <?php
-namespace Monelytics\Controllers\User;
+namespace App\Http\Controllers\User;
 
 use Auth;
 use Input;
@@ -10,11 +10,11 @@ use View;
 
 use OAuth;
 
-use Monelytics\Controllers;
-use Monelytics\Services;
-use Monelytics\Models;
+use App\Controllers;
+use App\Services;
+use App\Models;
 
-class SessionController extends ApplicationController {
+class SessionController extends \App\Http\Controllers\ApplicationController {
   protected $required_auth = true;
   private $user;
 

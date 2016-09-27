@@ -12,14 +12,14 @@
 <div class="row text-center activity-status">
   <div class="col-md-3">
     <h3>収入</h3>
-    <p>{{number_format($status[Monelytics\Models\ActivityCategory::BALANCE_TYPE_INCOME])}}</p>
+    <p>{{number_format($status[App\Models\ActivityCategory::BALANCE_TYPE_INCOME])}}</p>
   </div>
   <div class="col-md-1 operator hidden-xs">
     <h3>+</h3>
   </div>
   <div class="col-md-3">
     <h3>支出</h3>
-    <p>{{number_format($status[Monelytics\Models\ActivityCategory::BALANCE_TYPE_EXPENSE])}}</p>
+    <p>{{number_format($status[App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE])}}</p>
   </div>
   <div class="col-md-1 operator hidden-xs">
     <h3>=</h3>

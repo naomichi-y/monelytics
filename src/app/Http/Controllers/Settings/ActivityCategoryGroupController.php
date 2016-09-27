@@ -1,5 +1,5 @@
 <?php
-namespace Monelytics\Controllers\Settings;
+namespace App\Http\Controllers\Settings;
 
 use Auth;
 use Input;
@@ -8,11 +8,11 @@ use Redirect;
 use Session;
 use View;
 
-use Monelytics\Controllers;
-use Monelytics\Services;
-use Monelytics\Models;
+use App\Controllers;
+use App\Services;
+use App\Models;
 
-class ActivityCategoryGroupController extends ApplicationController {
+class ActivityCategoryGroupController extends \App\Http\Controllers\ApplicationController {
   private $activity_category;
   private $activity_categor_group;
 

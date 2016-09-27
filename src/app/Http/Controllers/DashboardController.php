@@ -1,10 +1,10 @@
 <?php
-namespace Monelytics\Controllers;
+namespace App\Http\Controllers;
 
 use Auth;
 use View;
 
-use Monelytics\Services;
+use App\Services;
 
 class DashboardController extends ApplicationController
 {

@@ -144,8 +144,11 @@ return [
 		'App\Providers\ConfigServiceProvider',
 		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
+    'App\Providers\ValidatorServiceProvider',
 
     'Illuminate\Html\HtmlServiceProvider',
+    'Jenssegers\Agent\AgentServiceProvider',
+    'Artdarek\OAuth\OAuthServiceProvider',
 	],
 
 	/*
@@ -195,6 +198,19 @@ return [
     'View'      => 'Illuminate\Support\Facades\View',
     'Html'      => 'Illuminate\Html\HtmlFacade',
     'Form'      => 'Illuminate\Html\FormFacade',
+    'Agent'     => 'Jenssegers\Agent\Facades\Agent',
+    'OAuth'     => 'Artdarek\OAuth\Facade\OAuth',
 	],
 
+  // Custom config
+  'notice' => array(
+    'alert' => env('NOTICE_ALERT'),
+    'contact' => env('NOTICE_CONTACT')
+  ),
+  'google' => array(
+    'api_key' => env('GOOGLE_API_KEY'),
+    'calendar' => array(
+      'id' => 'outid3el0qkcrsuf89fltf7a4qbacgt9@import.calendar.google.com'
+    )
+  )
 ];

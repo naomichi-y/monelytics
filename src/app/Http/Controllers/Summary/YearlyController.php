@@ -1,15 +1,15 @@
 <?php
-namespace Monelytics\Controllers\Summary;
+namespace App\Http\Controllers\Summary;
 
 use Auth;
 use Input;
 use View;
 
-use Monelytics\Controllers;
-use Monelytics\Libraries\Condition;
-use Monelytics\Services;
+use App\Controllers;
+use App\Libraries\Condition;
+use App\Services;
 
-class YearlyController extends ApplicationController {
+class YearlyController extends \App\Http\Controllers\ApplicationController {
   private $activity;
 
   /**

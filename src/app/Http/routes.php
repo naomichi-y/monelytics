@@ -35,13 +35,13 @@ Route::group(array('namespace' => 'User', 'prefix' => 'user'), function($route) 
 
 Route::resource('dashboard', 'DashboardController');
 
-Route::group(array('namespace' => 'App\Http\Controllers', 'prefix' => 'contact'), function($route) {
+Route::group(array('prefix' => 'contact'), function($route) {
   $route->post('send', 'ContactController@send');
   $route->get('done', 'ContactController@done');
 });
 Route::resource('contact', 'ContactController', array('only' => array('index')));
 
-Route::group(array('namespace' => 'App\Http\Controllers', 'prefix' => 'gadget'), function($route) {
+Route::group(array('prefix' => 'gadget'), function($route) {
   $route->get('activity-status', 'GadgetController@activityStatus');
   $route->get('activity-graph', 'GadgetController@activityGraph');
   $route->get('activity-history', 'GadgetController@activityHistory');

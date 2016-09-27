@@ -41,7 +41,7 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{{Auth::user()->nickname}}} <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li>{!! link_to('/user', 'アカウント') !!}</li>
-                <li>{!! ink_to('/user/logout', 'ログアウト') !!}</li>
+                <li>{!! link_to('/user/logout', 'ログアウト') !!}</li>
               </ul>
             </li>
           @else
