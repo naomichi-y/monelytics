@@ -1,0 +1,154 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 100px;
+  padding-bottom: 0;
+  padding-top: 60px;
+}
+
+header, footer {
+  opacity: 0.9;
+}
+
+.dropdown-toggle {
+  color: #fff !important;
+}
+
+.page-header {
+  margin-top: 20px;
+}
+
+.logo {
+  padding-top: 9px;
+  padding-right: 10px;
+  float: left;
+}
+
+.logo img {
+  width: 140px;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.6em;
+}
+
+h3 {
+  font-size: 1.2em;
+}
+
+hr {
+  border-bottom: 1px solid #dcdcdc;
+}
+
+.navbar .nav > li > a {
+  font-size: 12px;
+}
+
+.table-highlight th {
+  background-color: #f8f5f0;
+  font-weight: normal;
+}
+
+.ui-tabs {
+  font-size: 0.8em;
+}
+
+.ui-tabs p {
+  margin: 0;
+}
+
+.form-group-adjust {
+  margin-bottom: 0;
+}
+
+.label-range-text {
+  width: 40px;
+}
+
+.sort-col {
+  cursor: move;
+}
+
+textarea {
+  height: 8em !important;
+}
+
+th, td {
+  vertical-align: middle !important;
+}
+
+th {
+  white-space: nowrap;
+}
+
+td a {
+  text-decoration: underline;
+}
+
+.note {
+  font-size: 0.8em;
+}
+
+.modal-dialog {
+  top: 100px;
+}
+
+footer {
+  font-size: 0.9em;
+  text-align: right;
+  bottom: 0;
+  padding-top: 20px;
+  padding-right: 40px;
+  min-height: 80px;
+  width: 100%;
+  position: absolute;
+  background-color: #3e3f3a;
+}
+
+footer a {
+  color: #fff;
+  text-decoration: none !important;
+}
+
+footer ul {
+  padding-top: 10px;
+}
+
+footer li {
+  display: inline;
+  padding-left: 20px;
+}
+
+#u_0_6 {
+  display: none !important;
+}
+
+/**
+ * PC、タブレット
+ */
+@media only screen and (min-width: 769px) {
+  /**
+   * ナビゲーションメニューにマウスオーバー時はサブメニューを自動展開。
+   * (スマホだと挙動が怪しいのでPC以上限定措置とする)
+   */
+  ul.nav li.dropdown:hover > ul.dropdown-menu {
+    display: block;
+  }
+}
+
+/**
+ * スマートフォン
+ */
+@media only screen and (max-width: 768px) {
+  footer {
+    text-align: center;
+    padding-right: 0;
+  }
+}

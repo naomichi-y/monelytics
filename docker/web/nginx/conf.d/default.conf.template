@@ -3,11 +3,18 @@ server {
     server_name ${SERVER_NAME};
 
     root /data/public;
-    index index.php;
+    charset UTF-8;
+    index index.php index.html;
 
     location = /favicon.ico {
         log_not_found off;
         access_log off;
+    }
+
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
     }
 
     location / {
