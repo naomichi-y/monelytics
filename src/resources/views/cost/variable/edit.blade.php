@@ -90,7 +90,7 @@
             <div class="form-group">
               {!! Form::label('location', '場所', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
-                {!! orm::text('location', $activity->location, ['class' => 'form-control']) !!}
+                {!! Form::text('location', $activity->location, ['class' => 'form-control']) !!}
               </div>
             </div>
 
@@ -129,7 +129,7 @@
 
         <div class="modal-footer">
           {!! Form::button('更新', ['class' => 'btn btn-primary', 'id' => "update-$id"]) !!}
-          {!! orm::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
+          {!! Form::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
         </div>
       {!! Form::close() !!}
     </div>

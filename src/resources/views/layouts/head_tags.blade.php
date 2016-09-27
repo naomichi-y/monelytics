@@ -11,6 +11,7 @@
   <meta property="og:image" content="{{Config::get('app.url')}}assets/images/logo_ogp.png">
   <meta property="og:site_name" content="monelytics">
   <meta property="og:locale" content="ja_JP">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   {!! Html::style('assets/components/bootstrap/3.3.2/sandstone/bootstrap.min.css') !!}
   {!! Html::style('assets/components/jquery-ui/1.11.3/jquery-ui.min.css') !!}
   {!! Html::style('assets/components/jquery_plugins/darktooltip/css/darktooltip.min.css') !!}

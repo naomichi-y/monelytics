@@ -1,3 +1,9 @@
+$.ajaxSetup({
+  headers: {
+    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+  }
+});
+
 function getQueryParams() {
   if (location.search.length > 1) {
     var pair = new Object();
