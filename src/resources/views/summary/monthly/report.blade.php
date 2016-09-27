@@ -57,17 +57,17 @@
                     <tr>
                   @endif
                     <th>{{{$activity_category_group_summary['group_name']}}}</th>
-                    <td class="text-right">{!! Html::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE), number_format($activity_category_group_summary['cash_amount'])) !!}</td>
-                    <td class="text-right">{!! Html::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE), number_format($activity_category_group_summary['credit_amount'])) !!}</td>
+                    <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE), number_format($activity_category_group_summary['cash_amount']]) !!}</td>
+                    <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE), number_format($activity_category_group_summary['credit_amount']]) !!}</td>
                     <td class="text-right">
                       @if ($cost_type == App\Models\ActivityCategory::COST_TYPE_VARIABLE)
-                       {!! Html::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_USE), number_format($activity_category_group_summary['special_use_amount'])) !!}
+                       {!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_USE), number_format($activity_category_group_summary['special_use_amount']]) !!}
                       @else
                        N/A
                       @endif
                     </td>
-                    <td class="text-right">{!! Html::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_UNUSE), number_format($activity_category_group_summary['special_unuse_amount'])) !!}</td>
-                    <td class="text-right">{!! Html::linkWithQueryString($base_link, array('activity_category_group_id[]' => $activity_category_group_id), number_format($activity_category_group_summary['group_amount'])) !!}</td>
+                    <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_UNUSE), number_format($activity_category_group_summary['special_unuse_amount']]) !!}</td>
+                    <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id), number_format($activity_category_group_summary['group_amount']) !!}</td>
                   </tr>
                   {{-- */ $j++ /* --}}
                 @endforeach

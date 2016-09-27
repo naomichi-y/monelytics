@@ -67,8 +67,8 @@
     <div class="row">
       <div class="form-group form-group-sm form-group-adjust">
         <div class="col-md-8">
-          {!! Form::open(array('url' => 'settings/activityCategoryGroup', 'method' => 'get', 'class' => 'form-horizontal', 'id' => 'search-form')) !!}
-            {!! Form::select('activity_category_id', $activity_category_list, Input::get('activity_category_id'), array('class' => 'form-control', 'id' => 'search_activity_category_id')) !!}
+          {!! Form::open(['url' => 'settings/activityCategoryGroup', 'method' => 'get', 'class' => 'form-horizontal', 'id' => 'search-form']) !!}
+            {!! Form::select('activity_category_id', $activity_category_list, Input::get('activity_category_id'), ['class' => 'form-control', 'id' => 'search_activity_category_id']) !!}
          {!! Form::close() !!}
         </div>
         <div class="col-md-4">
@@ -80,7 +80,7 @@
 @stop
 
 @section('content')
-  @include('layouts/delete_modal', array('action' => 'settings/activityCategoryGroup'))
+  @include('layouts/delete_modal', ['action' => 'settings/activityCategoryGroup'])
 
   @if (sizeof($activity_category_groups))
     <table class="table table-striped table-hover">
@@ -116,8 +116,8 @@
             <td class="text-center sort-col hidden-xs"><span class="glyphicon glyphicon-sort"></span></td>
             <td class="text-center">
               {!! Form::hidden('sortable_ids[]', $activity_category_group->id) !!}
-              {!! Form::button('編集', array('class' => 'btn btn-primary open_edit')) !!}
-              {!! Form::button('削除', array('class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal')) !!}
+              {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}
+              {!! Form::button('削除', ['class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
             </td>
           </tr>
         @endforeach

@@ -46,9 +46,10 @@
       $("[name=activity_date]").dateFormat();
     });
   </script>
+
   <div class="modal-dialog">
     <div class="modal-content">
-      {!! Form::open(array('class' => 'form-horizontal')) !!}
+      {!! Form::open(['class' => 'form-horizontal']) !!}
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">編集</h4>
@@ -62,41 +63,41 @@
 
           <div class="row">
             <div class="form-group">
-              {!! Form::label('activity_date', '発生日', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('activity_date', '発生日', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-3">
                 @if (Agent::isDesktop())
-                  {!! Form::text('activity_date', Html::date($activity->activity_date, false), array('class' => 'form-control date-picker', 'placeholder' => '月/日')) !!}
+                  {!! Form::text('activity_date', Html::date($activity->activity_date, false), ['class' => 'form-control date-picker', 'placeholder' => '月/日']) !!}
                 @else
-                  {!! Form::date('activity_date', str_replace('/', '-', Html::date($activity->activity_date, false)), array('class' => 'form-control')) !!}
+                  {!! Form::date('activity_date', str_replace('/', '-', Html::date($activity->activity_date, false)), ['class' => 'form-control']) !!}
                 @endif
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('activity_category_group_id', '科目名', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('activity_category_group_id', '科目名', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-4">
-                {!! Form::select('activity_category_group_id', $activity_category_groups, $activity->activity_category_group_id, array('class' => 'form-control')) !!}
+                {!! Form::select('activity_category_group_id', $activity_category_groups, $activity->activity_category_group_id, ['class' => 'form-control']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('amount', '金額', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('amount', '金額', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-3">
-                {!! Form::text('amount', $activity->amount, array('class' => 'form-control', 'pattern' => '[\-0-9]*')) !!}
+                {!! Form::text('amount', $activity->amount, ['class' => 'form-control', 'pattern' => '[\-0-9]*']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('location', '場所', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('location', '場所', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
-                {!! orm::text('location', $activity->location, array('class' => 'form-control')) !!}
+                {!! orm::text('location', $activity->location, ['class' => 'form-control']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('content', '用途', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('content', '用途', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
-                {!! Form::text('content', $activity->content, array('class' => 'form-control')) !!}
+                {!! Form::text('content', $activity->content, ['class' => 'form-control']) !!}
               </div>
             </div>
 
@@ -106,7 +107,7 @@
               </label>
               <div class="col-md-6">
                 <div class="checkbox-inline">
-                  {!! Form::checkbox('credit_flag', App\Models\Activity::CREDIT_FLAG_USE, $activity->credit_flag, array('id' => 'credit_flag')) !!}
+                  {!! Form::checkbox('credit_flag', App\Models\Activity::CREDIT_FLAG_USE, $activity->credit_flag, ['id' => 'credit_flag']) !!}
                   {!! Form::label('credit_flag', 'クレジットカードを使用') !!}
                 </div>
               </div>
@@ -118,7 +119,7 @@
               </label>
               <div class="col-md-6">
                 <div class="checkbox-inline">
-                  {!! Form::checkbox('special_flag', App\Models\Activity::SPECIAL_FLAG_USE, $activity->special_flag, array('id' => 'special_flag')) !!}
+                  {!! Form::checkbox('special_flag', App\Models\Activity::SPECIAL_FLAG_USE, $activity->special_flag, ['id' => 'special_flag']) !!}
                   {!! Form::label('special_flag', '特別収支') !!}
                 </div>
               </div>
@@ -127,8 +128,8 @@
         </div>
 
         <div class="modal-footer">
-          {!! Form::button('更新', array('class' => 'btn btn-primary', 'id' => "update-$id")) !!}
-          {!! orm::button('キャンセル', array('class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true')) !!}
+          {!! Form::button('更新', ['class' => 'btn btn-primary', 'id' => "update-$id"]) !!}
+          {!! orm::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
         </div>
       {!! Form::close() !!}
     </div>

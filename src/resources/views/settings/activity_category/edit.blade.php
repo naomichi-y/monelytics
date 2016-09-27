@@ -55,9 +55,10 @@
       });
     });
   </script>
+
   <div class="modal-dialog">
     <div class="modal-content">
-      {!! Form::open(array('class' => 'form-horizontal')) !!}
+      {!! Form::open(['class' => 'form-horizontal']) !!}
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">科目カテゴリの編集</h4>
@@ -71,42 +72,42 @@
 
           <div class="row">
             <div class="form-group">
-              {!! Form::label('category_name', '科目カテゴリ名', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('category_name', '科目カテゴリ名', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
-                {!! Form::text('category_name', Input::get('category_name', $activity_category->category_name), array('class' => 'form-control')) !!}
+                {!! Form::text('category_name', Input::get('category_name', $activity_category->category_name), ['class' => 'form-control']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('content', '用途', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('content', '用途', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
-                {!! Form::textarea('content', Input::get('content', $activity_category->content), array('class' => 'form-control')) !!}
+                {!! Form::textarea('content', Input::get('content', $activity_category->content), ['class' => 'form-control']) !!}
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('', '科目タイプ', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('', '科目タイプ', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
                 <div class="radio-inline">
-                  {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_VARIABLE, $cost_type_variable, array('id' => 'cost_type_variable')) !!}
+                  {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_VARIABLE, $cost_type_variable, ['id' => 'cost_type_variable']) !!}
                   {!! Form::label('cost_type_variable', '変動収支') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_CONSTANT, $cost_type_constant, array('id' => 'cost_type_constant')) !!}
+                  {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_CONSTANT, $cost_type_constant, ['id' => 'cost_type_constant']) !!}
                   {!! Form::label('cost_type_constant', '固定収支') !!}
                 </div>
               </div>
             </div>
 
             <div class="form-group">
-              {!! Form::label('', '収支タイプ', array('class' => 'col-md-3 control-label')) !!}
+              {!! Form::label('', '収支タイプ', ['class' => 'col-md-3 control-label']) !!}
               <div class="col-md-6">
                 <div class="radio-inline">
-                  {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_INCOME, $balance_type_income, array('id' => 'balance_type_income')) !!}
+                  {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_INCOME, $balance_type_income, ['id' => 'balance_type_income']) !!}
                   {!! Form::label('balance_type_income', '収入') !!}
                 </div>
                 <div class="radio-inline">
-                  {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE, $balance_type_expense, array('id' => 'balance_type_expense')) !!}
+                  {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE, $balance_type_expense, ['id' => 'balance_type_expense']) !!}
                   {!! Form::label('balance_type_expense', '支出') !!}
                 </div>
               </div>
@@ -115,8 +116,8 @@
         </div>
 
         <div class="modal-footer">
-          {!! Form::button('更新', array('class' => 'btn btn-primary', 'id' => "update-$id")) !!}
-          {!! Form::button('キャンセル', array('class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true')) !!}
+          {!! Form::button('更新', ['class' => 'btn btn-primary', 'id' => "update-$id"]) !!}
+          {!! Form::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
         </div>
       {!! Form::close() !!}
     </div>

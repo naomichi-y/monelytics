@@ -21,7 +21,7 @@
   <div class="text-center">
     <p class="lead">ご登録ありがとうございました! それではさっそく使い始めましょう!</p>
     {!! Form::open() !!}
-      {!! Form::button('ホームへ移動する', array('class' => 'btn btn-info btn-lg')) !!}
+      {!! Form::button('ホームへ移動する', ['class' => 'btn btn-info btn-lg']) !!}
     {!! Form::close() !!}
   </div>
 @stop

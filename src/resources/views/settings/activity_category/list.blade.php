@@ -39,9 +39,9 @@
           <td class="text-center sort-col hidden-xs"><span class="glyphicon glyphicon-sort"></span></td>
           <td class="text-center">
             {!! Form::hidden($id . '_sortable_ids[]', $activity_category->id) !!}
-            {!! Form::button('編集', array('class' => 'btn btn-primary open_edit')) !!}
-            {!! Form::button('削除', array('class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal')) !!}
-            {!! Form::button('科目の確認', array('class' => 'btn btn-default show-category-group')) !!}
+            {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}
+            {!! Form::button('削除', ['class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
+            {!! Form::button('科目の確認', ['class' => 'btn btn-default show-category-group']) !!}
           </td>
         </tr>
       @endforeach
