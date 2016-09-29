@@ -142,7 +142,7 @@
         <div class="text-right">
             合計金額: {{number_format($activities->total_amount)}}
         </div>
-        <div class="text-right">{{$activities->render()}}</div>
+        <div class="text-right">{!! $activities->render() !!}</div>
         {!! Form::close() !!}
     @else
         <p>データがありません。</p>
