@@ -2,5 +2,5 @@
 namespace App\Libraries\Condition;
 
 class PieChartCondition extends BaseDateCondition {
-  public $balance_type;
+    public $balance_type;
 }

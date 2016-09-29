@@ -8,23 +8,23 @@ use App\Services;
 
 class DashboardController extends Controller
 {
-  private $activity_category;
+    private $activity_category;
 
-  /**
-   * @see BaseController::__construct()
-   */
-  public function __construct(Services\ActivityCategoryService $activity_category)
-  {
-    parent::__construct();
+    /**
+     * @see BaseController::__construct()
+     */
+    public function __construct(Services\ActivityCategoryService $activity_category)
+    {
+        parent::__construct();
 
-    $this->activity_category = $activity_category;
-  }
+        $this->activity_category = $activity_category;
+    }
 
-  public function index()
-  {
-    $data = [];
-    $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList(Auth::id(), null, true);
+    public function index()
+    {
+        $data = [];
+        $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList(Auth::id(), null, true);
 
-    return View::make('dashboard/index', $data);
-  }
+        return View::make('dashboard/index', $data);
+    }
 }

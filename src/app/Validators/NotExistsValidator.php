@@ -14,12 +14,12 @@ class NotExistsValidator extends \Illuminate\Validation\Validator
     public function validateNotExists($attribute, $value, $parameters)
     {
         $count = DB::table($parameters[0])
-          ->where($parameters[1], '=', $value)
-          ->whereNull('delete_date')
-          ->count();
+            ->where($parameters[1], '=', $value)
+            ->whereNull('delete_date')
+            ->count();
 
         if ($count) {
-          return false;
+            return false;
         }
 
         return true;
