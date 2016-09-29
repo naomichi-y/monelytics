@@ -6,7 +6,7 @@ use View;
 
 use App\Services;
 
-class DashboardController extends ApplicationController
+class DashboardController extends Controller
 {
   private $activity_category;
 

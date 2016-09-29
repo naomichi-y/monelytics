@@ -5,11 +5,10 @@ use Auth;
 use Input;
 use View;
 
-use App\Controllers;
 use App\Libraries\Condition;
 use App\Services;
 
-class YearlyController extends \App\Http\Controllers\ApplicationController {
+class YearlyController extends \App\Http\Controllers\Controller {
   private $activity;
 
   /**

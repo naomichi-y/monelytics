@@ -11,12 +11,11 @@ use View;
 
 use OAuth;
 
-use App\Controllers;
 use App\Libraries\Condition;
 use App\Models;
 use App\Services;
 
-class RegistrationController extends \App\Http\Controllers\ApplicationController {
+class RegistrationController extends \App\Http\Controllers\Controller {
   private $user;
 
   public function __construct(Services\UserService $user)

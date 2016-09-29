@@ -10,11 +10,10 @@ use View;
 
 use OAuth;
 
-use App\Controllers;
 use App\Services;
 use App\Models;
 
-class SessionController extends \App\Http\Controllers\ApplicationController {
+class SessionController extends \App\Http\Controllers\Controller {
   private $user;
 
   public function __construct(Services\UserService $user)

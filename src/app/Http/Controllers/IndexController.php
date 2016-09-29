@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use Auth;
 use Redirect;
 
-class IndexController extends ApplicationController {
+class IndexController extends Controller {
   /**
    * トップページを表示する。
    */

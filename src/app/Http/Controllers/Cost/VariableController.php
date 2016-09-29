@@ -8,11 +8,10 @@ use Redirect;
 use Session;
 use View;
 
-use App\Controllers;
 use App\Services;
 use App\Models;
 
-class VariableController extends \App\Http\Controllers\ApplicationController {
+class VariableController extends \App\Http\Controllers\Controller {
   private $activity;
   private $activity_category;
 

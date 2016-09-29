@@ -5,11 +5,10 @@ use Auth;
 use Input;
 use View;
 
-use App\Controllers;
 use App\Libraries\Condition;
 use App\Services;
 
-class MonthlyController extends \App\Http\Controllers\ApplicationController {
+class MonthlyController extends \App\Http\Controllers\Controller {
   private $activity;
   private $activity_categor;
 
