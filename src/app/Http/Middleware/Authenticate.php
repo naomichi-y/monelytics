@@ -19,7 +19,7 @@ class Authenticate {
 	 * @return void
 	 */
 	public function __construct(Guard $auth)
-	{
+  {
 		$this->auth = $auth;
 	}
 

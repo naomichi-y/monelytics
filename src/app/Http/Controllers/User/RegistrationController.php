@@ -34,6 +34,7 @@ class RegistrationController extends \App\Http\Controllers\ApplicationController
     $this->middleware('auth', [
       'only' => [
         'done',
+        'index',
         'edit',
         'update',
         'withdrawal'
