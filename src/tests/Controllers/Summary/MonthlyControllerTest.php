@@ -4,38 +4,38 @@ namespace Tests\Summary;
 use Tests\TestCase;
 
 class MonthlyControllerTest extends TestCase {
-  public function testIndex()
-  {
-    $this->assertUserOnlyContent('GET', '/summary/monthly');
-  }
+    public function testIndex()
+    {
+        $this->assertUserOnlyContent('GET', '/summary/monthly');
+    }
 
-  public function testCondition()
-  {
-    $this->assertUserOnlyContent('GET', '/summary/monthly/condition');
-  }
+    public function testCondition()
+    {
+        $this->assertUserOnlyContent('GET', '/summary/monthly/condition');
+    }
 
-  public function testReport()
-  {
-    $this->assertUserOnlyContent('GET', '/summary/monthly/report');
-  }
+    public function testReport()
+    {
+        $this->assertUserOnlyContent('GET', '/summary/monthly/report');
+    }
 
-  public function testCalendar()
-  {
-    $this->assertUserOnlyContent('GET', '/summary/monthly/calendar');
-  }
+    public function testCalendar()
+    {
+        $this->assertUserOnlyContent('GET', '/summary/monthly/calendar');
+    }
 
-  public function testPieChart()
-  {
-    $this->assertUserOnlyContent('GET', '/summary/monthly/pie-chart');
-  }
+    public function testPieChart()
+    {
+        $this->assertUserOnlyContent('GET', '/summary/monthly/pie-chart');
+    }
 
-  public function testPieChartData()
-  {
-    $this->assertUserOnlyContent('GET', '/summary/monthly/pie-chart-data');
-  }
+    public function testPieChartData()
+    {
+        $this->assertUserOnlyContent('GET', '/summary/monthly/pie-chart-data');
+    }
 
-  public function testRanking()
-  {
-    $this->assertUserOnlyContent('GET', '/summary/monthly/ranking');
-  }
+    public function testRanking()
+    {
+        $this->assertUserOnlyContent('GET', '/summary/monthly/ranking');
+    }
 }
