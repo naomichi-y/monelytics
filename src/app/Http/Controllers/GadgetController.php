@@ -7,7 +7,7 @@ use View;
 
 use App\Services;
 
-class GadgetController extends ApplicationController {
+class GadgetController extends Controller {
   private $activity;
 
   /**

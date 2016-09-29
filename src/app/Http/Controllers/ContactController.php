@@ -10,7 +10,7 @@ use View;
 
 use App\Services;
 
-class ContactController extends ApplicationController {
+class ContactController extends Controller {
   private $contact;
 
   /**

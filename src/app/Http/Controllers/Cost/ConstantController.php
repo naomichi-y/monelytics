@@ -7,10 +7,9 @@ use Lang;
 use Redirect;
 use View;
 
-use App\Controllers;
 use App\Services;
 
-class ConstantController extends \App\Http\Controllers\ApplicationController {
+class ConstantController extends \App\Http\Controllers\Controller {
   private $activity;
 
   /**
