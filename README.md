@@ -68,5 +68,5 @@ docker-compose run artisan migrate
 docker-compose run phpunit
 
 # e.g. Specify test class
-docker-compose run phpunit app/tests/Controllers/ContactControllerTest
+docker-compose run phpunit tests/Controllers/ContactControllerTest
 ```
