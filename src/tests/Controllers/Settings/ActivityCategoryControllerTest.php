@@ -24,7 +24,8 @@ class ActivityCategoryControllerTest extends TestCase {
         $this->login();
         $request_id_orders = $this->activity_category
             ->where('balance_type', '=', ActivityCategory::BALANCE_TYPE_EXPENSE)
-            ->lists('id');
+            ->lists('id')
+            ->all();
         rsort($request_id_orders);
 
         $params = [
@@ -41,7 +42,8 @@ class ActivityCategoryControllerTest extends TestCase {
         $result_id_orders = $this->activity_category
             ->where('balance_type', '=', ActivityCategory::BALANCE_TYPE_EXPENSE)
             ->orderBy('sort_order')
-            ->lists('id');
+            ->lists('id')
+            ->all();
 
         $this->assertEquals($result_id_orders, $request_id_orders);
     }
