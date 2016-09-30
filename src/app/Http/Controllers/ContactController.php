@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Input;
+use Request;
 use Lang;
 use Redirect;
 use Session;
@@ -43,7 +43,7 @@ class ContactController extends Controller {
             $user_id = Auth::id();
         }
 
-        $fields = Input::only(
+        $fields = Request::only(
             'contact_name',
             'email',
             'contact_type',

@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Cost;
 
 use Auth;
-use Input;
+use Request;
 use Lang;
 use Redirect;
 use Session;
@@ -43,7 +43,7 @@ class VariableController extends \App\Http\Controllers\Controller {
      */
     public function store()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'activity_date',
             'activity_category_group_id',
             'amount',
@@ -84,7 +84,7 @@ class VariableController extends \App\Http\Controllers\Controller {
      */
     public function update($id)
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'activity_date',
             'activity_category_group_id',
             'amount',

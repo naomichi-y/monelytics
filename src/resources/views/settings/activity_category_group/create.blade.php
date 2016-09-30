@@ -55,21 +55,21 @@
                         <div class="form-group">
                             {!! Form::label('activity_category_id', '科目カテゴリ', ['class' => 'col-md-3 control-label']) !!}
                             <div class="col-md-4">
-                                {!! Form::select('activity_category_id', $category_list, Input::get('activity_category_id'), ['class' => 'form-control']) !!}
+                                {!! Form::select('activity_category_id', $category_list, Request::input('activity_category_id'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
                         <div class="form-group">
                             {!! Form::label('group_name', '科目名', ['class' => 'col-md-3 control-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::text('group_name', Input::get('group_name'), ['class' => 'form-control']) !!}
+                                {!! Form::text('group_name', Request::input('group_name'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
                         <div class="form-group">
                             {!! Form::label('content', '用途', ['class' => 'col-md-3 control-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::textarea('content', Input::get('content'), ['class' => 'form-control']) !!}
+                                {!! Form::textarea('content', Request::input('content'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 

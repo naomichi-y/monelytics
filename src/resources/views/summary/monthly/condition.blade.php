@@ -43,7 +43,7 @@
                         <div class="form-group">
                             {!! Form::label('date_month', '月指定', ['class' => 'col-md-3 control-label']) !!}
                             <div class="col-md-3">
-                                {!! Form::select('date_month', $month_list, Input::get('date_month'), ['class' => 'form-control']) !!}
+                                {!! Form::select('date_month', $month_list, Request::input('date_month'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
@@ -51,19 +51,19 @@
                             {!! Form::label('begin_date', '日付範囲指定', ['class' => 'col-md-3 control-label']) !!}
                             @if (Agent::isDesktop())
                                 <div class="col-md-3">
-                                    {!! Form::text('begin_date', Input::get('begin_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
+                                    {!! Form::text('begin_date', Request::input('begin_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                                 </div>
                                 {!! Form::label('end_date', '〜', ['class' => 'col-md-1 control-label label-range-text']) !!}
                                 <div class="col-md-3">
-                                    {!! Form::text('end_date', Input::get('end_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
+                                    {!! Form::text('end_date', Request::input('end_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                                 </div>
                             @else
                                 <div class="col-md-3">
-                                    {!! Form::date('begin_date', Input::get('begin_date'), ['class' => 'form-control']) !!}
+                                    {!! Form::date('begin_date', Request::input('begin_date'), ['class' => 'form-control']) !!}
                                 </div>
                                 {!! Form::label('end_date', '〜', ['class' => 'col-md-1 control-label label-range-text']) !!}
                                 <div class="col-md-3">
-                                    {!! Form::date('end_date', Input::get('end_date'), ['class' => 'form-control']) !!}
+                                    {!! Form::date('end_date', Request::input('end_date'), ['class' => 'form-control']) !!}
                                 </div>
                             @endif
                             {!! Form::button('クリア', ['class' => 'btn btn-default', 'id' => 'clear_date_range']) !!}
