@@ -2,28 +2,28 @@
 
 return [
 
-	/*
-	|--------------------------------------------------------------------------
-	| oAuth Config
-	|--------------------------------------------------------------------------
-	*/
+    /*
+    |--------------------------------------------------------------------------
+    | oAuth Config
+    |--------------------------------------------------------------------------
+    */
 
-	/**
-	 * Storage
-	 */
-	'storage' => '\\OAuth\\Common\\Storage\\Session',
+    /**
+     * Storage
+     */
+    'storage' => '\\OAuth\\Common\\Storage\\Session',
 
-	/**
-	 * Consumers
-	 */
-	'consumers' => [
+    /**
+     * Consumers
+     */
+    'consumers' => [
 
-		'Facebook' => [
-			'client_id'     => env('FACEBOOK_CLIENT_ID'),
-			'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-			'scope'         => ['email'],
-		],
+        'Facebook' => [
+            'client_id'     => env('FACEBOOK_CLIENT_ID'),
+            'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+            'scope'         => ['email'],
+        ],
 
-	]
+    ]
 
 ];
