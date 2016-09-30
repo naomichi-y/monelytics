@@ -25,7 +25,7 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $this->login();
         $request_id_orders = $this->activity_category_group
             ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
-            ->lists('id')
+            ->pluck('id')
             ->all();
         rsort($request_id_orders);
 
@@ -43,7 +43,7 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $result_id_orders = $this->activity_category_group
             ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
             ->orderBy('sort_order')
-            ->lists('id')
+            ->pluck('id')
             ->all();
 
         $this->assertEquals($result_id_orders, $request_id_orders);
