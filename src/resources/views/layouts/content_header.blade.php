@@ -52,7 +52,7 @@
                 @if (Auth::check())
                     {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right']) !!}
                         <div class="form-group">
-                            {!! Form::text('keyword', Input::get('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
+                            {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
                         </div>
                         {!! Form::submit('検索', ['class' => 'btn btn-default']) !!}
                     {!! Form::close() !!}

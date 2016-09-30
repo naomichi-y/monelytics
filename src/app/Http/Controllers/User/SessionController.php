@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\User;
 
 use Auth;
-use Input;
+use Request;
 use URL;
 use Redirect;
 use Route;
@@ -45,9 +45,9 @@ class SessionController extends \App\Http\Controllers\Controller {
      */
     public function postLogin()
     {
-        $email = Input::get('email');
-        $password = Input::get('password');
-        $remember_me = (bool) Input::get('remember_me');
+        $email = Request::input('email');
+        $password = Request::input('password');
+        $remember_me = (bool) Request::input('remember_me');
         $errors = [];
 
         $user = $this->user->login($email, $password, $remember_me, $errors);
@@ -75,7 +75,7 @@ class SessionController extends \App\Http\Controllers\Controller {
     public function loginOAuthCallback()
     {
         $params = [
-            'code' => Input::get('code')
+            'code' => Request::input('code')
         ];
         $errors = [];
 

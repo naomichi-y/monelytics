@@ -25,13 +25,12 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $this->login();
         $request_id_orders = $this->activity_category_group
             ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
-            ->lists('id')
+            ->pluck('id')
             ->all();
         rsort($request_id_orders);
 
         $params = [
-            'ids' => $request_id_orders,
-            '_token' => csrf_token()
+            'ids' => $request_id_orders
         ];
         $this->call(
             'POST',
@@ -43,7 +42,7 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $result_id_orders = $this->activity_category_group
             ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
             ->orderBy('sort_order')
-            ->lists('id')
+            ->pluck('id')
             ->all();
 
         $this->assertEquals($result_id_orders, $request_id_orders);
@@ -60,8 +59,7 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $params = [
             'activity_category_id' => 1,
             'group_name' => 'test',
-            'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE,
-            '_token' => csrf_token()
+            'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE
         ];
 
         $default_count = $this->activity_category_group->all()->count();
@@ -83,7 +81,6 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $this->login();
         $params = $this->activity_category_group->find(1)->toArray();
         $params['group_name'] = 'update';
-        $params['_token'] = csrf_token();
 
         $this->assertValidAjaxResponse(
             'PUT',
@@ -100,7 +97,7 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $this->call(
             'DELETE',
             '/settings/activityCategoryGroup/1',
-            ['_token' => csrf_token()],
+            [],
             [],
             [],
             ['HTTP_REFERER' => 'http://localhost/settings/activityCategoryGroup']

@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\User;
 
 use Auth;
-use Input;
+use Request;
 use Lang;
 use Redirect;
 use Route;
@@ -73,7 +73,7 @@ class RegistrationController extends \App\Http\Controllers\Controller {
     public function createOAuthCallback()
     {
         $params = [
-            'code' => Input::get('code')
+            'code' => Request::input('code')
         ];
         $errors = [];
 
@@ -91,7 +91,7 @@ class RegistrationController extends \App\Http\Controllers\Controller {
      */
     public function store()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'nickname',
             'email',
             'password'
@@ -129,7 +129,7 @@ class RegistrationController extends \App\Http\Controllers\Controller {
      */
     public function update()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'nickname',
             'email',
             'password',

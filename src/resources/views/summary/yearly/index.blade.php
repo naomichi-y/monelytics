@@ -36,7 +36,7 @@
 @section('content')
     <div id="tabs">
         <ul>
-            <li><a href="/summary/yearly/report?begin_year={{{Input::get('begin_year', date('Y'))}}}&amp;end_year={{{Input::get('end_year', date('Y'))}}}&amp;output_type={{Input::get('output_type', 1)}}">集計表</a></li>
+            <li><a href="/summary/yearly/report?begin_year={{{Request::input('begin_year', date('Y'))}}}&amp;end_year={{{Request::input('end_year', date('Y'))}}}&amp;output_type={{Request::input('output_type', 1)}}">集計表</a></li>
         </ul>
     </div>
 @stop

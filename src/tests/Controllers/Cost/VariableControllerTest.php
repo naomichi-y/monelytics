@@ -27,8 +27,7 @@ class VariableControllerTest extends TestCase {
             'user_id' => [1],
             'activity_date' => [date('Y/m/d')],
             'activity_category_group_id' => [1],
-            'amount' => [-1000],
-            '_token' => csrf_token()
+            'amount' => [-1000]
         ];
 
         $this->call(
@@ -54,7 +53,6 @@ class VariableControllerTest extends TestCase {
 
         $params = $this->activity->find(1)->toArray();
         $params['amount'] = -2000;
-        $params['_token'] = csrf_token();
 
         $this->assertValidAjaxResponse('PUT', '/cost/variable/1', $params);
         $this->assertEquals(Activity::find(1)->amount, -2000);
@@ -66,7 +64,7 @@ class VariableControllerTest extends TestCase {
         $this->call(
             'DELETE',
             '/cost/variable/1',
-            ['_token' => csrf_token()],
+            [],
             [],
             [],
             ['HTTP_REFERER' => 'http://localhost/cost/variable/create']

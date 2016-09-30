@@ -38,7 +38,7 @@
         {!! Form::open(['url' => 'summary/monthly', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
             <div class="form-group form-group-sm form-group-adjust">
                 <div class="col-md-8">
-                    {!! Form::select('date_month', $month_list, Input::get('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
+                    {!! Form::select('date_month', $month_list, Request::input('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
                 </div>
                 <div class="col-md-4">
                     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
@@ -51,11 +51,11 @@
 @section('content')
     <div id="tabs">
         <ul>
-            <li><a href="/summary/monthly/report?date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">集計表</a></li>
-            <li><a href="/summary/monthly/calendar?date_month={{{Input::get('date_month', date('Y-m'))}}}">カレンダー</a></li>
-            <li><a href="/summary/monthly/pie-chart?balance_type={{App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE}}&amp;date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">支出構成グラフ</a></li>
-            <li><a href="/summary/monthly/pie-chart?balance_type={{App\Models\ActivityCategory::BALANCE_TYPE_INCOME}}&amp;date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">収入構成グラフ</a></li>
-            <li><a href="/summary/monthly/ranking?date_month={{{Input::get('date_month', date('Y-m'))}}}&amp;begin_date={{{Input::get('begin_date')}}}&amp;end_date={{{Input::get('end_date')}}}">ランキング</a></li>
+            <li><a href="/summary/monthly/report?date_month={{{Request::input('date_month', date('Y-m'))}}}&amp;begin_date={{{Request::input('begin_date')}}}&amp;end_date={{{Request::input('end_date')}}}">集計表</a></li>
+            <li><a href="/summary/monthly/calendar?date_month={{{Request::input('date_month', date('Y-m'))}}}">カレンダー</a></li>
+            <li><a href="/summary/monthly/pie-chart?balance_type={{App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE}}&amp;date_month={{{Request::input('date_month', date('Y-m'))}}}&amp;begin_date={{{Request::input('begin_date')}}}&amp;end_date={{{Request::input('end_date')}}}">支出構成グラフ</a></li>
+            <li><a href="/summary/monthly/pie-chart?balance_type={{App\Models\ActivityCategory::BALANCE_TYPE_INCOME}}&amp;date_month={{{Request::input('date_month', date('Y-m'))}}}&amp;begin_date={{{Request::input('begin_date')}}}&amp;end_date={{{Request::input('end_date')}}}">収入構成グラフ</a></li>
+            <li><a href="/summary/monthly/ranking?date_month={{{Request::input('date_month', date('Y-m'))}}}&amp;begin_date={{{Request::input('begin_date')}}}&amp;end_date={{{Request::input('end_date')}}}">ランキング</a></li>
         </ul>
     </div>
 @stop

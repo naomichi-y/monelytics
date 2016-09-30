@@ -68,7 +68,7 @@
             <div class="form-group form-group-sm form-group-adjust">
                 <div class="col-md-8">
                     {!! Form::open(['url' => 'settings/activityCategoryGroup', 'method' => 'get', 'class' => 'form-horizontal', 'id' => 'search-form']) !!}
-                        {!! Form::select('activity_category_id', $activity_category_list, Input::get('activity_category_id'), ['class' => 'form-control', 'id' => 'search_activity_category_id']) !!}
+                        {!! Form::select('activity_category_id', $activity_category_list, Request::input('activity_category_id'), ['class' => 'form-control', 'id' => 'search_activity_category_id']) !!}
                  {!! Form::close() !!}
                 </div>
                 <div class="col-md-4">
@@ -123,7 +123,7 @@
                 @endforeach
             </tbody>
         </table>
-    @elseif (!Input::has('activity_category_id'))
+    @elseif (!Request::has('activity_category_id'))
         <p>科目カテゴリを選択して下さい。</p>
     @else
         <p>データがありません。</p>
