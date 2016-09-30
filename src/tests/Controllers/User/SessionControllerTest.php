@@ -15,8 +15,7 @@ class SessionControllerTest extends TestCase {
     {
         $params = [
             'email' => 'test@monelytics.me',
-            'password' => 'testtest',
-            '_token' => csrf_token()
+            'password' => 'testtest'
         ];
 
         $this->call('POST', '/user/login', $params);

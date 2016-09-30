@@ -29,8 +29,7 @@ class ConstantControllerTest extends TestCase {
         $target_month = $datetime->format('Y-m');
         $params = [
             'activity_date' => [$target_month => [1 => $datetime->format('Y-m-d')]],
-            'amount' => [$target_month => [1 => -1000]],
-            '_token' => csrf_token()
+            'amount' => [$target_month => [1 => -1000]]
         ];
 
         $this->call(
@@ -54,7 +53,7 @@ class ConstantControllerTest extends TestCase {
         $this->call(
             'DELETE',
             '/cost/constant/1',
-            ['_token' => csrf_token()],
+            [],
             [],
             [],
             ['HTTP_REFERER' => 'http://localhost/cost/constant/create']

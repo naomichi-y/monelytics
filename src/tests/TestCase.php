@@ -32,8 +32,6 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase {
     {
         parent::setup();
 
-        \Session::start();
-
         $this->setupDatabase();
         $this->seed('Seeds\TestSeeder');
     }

@@ -29,8 +29,7 @@ class ActivityCategoryControllerTest extends TestCase {
         rsort($request_id_orders);
 
         $params = [
-            'ids' => $request_id_orders,
-            '_token' => csrf_token()
+            'ids' => $request_id_orders
         ];
         $this->call(
             'POST',
@@ -59,8 +58,7 @@ class ActivityCategoryControllerTest extends TestCase {
         $params = [
             'category_name' => 'test',
             'cost_type' => ActivityCategory::COST_TYPE_VARIABLE,
-            'balance_type' => ActivityCategory::BALANCE_TYPE_EXPENSE,
-            '_token' => csrf_token()
+            'balance_type' => ActivityCategory::BALANCE_TYPE_EXPENSE
         ];
 
         $default_count = $this->activity_category->all()->count();
@@ -78,7 +76,6 @@ class ActivityCategoryControllerTest extends TestCase {
         $this->login();
         $params = $this->activity_category->find(1)->toArray();
         $params['category_name'] = 'update';
-        $params['_token'] = csrf_token();
 
         $this->assertValidAjaxResponse(
             'PUT',
@@ -95,7 +92,7 @@ class ActivityCategoryControllerTest extends TestCase {
         $this->call(
             'DELETE',
             '/settings/activityCategory/1',
-            ['_token' => csrf_token()],
+            [],
             [],
             [],
             ['HTTP_REFERER' => 'http://localhost/settings/activityCategory']
