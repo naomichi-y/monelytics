@@ -18,6 +18,7 @@
         <env name="APP_ENV" value="testing"/>
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="DB_DATABASE" value="monelytics_testing"/>
         <env name="MAIL_DRIVER" value="log"/>
     </php>
 </phpunit>
