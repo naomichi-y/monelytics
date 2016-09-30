@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Summary;
 
 use Auth;
-use Input;
+use Request;
 use View;
 
 use App\Libraries\Condition;
@@ -28,7 +28,7 @@ class DailyController extends \App\Http\Controllers\Controller {
      */
     public function index()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'date_month',
             'begin_date',
             'end_date',
@@ -64,7 +64,7 @@ class DailyController extends \App\Http\Controllers\Controller {
         $data['month_list'] = $this->activity->getMonthList($user_id, true);
 
         // クレジットカードの規定値
-        $credit_flag = Input::get('credit_flag');
+        $credit_flag = Request::input('credit_flag');
 
         $data['credit_flag_all'] = true;
         $data['credit_flag_on'] = false;
@@ -80,7 +80,7 @@ class DailyController extends \App\Http\Controllers\Controller {
         }
 
         //特別収支の規定値
-        $special_flag = Input::get('special_flag');
+        $special_flag = Request::input('special_flag');
 
         $data['special_flag_all'] = true;
         $data['special_flag_on'] = false;

@@ -54,7 +54,7 @@
         {!! Form::open(['url' => 'summary/daily', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
             <div class="form-group form-group-sm form-group-adjust">
                 <div class="col-md-8">
-                    {!! Form::select('date_month', $month_list, Input::get('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
+                    {!! Form::select('date_month', $month_list, Request::get('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
                 </div>
                 <div class="col-md-4">
                     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>

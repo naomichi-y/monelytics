@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Settings;
 
 use Auth;
-use Input;
+use Request;
 use Lang;
 use Redirect;
 use Session;
@@ -44,7 +44,7 @@ class ActivityCategoryController extends \App\Http\Controllers\Controller {
     public function sort()
     {
         $user_id = Auth::id();
-        $ids = Input::get('ids');
+        $ids = Request::input('ids');
         $j = sizeof($ids);
 
         for ($i = 0; $i < $j; $i++) {
@@ -67,7 +67,7 @@ class ActivityCategoryController extends \App\Http\Controllers\Controller {
      */
     public function store()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'category_name',
             'content',
             'cost_type',
@@ -127,7 +127,7 @@ class ActivityCategoryController extends \App\Http\Controllers\Controller {
      */
     public function update($id)
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'category_name',
             'content',
             'cost_type',

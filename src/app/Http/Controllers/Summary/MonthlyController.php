@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Summary;
 
 use Auth;
-use Input;
+use Request;
 use View;
 
 use App\Libraries\Condition;
@@ -50,7 +50,7 @@ class MonthlyController extends \App\Http\Controllers\Controller {
      */
     public function report()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'date_month',
             'begin_date',
             'end_date'
@@ -70,7 +70,7 @@ class MonthlyController extends \App\Http\Controllers\Controller {
      */
     public function calendar()
     {
-        $condition = new Condition\BaseDateCondition(Input::only('date_month'));
+        $condition = new Condition\BaseDateCondition(Request::only('date_month'));
 
         $data = [];
         $data['calendar'] = $this->activity->getCalendar(Auth::id(), $condition);
@@ -83,7 +83,7 @@ class MonthlyController extends \App\Http\Controllers\Controller {
      */
     public function pieChart()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'date_month',
             'begin_date',
             'end_date',
@@ -98,7 +98,7 @@ class MonthlyController extends \App\Http\Controllers\Controller {
      */
     public function pieChartData()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'date_month',
             'begin_date',
             'end_date',
@@ -118,7 +118,7 @@ class MonthlyController extends \App\Http\Controllers\Controller {
     public function ranking()
     {
         $user_id = Auth::id();
-        $fields = Input::only(
+        $fields = Request::only(
             'date_month',
             'begin_date',
             'end_date'

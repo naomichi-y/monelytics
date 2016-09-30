@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Summary;
 
 use Auth;
-use Input;
+use Request;
 use View;
 
 use App\Libraries\Condition;
@@ -34,7 +34,7 @@ class YearlyController extends \App\Http\Controllers\Controller {
      */
     public function condition()
     {
-        $output_type = Input::get('output_type');
+        $output_type = Request::input('output_type');
         $data = [
             'output_type_monthly' => true,
             'output_type_yearly' => false
@@ -55,7 +55,7 @@ class YearlyController extends \App\Http\Controllers\Controller {
      */
     public function report()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'begin_year',
             'end_year',
             'output_type'
