@@ -15,8 +15,7 @@ class ContactControllerTest extends TestCase {
             'contact_name' => 'test',
             'email' => 'test@monelytics.me',
             'contact_type' => '1',
-            'contact_message' => 'test',
-            '_token' => csrf_token()
+            'contact_message' => 'test'
         ];
 
         $this->call('POST', '/contact/send', $params);
