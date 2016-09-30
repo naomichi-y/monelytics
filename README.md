@@ -9,7 +9,7 @@ http://monelytics.me/
 ## System components
 
 * PHP 7.0
-  * Laravel 5.1
+  * Laravel 5.2
 * Nginx 1.1
 * MySQL 5.7
 * Redis 3.2

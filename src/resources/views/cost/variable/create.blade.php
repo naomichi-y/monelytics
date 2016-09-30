@@ -46,31 +46,31 @@
                         @endif
                         <td>
                             @if (Agent::isDesktop())
-                                {!! Form::text("activity_date[$i]", Input::old("activity_date[$i]"), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
+                                {!! Form::text("activity_date[$i]", Request::old("activity_date[$i]"), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                             @else
-                                {!! Form::date("activity_date[$i]", Input::old("activity_date[$i]"), ['class' => 'form-control', 'placeholder' => '月/日']) !!}
+                                {!! Form::date("activity_date[$i]", Request::old("activity_date[$i]"), ['class' => 'form-control', 'placeholder' => '月/日']) !!}
                             @endif
                         </td>
                         <td>
-                            {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Input::old("activity_category_group_id[$i]"), ['class' => 'form-control']) !!}
+                            {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Request::old("activity_category_group_id[$i]"), ['class' => 'form-control']) !!}
                         </td>
                         <td>
-                            {!! Form::text("amount[$i]", Input::old("amount[$i]"), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                            {!! Form::text("amount[$i]", Request::old("amount[$i]"), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
                         </td>
                         <td>
-                            {!! Form::text("location[$i]", Input::old("location[$i]"), ['class' => 'form-control']) !!}
+                            {!! Form::text("location[$i]", Request::old("location[$i]"), ['class' => 'form-control']) !!}
                         </td>
                         <td>
-                            {!! Form::text("content[$i]", Input::old("content[$i]"), ['class' => 'form-control']) !!}
+                            {!! Form::text("content[$i]", Request::old("content[$i]"), ['class' => 'form-control']) !!}
                         </td>
                         <td>
                             <div class="text-center">
-                                {!! Form::checkbox("credit_flag[$i]", '1', Input::old("credit_flag[$i]")) !!}
+                                {!! Form::checkbox("credit_flag[$i]", '1', Request::old("credit_flag[$i]")) !!}
                             </div>
                         </td>
                         <td>
                             <div class="text-center">
-                                {!! Form::checkbox("special_flag[$i]", '1', Input::old("special_flag[$i]")) !!}
+                                {!! Form::checkbox("special_flag[$i]", '1', Request::old("special_flag[$i]")) !!}
                             </div>
                         </td>
                     </tr>

@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Cost;
 
 use Auth;
-use Input;
+use Request;
 use Lang;
 use Redirect;
 use View;
@@ -28,7 +28,7 @@ class ConstantController extends \App\Http\Controllers\Controller {
     public function create()
     {
         $user_id = Auth::id();
-        $target_month = Input::get('date_month');
+        $target_month = Request::input('date_month');
 
         $data = [];
         $data['date_months'] = $this->activity->getConstantCostMonthlyList($user_id);
@@ -48,7 +48,7 @@ class ConstantController extends \App\Http\Controllers\Controller {
      */
     public function store()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'activity_date',
             'amount',
             'content',

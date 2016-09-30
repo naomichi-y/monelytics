@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Settings;
 
 use Auth;
-use Input;
+use Request;
 use Lang;
 use Redirect;
 use Session;
@@ -32,7 +32,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
     public function index()
     {
         $user_id = Auth::id();
-        $activity_category_id = Input::get('activity_category_id');
+        $activity_category_id = Request::input('activity_category_id');
 
         $data = [];
         $data['activity_category_list'] = $this->activity_category->getCategoryList($user_id, true);
@@ -51,7 +51,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
     public function sort()
     {
         $user_id = Auth::id();
-        $ids = Input::get('ids');
+        $ids = Request::input('ids');
         $j = sizeof($ids);
 
         for ($i = 0; $i < $j; $i++) {
@@ -77,7 +77,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
      */
     public function store()
     {
-        $fields = Input::only(
+        $fields = Request::only(
             'activity_category_id',
             'group_name',
             'content',
@@ -130,7 +130,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
         $data = [];
         $errors = [];
 
-        $fields = Input::only(
+        $fields = Request::only(
             'activity_category_id',
             'group_name',
             'content',

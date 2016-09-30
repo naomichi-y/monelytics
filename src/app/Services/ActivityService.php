@@ -173,7 +173,7 @@ class ActivityService
             ->groupBy('date')
             ->orderBy('date', 'desc')
             ->get()
-            ->lists('date', 'date')
+            ->pluck('date', 'date')
             ->all();
 
         array_walk($array, function(&$value, $key) {
@@ -701,7 +701,7 @@ class ActivityService
             ->select(DB::raw('DATE_FORMAT(activity_date, \'%Y\') AS yearly_group'))
             ->groupBy('yearly_group')
             ->orderBy('yearly_group', 'desc');
-        $array = $builder->lists('yearly_group', 'yearly_group')->all();
+        $array = $builder->pluck('yearly_group', 'yearly_group')->all();
 
         return $array;
     }
@@ -870,7 +870,7 @@ class ActivityService
             ->groupBy('activity_date')
             ->orderBy('activity_date', 'desc');
 
-        $result = $builder->lists('amount', 'activity_date')->all();
+        $result = $builder->pluck('amount', 'activity_date')->all();
 
         // $days日分の日付配列を生成
         $day_array = [];

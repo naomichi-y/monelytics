@@ -31,8 +31,7 @@ class RegistrationControllerTest extends TestCase {
         $params = [
             'nickname' => 'test',
             'email' => 'test2@monelytics.me',
-            'password' => 'testtest',
-            '_token' => csrf_token()
+            'password' => 'testtest'
         ];
 
         $this->call('POST', '/user', $params);
@@ -62,8 +61,7 @@ class RegistrationControllerTest extends TestCase {
             'nickname' => 'test',
             'email' => 'test2@monelytics.me',
             'password' => 'testtest',
-            'password_confirmation' => 'testtest',
-            '_token' => csrf_token()
+            'password_confirmation' => 'testtest'
         ];
 
         $this->call('PUT', '/user/update', $params);
@@ -73,11 +71,11 @@ class RegistrationControllerTest extends TestCase {
 
     public function testWithdrawal()
     {
-        $this->assertUserOnlyContent('POST', '/user/withdrawal', ['_token' => csrf_token()]);
+        $this->assertUserOnlyContent('POST', '/user/withdrawal');
         $this->seed('Seeds\TestSeeder');
 
         $this->login();
-        $this->call('POST', '/user/withdrawal', ['_token' => csrf_token()]);
+        $this->call('POST', '/user/withdrawal');
         $this->assertTrue(Auth::guest());
 
         $this->assertEquals($this->user->find(1), null);

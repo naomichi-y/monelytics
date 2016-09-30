@@ -42,14 +42,14 @@
                 <div class="form-group">
                     {!! Form::label('nickname', '名前', ['class' => 'col-md-4 control-label']) !!}
                     <div class="col-md-8">
-                        {!! Form::text('nickname', Input::get('nickname', Auth::user()->nickname), ['class' => 'form-control']) !!}
+                        {!! Form::text('nickname', Request::input('nickname', Auth::user()->nickname), ['class' => 'form-control']) !!}
                     </div>
                 </div>
 
                 <div class="form-group">
                     {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 control-label']) !!}
                     <div class="col-md-8">
-                        {!! Form::text('email', Input::get('email', Auth::user()->email), ['class' => 'form-control']) !!}
+                        {!! Form::text('email', Request::input('email', Auth::user()->email), ['class' => 'form-control']) !!}
                     </div>
                 </div>
 

@@ -71,13 +71,13 @@
                                 <td>{{{$activity_category_group->group_name}}}</td>
                                 <td>
                                     @if (Agent::isDesktop())
-                                        {!! Form::text("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", $activity_category_group->activity_date), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
+                                        {!! Form::text("activity_date[$selected_date_month][$activity_category_group->id]", Request::old("activity_date[$selected_date_month][$activity_category_group->id'", $activity_category_group->activity_date), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                                     @else
-                                        {!! Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Input::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), ['class' => 'form-control']) !!}
+                                        {!! Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Request::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), ['class' => 'form-control']) !!}
                                     @endif
                                 </td>
-                                <td>{!! Form::text("amount[$selected_date_month][$activity_category_group->id]", Input::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}</td>
-                                <td>{!! Form::text("content[$selected_date_month][$activity_category_group->id]", Input::old("content[$selected_date_month][$activity_category_group->id]", $activity_category_group->content), ['class' => 'form-control']) !!}</td>
+                                <td>{!! Form::text("amount[$selected_date_month][$activity_category_group->id]", Request::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}</td>
+                                <td>{!! Form::text("content[$selected_date_month][$activity_category_group->id]", Request::old("content[$selected_date_month][$activity_category_group->id]", $activity_category_group->content), ['class' => 'form-control']) !!}</td>
                                 <td>
                                     <div class="text-center">
                                         @if ($activity_category_group->credit_flag === null)

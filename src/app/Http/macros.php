@@ -104,7 +104,7 @@ Html::macro('formatDate', function($date, $format, $append_week) {
  * @return string
  */
 Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = 'string') {
-    $value = Input::get($field, $alternative);
+    $value = Request::input($field, $alternative);
 
     if ($value === null) {
         $markup = 'null';
@@ -167,7 +167,7 @@ Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = '
  * @return string
  */
 Html::macro('sortLabel', function($field, $label, $default_sort = false) {
-    $sort_type = Input::get('sort_type');
+    $sort_type = Request::input('sort_type');
 
     if ($sort_type === 'asc') {
         $style = 'glyphicon-sort-by-attributes';
