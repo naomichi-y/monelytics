@@ -6,6 +6,14 @@ This is an application that has been made in Laravel5.
 ## Web site
 http://monelytics.me/
 
+## System components
+
+* PHP 7.0
+  * Laravel 5.1
+* Nginx 1.1
+* MySQL 5.7
+* Redis 3.2
+
 ## Local setup
 
 ### Required tools
@@ -29,19 +37,30 @@ Application is consists of the following container.
 Setup the containers.
 
 ```
-cd docker
+cd src
+
+# please change configuration
 cp .env.sample .env
 
-# please change settings
+cd ../docker
+cp .env.sample .env
+
+# please change configuration
 cat .env
 
 docker-compose build
-docker-compose up -d
 docker-compose run composer install
+docker-compose up -d
 docker-compose run artisan migrate
 ```
 
 Open the [http://localhost:8080/](http://localhost:8080/) in your browser.
+
+### Stop containers
+
+```
+docker-compose down
+```
 
 ### How to use composer
 
