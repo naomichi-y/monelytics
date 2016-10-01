@@ -68,7 +68,7 @@ docker-compose down
 docker-compose run composer [COMMAND]
 
 # e.g. Run install of package
-docker-compose run composer install
+docker-compose run --rm composer install
 ```
 
 ### How to use Artisan
@@ -77,7 +77,7 @@ docker-compose run composer install
 docker-compose run artisan [COMMAND]
 
 # e.g. Run migration of DB
-docker-compose run artisan migrate
+docker-compose run --rm artisan migrate
 ```
 
 ## Test
@@ -87,5 +87,5 @@ docker-compose run artisan migrate
 docker-compose run phpunit
 
 # e.g. Specify test class
-docker-compose run phpunit tests/Controllers/ContactControllerTest
+docker-compose run --rm phpunit tests/Controllers/ContactControllerTest
 ```
