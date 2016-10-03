@@ -2,7 +2,7 @@
     <div class="container">
         <nav>
             <div class="navbar-header">
-                <div class="logo"><a href="/dashboard">{!! Html::image('assets/images/logo.png') !!}</a></div>
+                <div class="logo"><a href="/">{!! Html::image('assets/images/logo.png') !!}</a></div>
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
