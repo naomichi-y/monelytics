@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div class="parallax parallax_view_3" data-parallax="scroll" data-speed="0.6">
+    <div class="parallax parallax_view_3" data-parallax="scroll" data-speed="0.6" data-image-src="">
         <div class="lead">
             <div class="row">
                 <div class="col-md-6">
