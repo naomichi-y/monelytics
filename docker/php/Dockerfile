@@ -7,6 +7,7 @@ RUN apt-get update && \
   apt-get install -y libmcrypt-dev && \
   apt-get clean
 RUN docker-php-ext-install -j$(nproc) \
+  opcache \
   mbstring \
   mcrypt \
   pdo \
