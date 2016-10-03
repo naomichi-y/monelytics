@@ -8,7 +8,7 @@ http://monelytics.me/
 
 ## System components
 
-* PHP 7.0
+* PHP 7.0 (with OPcache)
   * Laravel 5.2
 * Nginx 1.1
 * MySQL 5.7
@@ -65,7 +65,7 @@ docker-compose down
 ### How to use composer
 
 ```
-docker-compose run composer [COMMAND]
+docker-compose run --rm composer [COMMAND]
 
 # e.g. Run install of package
 docker-compose run --rm composer install
@@ -74,7 +74,7 @@ docker-compose run --rm composer install
 ### How to use Artisan
 
 ```
-docker-compose run artisan [COMMAND]
+docker-compose run --rm artisan [COMMAND]
 
 # e.g. Run migration of DB
 docker-compose run --rm artisan migrate
@@ -84,7 +84,7 @@ docker-compose run --rm artisan migrate
 
 ```
 # Run all tests
-docker-compose run phpunit
+docker-compose run --rm phpunit
 
 # e.g. Specify test class
 docker-compose run --rm phpunit tests/Controllers/ContactControllerTest
