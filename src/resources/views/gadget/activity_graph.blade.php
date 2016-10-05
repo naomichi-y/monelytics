@@ -99,22 +99,22 @@
 </script>
 
 <svg width="{{$svg_width}}" height="{{$svg_height}}" class="svg_container">
-    {{-- */ $y = $data_start_y /* --}}
+    <?php $y = $data_start_y; ?>
     @foreach ($days as $day)
         <text x="10" y="{{$y + 15}}" class="header">{{$day}}</text>
-        {{-- */ $y = $y + $rect_size + $padding_size /* --}}
+        <?php $y = $y + $rect_size + $padding_size; ?>
     @endforeach
 
-    {{-- */ $x = $data_start_x /* --}}
+    <?php $x = $data_start_x; ?>
     @foreach ($latest_activities as $week_id => $summary)
-        {{-- */ $y = $data_start_y /* --}}
+        <?php $y = $data_start_y; ?>
         <g>
             @foreach ($summary as $date => $data)
                 <rect x="{{$x}}" y="{{$y}}" width="{{$rect_size}}" height="{{$rect_size}}" class="heat-level-{{$data['heat_level']}} rect" data-date="{{$date}}" data-amount="{{$data['amount']}}" data-tooltip="<div class='balloon' data-date='{{$date}}'>発生日: {{str_replace('-', '/', $date)}}<br />金額: {{number_format($data['amount'])}}</div>" />
-                {{-- */ $y = $y + $rect_size + $padding_size /* --}}
+                <?php $y = $y + $rect_size + $padding_size; ?>
             @endforeach
         </g>
-        {{-- */ $x = $x + $rect_size + $padding_size /* --}}
+        <?php $x = $x + $rect_size + $padding_size; ?>
     @endforeach
 </svg>
 

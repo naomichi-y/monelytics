@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Auth\AuthenticationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -44,17 +45,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-      if (config('app.debug')) {
-          return parent::render($request, $exception);
-        }
-
-        if ($this->isHttpException($exception))
-        {
-            return $this->renderHttpException($exception);
-        }
-        else
-        {
-            return $this->renderHttpException(new HttpException(500, $e->getMessage(), $exception));
+        if (config('app.debug')) {
+            return parent::render($request, $exception);
+        } else {
+            if ($this->isHttpException($exception)) {
+                return $this->renderHttpException($exception);
+            } else {
+                return $this->renderHttpException(new HttpException(500, $exception->getMessage(), $exception));
+            }
         }
     }
 

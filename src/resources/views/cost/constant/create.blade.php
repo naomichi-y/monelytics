@@ -60,7 +60,7 @@
                 </thead>
                 <tbody>
                     @foreach ($constant_costs as $constant_category)
-                        {{-- */ $i = 0 /* --}}
+                        <?php $i = 0 ?>
                         @foreach ($constant_category['activity_category_groups'] as $activity_category_group)
                             <tr data-id="{{$activity_category_group->activity_id}}">
                                 @if ($i == 0)
@@ -93,7 +93,7 @@
                                     @endif
                                 </td>
                             </tr>
-                            {{-- */ $i++ /* --}}
+                            <?php $i++; ?>
                         @endforeach
                     @endforeach
                 </tbody>
