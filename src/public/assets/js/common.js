@@ -41,6 +41,13 @@ $(function() {
   });
 
   /**
+   * 入力値からカンマを取り除く。
+   */
+  $('.form-field-amount').change(function() {
+    $(this).val(this.value.replace(',', ''));
+  });
+
+  /**
    * Datepickerの初期化。
    */
   $(document).on("focus", ".date-picker", function() {

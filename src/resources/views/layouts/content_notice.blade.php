@@ -4,7 +4,7 @@
     </div>
 @endif
 
-@if ($errors->count())
+@if (isset($errors) && $errors->count())
     <div class="alert alert-dismissable alert-warning">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <ul>

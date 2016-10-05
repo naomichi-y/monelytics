@@ -83,7 +83,7 @@
                         <div class="form-group">
                             {!! Form::label('amount', '金額', ['class' => 'col-md-3 control-label']) !!}
                             <div class="col-md-3">
-                                {!! Form::text('amount', $activity->amount, ['class' => 'form-control', 'pattern' => '[\-0-9]*']) !!}
+                                {!! Form::number('amount', $activity->amount, ['class' => 'form-control form-field-amount', 'pattern' => '[\-0-9]*']) !!}
                             </div>
                         </div>
 
