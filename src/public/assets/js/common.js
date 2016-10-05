@@ -1,9 +1,3 @@
-$.ajaxSetup({
-  headers: {
-    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-  }
-});
-
 function getQueryParams() {
   if (location.search.length > 1) {
     var pair = new Object();
@@ -22,15 +16,21 @@ function getQueryParams() {
 }
 
 $(function() {
-  jQuery.each(["put", "delete"], function(i, method) {
-    jQuery[method] = function(url, data, callback, type) {
-      if (jQuery.isFunction(data)) {
+  $.ajaxSetup({
+    headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+  });
+
+  $.each(["put", "delete"], function(i, method) {
+    $[method] = function(url, data, callback, type) {
+      if ($.isFunction(data)) {
         type = type || callback;
         callback = data;
         data = undefined;
       }
 
-      return jQuery.ajax({
+      return $.ajax({
         type: method,
         url: url,
         data: data,
