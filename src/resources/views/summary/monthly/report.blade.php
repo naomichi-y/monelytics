@@ -43,7 +43,7 @@
                                 固定収支
                             @endif
                         </th>
-                        {{-- */ $i = 0 /* --}}
+                        <?php $i = 0; ?>
                         @if (sizeof($cost_summary))
                             @foreach ($cost_summary as $activity_category_id => $activity_category_summary)
                                 @if ($i > 0)
@@ -51,7 +51,7 @@
                                 @endif
                                 <th rowspan="{{sizeof($activity_category_summary['data'])}}">{{{$activity_category_summary['category_name']}}}</th>
 
-                                {{-- */ $j = 0 /* --}}
+                                <?php $j = 0; ?>
                                 @foreach ($activity_category_summary['data'] as $activity_category_group_id => $activity_category_group_summary)
                                     @if ($j > 0)
                                         <tr>
@@ -69,9 +69,9 @@
                                         <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_UNUSE], number_format($activity_category_group_summary['special_unuse_amount'])) !!}</td>
                                         <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], number_format($activity_category_group_summary['group_amount'])) !!}</td>
                                     </tr>
-                                    {{-- */ $j++ /* --}}
+                                    <?php $j++; ?>
                                 @endforeach
-                                {{-- */ $i++ /* --}}
+                                <?php $i++; ?>
                             @endforeach
                         @else
                             <th class="text-center">-</th>

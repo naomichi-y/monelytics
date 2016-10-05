@@ -20,7 +20,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- */ $i = 1 /* --}}
+                    <?php $i = 0; ?>
                     @foreach ($location_rankings as $location_ranking)
                         <tr>
                             <td class="text-center">{{$i++}}</td>
@@ -60,7 +60,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- */ $i = 1 /* --}}
+                    <?php $i = 0; ?>
                     @foreach ($expense_rankings as $expense_ranking)
                         <tr>
                             <td class="text-center">{{$i++}}</td>
