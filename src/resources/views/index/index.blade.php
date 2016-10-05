@@ -3,14 +3,14 @@
 @section('content')
     <div class="parallax parallax_view_1" data-parallax="scroll" data-bleed="60" data-speed="0.2" data-image-src="/assets/images/parallax/01.jpg">
         <div class="lead">
-            <h2>The Ants and the Grasshopper</h2>
-            <p>アリとキリギリス</p>
+            <h2>Let's get started</h2>
+            <p>家計簿を始めよう</p>
         </div>
     </div>
 
     <div class="parallax parallax_view_2" data-parallax="scroll" data-speed="0.4" data-image-src="/assets/images/parallax/02.jpg">
         <div class="lead">
-            <h2>monelytics is money + analytics</h2>
+            <h2>money + analytics</h2>
             <p>
                 「お金」の使い方を「分析」する。<br />
                 monelyticsはシンプルで使いやすい無料の家計簿アプリです。

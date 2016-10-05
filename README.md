@@ -49,9 +49,9 @@ cp .env.sample .env
 cat .env
 
 docker-compose build
-docker-compose run composer install
+docker-compose run composer --rm install
 docker-compose up -d
-docker-compose run artisan migrate
+docker-compose run artisan --rm migrate
 ```
 
 Open the [http://localhost:8080/](http://localhost:8080/) in your browser.
