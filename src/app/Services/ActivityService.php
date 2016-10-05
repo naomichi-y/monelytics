@@ -475,7 +475,7 @@ class ActivityService
             ->orderBy('ac.sort_order', 'asc')
             ->orderBy('acg.sort_order', 'asc');
 
-        return $this->calculateMonthlySummary($builder->get());
+        return $this->calculateMonthlySummary($builder->get()->all());
     }
 
     /**
