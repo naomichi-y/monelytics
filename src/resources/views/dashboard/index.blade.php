@@ -64,7 +64,7 @@
                         <div class="form-group">
                             {!! Form::label('amount', '金額', ['class' => 'col-md-3 control-label']) !!}
                             <div class="col-md-5">
-                                {!! Form::text('amount[0]', '', ['class' => 'form-control text-right', 'id' => 'amount', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                                {!! Form::number('amount[0]', '', ['class' => 'form-control form-field-amount text-right', 'id' => 'amount', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
                             </div>
                         </div>
 

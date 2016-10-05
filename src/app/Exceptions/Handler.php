@@ -47,9 +47,10 @@ class Handler extends ExceptionHandler
     {
         if (config('app.debug')) {
             return parent::render($request, $exception);
+
         } else {
-            if ($this->isHttpException($exception)) {
-                return $this->renderHttpException($exception);
+            if ($exception instanceof AuthenticationException) {
+                return $this->unauthenticated($request, $exception);
             } else {
                 return $this->renderHttpException(new HttpException(500, $exception->getMessage(), $exception));
             }
