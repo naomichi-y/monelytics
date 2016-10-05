@@ -1,11 +1,17 @@
 h2 {
+  color: #fff;
   font-size: 3em;
   font-weight: bold;
 }
 
 h3 {
+  color: #fff;
   font-size: 2em;
   font-weight: bold;
+}
+
+p {
+  color: #fff;
 }
 
 .overview_fig {
@@ -18,7 +24,6 @@ h3 {
 }
 
 .parallax {
-  color: #fff;
   display: table;
   width: 100%;
   background: transparent;
@@ -53,7 +58,6 @@ h3 {
 }
 
 .parallax_view_3 .lead {
-  color: #fff;
   margin: 0;
 }
 
