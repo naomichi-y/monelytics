@@ -59,7 +59,7 @@ Open the [http://localhost:8080/](http://localhost:8080/) in your browser.
 ### Stop containers
 
 ```
-docker-compose down
+docker-compose stop
 ```
 
 ### How to use composer
