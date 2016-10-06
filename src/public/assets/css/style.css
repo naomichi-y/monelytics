@@ -147,6 +147,11 @@ footer li {
  * スマートフォン
  */
 @media only screen and (max-width: 768px) {
+  /** issue: https://github.com/naomichi-y/monelytics/issues/29 */
+  input, select {
+    font-size: 16px !important;
+  }
+
   footer {
     text-align: center;
     padding-right: 0;

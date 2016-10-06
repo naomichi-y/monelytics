@@ -1,10 +1,10 @@
 function getQueryParams() {
   if (location.search.length > 1) {
     var pair = new Object();
-    var param = location.search.substr(1).split('&');
+    var param = location.search.substr(1).split("&");
 
     for (var i = 0; i < param.length; i++) {
-      var val = param[i].split('=');
+      var val = param[i].split("=");
       pair[val[0]] = val[1];
     }
 
@@ -18,7 +18,7 @@ function getQueryParams() {
 $(function() {
   $.ajaxSetup({
     headers: {
-      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content)
     }
   });
 
@@ -41,22 +41,15 @@ $(function() {
   });
 
   /**
-   * 入力値からカンマを取り除く。
-   */
-  $('.form-field-amount').change(function() {
-    $(this).val(this.value.replace(',', ''));
-  });
-
-  /**
    * Datepickerの初期化。
    */
   $(document).on("focus", ".date-picker", function() {
     var params = getQueryParams();
-    defaultDate = '';
+    defaultDate = "";
 
-    if (params['date_month']) {
-      var year = params['date_month'].substring(0, 4);
-      var month = params['date_month'].substring(5, 7);
+    if (params["date_month"]) {
+      var year = params["date_month"].substring(0, 4);
+      var month = params["date_month"].substring(5, 7);
       var current = new Date();
 
       if (current.getYear() != year && current.getMonth() + 1 != month) {
@@ -72,7 +65,7 @@ $(function() {
   });
 
   // フォームの最初の要素にフォーカスを合わせる
-  // $('input:visible').first().focus();
+  // $("input:visible").first().focus();
 
   /**
    * 対象フォーム内でEnterキーが押された場合、callback関数をコールする。

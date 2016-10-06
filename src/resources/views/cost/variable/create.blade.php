@@ -55,7 +55,7 @@
                             {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Request::old("activity_category_group_id[$i]"), ['class' => 'form-control']) !!}
                         </td>
                         <td>
-                            {!! Form::number("amount[$i]", Request::old("amount[$i]"), ['class' => 'form-control form-field-amount text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                            {!! Form::number("amount[$i]", Request::old("amount[$i]"), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
                         </td>
                         <td>
                             {!! Form::text("location[$i]", Request::old("location[$i]"), ['class' => 'form-control']) !!}
