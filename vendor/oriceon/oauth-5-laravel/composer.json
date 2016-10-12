@@ -1,0 +1,34 @@
+{
+    "name": "oriceon/oauth-5-laravel",
+    "type": "library",
+    "description": "OAuth Service Provider for Laravel 5",
+    "keywords": ["OAuth", "Lusitanian", "laravel", "php"],
+    "homepage": "https://github.com/oriceon/oauth-5-laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Artdarek",
+            "email": "artdarek@gmail.com",
+            "role": "Developer"
+        },
+        {
+            "name": "oriceon",
+            "email": "oriceon@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "lusitanian/oauth": "~0.3"
+    },
+    "require-dev": {
+        "illuminate/support": "~5"
+    },    
+    "require-all": true,
+    "autoload": {    
+        "psr-0": {
+            "Artdarek\\OAuth": "src/"
+        }
+    },    
+    "minimum-stability": "dev"
+}
