@@ -57,7 +57,7 @@
 
                     <div class="row">
                         <div class="form-group">
-                            {{!! Form::label('activity_category_id', '科目カテゴリ', ['class' => 'col-md-3 control-label']) !!}
+                            {!! Form::label('activity_category_id', '科目カテゴリ', ['class' => 'col-md-3 control-label']) !!}
                             <div class="col-md-4">
                                 {!! Form::select('activity_category_id', $category_list,  Request::input('activity_category_id', $activity_category_group->activity_category_id), ['class' => 'form-control']) !!}
                             </div>
