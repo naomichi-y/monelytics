@@ -37,21 +37,20 @@ Application is consists of the following container.
 Setup the containers.
 
 ```
-cd src
+cp etc/docker/.env.sample etc/docker/.env
 
 # please change configuration
-cp .env.sample .env
+cat etc/docker/.env
 
-cd ../docker
 cp .env.sample .env
 
 # please change configuration
 cat .env
 
 docker-compose build
-docker-compose run composer --rm install
+docker-compose run --rm composer install
 docker-compose up -d
-docker-compose run artisan --rm migrate
+docker-compose run --rm artisan migrate
 ```
 
 Open the [http://localhost:8080/](http://localhost:8080/) in your browser.
@@ -87,5 +86,5 @@ docker-compose run --rm artisan migrate
 docker-compose run --rm phpunit
 
 # e.g. Specify test class
-docker-compose run --rm phpunit tests/Controllers/ContactControllerTest
+docker-compose run --rm phpunit tests/Controllers/ContactControllerTest.php
 ```
