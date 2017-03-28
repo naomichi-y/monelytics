@@ -6,7 +6,7 @@
     "type": "project",
     "require": {
         "laravel/framework": "5.3.*",
-        "laravelcollective/html": "5.3.*@dev",
+        "laravelcollective/html": "5.3.*",
         "predis/predis": "~1.1@dev",
         "jenssegers/agent": "~2.1",
         "oriceon/oauth-5-laravel":"dev-master"
