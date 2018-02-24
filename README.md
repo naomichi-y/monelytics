@@ -4,7 +4,7 @@ monelytics is a household account book web service.
 This is an application that has been made in Laravel5.
 
 ## Web site
-http://monelytics.me/
+https://monelytics.me/
 
 ## System components
 
