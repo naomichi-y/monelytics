@@ -20,9 +20,9 @@ class Calendar {
 
         // 対象月の休日データがキャッシュされているかチェック
         if (!Cache::has($cache_key)) {
-            $begin_date = sprintf('%s-01', $target_month) . 'T00:00:00Z';
+            $begin_date = sprintf('%s-01', $target_month) . 'T09:00:00Z';
             $last_day = date('d', strtotime('last day of ' . $target_month));
-            $end_date = sprintf('%s-%s', $target_month, $last_day) . 'T00:00:00Z';
+            $end_date = sprintf('%s-%s', $target_month, $last_day) . 'T09:00:00Z';
 
             // Google Calendar APIで休日を取得
             $url = sprintf(

@@ -117,7 +117,7 @@ class ActivityService
 
         $builder->activityDate($condition->getDateRange());
 
-     // 科目
+        // 科目
         if (sizeof($condition->activity_category_group_id)) {
             $builder->whereIn('activity_category_group_id', $condition->activity_category_group_id);
         }
@@ -152,9 +152,11 @@ class ActivityService
         $builder->orderBy($condition->sort_field, $condition->sort_type);
         $builder->orderBy('create_date', 'desc');
 
+        $total_amount = $builder->sum('amount');
+
         $paginate = $builder->paginate($condition->limit);
         $paginate->appends($condition->toArray());
-        $paginate->total_amount = $builder->sum('amount');
+        $paginate->total_amount = $total_amount;
 
         return $paginate;
     }
