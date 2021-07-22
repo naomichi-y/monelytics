@@ -2,6 +2,7 @@
 namespace App\Libraries\Condition;
 
 class BaseDateCondition extends BaseCondition {
+    public $date_year;
     public $date_month;
     public $begin_date;
     public $end_date;
@@ -15,7 +16,11 @@ class BaseDateCondition extends BaseCondition {
         $end_date = null;
 
         if (strlen($this->begin_date) == 0 && strlen($this->end_date) == 0) {
-            if ($this->date_month !== 'all') {
+            if ($this->date_year) {
+                $begin_date = $this->date_year . '-01-01';
+                $end_date = $this->date_year . '-12-31';
+
+            } else if ($this->date_month !== 'all') {
                 $begin_date = $this->date_month . '-01';
                 $last_day = date('d', strtotime('last day of ' . $this->date_month));
                 $end_date = $this->date_month . '-' . $last_day;

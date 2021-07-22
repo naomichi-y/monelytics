@@ -23,11 +23,11 @@
                     <div class="row">
                         <div class="form-group">
                             {!! Form::label('begin_year', '検索範囲', ['class' => 'col-md-2 control-label']) !!}
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 {!! Form::select('begin_year', $date_list, Request::input('begin_year'), ['class' => 'form-control']) !!}
                             </div>
                             {!! Form::label('end_year', '〜', ['class' => 'col-md-2 control-label label-range-text']) !!}
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 {!! Form::select('end_year', $date_list, Request::input('end_year'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
