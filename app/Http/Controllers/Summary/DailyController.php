@@ -29,6 +29,7 @@ class DailyController extends \App\Http\Controllers\Controller {
     public function index()
     {
         $fields = Request::only(
+            'date_year',
             'date_month',
             'begin_date',
             'end_date',
