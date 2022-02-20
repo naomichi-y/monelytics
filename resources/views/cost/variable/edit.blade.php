@@ -1,6 +1,8 @@
 <div class="modal fade" tabindex="-1">
     <script>
         $(function() {
+            var active = true;
+
             $(document).on("click", "#update-{{$id}}", function() {
                 doSubmit();
             });
@@ -8,9 +10,14 @@
             // @see https://github.com/naomichi-y/monelytics/issues/1
             $(this).on('hidden.bs.modal', function() {
                 $(".modal").remove();
+                active = false;
             });
 
             var doSubmit = function() {
+                if (!active) {
+                  return;
+                }
+
                 var creditFlag = $("#credit_flag").prop("checked") ? 1 : 0;
                 var specialFlag = $("#special_flag").prop("checked") ? 1 : 0;
 
