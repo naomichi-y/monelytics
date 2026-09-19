@@ -95,6 +95,25 @@ class ActivityService
     }
 
     /**
+     * LIKE のメタ文字を打ち消す。
+     *
+     * 検索語はそのまま LIKE のパターンになるため、'%' や '_' を含む語で
+     * 検索すると意図しない行まで一致する ('%' だけで全件、'Q_PROBE' が
+     * 'QAPROBE' に一致する)。値自体はクエリビルダが束縛するので、ここで
+     * 必要なのはワイルドカードの無効化だけ。
+     *
+     * エスケープ文字そのものを先に処理しないと、後から付けた '\\' を
+     * 二重に潰してしまう。
+     *
+     * @param string $keyword
+     * @return string
+     */
+    private function escapeLikeWildcards($keyword)
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $keyword);
+    }
+
+    /**
      * 日別集計の結果を取得する。
      *
      * @param int $user_id
@@ -124,18 +143,16 @@ class ActivityService
 
         // 場所・内容
         if (strlen($condition->keyword)) {
-            $keyword = $condition->keyword;
+            $query_keyword = '%' . $this->escapeLikeWildcards($condition->keyword) . '%';
 
-            $builder->where(function($builder) use ($keyword) {
-                $query_keyword = '%' .  addslashes($keyword) . '%';
-
+            $builder->where(function($builder) use ($query_keyword) {
                 $builder->where('location', 'LIKE', $query_keyword);
                 $builder->orWhere('content', 'LIKE', $query_keyword);
             });
         }
 
         if (strlen($condition->location)) {
-            $builder->where('location', '=', addslashes($condition->location));
+            $builder->where('location', '=', $condition->location);
         }
 
         // クレジットカード
@@ -201,20 +218,26 @@ class ActivityService
     /**
      * 変動収支データを更新する。
      *
+     * 対象レコードも付け替え先の科目グループも、必ず $user_id で絞り込んでから
+     * 取得する。ID は利用者が自由に送れるため、絞り込まずに取得すると他人の
+     * 収支を書き換えられる。
+     *
+     * @param int $user_id
      * @param int $id
      * @param array $fields
      * @param array &$errors
      * @return bool
      */
-    public function update($id, array $fields, &$errors = [])
+    public function update($user_id, $id, array $fields, &$errors = [])
     {
         $result = false;
 
         if ($this->activity->validate($fields)) {
-            $activity = $this->activity->findOrFail($id);
+            $activity = $this->find($user_id, $id);
             $activity->fill($fields);
 
-            $balance_type = $activity->activityCategoryGroup->activityCategory->balance_type;
+            $activity_category_group = $this->activity_category_group->find($user_id, $activity->activity_category_group_id);
+            $balance_type = $activity_category_group->activityCategory->balance_type;
 
             $activity->amount = $this->adjustSignAmount($activity->amount, $balance_type);
             $activity->save();
@@ -746,13 +769,18 @@ class ActivityService
     /**
      * 前の期間を基準とした増減率を百分率で返す。
      *
+     * 整数に丸めない。合計のように元の額が大きいと、0.5% 未満の増減が 0 に
+     * なって「増減なし」と見分けが付かなくなる (収入 1,127,668 円と
+     * 1,130,364 円の比較が 0% になる)。表示の丸めは Html::comparisonRate
+     * に任せる。
+     *
      * @param int $current
      * @param int $previous 0 以外であること
-     * @return int
+     * @return float
      */
     private function calculateComparisonRate($current, $previous)
     {
-        return (int) round((($current - $previous) / abs($previous)) * 100);
+        return round((($current - $previous) / abs($previous)) * 100, 1);
     }
 
     /**
@@ -946,9 +974,22 @@ class ActivityService
      */
     public function getYearlySummary($user_id, Condition\YearlySummaryCondition $condition)
     {
-        $begin_date = sprintf('%s-01-01 00:00:00', $condition->begin_year);
-        $end_date = sprintf('%s-12-31 23:59:59', $condition->end_year);
-        $date_group_format = ($condition->output_type == 1) ? '%Y/%m' : '%Y';
+        // 年は利用者入力から来る。%s のままだと 'abc-01-01 00:00:00' のような
+        // 日付にならない文字列を組み立ててしまうため、整数に寄せてから埋める。
+        $begin_year = (int) $condition->begin_year;
+        $end_year = (int) $condition->end_year;
+
+        // 推移グラフ (@see ActivityService::getYearlyTrend) と同じ判定にする。
+        // 片方だけ緩いと、同じ検索条件で表とグラフの対象期間がずれる。
+        $is_valid_range = $begin_year && $end_year && $begin_year <= $end_year;
+
+        $begin_date = sprintf('%04d-01-01 00:00:00', $begin_year);
+        $end_date = sprintf('%04d-12-31 23:59:59', $end_year);
+
+        // 既定も推移グラフと揃える。未指定なら月単位。
+        $date_group_format = ($condition->output_type == Condition\YearlySummaryCondition::OUTPUT_TYPE_YEARLY)
+            ? '%Y'
+            : '%Y/%m';
 
         $builder = DB::table('activities AS a')
             ->select(DB::raw('DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group, ac.id AS activity_category_id, ac.category_name, ac.cost_type, ac.balance_type, acg.id as activity_category_group_id, SUM(a.amount) AS group_amount'))
@@ -973,7 +1014,7 @@ class ActivityService
             ->orderBy('ac.cost_type', 'ASC')
             ->orderBy('ac.balance_type', 'ASC')
             ->orderBy('acg.sort_order', 'ASC');
-        $result = $builder->get();
+        $result = $is_valid_range ? $builder->get() : collect();
 
         $data = [];
         $footers = [

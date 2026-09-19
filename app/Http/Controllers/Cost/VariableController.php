@@ -94,7 +94,7 @@ class VariableController extends \App\Http\Controllers\Controller {
         $data = [];
         $errors = [];
 
-        if ($this->activity->update($id, $fields, $errors)) {
+        if ($this->activity->update(Auth::id(), $id, $fields, $errors)) {
             $data['result'] = true;
 
             Session::flash('success', Lang::get('validation.custom.update_success'));

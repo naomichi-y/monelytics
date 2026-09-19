@@ -3,12 +3,16 @@ namespace Tests\Services;
 
 use DB;
 
+use App\Libraries\Condition\DailyPaginateCondition;
 use App\Libraries\Condition\MonthlySummaryCondition;
 use App\Libraries\Condition\YearlySummaryCondition;
 use App\Libraries\Condition\YearlyTrendCondition;
 use App\Models\Activity;
 use App\Models\ActivityCategory;
+use App\Models\ActivityCategoryGroup;
+use App\Models\User;
 use App\Services\ActivityService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Seeds\Test\ActivityCategoryGroupTableSeeder;
 use Seeds\Test\ActivityCategoryTableSeeder;
 use Tests\TestCase;
@@ -62,12 +66,12 @@ class ActivityServiceTest extends TestCase {
         $result = $this->createComparisonFixture();
 
         // 支出は負で記録されている。使った額が増えたら正になるよう符号を揃える。
-        $this->assertSame(200, $result['groups'][$variable_expense]);
+        $this->assertSame(200.0, $result['groups'][$variable_expense]);
 
         // 固定収支も対象にする (以前は変動収支だけを比較していた)。
-        $this->assertSame(-50, $result['groups'][$constant_expense]);
+        $this->assertSame(-50.0, $result['groups'][$constant_expense]);
 
-        $this->assertSame(100, $result['groups'][$variable_income]);
+        $this->assertSame(100.0, $result['groups'][$variable_income]);
     }
 
     /**
@@ -78,13 +82,13 @@ class ActivityServiceTest extends TestCase {
         $result = $this->createComparisonFixture();
 
         // 収入 1,000 -> 2,000
-        $this->assertSame(100, $result['totals']['income']);
+        $this->assertSame(100.0, $result['totals']['income']);
 
         // 支出 2,000 -> 3,500。科目と同じく、使った額が増えたら正にする。
-        $this->assertSame(75, $result['totals']['expense']);
+        $this->assertSame(75.0, $result['totals']['expense']);
 
         // 合計 -1,000 -> -1,500
-        $this->assertSame(-50, $result['totals']['total']);
+        $this->assertSame(-50.0, $result['totals']['total']);
     }
 
     /**
@@ -104,7 +108,7 @@ class ActivityServiceTest extends TestCase {
         $result = $this->getMonthlyComparison($month);
 
         // 2,000 -> 3,000
-        $this->assertSame(50, $result['groups'][$group]);
+        $this->assertSame(50.0, $result['groups'][$group]);
     }
 
     /**
@@ -127,10 +131,10 @@ class ActivityServiceTest extends TestCase {
         $result = $this->getMonthlyComparison($month);
 
         // 収入 1,000 -> 3,000
-        $this->assertSame(200, $result['totals']['income']);
+        $this->assertSame(200.0, $result['totals']['income']);
 
         // 支出 1,000 -> 2,000
-        $this->assertSame(100, $result['totals']['expense']);
+        $this->assertSame(100.0, $result['totals']['expense']);
     }
 
     /**
@@ -170,7 +174,7 @@ class ActivityServiceTest extends TestCase {
         $result = $this->getMonthlyComparison($month);
 
         // 1,000 -> 2,000
-        $this->assertSame(100, $result['groups'][$group]);
+        $this->assertSame(100.0, $result['groups'][$group]);
     }
 
     /**
@@ -403,5 +407,283 @@ class ActivityServiceTest extends TestCase {
     private function lastDayOf($date_month)
     {
         return date('Y-m-t', strtotime($date_month . '-01'));
+    }
+
+    /**
+     * 合計のように元の額が大きいと 1% 未満の増減になりやすい。整数に丸めると
+     * 0 になり、増減がないのと見分けが付かなくなる。
+     */
+    public function testMonthlyComparisonKeepsChangeUnderOnePercent()
+    {
+        $month = $this->monthBefore(2);
+        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+
+        // 前月 -100,000 に対し当月 -100,200。増減は 0.2%。
+        $this->createActivity($group, $this->monthBefore(3) . '-05', -100000);
+        $this->createActivity($group, $month . '-05', -100200);
+
+        $result = $this->getMonthlyComparison($month);
+
+        $this->assertSame(0.2, $result['groups'][$group]);
+    }
+
+    /**
+     * ID は利用者が自由に送れるため、他人の収支を掴めてはいけない。
+     */
+    public function testUpdateRejectsOtherUsersActivity()
+    {
+        $other_user = $this->createOtherUser();
+        $activity = $this->createActivity(
+            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            date('Y-m-d'),
+            -1000
+        );
+
+        $fields = [
+            'activity_date' => date('Y-m-d'),
+            'activity_category_group_id' => $activity->activity_category_group_id,
+            'amount' => 99999,
+        ];
+
+        try {
+            $this->activity->update($other_user->id, $activity->id, $fields);
+            $this->fail('他人の収支レコードが更新できてしまった');
+
+        } catch (ModelNotFoundException $e) {
+            // 期待どおり
+        }
+
+        $this->assertSame(-1000, Activity::find($activity->id)->amount);
+    }
+
+    /**
+     * 付け替え先の科目グループも自分のものに限る。
+     */
+    public function testUpdateRejectsOtherUsersCategoryGroup()
+    {
+        $user = $this->getUser();
+        $other_user = $this->createOtherUser();
+        $other_group = $this->createCategoryGroupFor($other_user->id);
+
+        $activity = $this->createActivity(
+            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            date('Y-m-d'),
+            -1000
+        );
+
+        $fields = [
+            'activity_date' => date('Y-m-d'),
+            'activity_category_group_id' => $other_group->id,
+            'amount' => 1000,
+        ];
+
+        try {
+            $this->activity->update($user->id, $activity->id, $fields);
+            $this->fail('他人の科目グループへ付け替えられてしまった');
+
+        } catch (ModelNotFoundException $e) {
+            // 期待どおり
+        }
+
+        $this->assertSame(
+            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            Activity::find($activity->id)->activity_category_group_id
+        );
+    }
+
+    /**
+     * 自分のレコードはこれまでどおり更新できる。
+     */
+    public function testUpdateAcceptsOwnActivity()
+    {
+        $user = $this->getUser();
+        $activity = $this->createActivity(
+            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            date('Y-m-d'),
+            -1000
+        );
+
+        $fields = [
+            'activity_date' => date('Y-m-d'),
+            'activity_category_group_id' => $activity->activity_category_group_id,
+            'amount' => 2000,
+        ];
+
+        $this->assertTrue($this->activity->update($user->id, $activity->id, $fields));
+
+        // 支出の科目なので負に揃えられる。
+        $this->assertSame(-2000, Activity::find($activity->id)->amount);
+    }
+
+    /**
+     * 金額は整数だけを受け付ける。'1.5' は丸められ、'1e5' は 100000 と
+     * 解釈されるため、どちらも入力した額と保存される額が食い違う。
+     */
+    public function testCreateVariableCostsRejectsNonIntegerAmount()
+    {
+        foreach (['1.5', '1e5', 'abc'] as $amount) {
+            $before_count = Activity::count();
+
+            $this->assertFalse(
+                $this->activity->createVariableCosts($this->getUser()->id, $this->variableParams($amount)),
+                sprintf('金額 %s が通ってしまった', $amount)
+            );
+            $this->assertSame($before_count, Activity::count());
+        }
+    }
+
+    /**
+     * amount カラム (int) の範囲を超える額は、保存時の例外ではなく
+     * 検証で弾く。
+     */
+    public function testCreateVariableCostsRejectsOutOfRangeAmount()
+    {
+        $before_count = Activity::count();
+
+        $this->assertFalse(
+            $this->activity->createVariableCosts($this->getUser()->id, $this->variableParams('3000000000'))
+        );
+        $this->assertSame($before_count, Activity::count());
+
+        // 上限ちょうどは通す。
+        $this->assertTrue(
+            $this->activity->createVariableCosts($this->getUser()->id, $this->variableParams('2147483647'))
+        );
+    }
+
+    /**
+     * 検索語の '%' と '_' は LIKE のワイルドカードとしてではなく、
+     * 文字そのものとして扱う。
+     */
+    public function testKeywordSearchTreatsWildcardsAsLiterals()
+    {
+        $group_id = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+
+        $this->createActivity($group_id, date('Y-m-d'), -100)->update(['location' => 'ABPROBE']);
+        $this->createActivity($group_id, date('Y-m-d'), -200)->update(['location' => 'A_PROBE']);
+
+        // '_' が 1 文字ワイルドカードとして効いていた頃は 2 件に一致した。
+        $this->assertSame(['A_PROBE'], $this->searchLocations('A_PROBE'));
+
+        // '%' だけの検索で全件が出ていた。
+        $this->assertSame([], $this->searchLocations('%'));
+    }
+
+    /**
+     * output_type を渡さないときの刻みは、推移グラフと同じ月単位にする。
+     * 片方だけ年単位だと、同じ検索条件で表とグラフの目盛りがずれる。
+     */
+    public function testYearlySummaryGroupsByMonthByDefault()
+    {
+        $year = (int) date('Y');
+
+        $summary = $this->getYearlySummary($year, $year, null);
+        $trend = $this->getYearlyTrend($year, $year, null);
+
+        $this->assertSame(array_keys($summary['data']), array_values($trend['labels']));
+        $this->assertMatchesRegularExpression('#\A\d{4}/\d{2}\z#', array_key_first($summary['data']));
+    }
+
+    /**
+     * 開始年が終了年より後の範囲は、推移グラフと同じく空で返す。
+     */
+    public function testYearlySummaryReturnsNothingForReversedRange()
+    {
+        $year = (int) date('Y');
+
+        $summary = $this->getYearlySummary($year, $year - 1, YearlySummaryCondition::OUTPUT_TYPE_YEARLY);
+
+        $this->assertSame([], $summary['data']);
+        $this->assertSame([], $this->getYearlyTrend($year, $year - 1, YearlySummaryCondition::OUTPUT_TYPE_YEARLY)['labels']);
+    }
+
+    /**
+     * 年が数値でないときも、日付にならない文字列を組み立てずに空で返す。
+     */
+    public function testYearlySummaryReturnsNothingForNonNumericYear()
+    {
+        $summary = $this->getYearlySummary('abc', 'def', YearlySummaryCondition::OUTPUT_TYPE_YEARLY);
+
+        $this->assertSame([], $summary['data']);
+    }
+
+    /**
+     * @param string $amount
+     * @return array
+     */
+    private function variableParams($amount)
+    {
+        return [
+            'activity_date' => [date('Y-m-d')],
+            'activity_category_group_id' => [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE],
+            'amount' => [$amount],
+            'location' => [''],
+            'content' => [''],
+        ];
+    }
+
+    /**
+     * @param string $keyword
+     * @return array 一致した場所の一覧
+     */
+    private function searchLocations($keyword)
+    {
+        $condition = new DailyPaginateCondition(['keyword' => $keyword]);
+        $paginate = $this->activity->getDailyPaginate($this->getUser()->id, $condition);
+
+        $locations = [];
+
+        foreach ($paginate as $activity) {
+            $locations[] = $activity->location;
+        }
+
+        sort($locations);
+
+        return $locations;
+    }
+
+    /**
+     * @param int|string|null $begin_year
+     * @param int|string|null $end_year
+     * @param int|null $output_type
+     * @return array
+     */
+    private function getYearlySummary($begin_year, $end_year, $output_type)
+    {
+        $condition = new YearlySummaryCondition([
+            'begin_year' => $begin_year,
+            'end_year' => $end_year,
+            'output_type' => $output_type,
+        ]);
+
+        return $this->activity->getYearlySummary($this->getUser()->id, $condition);
+    }
+
+    /**
+     * @return User
+     */
+    private function createOtherUser()
+    {
+        return User::create([
+            'email' => 'other@monelytics.me',
+            'password' => 'dummy',
+            'nickname' => 'other',
+            'type' => User::TYPE_GENERAL,
+        ]);
+    }
+
+    /**
+     * @param int $user_id
+     * @return ActivityCategoryGroup
+     */
+    private function createCategoryGroupFor($user_id)
+    {
+        return ActivityCategoryGroup::create([
+            'activity_category_id' => ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE,
+            'user_id' => $user_id,
+            'group_name' => 'other',
+            'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE,
+            'sort_order' => 1,
+        ]);
     }
 }
