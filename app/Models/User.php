@@ -58,7 +58,8 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     protected $rules = [
         'nickname' => 'required|max:32',
-        'email' => 'required|not_exists:users,email',
+        // email 規則がないと 'this-is-not-an-email' のような文字列でも登録できる。
+        'email' => 'required|email|not_exists:users,email',
         'password' => 'required|min:8'
     ];
 
@@ -79,7 +80,7 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         $user = $this->find($fields['id']);
 
         if ($user->email != $fields['email']) {
-            $rules['email'] = 'required|not_exists:users,email';
+            $rules['email'] = 'required|email|not_exists:users,email';
         }
 
         if (strlen($fields['password'])) {

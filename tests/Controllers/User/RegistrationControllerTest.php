@@ -44,6 +44,24 @@ class RegistrationControllerTest extends TestCase {
         $this->assertTrue(Auth::guest());
     }
 
+    /**
+     * email 規則がなかった頃は、宛先として成立しない文字列でも登録できていた。
+     */
+    public function testStoreRejectsMalformedEmail()
+    {
+        $before_count = User::count();
+
+        $this->call('POST', '/user', [
+            'nickname' => 'test',
+            'email' => 'this-is-not-an-email',
+            'password' => 'testtest',
+        ]);
+
+        $this->assertRedirectedTo('/user/create');
+        $this->assertTrue(Auth::guest());
+        $this->assertSame($before_count, User::count());
+    }
+
     public function testDone()
     {
         $this->assertUserOnlyContent('GET', '/user/done');

@@ -16,7 +16,10 @@ class Activity extends BaseModel {
         'activity_category_group_id' => 'required',
         'location' => 'max:64',
         'content' => 'max:255',
-        'amount' => 'required|numeric'
+        // numeric だけだと '1.5' や '1e5' を通してしまう。前者は int カラムへの
+        // 保存時に丸められ、後者は 100000 として解釈されるため、入力した額と
+        // 保存される額が食い違う。範囲は amount カラム (int) の上下限。
+        'amount' => 'required|integer|between:-2147483648,2147483647'
     ];
 
     public function user()
@@ -137,7 +140,8 @@ class Activity extends BaseModel {
             if (strlen($activity_date)) {
                 $rules = [
                     sprintf('activity_date.%s.%s', $target_month, $activity_category_group_id) => 'date',
-                    sprintf('amount.%s.%s', $target_month, $activity_category_group_id) => 'required|numeric'
+                    // 変動収支と同じ規則を使う。個別に書くと一方だけ直したときにずれる。
+                    sprintf('amount.%s.%s', $target_month, $activity_category_group_id) => $this->rules['amount']
                 ];
 
                 $attribute_names = [
