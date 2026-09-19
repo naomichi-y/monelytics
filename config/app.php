@@ -131,7 +131,7 @@ return [
     | Application Specific
     |--------------------------------------------------------------------------
     |
-    | 問い合わせ通知の宛先と、休日判定に使う Google カレンダーの設定。
+    | 問い合わせ通知の宛先。
     |
     */
 
@@ -142,13 +142,6 @@ return [
 
     'notice' => [
         'contact' => env('NOTICE_CONTACT'),
-    ],
-
-    'google' => [
-        'api_key' => env('GOOGLE_API_KEY'),
-        'calendar' => [
-            'id' => env('GOOGLE_CALENDAR_ID', 'outid3el0qkcrsuf89fltf7a4qbacgt9@import.calendar.google.com'),
-        ],
     ],
 
 ];
