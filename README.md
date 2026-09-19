@@ -50,6 +50,7 @@ cat .env
 docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
 docker compose up -d
 docker compose exec -u webapp php composer install
+docker compose exec -u webapp php php artisan key:generate
 docker compose exec -u webapp php php artisan migrate
 ```
 
@@ -75,6 +76,25 @@ refreshed afterwards:
 ```
 docker compose exec db mariadb-upgrade -uroot -p
 ```
+
+### Upgrading an existing .env
+
+Laravel renamed several keys between 5.3 and 13. An existing `.env` keeps working
+only after these are renamed, because the old names are no longer read and the
+defaults take over silently.
+
+| Old | New | If left unchanged |
+|---|---|---|
+| `CACHE_DRIVER` | `CACHE_STORE` | falls back to the `redis` store |
+| `MAIL_DRIVER` | `MAIL_MAILER` | mail is written to the log instead of sent |
+| `SESSION_DRIVER` | unchanged | — |
+
+Two keys also have to be added, since they had no equivalent before:
+
+| Key | Value | Why |
+|---|---|---|
+| `DB_CONNECTION` | `mysql` | there was no such key before |
+| `REDIS_CLIENT` | `predis` | the phpredis extension is not in the image |
 
 ### Stop containers
 

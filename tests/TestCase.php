@@ -117,11 +117,16 @@ abstract class TestCase extends BaseTestCase
         $this->assertUserAccessibleContent(...$args);
     }
 
-    protected function assertValidAjaxResponse(...$args): bool
+    protected function assertValidAjaxResponse(...$args): void
     {
         $response = $this->call(...$args);
+        $response->assertOk();
+
         $result = json_decode($response->getContent());
 
-        return empty($result->error);
+        $this->assertTrue(
+            empty($result->error),
+            'AJAX レスポンスにエラーが含まれている: ' . $response->getContent()
+        );
     }
 }
