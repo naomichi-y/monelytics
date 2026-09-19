@@ -9,9 +9,9 @@ use Tests\TestCase;
 class ActivityServiceTest extends TestCase {
     private $activity;
 
-    public function setup()
+    protected function setUp(): void
     {
-        parent::setup();
+        parent::setUp();
 
         $this->activity = app('App\Services\ActivityService');
     }
