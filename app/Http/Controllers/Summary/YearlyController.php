@@ -66,14 +66,13 @@ class YearlyController extends \App\Http\Controllers\Controller {
         $fields = Request::only(
             'begin_year',
             'end_year',
+            'output_type',
             'balance_type'
         );
         $condition = new Condition\YearlyTrendCondition($fields);
 
-        $data = [];
-        $data['trends'] = $this->activity->getYearlyTrend(Auth::id(), $condition);
-
-        return response()->json($data);
+        // 戻り値がそのままグラフの入力 (labels と series) になるため包み直さない。
+        return response()->json($this->activity->getYearlyTrend(Auth::id(), $condition));
     }
 
     /**

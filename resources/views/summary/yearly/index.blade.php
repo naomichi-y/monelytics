@@ -39,7 +39,7 @@
     <div id="tabs">
         <ul>
             <li><a href="/summary/yearly/report?begin_year={{{Request::input('begin_year', date('Y'))}}}&amp;end_year={{{Request::input('end_year', date('Y'))}}}&amp;output_type={{Request::input('output_type', 1)}}">集計表</a></li>
-            <li><a href="/summary/yearly/line-chart?begin_year={{{Request::input('begin_year', date('Y'))}}}&amp;end_year={{{Request::input('end_year', date('Y'))}}}">推移グラフ</a></li>
+            <li><a href="/summary/yearly/line-chart?begin_year={{{Request::input('begin_year', date('Y'))}}}&amp;end_year={{{Request::input('end_year', date('Y'))}}}&amp;output_type={{Request::input('output_type', 1)}}">推移グラフ</a></li>
         </ul>
     </div>
 @stop

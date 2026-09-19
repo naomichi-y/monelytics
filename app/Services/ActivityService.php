@@ -701,31 +701,40 @@ class ActivityService
     }
 
     /**
-     * 年ごとの月次推移を取得する。
+     * 推移グラフ用に、科目ごとの金額を期間順に取得する。
      *
-     * 折れ線グラフで年を並べて比較するため、年をキーに 1〜12 月の金額を返す。
-     * データのない月は 0 ではなく null にする。0 を返すと「その月は収支ゼロ」と
-     * 「まだ記録がない」が区別できず、線が原点まで落ちてしまうため。
+     * 横軸の刻みは集計表と揃える (詳細検索の出力形式に従い年単位か月単位)。
+     * 系列は科目。科目グループまで割ると系列が増えすぎて線が読めない。
      *
      * 金額は集計表と揃えて符号をそのまま扱う (支出は負)。
+     * ある期間に記録のない科目は 0 ではなく null にする。0 を返すと
+     * 「その期間は使っていない」と「記録がない」が区別できないため。
      *
      * @param int $user_id
      * @param Condition\YearlyTrendCondition $condition
-     * @return array ['2026' => [1 => int|null, ... 12 => int|null], ...]
+     * @return array ['labels' => [...], 'series' => [['name' => 科目, 'data' => [...]]]]
      */
     public function getYearlyTrend($user_id, Condition\YearlyTrendCondition $condition)
     {
+        $empty = ['labels' => [], 'series' => []];
+
         $begin_year = (int) $condition->begin_year;
         $end_year = (int) $condition->end_year;
 
         if (!$begin_year || !$end_year || $begin_year > $end_year) {
-            return [];
+            return $empty;
         }
+
+        $date_group_format = ($condition->output_type == Condition\YearlySummaryCondition::OUTPUT_TYPE_YEARLY)
+            ? '%Y'
+            : '%Y/%m';
 
         $builder = DB::table('activities AS a')
             ->select(DB::raw(
-                'YEAR(a.activity_date) AS activity_year,'
-                .' MONTH(a.activity_date) AS activity_month,'
+                'DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group,'
+                .' ac.id AS activity_category_id,'
+                .' ac.category_name,'
+                .' ac.sort_order,'
                 .' SUM(a.amount) AS amount'
             ))
             ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
@@ -743,26 +752,50 @@ class ActivityService
             $builder->where('ac.balance_type', '=', $condition->balance_type);
         }
 
-        $builder->groupBy('activity_year')
-            ->groupBy('activity_month')
-            ->orderBy('activity_year', 'asc')
-            ->orderBy('activity_month', 'asc');
+        // ONLY_FULL_GROUP_BY は列の別名を受け付けないため、実際の列名で指定する。
+        $rows = $builder->groupBy('date_group')
+            ->groupBy('ac.id')
+            ->groupBy('ac.category_name')
+            ->groupBy('ac.sort_order')
+            ->orderBy('date_group', 'asc')
+            ->orderBy('ac.sort_order', 'asc')
+            ->orderBy('ac.id', 'asc')
+            ->get();
 
-        $result = [];
-
-        for ($year = $begin_year; $year <= $end_year; $year++) {
-            $result[(string) $year] = array_fill(1, 12, null);
+        if (!count($rows)) {
+            return $empty;
         }
 
-        foreach ($builder->get() as $row) {
-            $year = (string) $row->activity_year;
+        // 横軸は集計表と同じく、記録のあった期間だけを並べる。
+        $labels = [];
+        $categories = [];
+        $amounts = [];
 
-            if (isset($result[$year])) {
-                $result[$year][(int) $row->activity_month] = (int) $row->amount;
+        foreach ($rows as $row) {
+            $labels[$row->date_group] = true;
+            $categories[$row->activity_category_id] = $row->category_name;
+            $amounts[$row->activity_category_id][$row->date_group] = (int) $row->amount;
+        }
+
+        $labels = array_keys($labels);
+        sort($labels);
+
+        $series = [];
+
+        foreach ($categories as $activity_category_id => $category_name) {
+            $data = [];
+
+            foreach ($labels as $label) {
+                $data[] = $amounts[$activity_category_id][$label] ?? null;
             }
+
+            $series[] = [
+                'name' => $category_name,
+                'data' => $data,
+            ];
         }
 
-        return $result;
+        return ['labels' => $labels, 'series' => $series];
     }
 
     /**
