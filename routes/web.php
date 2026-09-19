@@ -19,14 +19,10 @@ Route::get('/', ['uses' => 'IndexController@getIndex', 'as' => 'home']);
 
 Route::group(['namespace' => 'User', 'prefix' => 'user'], function($route) {
     $route->get('login', 'SessionController@getLogin');
-    $route->post('login-oauth', 'SessionController@loginOAuth');
-    $route->get('login-oauth-callback', 'SessionController@loginOAuthCallback');
     $route->post('login', 'SessionController@postLogin');
     $route->get('logout', 'SessionController@logout');
 
     $route->get('done', 'RegistrationController@done');
-    $route->post('create-oauth', 'RegistrationController@createOAuth');
-    $route->get('create-oauth-callback', 'RegistrationController@createOAuthCallback');
     $route->put('update', 'RegistrationController@update');
     $route->post('withdrawal', 'RegistrationController@withdrawal');
 

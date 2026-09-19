@@ -35,10 +35,6 @@
                         </div>
                     </fieldset>
                 {!! Form::close() !!}
-                <hr />
-                {!! Form::open(['url' => 'user/login-oauth', 'class' => 'form-horizontal text-right']) !!}
-                    {!! Form::submit('facebookでログイン', ['class' => 'btn btn-primary']) !!}
-                {!! Form::close() !!}
             </div>
         </div>
     </div>
