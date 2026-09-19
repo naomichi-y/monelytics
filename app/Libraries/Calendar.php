@@ -5,88 +5,101 @@ use RuntimeException;
 use Throwable;
 
 use Cache;
-use Config;
 use Log;
 
 class Calendar {
     /**
-     * 取得に失敗した月を再び問い合わせるまでの秒数。
-     * 失敗も短時間キャッシュしないと、カレンダーを開くたびに外部へ出ていく。
+     * 内閣府が公開する「国民の祝日」の一覧。
+     * 祝日は法律で定まり内閣府が一次情報を出しているため、認証情報の要る
+     * 外部 API ではなくこれを直接読む。
+     */
+    private const SOURCE_URL = 'https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv';
+
+    /**
+     * 取得した一覧を保持する秒数。
+     * 内容は年 1 回 (毎年 2 月頃に翌年分が追加される) しか変わらないが、
+     * 収録は約 14 か月先までで、更新を取り逃がすと祝日が消えるため 1 日で見直す。
+     */
+    private const TTL = 86400;
+
+    /**
+     * 取得に失敗したときに再び問い合わせるまでの秒数。
+     * 失敗も記録しないと、カレンダーを開くたびに外部へ出ていく。
      */
     private const FAILURE_TTL = 600;
 
     /**
-     * Google への接続と読み取りを打ち切るまでの秒数。
+     * 接続と読み取りを打ち切るまでの秒数。
      * 既定は default_socket_timeout の 60 秒で、無応答時に画面がその間止まる。
      */
     private const REQUEST_TIMEOUT = 5;
 
+    private const CACHE_KEY = 'holidays.cao';
+
     /**
-     * 対象月の休日を取得する。
+     * 対象月の祝日を取得する。
      *
-     * 休日は表示の補助情報でしかないため、キャッシュにも外部 API にも
-     * 依存して画面を落とさない。取得できなければ空配列を返す。
+     * 祝日は表示の補助情報でしかないため、キャッシュにも配布元にも依存して
+     * 画面を落とさない。取得できなければ空配列を返す。
      *
-     * @param string $target_month
-     * @return array
+     * @param string $target_month Y-m
+     * @return array [Y-m-d => [名称]]
      */
     public static function getHolidays($target_month)
     {
-        $cache_key = 'holidays.' . $target_month;
+        $holidays = self::all();
+        $prefix = $target_month . '-';
 
+        return array_filter(
+            $holidays,
+            static fn ($date) => str_starts_with($date, $prefix),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    /**
+     * 収録されている全期間の祝日を返す。
+     *
+     * @return array [Y-m-d => [名称]]
+     */
+    private static function all()
+    {
         try {
-            $cached = Cache::get($cache_key);
+            $cached = Cache::get(self::CACHE_KEY);
 
-            // 休日のない月は空配列で記録されるため、未取得は null で判別する。
             if ($cached !== null) {
                 return $cached;
             }
 
         } catch (Throwable $e) {
-            Log::error('休日キャッシュの読み出しに失敗した。', ['exception' => $e]);
+            Log::error('祝日キャッシュの読み出しに失敗した。', ['exception' => $e]);
 
             return [];
         }
 
         try {
-            $holidays = self::fetch($target_month);
+            $holidays = self::fetch();
 
         } catch (Throwable $e) {
-            Log::error('休日の取得に失敗した。', ['exception' => $e]);
-            self::remember($cache_key, [], self::FAILURE_TTL);
+            Log::error('祝日一覧の取得に失敗した。', ['exception' => $e]);
+            self::remember([], self::FAILURE_TTL);
 
             return [];
         }
 
-        self::remember($cache_key, $holidays, null);
+        self::remember($holidays, self::TTL);
 
         return $holidays;
     }
 
     /**
-     * Google Calendar API から対象月の休日を取得する。
+     * 内閣府の CSV を取得して解析する。
      *
-     * @param string $target_month
-     * @return array
+     * @return array [Y-m-d => [名称]]
      * @throws RuntimeException
      */
-    private static function fetch($target_month)
+    private static function fetch()
     {
-        $begin_date = sprintf('%s-01T09:00:00Z', $target_month);
-        $last_day = date('d', strtotime('last day of ' . $target_month));
-        $end_date = sprintf('%s-%sT09:00:00Z', $target_month, $last_day);
-
-        $url = sprintf(
-            'https://www.googleapis.com/calendar/v3/calendars/%s/events?'
-            .'key=%s&timeMin=%s&timeMax=%s&maxResults=%d&orderBy=startTime&singleEvents=true',
-            rawurlencode((string) Config::get('app.google.calendar.id')),
-            rawurlencode((string) Config::get('app.google.api_key')),
-            $begin_date,
-            $end_date,
-            31
-        );
-
-        // ignore_errors を立てると 4xx でも本文が読めるので、原因をログに残せる。
         $context = stream_context_create([
             'http' => [
                 'timeout' => self::REQUEST_TIMEOUT,
@@ -94,27 +107,30 @@ class Calendar {
             ],
         ]);
 
-        $body = @file_get_contents($url, false, $context);
+        $body = @file_get_contents(self::SOURCE_URL, false, $context);
 
         if ($body === false) {
-            throw new RuntimeException(sprintf('%s の休日を取得できなかった。', $target_month));
+            throw new RuntimeException('祝日 CSV を取得できなかった。');
         }
 
-        $result = json_decode($body);
-
-        if (!isset($result->items)) {
-            throw new RuntimeException(sprintf(
-                '%s の休日を取得できなかった: %s',
-                $target_month,
-                $result->error->message ?? '応答を解釈できない'
-            ));
-        }
-
+        // 配布元の文字コードは Shift_JIS (CP932)。
+        $body = mb_convert_encoding($body, 'UTF-8', 'SJIS-win');
         $holidays = [];
 
-        foreach ($result->items as $item) {
-            $date = date('Y-m-d', strtotime($item->start->date));
-            $holidays[$date] = explode(' / ', $item->summary);
+        // \R は非 UTF-8 モードで 0x85 にもマッチし、「元」(e5 85 83) のような
+        // 文字の途中で分割してしまう。改行文字を明示する。
+        foreach (preg_split("/\r\n|\r|\n/", $body) as $line) {
+            // 見出し行と空行を読み飛ばす。日付は YYYY/M/D 形式。
+            if (!preg_match('/^(\d{4})\/(\d{1,2})\/(\d{1,2}),(.+)$/', trim($line), $matches)) {
+                continue;
+            }
+
+            $date = sprintf('%04d-%02d-%02d', $matches[1], $matches[2], $matches[3]);
+            $holidays[$date] = [trim($matches[4])];
+        }
+
+        if (!$holidays) {
+            throw new RuntimeException('祝日 CSV から 1 件も読み取れなかった。');
         }
 
         return $holidays;
@@ -123,22 +139,17 @@ class Calendar {
     /**
      * キャッシュへの書き込みは失敗しても表示を止めない。
      *
-     * @param string $cache_key
      * @param array $holidays
-     * @param int|null $ttl 秒。null で無期限。
+     * @param int $ttl 秒
      * @return void
      */
-    private static function remember($cache_key, array $holidays, $ttl)
+    private static function remember(array $holidays, $ttl)
     {
         try {
-            if ($ttl === null) {
-                Cache::forever($cache_key, $holidays);
-            } else {
-                Cache::put($cache_key, $holidays, $ttl);
-            }
+            Cache::put(self::CACHE_KEY, $holidays, $ttl);
 
         } catch (Throwable $e) {
-            Log::error('休日キャッシュの書き込みに失敗した。', ['exception' => $e]);
+            Log::error('祝日キャッシュの書き込みに失敗した。', ['exception' => $e]);
         }
     }
 }
