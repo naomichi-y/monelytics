@@ -6,7 +6,6 @@ class DailyPaginateCondition extends BaseDateCondition {
     public $keyword;
     public $location;
     public $credit_flag;
-    public $special_flag;
     public $cost_type;
     public $sort_field;
     public $sort_type;

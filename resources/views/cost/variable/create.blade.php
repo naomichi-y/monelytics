@@ -70,7 +70,6 @@
                         </td>
                         <td>
                             <div class="text-center">
-                                {!! Form::checkbox("special_flag[$i]", '1', Request::old("special_flag[$i]")) !!}
                             </div>
                         </td>
                     </tr>

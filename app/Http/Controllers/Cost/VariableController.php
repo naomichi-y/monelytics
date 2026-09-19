@@ -49,8 +49,7 @@ class VariableController extends \App\Http\Controllers\Controller {
             'amount',
             'location',
             'content',
-            'credit_flag',
-            'special_flag'
+            'credit_flag'
         );
         $errors = [];
 
@@ -90,8 +89,7 @@ class VariableController extends \App\Http\Controllers\Controller {
             'amount',
             'location',
             'content',
-            'credit_flag',
-            'special_flag'
+            'credit_flag'
         );
         $data = [];
         $errors = [];
