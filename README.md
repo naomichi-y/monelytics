@@ -10,9 +10,9 @@ https://monelytics.me/
 
 * PHP 7.1 (with OPcache)
   * Laravel 5.3
-* Nginx 1.27
-* MariaDB 10.6
-* Redis 7
+* Nginx 1.31
+* MariaDB 12.3 (LTS)
+* Redis 8
 
 ## Local setup
 
@@ -57,9 +57,9 @@ Open the [http://localhost/](http://localhost/) in your browser.
 
 ### Upgrading from the MySQL setup
 
-The db service moved from MySQL 5.7 to MariaDB 10.6 and stores its data in the
-`dbdata` volume, so an existing deployment starts with an empty schema. Dump the old
-database before switching and restore it afterwards.
+The db service moved from MySQL 5.7 to MariaDB and stores its data in the `dbdata`
+volume, so an existing deployment starts with an empty schema. Dump the old database
+before switching and restore it afterwards.
 
 ```
 # on the old setup
@@ -67,6 +67,13 @@ docker exec monelytics_db mysqldump -uroot -p --all-databases > dump.sql
 
 # after docker compose up -d
 docker compose exec -T db mariadb -uroot -p monelytics < dump.sql
+```
+
+Upgrading an existing MariaDB volume across major versions needs the system tables
+refreshed afterwards:
+
+```
+docker compose exec db mariadb-upgrade -uroot -p
 ```
 
 ### Stop containers
