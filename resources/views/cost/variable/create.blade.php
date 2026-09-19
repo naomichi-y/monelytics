@@ -5,7 +5,7 @@
 @stop
 
 @section('include_header')
-    {!! Html::style('assets/css/responsive_table.css') !!}
+    {!! Html::versionedStyle('assets/css/responsive_table.css') !!}
     <script>
         $(function() {
             $("[name^=activity_date]").dateFormat();
