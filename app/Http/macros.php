@@ -39,12 +39,15 @@ Html::macro('collection_to_string', function($collection, $target, $delimiter = 
 });
 
 Html::macro('linkWithQueryString', function($url, array $queries = [], $title, array $attributes = [], $secure = null) {
-    $append_query_string = http_build_query($queries, '', '&amp;');
+    // 区切りは URL そのものの文字である '&' にする。HTML への逃がしは
+    // Html::link が行うため、ここで '&amp;' を入れると二重になり、
+    // 2 つ目以降のパラメータ名が amp;xxx になって読み捨てられる。
+    $append_query_string = http_build_query($queries, '', '&');
 
     if (strpos($url, '?') === false) {
         $url .= '?' . $append_query_string;
     } else {
-        $url .= '&amp;' . $append_query_string;
+        $url .= '&' . $append_query_string;
     }
 
     return Html::link($url, $title, $attributes, $secure);
