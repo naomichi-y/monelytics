@@ -40,7 +40,8 @@ $(function () {
           },
           labels: {
             formatter: function() {
-              return Highcharts.numberFormat(this.value, 0);
+              // Highcharts 4 の既定の桁区切りは空白なので明示する。
+              return Highcharts.numberFormat(this.value, 0, '.', ',');
             }
           }
         },
@@ -48,7 +49,7 @@ $(function () {
           shared: true,
           pointFormatter: function() {
             return '<span style="color:' + this.series.color + '">●</span> '
-              + this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0) + '</b><br/>';
+              + this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0, '.', ',') + '</b><br/>';
           }
         },
         plotOptions: {
