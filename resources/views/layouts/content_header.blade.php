@@ -36,20 +36,23 @@
                                 <li>{!! link_to('settings/activityCategoryGroup', '科目') !!}</li>
                             </ul>
                         </li>
-
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{{Auth::user()->nickname}}} <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                                <li>{!! link_to('/user', 'アカウント') !!}</li>
-                                <li>{!! link_to('/user/logout', 'ログアウト') !!}</li>
-                            </ul>
-                        </li>
                     @else
                         <li><a href="/user/create" class="dropdown-toggle">会員登録</a></li>
                         <li><a href="/user/login" class="dropdown-toggle">ログイン</a></li>
                     @endif
                 </ul>
                 @if (Auth::check())
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">アカウント <span class="caret"></span></a>
+                            {{-- 右端に出るため、既定の左揃えではメニューが画面外へはみ出す。 --}}
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>{!! link_to('/user', 'プロフィール') !!}</li>
+                                <li>{!! link_to('/user/logout', 'ログアウト') !!}</li>
+                            </ul>
+                        </li>
+                    </ul>
+
                     {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right']) !!}
                         <div class="form-group">
                             {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}

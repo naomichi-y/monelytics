@@ -74,10 +74,11 @@
                 <col style="width: 11%" />
                 <col style="width: 19%" />
                 <col style="width: 19%" />
+                <col style="width: 8%" />
                 <col style="width: 4%" />
+                <col style="width: 14%" />
+                <col style="width: 14%" />
             </colgroup>
-            <colgroup span="2" style="width: 4%">
-            <colgroup span="2" style="width: 14%">
             <thead>
                 <tr>
                     <th class="text-center">

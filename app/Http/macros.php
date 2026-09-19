@@ -267,3 +267,15 @@ Html::macro('assetVersion', function($path) {
 
     return $path . '?v=' . filemtime($file);
 });
+
+/**
+ * 前月比の増減率を、向きの記号を付けて返す。
+ *
+ * 支出は増えたときに正となるよう符号を揃えて渡されるため、金額そのものが
+ * 負で表示される行でも ▲ は「増えた」を意味する。
+ */
+Html::macro('comparisonRate', function($rate) {
+    $mark = $rate > 0 ? '▲' : ($rate < 0 ? '▼' : '±');
+
+    return $mark . abs($rate) . '%';
+});

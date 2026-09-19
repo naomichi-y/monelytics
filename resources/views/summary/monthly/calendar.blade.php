@@ -63,10 +63,13 @@
                                         @endif
                                     </div>
                                     <div class="amounts text-right">
-                                        {!! link_to("summary/daily?begin_date={$params[$i]['date']}&amp;end_date={$params[$i]['date']}&amp;cost_type=1", number_format($params[$i]['variable_amount'])) !!}
+                                        {{-- 区切りは URL そのものの文字である '&' にする。HTML への逃がしは
+                                             link_to が行うため、ここで '&amp;' を入れると二重になり、
+                                             2 つ目以降のパラメータ名が amp;xxx になって読み捨てられる。 --}}
+                                        {!! link_to("summary/daily?begin_date={$params[$i]['date']}&end_date={$params[$i]['date']}&cost_type=1", number_format($params[$i]['variable_amount'])) !!}
                                             <br />
                                         @if ($params[$i]['constant_amount'])
-                                            {!! link_to("summary/daily?begin_date={$params[$i]['date']}&amp;end_date={$params[$i]['date']}&amp;cost_type=2", number_format($params[$i]['constant_amount'])) !!}
+                                            {!! link_to("summary/daily?begin_date={$params[$i]['date']}&end_date={$params[$i]['date']}&cost_type=2", number_format($params[$i]['constant_amount'])) !!}
                                         @else
                                             &nbsp;
                                         @endif

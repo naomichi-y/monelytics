@@ -666,10 +666,10 @@ class ActivityService
     /**
      * 月別集計の科目合計を、ひとつ前の同じ長さの期間と比べた増減率を返す。
      *
-     * 対象は変動収支のみ。固定収支は毎月同額になりがちで、増減を出しても
-     * 読む意味がないため。
+     * 対象は変動収支と固定収支の全科目。科目ごとに加えて、収入合計・支出合計・
+     * 合計も比較する。
      *
-     * 次の場合は比較しない (空配列を返す)。
+     * 次の場合は比較しない (その項目を返さない)。
      *  - 詳細検索で任意の日付が指定されている (前の期間を定義できない)
      *  - 未来の月が指定されている
      *  - 前の期間の金額が 0 (比率を出せない)
@@ -679,24 +679,27 @@ class ActivityService
      *
      * @param int $user_id
      * @param Condition\MonthlySummaryCondition $condition
-     * @return array [科目グループ ID => 増減率 (整数、正なら増加)]
+     * @return array ['groups' => [科目グループ ID => 増減率], 'totals' => [income|expense|total => 増減率]]
+     *               増減率は整数で、正なら増加。
      */
     public function getMonthlyComparison($user_id, Condition\MonthlySummaryCondition $condition)
     {
+        $empty = ['groups' => [], 'totals' => []];
+
         if (strlen((string) $condition->begin_date) || strlen((string) $condition->end_date)) {
-            return [];
+            return $empty;
         }
 
         $date_month = $condition->date_month ?: date('Y-m');
 
         if (!preg_match('/\A\d{4}-\d{2}\z/', $date_month)) {
-            return [];
+            return $empty;
         }
 
         $current_month = date('Y-m');
 
         if ($date_month > $current_month) {
-            return [];
+            return $empty;
         }
 
         $begin_date = $date_month . '-01';
@@ -714,57 +717,101 @@ class ActivityService
             $previous_end_date = date('Y-m-t', strtotime($previous_begin_date));
         }
 
-        $current = $this->sumVariableCostByGroup($user_id, $begin_date, $end_date);
-        $previous = $this->sumVariableCostByGroup($user_id, $previous_begin_date, $previous_end_date);
+        $current = $this->sumCostByGroup($user_id, $begin_date, $end_date);
+        $previous = $this->sumCostByGroup($user_id, $previous_begin_date, $previous_end_date);
 
-        $result = [];
+        $groups = [];
 
-        foreach ($current as $activity_category_group_id => $amount) {
-            if (empty($previous[$activity_category_group_id])) {
+        foreach ($current['groups'] as $activity_category_group_id => $amount) {
+            if (empty($previous['groups'][$activity_category_group_id])) {
                 continue;
             }
 
-            $base = $previous[$activity_category_group_id];
-            $result[$activity_category_group_id] = (int) round((($amount - $base) / abs($base)) * 100);
+            $groups[$activity_category_group_id] = $this->calculateComparisonRate($amount, $previous['groups'][$activity_category_group_id]);
         }
 
-        return $result;
+        $totals = [];
+
+        foreach ($current['totals'] as $key => $amount) {
+            if (empty($previous['totals'][$key])) {
+                continue;
+            }
+
+            $totals[$key] = $this->calculateComparisonRate($amount, $previous['totals'][$key]);
+        }
+
+        return ['groups' => $groups, 'totals' => $totals];
     }
 
     /**
-     * 変動収支の金額を、科目グループごとに合計する。
+     * 前の期間を基準とした増減率を百分率で返す。
      *
-     * 支出は負で記録されているため符号を反転し、増えたら正になるよう揃える。
+     * @param int $current
+     * @param int $previous 0 以外であること
+     * @return int
+     */
+    private function calculateComparisonRate($current, $previous)
+    {
+        return (int) round((($current - $previous) / abs($previous)) * 100);
+    }
+
+    /**
+     * 収支の金額を、科目グループごとと全体の合計で集計する。
+     *
+     * 科目グループの金額は、支出が負で記録されているため符号を反転し、
+     * 増えたら正になるよう揃える。
+     *
+     * 収入合計と支出合計は、集計表の表示と同じ振り分けにする。つまり科目の
+     * 収支タイプではなく、現金・クレジットごとの小計の符号で分ける
+     * (@see ActivityService::calculateMonthlySummary)。支出合計も科目と同じく
+     * 正の値で返し、使った額が増えたら正になるようにする。
      *
      * @param int $user_id
      * @param string $begin_date
      * @param string $end_date
-     * @return array [科目グループ ID => 金額]
+     * @return array ['groups' => [科目グループ ID => 金額], 'totals' => [income|expense|total => 金額]]
      */
-    private function sumVariableCostByGroup($user_id, $begin_date, $end_date)
+    private function sumCostByGroup($user_id, $begin_date, $end_date)
     {
         $rows = DB::table('activities AS a')
-            ->select(DB::raw('a.activity_category_group_id, ac.balance_type, SUM(a.amount) AS amount'))
+            ->select(DB::raw('a.activity_category_group_id, ac.balance_type, a.credit_flag, SUM(a.amount) AS amount'))
             ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', '=', $user_id)
-            ->where('ac.cost_type', '=', Models\ActivityCategory::COST_TYPE_VARIABLE)
             ->whereBetween('a.activity_date', [$begin_date . ' 00:00:00', $end_date . ' 23:59:59'])
             ->whereNull('a.delete_date')
             ->whereNull('acg.delete_date')
             ->whereNull('ac.delete_date')
             ->groupBy('a.activity_category_group_id')
             ->groupBy('ac.balance_type')
+            ->groupBy('a.credit_flag')
             ->get();
 
-        $result = [];
+        $groups = [];
+        $totals = ['income' => 0, 'expense' => 0, 'total' => 0];
 
         foreach ($rows as $row) {
+            $amount = (int) $row->amount;
+
+            if ($amount > 0) {
+                $totals['income'] += $amount;
+            } else {
+                $totals['expense'] -= $amount;
+            }
+
+            $totals['total'] += $amount;
+
             $sign = ($row->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) ? -1 : 1;
-            $result[$row->activity_category_group_id] = $sign * (int) $row->amount;
+
+            if (!isset($groups[$row->activity_category_group_id])) {
+                $groups[$row->activity_category_group_id] = 0;
+            }
+
+            // 現金とクレジットで行が分かれるため、科目グループごとに足し合わせる。
+            $groups[$row->activity_category_group_id] += $sign * $amount;
         }
 
-        return $result;
+        return ['groups' => $groups, 'totals' => $totals];
     }
 
     /**
