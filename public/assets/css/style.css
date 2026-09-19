@@ -96,6 +96,32 @@ td a {
   font-size: 0.8em;
 }
 
+/* ヘッダーの検索。ボタンを入力欄の中へ重ねる。 */
+.navbar-search {
+  position: relative;
+}
+
+/* 入力文字がボタンの下へ潜らないよう右側を空ける。 */
+.navbar-search .form-control {
+  padding-right: 34px;
+}
+
+.navbar-search-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: #999;
+}
+
+.navbar-search-button:hover,
+.navbar-search-button:focus {
+  color: #333;
+}
+
 
 .modal-dialog {
   top: 100px;

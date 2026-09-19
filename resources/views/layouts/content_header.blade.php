@@ -54,10 +54,12 @@
                     </ul>
 
                     {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'navbar-form navbar-right']) !!}
-                        <div class="form-group">
+                        <div class="form-group navbar-search">
                             {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
+                            <button type="submit" class="navbar-search-button" aria-label="検索">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
                         </div>
-                        {!! Form::submit('検索', ['class' => 'btn btn-default']) !!}
                     {!! Form::close() !!}
                 @endif
             </div>
