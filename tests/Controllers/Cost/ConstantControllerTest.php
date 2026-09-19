@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Services;
+namespace Tests\Controllers\Cost;
 
 use DateTime;
 
@@ -9,7 +9,7 @@ use Tests\TestCase;
 class ConstantControllerTest extends TestCase {
     private $default_count;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

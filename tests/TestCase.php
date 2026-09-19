@@ -1,42 +1,37 @@
 <?php
 namespace Tests;
 
-use Artisan;
-use Auth;
-use Route;
-
 use App\Models\User;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Testing\TestResponse;
 
-class TestCase extends \Illuminate\Foundation\Testing\TestCase {
-  /**
-     * The base URL to use while testing the application.
-     *
-     * @var string
-     */
-    protected $baseUrl = 'http://localhost';
+abstract class TestCase extends BaseTestCase
+{
+    private ?TestResponse $lastResponse = null;
 
-    /**
-     * Creates the application.
-     *
-     * @return \Illuminate\Foundation\Application
-     */
     public function createApplication()
     {
-        $app = require __DIR__.'/../bootstrap/app.php';
-        $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        $app = require __DIR__ . '/../bootstrap/app.php';
+        $app->make(Kernel::class)->bootstrap();
 
         return $app;
     }
 
-    public function setup()
+    protected function setUp(): void
     {
-        parent::setup();
+        parent::setUp();
 
         $this->setupDatabase();
-        $this->seed('Seeds\TestSeeder');
+        $this->seed(\Seeds\TestSeeder::class);
     }
 
-    public function setupDatabase()
+    /**
+     * スキーマの作り直しはスイート全体で 1 回だけ行う。
+     */
+    protected function setupDatabase(): void
     {
         static $initialized = false;
 
@@ -47,71 +42,91 @@ class TestCase extends \Illuminate\Foundation\Testing\TestCase {
         }
     }
 
-    public function getUser()
+    protected function getUser(): User
     {
         return User::find(1);
     }
 
-    public function login()
+    protected function login(): void
     {
         $this->be($this->getUser());
     }
 
-    public function logout()
+    protected function logout(): void
     {
         Auth::logout();
     }
 
-    public function assertGuestAccessibleContent()
+    /**
+     * 直近のレスポンスを保持し、assertRedirectedTo() から参照できるようにする。
+     */
+    public function call($method, $uri, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
     {
-        call_user_func_array(array($this, 'call'), func_get_args());
-        $this->assertResponseOk();
+        return $this->lastResponse = parent::call($method, $uri, $parameters, $cookies, $files, $server, $content);
     }
 
-    public function assertGuestInaccessibleContent()
+    /**
+     * BrowserKit 時代の API。Laravel 5.4 で削除されたが、呼び出し側を
+     * 変えずに済むよう直近のレスポンスに対する assertRedirect として残す。
+     */
+    protected function assertRedirectedTo(string $uri): void
     {
-        call_user_func_array(array($this, 'call'), func_get_args());
-        $this->assertRedirectedTo('/user/login');
+        $this->assertNotNull($this->lastResponse, 'call() が先に実行されていない');
+        $this->lastResponse->assertRedirect($uri);
     }
 
-    public function assertUserAccessibleContent()
+    protected function assertGuestAccessibleContent(...$args): void
+    {
+        $this->call(...$args)->assertOk();
+    }
+
+    protected function assertGuestInaccessibleContent(...$args): void
+    {
+        $this->call(...$args)->assertRedirect('/user/login');
+    }
+
+    protected function assertUserAccessibleContent(...$args): void
     {
         $this->login();
-        call_user_func_array(array($this, 'call'), func_get_args());
-        $this->assertResponseOk();
-        Auth::logout();
+        $this->call(...$args)->assertOk();
+        $this->logout();
     }
 
-    public function assertUserInaccessibleContent()
+    protected function assertUserInaccessibleContent(...$args): void
     {
         $this->login();
-        call_user_func_array(array($this, 'call'), func_get_args());
-        $this->assertRedirectedTo('/dashboard');
+        $this->call(...$args)->assertRedirect('/dashboard');
+        $this->logout();
     }
 
-    public function assertAnyAccessibleContent()
+    protected function assertAnyAccessibleContent(...$args): void
     {
-        call_user_func_array(array($this, 'assertGuestAccessibleContent'), func_get_args());
-        call_user_func_array(array($this, 'assertUserAccessibleContent'), func_get_args());
+        $this->assertGuestAccessibleContent(...$args);
+        $this->assertUserAccessibleContent(...$args);
     }
 
-    public function assertGuestOnlyContent()
+    protected function assertGuestOnlyContent(...$args): void
     {
-        call_user_func_array(array($this, 'assertGuestAccessibleContent'), func_get_args());
-        call_user_func_array(array($this, 'assertUserInaccessibleContent'), func_get_args());
+        $this->assertGuestAccessibleContent(...$args);
+        $this->assertUserInaccessibleContent(...$args);
     }
 
-    public function assertUserOnlyContent()
+    protected function assertUserOnlyContent(...$args): void
     {
-        call_user_func_array(array($this, 'assertGuestInaccessibleContent'), func_get_args());
-        call_user_func_array(array($this, 'assertUserAccessibleContent'), func_get_args());
+        $this->assertGuestInaccessibleContent(...$args);
+        $this->assertUserAccessibleContent(...$args);
     }
 
-    public function assertValidAjaxResponse()
+    protected function assertValidAjaxResponse(...$args): void
     {
-        $response = call_user_func_array(array($this, 'call'), func_get_args());
+        $response = $this->call(...$args);
+        $response->assertOk();
+
         $result = json_decode($response->getContent());
 
-        return empty($result->error);
+        $this->assertTrue(
+            empty($result->error),
+            'AJAX レスポンスにエラーが含まれている: ' . $response->getContent()
+        );
     }
 }

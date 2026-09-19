@@ -44,7 +44,8 @@ class ActivityCategoryController extends \App\Http\Controllers\Controller {
     public function sort()
     {
         $user_id = Auth::id();
-        $ids = Request::input('ids');
+        // ids は未送信になりうる。PHP 8 では sizeof(null) が TypeError。
+        $ids = Request::input('ids', []);
         $j = sizeof($ids);
 
         for ($i = 0; $i < $j; $i++) {

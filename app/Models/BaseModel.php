@@ -17,12 +17,18 @@ class BaseModel extends \Eloquent {
     protected $errors;
 
     /**
+     * 既定のルールは $rules だが、用途ごとに異なるルールを使いたい場合は
+     * 引数で渡す。インスタンスを共有したまま $rules を書き換えると、
+     * 後続の検証まで影響を受けるため。
+     *
      * @param array $fields
+     * @param array|null $rules
+     * @param array|null $messages
      * @return bool
      */
-    public function validate(array $fields)
+    public function validate(array $fields, ?array $rules = null, ?array $messages = null)
     {
-        $validator = Validator::make($fields, $this->rules, $this->messages);
+        $validator = Validator::make($fields, $rules ?? $this->rules, $messages ?? $this->messages);
         $result = true;
 
         if ($validator->fails()) {

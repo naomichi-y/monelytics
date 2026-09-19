@@ -91,8 +91,9 @@ class Activity extends BaseModel {
                 $valid_fields[$k]['activity_date'] = $fields['activity_date'][$i];
                 $valid_fields[$k]['activity_category_group_id'] = $fields['activity_category_group_id'][$i];
                 $valid_fields[$k]['amount'] = $fields['amount'][$i];
-                $valid_fields[$k]['location'] = $fields['location'][$i];
-                $valid_fields[$k]['content'] = $fields['content'][$i];
+                // location と content は任意項目で未送信になりうる。
+                $valid_fields[$k]['location'] = $fields['location'][$i] ?? null;
+                $valid_fields[$k]['content'] = $fields['content'][$i] ?? null;
 
                 if (isset($fields['credit_flag'][$i])) {
                     $valid_fields[$k]['credit_flag'] = $fields['credit_flag'][$i];
@@ -160,7 +161,8 @@ class Activity extends BaseModel {
                 $valid_fields[$j]['activity_category_group_id'] = $activity_category_group_id;
                 $valid_fields[$j]['activity_date'] = $fields['activity_date'][$target_month][$activity_category_group_id];
                 $valid_fields[$j]['amount'] = $fields['amount'][$target_month][$activity_category_group_id];
-                $valid_fields[$j]['content'] = $fields['content'][$target_month][$activity_category_group_id];
+                // content は任意項目で未送信になりうる。
+                $valid_fields[$j]['content'] = $fields['content'][$target_month][$activity_category_group_id] ?? null;
 
                 if (isset($fields['credit_flag'][$target_month][$activity_category_group_id])) {
                     $valid_fields[$j]['credit_flag'] = $fields['credit_flag'][$target_month][$activity_category_group_id];

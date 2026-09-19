@@ -8,9 +8,9 @@ use Tests\TestCase;
 class ActivityCategoryGroupControllerTest extends TestCase {
     private $activity_category_group;
 
-    public function setup()
+    protected function setUp(): void
     {
-        parent::setup();
+        parent::setUp();
 
         $this->activity_category_group = new ActivityCategoryGroup;
     }

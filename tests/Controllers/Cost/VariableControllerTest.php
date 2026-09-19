@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Controllers;
+namespace Tests\Controllers\Cost;
 
 use App\Models\Activity;
 use Tests\TestCase;
@@ -7,7 +7,7 @@ use Tests\TestCase;
 class VariableControllerTest extends TestCase {
     private $activity;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

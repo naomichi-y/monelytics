@@ -9,9 +9,9 @@ use App\Models\User;
 class RegistrationControllerTest extends TestCase {
     private $user;
 
-    public function setup()
+    protected function setUp(): void
     {
-        parent::setup();
+        parent::setUp();
 
         $this->user = new User;
     }

@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Services;
+namespace Tests\Controllers;
 
 use Tests\TestCase;
 

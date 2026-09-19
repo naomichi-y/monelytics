@@ -64,31 +64,29 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
 
     public function loginValidate(array $fields)
     {
-        $this->rules = [
+        return $this->validate($fields, [
             'email' => 'required',
             'password' => 'required'
-        ];
-
-        return $this->validate($fields);
+        ]);
     }
 
     public function updateValidate(array $fields)
     {
-        $this->rules = [
+        $rules = [
             'id' => 'required'
         ];
 
         $user = $this->find($fields['id']);
 
         if ($user->email != $fields['email']) {
-            $this->rules['email'] = 'required|not_exists:users,email';
+            $rules['email'] = 'required|not_exists:users,email';
         }
 
         if (strlen($fields['password'])) {
-            $this->rules['password'] = 'required|min:8|confirmed';
+            $rules['password'] = 'required|min:8|confirmed';
         }
 
-        return $this->validate($fields);
+        return $this->validate($fields, $rules);
     }
 
     /**
