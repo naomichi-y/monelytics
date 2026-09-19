@@ -1,23 +1,39 @@
-FROM php:7.0.11-fpm
-MAINTAINER "Naomichi Yamakita" <n.yamakita@gmail.com>
+# arm64 対応のため、php:7.0.11-fpm (amd64 のみ) から php:7.1-fpm へ変更した。
+# mcrypt は PHP 7.2 で削除されるため、Laravel 5.3 を動かせる上限が 7.1 となる。
+FROM php:7.1-fpm
 
 WORKDIR /tmp
 
-RUN apt-get update && \
-  apt-get install -y libmcrypt-dev && \
-  apt-get clean
-RUN docker-php-ext-install -j$(nproc) \
+# ベースの Debian Buster は EOL となり通常のミラーから削除されているため、
+# apt の参照先を archive.debian.org へ切り替える。
+# unzip は composer の dist 展開に、git は composer.json の vcs リポジトリ解決に必要。
+RUN set -eux; \
+  sed -i \
+    -e 's|http://deb.debian.org/debian|http://archive.debian.org/debian|g' \
+    -e 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' \
+    -e 's|http://security.debian.org|http://archive.debian.org|g' \
+    -e '/buster-updates/d' \
+    /etc/apt/sources.list; \
+  echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends libmcrypt-dev git unzip; \
+  rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-install -j"$(nproc)" \
   opcache \
   mbstring \
   mcrypt \
   pdo \
   pdo_mysql
 
-VOLUME ["/var/run/php-fpm"]
+# 専用の composer コンテナを廃したため、この php イメージへ同梱する。
+# 2.2 は PHP 7.1 をサポートする最後の系列 (2.3 以降は 7.2.5 以上が必須)。
+COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
+# アプリのファイル所有者 (uid 1000) と揃え、storage への書き込みを可能にする。
 RUN useradd -m -s /bin/bash -u 1000 webapp
-RUN mkdir -p /var/run/php-fpm
-RUN chown webapp:webapp /var/run/php-fpm
 
-COPY ./php/php.ini /usr/local/etc/php/php.ini
-COPY ./php-fpm/www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
+COPY www.conf /usr/local/etc/php-fpm.d/zz-webapp.conf
+COPY php.ini /usr/local/etc/php/conf.d/zz-webapp.ini
+
+WORKDIR /data
