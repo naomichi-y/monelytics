@@ -8,11 +8,11 @@ https://monelytics.me/
 
 ## System components
 
-* PHP 7.0 (with OPcache)
+* PHP 7.1 (with OPcache)
   * Laravel 5.3
-* Nginx 1.1
-* MySQL 5.7
-* Redis 3.2
+* Nginx 1.27
+* MariaDB 10.6
+* Redis 7
 
 ## Local setup
 
@@ -25,66 +25,80 @@ https://monelytics.me/
 
 Application is consists of the following container.
 
-* monelytics_data
 * monelytics_web
 * monelytics_php
-* monelytics_composer
-* monelytics_artisan
-* monelytics_phpunit
 * monelytics_db
 * monelytics_redis
+
+composer, Artisan and PHPUnit run inside `monelytics_php`. The `webapp` user is built
+with the uid/gid passed to `docker compose build`, so pass your own to keep generated
+files owned by you; `-u webapp` then writes as that user.
 
 Setup the containers.
 
 ```
-cp etc/docker/.env.sample etc/docker/.env
+cp etc/docker/db/db.env.example etc/docker/db/db.env
 
 # please change configuration
-cat etc/docker/.env
+cat etc/docker/db/db.env
 
-cp .env.sample .env
+cp .env.example .env
 
 # please change configuration
 cat .env
 
-docker-compose build
-docker-compose run --rm composer install
-docker-compose up -d
-docker-compose run --rm artisan migrate
+docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+docker compose up -d
+docker compose exec -u webapp php composer install
+docker compose exec -u webapp php php artisan migrate
 ```
 
-Open the [http://localhost:8080/](http://localhost:8080/) in your browser.
+Open the [http://localhost/](http://localhost/) in your browser.
+
+### Upgrading from the MySQL setup
+
+The db service moved from MySQL 5.7 to MariaDB 10.6 and stores its data in the
+`dbdata` volume, so an existing deployment starts with an empty schema. Dump the old
+database before switching and restore it afterwards.
+
+```
+# on the old setup
+docker exec monelytics_db mysqldump -uroot -p --all-databases > dump.sql
+
+# after docker compose up -d
+docker compose exec -T db mariadb -uroot -p monelytics < dump.sql
+```
 
 ### Stop containers
 
 ```
-docker-compose stop
+docker compose stop
 ```
 
 ### How to use composer
 
 ```
-docker-compose run --rm composer [COMMAND]
+docker compose exec -u webapp php composer [COMMAND]
 
 # e.g. Run install of package
-docker-compose run --rm composer install
+docker compose exec -u webapp php composer install
 ```
 
 ### How to use Artisan
 
 ```
-docker-compose run --rm artisan [COMMAND]
+docker compose exec -u webapp php php artisan [COMMAND]
 
 # e.g. Run migration of DB
-docker-compose run --rm artisan migrate
+docker compose exec -u webapp php php artisan migrate
 ```
 
 ## Test
 
 ```
 # Run all tests
-docker-compose run --rm phpunit
+docker compose exec -u webapp php vendor/bin/phpunit
 
 # e.g. Specify test class
-docker-compose run --rm phpunit tests/Controllers/ContactControllerTest.php
+docker compose exec -u webapp php vendor/bin/phpunit tests/Controllers/ContactControllerTest.php
 ```
