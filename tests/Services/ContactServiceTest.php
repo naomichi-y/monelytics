@@ -7,9 +7,9 @@ use Tests\TestCase;
 class ContactServiceTest extends TestCase {
     private $contact;
 
-    public function setup()
+    protected function setUp(): void
     {
-        parent::setup();
+        parent::setUp();
 
         $this->contact = new ContactService;
     }

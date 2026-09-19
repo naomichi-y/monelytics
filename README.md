@@ -1,15 +1,15 @@
 # monelytics
 
 monelytics is a household account book web service.
-This is an application that has been made in Laravel5.
+This is an application that has been made in Laravel.
 
 ## Web site
 https://monelytics.me/
 
 ## System components
 
-* PHP 7.1 (with OPcache)
-  * Laravel 5.3
+* PHP 8.5 (with OPcache)
+  * Laravel 13
 * Nginx 1.31
 * MariaDB 12.3 (LTS)
 * Redis 8
@@ -104,8 +104,8 @@ docker compose exec -u webapp php php artisan migrate
 
 ```
 # Run all tests
-docker compose exec -u webapp php vendor/bin/phpunit
+docker compose exec -u webapp php php artisan test
 
 # e.g. Specify test class
-docker compose exec -u webapp php vendor/bin/phpunit tests/Controllers/ContactControllerTest.php
+docker compose exec -u webapp php php artisan test --filter ContactControllerTest
 ```

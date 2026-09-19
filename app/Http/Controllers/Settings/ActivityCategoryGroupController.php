@@ -36,7 +36,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
 
         $data = [];
         $data['activity_category_list'] = $this->activity_category->getCategoryList($user_id, true);
-        $data['activity_category_groups'] = null;
+        $data['activity_category_groups'] = [];
 
         if ($activity_category_id) {
             $data['activity_category_groups'] = $this->activity_category_group->findAll($user_id, $activity_category_id);

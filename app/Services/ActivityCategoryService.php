@@ -254,7 +254,10 @@ class ActivityCategoryService
             ->whereNull('a.delete_date')
             ->whereNull('ac.delete_date')
             ->whereNull('acg.delete_date')
+            // ONLY_FULL_GROUP_BY 対策。category_name は主キー ac.id に
+            // 関数従属するため、追加しても group は分割されない。
             ->groupBy('ac.id')
+            ->groupBy('ac.category_name')
             ->orderBy('category_amount', 'asc');
 
         $array = [];
