@@ -15,7 +15,7 @@
     {!! Html::style('assets/components/bootstrap/3.3.2/sandstone/bootstrap.min.css') !!}
     {!! Html::style('assets/components/jquery-ui/1.11.3/jquery-ui.min.css') !!}
     {!! Html::style('assets/components/jquery_plugins/darktooltip/css/darktooltip.min.css') !!}
-    {!! Html::style('assets/css/style.css') !!}
+    {!! Html::versionedStyle('assets/css/style.css') !!}
     {!! Html::script('assets/components/jquery/2.1.1/jquery.min.js') !!}
     {!! Html::script('assets/components/jquery_plugins/jquery-cookie/src/jquery.cookie.js') !!}
     {!! Html::script('assets/components/bootstrap/3.3.2/js/bootstrap.min.js') !!}
@@ -24,6 +24,6 @@
     {!! Html::script('assets/components/jquery_plugins/darktooltip/js/jquery.darktooltip.min.js') !!}
     {!! Html::script('assets/components/gcalendar-holidays.js') !!}
     {!! Html::script('assets/components/analytics.js') !!}
-    {!! Html::script('assets/js/common.js') !!}
+    {!! Html::versionedScript('assets/js/common.js') !!}
     @yield('extend_head_tags')
 </head>

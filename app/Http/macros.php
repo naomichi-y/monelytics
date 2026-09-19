@@ -232,3 +232,35 @@ Html::macro('sortLabel', function($field, $label, $default_sort = false) {
 });
 
 
+
+/**
+ * アプリ自身の JS を、ファイルの更新時刻を付けて読み込む。
+ *
+ * 配信元は Cache-Control を返さないため、ブラウザが古いファイルを
+ * 使い続けることがある。応答の形を変えた JS が入れ替わらないと
+ * 画面が壊れるので、内容が変わったら URL も変わるようにする。
+ * バージョンがパスに入っている vendor 配下には使わない。
+ */
+Html::macro('versionedScript', function($path, $attributes = [], $secure = null) {
+    return Html::script(Html::assetVersion($path), $attributes, $secure);
+});
+
+/**
+ * アプリ自身の CSS を、ファイルの更新時刻を付けて読み込む。
+ */
+Html::macro('versionedStyle', function($path, $attributes = [], $secure = null) {
+    return Html::style(Html::assetVersion($path), $attributes, $secure);
+});
+
+/**
+ * パスにファイルの更新時刻を付与する。ファイルがなければそのまま返す。
+ */
+Html::macro('assetVersion', function($path) {
+    $file = public_path($path);
+
+    if (!is_file($file)) {
+        return $path;
+    }
+
+    return $path . '?v=' . filemtime($file);
+});

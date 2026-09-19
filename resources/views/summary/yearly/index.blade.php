@@ -6,7 +6,7 @@
 
 @section('include_header')
     {!! Html::script('assets/components/highcharts/4.1.1/js/highcharts.js') !!}
-    {!! Html::script('assets/js/line-chart.js') !!}
+    {!! Html::versionedScript('assets/js/line-chart.js') !!}
     <script>
         $(function() {
             // 詳細検索押下
