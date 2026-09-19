@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-アカウント
+プロフィール
 @stop
 
 @section('include_header')
