@@ -21,11 +21,11 @@
                 <colgroup>
                     <col style="width: 15%" />
                     <col style="width: 15%" />
-                    <col style="width: 10%" />
-                    <col style="width: 25%" />
-                    <col style="width: 25%" />
+                    <col style="width: 11%" />
+                    <col style="width: 27%" />
+                    <col style="width: 27%" />
+                    <col style="width: 5%" />
                 </colgroup>
-                <colgroup span="2" style="width: 5%">
                 <thead>
                     <tr>
                         <th class="text-center">発生日</th>
@@ -34,7 +34,6 @@
                         <th class="text-center">場所</th>
                         <th class="text-center">用途</th>
                         <th class="text-center"><span class="glyphicon glyphicon-credit-card"></span></th>
-                        <th class="text-center"><span class="glyphicon glyphicon-star"></span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,11 +65,6 @@
                         <td>
                             <div class="text-center">
                                 {!! Form::checkbox("credit_flag[$i]", '1', Request::old("credit_flag[$i]")) !!}
-                            </div>
-                        </td>
-                        <td>
-                            <div class="text-center">
-                                {!! Form::checkbox("special_flag[$i]", '1', Request::old("special_flag[$i]")) !!}
                             </div>
                         </td>
                     </tr>

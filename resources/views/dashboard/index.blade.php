@@ -100,8 +100,6 @@
                             </label>
                             <div class="col-md-8">
                                 <div class="checkbox-inline">
-                                    {!! Form::checkbox('special_flag[0]', App\Models\Activity::SPECIAL_FLAG_USE, false, ['id' => 'special_flag']) !!}
-                                    {!! Form::label('special_flag', '特別収支') !!}
                                 </div>
                             </div>
                         </div>
