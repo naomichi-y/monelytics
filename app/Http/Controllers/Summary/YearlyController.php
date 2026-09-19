@@ -51,6 +51,32 @@ class YearlyController extends \App\Http\Controllers\Controller {
     }
 
     /**
+     * 推移グラフタブを表示する。
+     */
+    public function lineChart()
+    {
+        return View::make('summary/yearly/line-chart');
+    }
+
+    /**
+     * 推移グラフのデータを生成する。
+     */
+    public function lineChartData()
+    {
+        $fields = Request::only(
+            'begin_year',
+            'end_year',
+            'balance_type'
+        );
+        $condition = new Condition\YearlyTrendCondition($fields);
+
+        $data = [];
+        $data['trends'] = $this->activity->getYearlyTrend(Auth::id(), $condition);
+
+        return response()->json($data);
+    }
+
+    /**
      * 一覧タブを表示する。
      */
     public function report()

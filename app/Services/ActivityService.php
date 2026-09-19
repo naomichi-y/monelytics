@@ -701,6 +701,71 @@ class ActivityService
     }
 
     /**
+     * 年ごとの月次推移を取得する。
+     *
+     * 折れ線グラフで年を並べて比較するため、年をキーに 1〜12 月の金額を返す。
+     * データのない月は 0 ではなく null にする。0 を返すと「その月は収支ゼロ」と
+     * 「まだ記録がない」が区別できず、線が原点まで落ちてしまうため。
+     *
+     * 金額は集計表と揃えて符号をそのまま扱う (支出は負)。
+     *
+     * @param int $user_id
+     * @param Condition\YearlyTrendCondition $condition
+     * @return array ['2026' => [1 => int|null, ... 12 => int|null], ...]
+     */
+    public function getYearlyTrend($user_id, Condition\YearlyTrendCondition $condition)
+    {
+        $begin_year = (int) $condition->begin_year;
+        $end_year = (int) $condition->end_year;
+
+        if (!$begin_year || !$end_year || $begin_year > $end_year) {
+            return [];
+        }
+
+        $builder = DB::table('activities AS a')
+            ->select(DB::raw(
+                'YEAR(a.activity_date) AS activity_year,'
+                .' MONTH(a.activity_date) AS activity_month,'
+                .' SUM(a.amount) AS amount'
+            ))
+            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
+            ->where('a.user_id', '=', $user_id)
+            ->whereBetween('a.activity_date', [
+                sprintf('%04d-01-01 00:00:00', $begin_year),
+                sprintf('%04d-12-31 23:59:59', $end_year),
+            ])
+            ->whereNull('a.delete_date')
+            ->whereNull('acg.delete_date')
+            ->whereNull('ac.delete_date');
+
+        if ($condition->balance_type) {
+            $builder->where('ac.balance_type', '=', $condition->balance_type);
+        }
+
+        $builder->groupBy('activity_year')
+            ->groupBy('activity_month')
+            ->orderBy('activity_year', 'asc')
+            ->orderBy('activity_month', 'asc');
+
+        $result = [];
+
+        for ($year = $begin_year; $year <= $end_year; $year++) {
+            $result[(string) $year] = array_fill(1, 12, null);
+        }
+
+        foreach ($builder->get() as $row) {
+            $year = (string) $row->activity_year;
+
+            if (isset($result[$year])) {
+                $result[$year][(int) $row->activity_month] = (int) $row->amount;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * 収支が発生している年のリストを取得する。
      *
      * @param int $user_id
