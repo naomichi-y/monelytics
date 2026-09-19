@@ -48,7 +48,7 @@
 
             $.enterCallback(doSubmit);
 
-            $("[name=activity_date]").dateFormat();
+            $("[name=activity_date]").dateFormat("[name=activity_date]");
         });
     </script>
 

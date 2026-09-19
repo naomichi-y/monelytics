@@ -8,7 +8,7 @@
     {!! Html::versionedStyle('assets/css/responsive_table.css') !!}
     <script>
         $(function() {
-            $("[name^=activity_date]").dateFormat();
+            $("[name^=activity_date]").dateFormat("[name^=activity_date]");
             $("[name^=activity_date]").first().disableDatepickerFocus();
         });
     </script>

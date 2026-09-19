@@ -25,8 +25,8 @@
             $("#date_month").prop("selectedIndex", 0);
         });
 
-        $("#begin_date").dateFormat();
-        $("#end_date").dateFormat();
+        $("#begin_date").dateFormat("#begin_date");
+        $("#end_date").dateFormat("#end_date");
     });
 </script>
 

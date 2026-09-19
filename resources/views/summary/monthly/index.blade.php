@@ -5,7 +5,7 @@
 @stop
 
 @section('include_header')
-    {!! Html::script('assets/components/highcharts/4.1.1/js/highcharts.js') !!}
+    {!! Html::script('assets/components/highcharts/13.1.0/js/highcharts.js') !!}
     {!! Html::versionedScript('assets/js/pie-chart.js') !!}
     <script>
         $(function() {
