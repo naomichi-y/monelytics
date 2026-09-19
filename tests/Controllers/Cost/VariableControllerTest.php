@@ -20,6 +20,23 @@ class VariableControllerTest extends TestCase {
         $this->assertUserOnlyContent('GET', '/cost/variable/create');
     }
 
+    /**
+     * 一覧と単体表示の画面は持たない。resource が既定でルートに載せていた頃は
+     * 直接開くと BadMethodCallException で 500 になっていた。
+     *
+     * どちらの URI も別の動詞 (store / update / destroy) では使うため、
+     * 応答は 404 ではなく 405 になる。
+     */
+    public function testHasNoIndexOrShowRoute()
+    {
+        $this->login();
+
+        $this->call('GET', '/cost/variable')->assertMethodNotAllowed();
+        $this->call('GET', '/cost/variable/1')->assertMethodNotAllowed();
+
+        $this->logout();
+    }
+
     public function testStore()
     {
         $this->login();

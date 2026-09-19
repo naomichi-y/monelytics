@@ -269,13 +269,24 @@ Html::macro('assetVersion', function($path) {
 });
 
 /**
- * 前月比の増減率を、向きの記号を付けて返す。
+ * 前月比の増減率を、符号を付けて返す。
  *
  * 支出は増えたときに正となるよう符号を揃えて渡されるため、金額そのものが
- * 負で表示される行でも ▲ は「増えた」を意味する。
+ * 負で表示される行でも正の値は「増えた」を意味する。
+ *
+ * 記号に ▲▼ は使わない。日本の会計表記では ▲ が負の数を指すのが通例で、
+ * 「増えた」を ▲ で表すと支出欄で意味が逆に読まれる。+ / - なら取り違えない。
  */
 Html::macro('comparisonRate', function($rate) {
-    $mark = $rate > 0 ? '▲' : ($rate < 0 ? '▼' : '±');
+    // ± は増減がちょうど 0 のときだけ。1% 未満の増減を整数に丸めると
+    // 「増減なし」と区別が付かなくなるため、その範囲は小数第 1 位まで出す。
+    if ($rate == 0) {
+        return '±0%';
+    }
 
-    return $mark . abs($rate) . '%';
+    $mark = $rate > 0 ? '+' : '-';
+    $absolute = abs($rate);
+    $value = $absolute < 1 ? number_format($absolute, 1) : (string) round($absolute);
+
+    return $mark . $value . '%';
 });
