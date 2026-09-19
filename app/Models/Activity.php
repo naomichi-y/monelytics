@@ -101,11 +101,8 @@ class Activity extends BaseModel {
                     $valid_fields[$k]['credit_flag'] = Activity::CREDIT_FLAG_UNUSE;
                 }
 
-                if (isset($fields['special_flag'][$i])) {
-                    $valid_fields[$k]['special_flag'] = $fields['special_flag'][$i];
-                } else {
-                    $valid_fields[$k]['special_flag'] = Activity::SPECIAL_FLAG_UNUSE;
-                }
+                // 特別収支は画面から外した。カラムは残っているので既定値を入れる。
+                $valid_fields[$k]['special_flag'] = Activity::SPECIAL_FLAG_UNUSE;
 
                 $k++;
             }

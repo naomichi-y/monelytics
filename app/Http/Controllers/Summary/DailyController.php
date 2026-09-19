@@ -37,7 +37,6 @@ class DailyController extends \App\Http\Controllers\Controller {
             'keyword',
             'location',
             'credit_flag',
-            'special_flag',
             'cost_type',
             'sort_field',
             'sort_type'
@@ -78,22 +77,6 @@ class DailyController extends \App\Http\Controllers\Controller {
         } else if ($credit_flag === '0') {
             $data['credit_flag_off'] = true;
             $data['credit_flag_all'] = false;
-        }
-
-        //特別収支の規定値
-        $special_flag = Request::input('special_flag');
-
-        $data['special_flag_all'] = true;
-        $data['special_flag_on'] = false;
-        $data['special_flag_off'] = false;
-
-        if ($special_flag === '1') {
-            $data['special_flag_on'] = true;
-            $data['special_flag_all'] = false;
-
-        } else if ($special_flag === '0') {
-            $data['special_flag_off'] = true;
-            $data['special_flag_all'] = false;
         }
 
         // 科目リスト

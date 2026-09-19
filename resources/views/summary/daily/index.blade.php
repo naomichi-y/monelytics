@@ -25,7 +25,6 @@
                         activity_category_group_id: {!! Html::encodeJsJsonValue('activity_category_group_id', null, 'array') !!},
                         keyword: {!! Html::encodeJsJsonValue('keyword') !!},
                         credit_flag: {!! Html::encodeJsJsonValue('credit_flag') !!},
-                        special_flag: {!! Html::encodeJsJsonValue('special_flag') !!}
                     },
                     function(data) {
                         $(data).modal();
@@ -75,10 +74,11 @@
                 <col style="width: 11%" />
                 <col style="width: 19%" />
                 <col style="width: 19%" />
+                <col style="width: 8%" />
                 <col style="width: 4%" />
+                <col style="width: 14%" />
+                <col style="width: 14%" />
             </colgroup>
-            <colgroup span="2" style="width: 4%">
-            <colgroup span="2" style="width: 14%">
             <thead>
                 <tr>
                     <th class="text-center">
@@ -101,10 +101,6 @@
                         {!! Html::sortLabel('credit_flag', '') !!}
                     </th>
                     <th class="text-center">
-                        <span class="glyphicon glyphicon-star"></span>
-                        {!! Html::sortLabel('special_flag', '') !!}
-                    </th>
-                    <th class="text-center">
                         {!! Html::sortLabel('create_date', '登録日時') !!}
                     </th>
                     <th class="text-center">操作</th>
@@ -122,11 +118,6 @@
                     <td class="text-right">{{number_format($activity->amount)}}</td>
                     <td class="text-center">
                         @if ($activity->credit_flag)
-                            <span class="glyphicon glyphicon-ok"></span>
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        @if ($activity->special_flag)
                             <span class="glyphicon glyphicon-ok"></span>
                         @endif
                     </td>

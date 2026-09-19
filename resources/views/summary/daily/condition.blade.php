@@ -26,7 +26,6 @@
 
             $("#date_month").prop("selectedIndex", 0);
             $("#credit_flag_all").prop("checked", true);
-            $("#special_flag_all").prop("checked", true);
         });
 
         $("#begin_date").dateFormat();
@@ -107,23 +106,6 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">
-                                <span class="glyphicon glyphicon-star"></span>
-                            </label>
-                            <div class="col-md-6">
-                                <div class="radio-inline">
-                                    {!! Form::radio('special_flag', '', $special_flag_all, ['id' => 'special_flag_all']) !!}
-                                    {!! Form::label('special_flag_all', '全て') !!}
-                                </div>
-                                <div class="radio-inline">
-                                    {!! Form::radio('special_flag', '1', $special_flag_on, ['id' => 'special_flag_on']) !!}
-                                    {!! Form::label('special_flag_on', '含む') !!}
-                                </div>
-                                <div class="radio-inline">
-                                    {!! Form::radio('special_flag', '0', $special_flag_off, ['id' => 'special_flag_off']) !!}
-                                    {!! Form::label('special_flag_off', '含まない') !!}
-                                </div>
                             </div>
                         </div>
                     </div>
