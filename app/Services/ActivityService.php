@@ -143,11 +143,6 @@ class ActivityService
             $builder->where('credit_flag', '=', $condition->credit_flag);
         }
 
-        // 特別収支
-        if (strlen($condition->special_flag)) {
-            $builder->where('special_flag', '=', $condition->special_flag);
-        }
-
         // 並び順
         $builder->orderBy($condition->sort_field, $condition->sort_type);
         $builder->orderBy('create_date', 'desc');
@@ -451,7 +446,7 @@ class ActivityService
         $date_range = $condition->getDateRange();
 
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('ac.cost_type, ac.id AS activity_category_id, ac.category_name, acg.id, acg.group_name, a.credit_flag, a.special_flag, IFNULL(SUM(a.amount), 0) AS amount'))
+            ->select(DB::raw('ac.cost_type, ac.id AS activity_category_id, ac.category_name, acg.id, acg.group_name, a.credit_flag, IFNULL(SUM(a.amount), 0) AS amount'))
             ->rightJoin('activity_category_groups AS acg', function($join) use($date_range)
             {
                 // @see Activity::getConstantCosts()
@@ -474,7 +469,6 @@ class ActivityService
             ->groupBy('ac.cost_type')
             ->groupBy('acg.id')
             ->groupBy('a.credit_flag')
-            ->groupBy('a.special_flag')
             ->groupBy('ac.id')
             ->groupBy('ac.category_name')
             ->groupBy('ac.sort_order')
@@ -502,15 +496,11 @@ class ActivityService
         $income_summary = [
             'cash_amount' => 0,
             'credit_amount' => 0,
-            'special_use_amount' => 0,
-            'special_unuse_amount' => 0,
             'income_amount' => 0
         ];
         $expense_summary = [
             'cash_amount' => 0,
             'credit_amount' => 0,
-            'special_use_amount' => 0,
-            'special_unuse_amount' => 0,
             'expense_amount' => 0
         ];
         $cost_size = [
@@ -538,14 +528,6 @@ class ActivityService
                     $data['credit_amount'] = 0;
                 }
 
-                if (!isset($data['special_use_amount'])) {
-                    $data['special_use_amount'] = 0;
-                }
-
-                if (!isset($data['special_unuse_amount'])) {
-                    $data['special_unuse_amount'] = 0;
-                }
-
                 if (!isset($data['group_amount'])) {
                     $data['group_amount'] = 0;
                 }
@@ -559,13 +541,6 @@ class ActivityService
                 $data['credit_amount'] += $value->amount;
             }
 
-            // 特別収支の加算
-            if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
-                $data['special_use_amount'] += $value->amount;
-            } else {
-                $data['special_unuse_amount'] += $value->amount;
-            }
-
             // 科目ごとの合計加算
             $data['group_amount'] += $value->amount;
 
@@ -577,12 +552,6 @@ class ActivityService
                     $income_summary['credit_amount'] += $value->amount;
                 }
 
-                if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
-                    $income_summary['special_use_amount'] += $value->amount;
-                } else {
-                    $income_summary['special_unuse_amount'] += $value->amount;
-                }
-
                 $income_summary['income_amount'] += $value->amount;
 
             // 全科目の支出加算
@@ -591,12 +560,6 @@ class ActivityService
                     $expense_summary['cash_amount'] += $value->amount;
                 } else {
                     $expense_summary['credit_amount'] += $value->amount;
-                }
-
-                if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
-                    $expense_summary['special_use_amount'] += $value->amount;
-                } else {
-                    $expense_summary['special_unuse_amount'] += $value->amount;
                 }
 
                 $expense_summary['expense_amount'] += $value->amount;
@@ -704,8 +667,7 @@ class ActivityService
      * 月別集計の科目合計を、ひとつ前の同じ長さの期間と比べた増減率を返す。
      *
      * 対象は変動収支のみ。固定収支は毎月同額になりがちで、増減を出しても
-     * 読む意味がないため。範囲は表示先の「科目合計 (特別収支を含む)」に
-     * 合わせる。金額と比率で対象が違うと読み手が混乱するため。
+     * 読む意味がないため。
      *
      * 次の場合は比較しない (空配列を返す)。
      *  - 詳細検索で任意の日付が指定されている (前の期間を定義できない)
@@ -942,7 +904,7 @@ class ActivityService
         $date_group_format = ($condition->output_type == 1) ? '%Y/%m' : '%Y';
 
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group, ac.id AS activity_category_id, ac.category_name, ac.cost_type, ac.balance_type, acg.id as activity_category_group_id, a.special_flag, SUM(a.amount) AS group_amount'))
+            ->select(DB::raw('DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group, ac.id AS activity_category_id, ac.category_name, ac.cost_type, ac.balance_type, acg.id as activity_category_group_id, SUM(a.amount) AS group_amount'))
             ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', $user_id)
@@ -954,7 +916,6 @@ class ActivityService
             // acg.id と一致するため、以下の列は関数従属し group は分割されない。
             ->groupBy('date_group')
             ->groupBy('a.activity_category_group_id')
-            ->groupBy('a.special_flag')
             ->groupBy('acg.id')
             ->groupBy('acg.sort_order')
             ->groupBy('ac.id')

@@ -19,7 +19,6 @@
                 }
 
                 var creditFlag = $("#credit_flag").prop("checked") ? 1 : 0;
-                var specialFlag = $("#special_flag").prop("checked") ? 1 : 0;
 
                 $.put("/cost/variable/" + {{$id}},
                     {
@@ -28,8 +27,7 @@
                         amount: $("#amount", null, "int").val(),
                         location: $("#location").val(),
                         content: $("#content").val(),
-                        credit_flag: creditFlag,
-                        special_flag: specialFlag
+                        credit_flag: creditFlag
                     },
                     function(data) {
                         if (data["result"] == false) {
@@ -126,8 +124,6 @@
                             </label>
                             <div class="col-md-6">
                                 <div class="checkbox-inline">
-                                    {!! Form::checkbox('special_flag', App\Models\Activity::SPECIAL_FLAG_USE, $activity->special_flag, ['id' => 'special_flag']) !!}
-                                    {!! Form::label('special_flag', '特別収支') !!}
                                 </div>
                             </div>
                         </div>
