@@ -68,6 +68,8 @@ Route::group(['middleware' => 'auth'], function() {
         $route->group(['prefix' => 'yearly'], function($route) {
             $route->get('report', 'YearlyController@report');
             $route->get('condition', 'YearlyController@condition');
+            $route->get('line-chart', 'YearlyController@lineChart');
+            $route->get('line-chart-data', 'YearlyController@lineChartData');
         });
         $route->resource('yearly', 'YearlyController', ['only' => ['index']]);
     });

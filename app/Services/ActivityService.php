@@ -701,6 +701,112 @@ class ActivityService
     }
 
     /**
+     * 推移グラフ用に、科目ごとの金額を期間順に取得する。
+     *
+     * 横軸の刻みは集計表と揃える (詳細検索の出力形式に従い年単位か月単位)。
+     * 系列は科目。科目グループまで割ると系列が増えすぎて線が読めない。
+     *
+     * 支出は符号を反転して返し、使った額が多いほど線が上に来るようにする
+     * (集計表は負のまま表示するので、そこだけ向きが異なる)。abs ではなく
+     * 反転なのは、返金が上回って純額がプラスの科目を下向きに出すため。
+     *
+     * ある期間に記録のない科目は 0 ではなく null にする。0 を返すと
+     * 「その期間は使っていない」と「記録がない」が区別できないため。
+     *
+     * @param int $user_id
+     * @param Condition\YearlyTrendCondition $condition
+     * @return array ['labels' => [...], 'series' => [['name' => 科目, 'data' => [...]]]]
+     */
+    public function getYearlyTrend($user_id, Condition\YearlyTrendCondition $condition)
+    {
+        $empty = ['labels' => [], 'series' => []];
+
+        $begin_year = (int) $condition->begin_year;
+        $end_year = (int) $condition->end_year;
+
+        if (!$begin_year || !$end_year || $begin_year > $end_year) {
+            return $empty;
+        }
+
+        $date_group_format = ($condition->output_type == Condition\YearlySummaryCondition::OUTPUT_TYPE_YEARLY)
+            ? '%Y'
+            : '%Y/%m';
+
+        $builder = DB::table('activities AS a')
+            ->select(DB::raw(
+                'DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group,'
+                .' ac.id AS activity_category_id,'
+                .' ac.category_name,'
+                .' ac.sort_order,'
+                .' ac.balance_type,'
+                .' SUM(a.amount) AS amount'
+            ))
+            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
+            ->where('a.user_id', '=', $user_id)
+            ->whereBetween('a.activity_date', [
+                sprintf('%04d-01-01 00:00:00', $begin_year),
+                sprintf('%04d-12-31 23:59:59', $end_year),
+            ])
+            ->whereNull('a.delete_date')
+            ->whereNull('acg.delete_date')
+            ->whereNull('ac.delete_date');
+
+        if ($condition->balance_type) {
+            $builder->where('ac.balance_type', '=', $condition->balance_type);
+        }
+
+        // ONLY_FULL_GROUP_BY は列の別名を受け付けないため、実際の列名で指定する。
+        $rows = $builder->groupBy('date_group')
+            ->groupBy('ac.id')
+            ->groupBy('ac.category_name')
+            ->groupBy('ac.sort_order')
+            ->groupBy('ac.balance_type')
+            ->orderBy('date_group', 'asc')
+            ->orderBy('ac.sort_order', 'asc')
+            ->orderBy('ac.id', 'asc')
+            ->get();
+
+        if (!count($rows)) {
+            return $empty;
+        }
+
+        // 横軸は集計表と同じく、記録のあった期間だけを並べる。
+        $labels = [];
+        $categories = [];
+        $amounts = [];
+
+        foreach ($rows as $row) {
+            // 支出は負で記録されている。上向きに描くため向きを揃える。
+            $sign = ($row->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) ? -1 : 1;
+
+            $labels[$row->date_group] = true;
+            $categories[$row->activity_category_id] = $row->category_name;
+            $amounts[$row->activity_category_id][$row->date_group] = $sign * (int) $row->amount;
+        }
+
+        $labels = array_keys($labels);
+        sort($labels);
+
+        $series = [];
+
+        foreach ($categories as $activity_category_id => $category_name) {
+            $data = [];
+
+            foreach ($labels as $label) {
+                $data[] = $amounts[$activity_category_id][$label] ?? null;
+            }
+
+            $series[] = [
+                'name' => $category_name,
+                'data' => $data,
+            ];
+        }
+
+        return ['labels' => $labels, 'series' => $series];
+    }
+
+    /**
      * 収支が発生している年のリストを取得する。
      *
      * @param int $user_id
