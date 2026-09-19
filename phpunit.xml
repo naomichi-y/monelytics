@@ -28,6 +28,8 @@
         <env name="CACHE_STORE" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="MAIL_MAILER" value="array"/>
+        <!-- 問い合わせ送信テストは宛先が空だと RfcComplianceException になる。 -->
+        <env name="NOTICE_CONTACT" value="notice@example.com"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
     </php>
 </phpunit>
