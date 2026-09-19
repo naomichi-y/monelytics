@@ -20,7 +20,7 @@ Route::get('/', ['uses' => 'IndexController@getIndex', 'as' => 'home']);
 Route::group(['namespace' => 'User', 'prefix' => 'user'], function($route) {
     $route->get('login', 'SessionController@getLogin');
     // 総当たりを抑える。失敗も成功も同じ IP で数える。
-    $route->post('login', 'SessionController@postLogin')->middleware('throttle:20,10');
+    $route->post('login', 'SessionController@postLogin')->middleware('throttle:' . config('app.rate_limits.login'));
     $route->get('logout', 'SessionController@logout');
 
     $route->get('done', 'RegistrationController@done');
@@ -29,12 +29,12 @@ Route::group(['namespace' => 'User', 'prefix' => 'user'], function($route) {
 
     // 登録フォームに CAPTCHA がなく、同一 IP から際限なく作成できていた。
     $route->resource('', 'RegistrationController', ['only' => ['index', 'create', 'store']])
-        ->middlewareFor('store', 'throttle:10,60');
+        ->middlewareFor('store', 'throttle:' . config('app.rate_limits.registration'));
 });
 
 Route::group(['prefix' => 'contact'], function($route) {
     // 問い合わせも同様に無制限だった。
-    $route->post('send', 'ContactController@send')->middleware('throttle:10,60');
+    $route->post('send', 'ContactController@send')->middleware('throttle:' . config('app.rate_limits.contact'));
     $route->get('done', 'ContactController@done');
 });
 Route::resource('contact', 'ContactController', ['only' => ['index']]);

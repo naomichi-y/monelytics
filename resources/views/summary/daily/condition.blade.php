@@ -28,8 +28,8 @@
             $("#credit_flag_all").prop("checked", true);
         });
 
-        $("#begin_date").dateFormat();
-        $("#end_date").dateFormat();
+        $("#begin_date").dateFormat("#begin_date");
+        $("#end_date").dateFormat("#end_date");
     });
 </script>
 

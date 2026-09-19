@@ -14,7 +14,7 @@
             });
 
             $('table').responsiveTable();
-            $("[name^=activity_date]").dateFormat();
+            $("[name^=activity_date]").dateFormat("[name^=activity_date]");
             $("[name^=activity_date]").first().disableDatepickerFocus();
         });
     </script>

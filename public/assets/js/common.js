@@ -1,12 +1,11 @@
 function getQueryParams() {
   if (location.search.length > 1) {
-    var pair = new Object();
-    var param = location.search.substr(1).split("&");
+    // 自前で split すると符号化が戻らず、値に "=" を含む場合も切れる。
+    var pair = {};
 
-    for (var i = 0; i < param.length; i++) {
-      var val = param[i].split("=");
-      pair[val[0]] = val[1];
-    }
+    new URLSearchParams(location.search).forEach(function(value, key) {
+      pair[key] = value;
+    });
 
     return pair;
 
@@ -24,7 +23,7 @@ $(function() {
 
   $.each(["put", "delete"], function(i, method) {
     $[method] = function(url, data, callback, type) {
-      if ($.isFunction(data)) {
+      if (typeof data === "function") {
         type = type || callback;
         callback = data;
         data = undefined;
@@ -48,11 +47,14 @@ $(function() {
     defaultDate = "";
 
     if (params["date_month"]) {
-      var year = params["date_month"].substring(0, 4);
-      var month = params["date_month"].substring(5, 7);
+      var year = Number(params["date_month"].substring(0, 4));
+      var month = Number(params["date_month"].substring(5, 7));
       var current = new Date();
 
-      if (current.getYear() != year && current.getMonth() + 1 != month) {
+      // 以前は getYear() を使っていた。これは「年 - 1900」を返すため年の
+      // 比較が常に成立し、条件も && だったので、別の年の同じ月を開いたとき
+      // に初期表示がその月にならなかった。
+      if (current.getFullYear() !== year || current.getMonth() + 1 !== month) {
         defaultDate = new Date(year, month - 1, 1);
       }
     }
@@ -83,8 +85,11 @@ $(function() {
   /**
    * "mm/dd"形式で入力された日付フォーマットを"yyyy/mm/dd"形式に変換する。
    */
-  $.fn.dateFormat = function() {
-    $(document).on("change", $(this).selector, function() {
+  $.fn.dateFormat = function(selector) {
+    // jQuery 3 で jQuery オブジェクトの selector プロパティが削除されたため、
+    // 対象をセレクタ文字列で受け取る。動的に差し込まれる編集モーダル内の
+    // 入力も拾えるよう、委譲は残す。
+    $(document).on("change", selector, function() {
       var pattern = new RegExp("^([0-9]{1,2})/([0-9]{1,2})$");
       var matches = $(this).val().match(pattern);
 
@@ -104,11 +109,9 @@ $(function() {
    */
   $.fn.startTabs = function(cookie_name) {
     $(this).tabs({
-      active: $.cookie(cookie_name),
+      active: Cookies.get(cookie_name),
       activate: function(e, ui){
-        $.cookie(cookie_name, ui.newTab.index(),{
-          expires : 10
-        });
+        Cookies.set(cookie_name, ui.newTab.index(), { expires: 10 });
       }
     });
   }
@@ -120,7 +123,7 @@ $(function() {
    */
   $.fn.rememberSelect = function(cookie_name) {
     var $element = $(this);
-    var saved = $.cookie(cookie_name);
+    var saved = Cookies.get(cookie_name);
 
     // 値が空文字の選択肢もあるため、未保存かどうかは型で判定する。
     if (typeof saved === "string" && $element.find("option").filter(function() {
@@ -130,9 +133,7 @@ $(function() {
     }
 
     $element.change(function() {
-      $.cookie(cookie_name, $element.val(), {
-        expires : 10
-      });
+      Cookies.set(cookie_name, $element.val(), { expires: 10 });
     });
 
     return $element;
