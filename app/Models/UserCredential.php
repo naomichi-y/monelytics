@@ -3,6 +3,7 @@ namespace App\Models;
 
 class UserCredential extends BaseModel {
     const CREDENTIAL_TYPE_GENERAL = 1;
+    // Facebook ログインは廃止済み。既存レコードの値を説明するために残している。
     const CREDENTIAL_TYPE_FACEBOOK = 2;
 
     protected $guarded = ['id'];

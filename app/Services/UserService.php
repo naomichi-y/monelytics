@@ -1,15 +1,11 @@
 <?php
 namespace App\Services;
 
-use Exception;
-
 use Auth;
 use File;
 use Hash;
 use Lang;
-use Log;
 
-use App\Libraries;
 use App\Models;
 
 class UserService
@@ -68,42 +64,6 @@ class UserService
 
         } else {
             $errors = $this->user->getErrors();
-        }
-
-        return $result;
-    }
-
-    public function createOAuth($credential_type, $fields, array &$errors = [])
-    {
-        $result = false;
-
-        try {
-            $oauth = new Libraries\OAuthCredential($credential_type, $fields);
-            $oauth->build();
-
-            $fields = $oauth->getProfile();
-
-            if ($this->user->oauthValidate($fields)) {
-                $user = $this->user->create($fields);
-                $this->user_credential->create([
-                    'user_id' => $user->id,
-                    'credential_type' => $credential_type,
-                    'credential_id' => $fields['id'],
-                    'access_token' => $oauth->access_token,
-                ]);
-
-                Auth::loginUsingId($user->id);
-
-                $this->seed($user->id);
-                $result = true;
-
-            } else {
-                $errors = $this->user->getErrors();
-            }
-
-        } catch (Exception $e) {
-            $errors = [Lang::get('validation.custom.user.create_oauth.oauth_failed')];
-            Log::error($e);
         }
 
         return $result;
@@ -182,38 +142,6 @@ class UserService
         return $result;
     }
 
-    public function loginOAuth($credential_type, array $params, &$errors = [])
-    {
-        $result = false;
-
-        try {
-            $oauth = new Libraries\OAuthCredential($credential_type, $params);
-            $oauth->build();
-            $data = $oauth->getProfile();
-
-            $user = $this->user->where('email', '=', $data['email'])
-                ->whereHas('userCredential', function($builder) use ($credential_type) {
-                    $builder->where('credential_type', '=', $credential_type);
-                })->first();
-
-            if ($user) {
-                $user_credential = $user->userCredential()->first();
-                $user_credential->access_token = $oauth->access_token;
-                $user_credential->save();
-
-                Auth::loginUsingId($user->id);
-
-                return true;
-            }
-
-        } catch (Exception $e) {
-            // login failure
-        }
-
-        $errors[] = Lang::get('validation.custom.user.login.authentication');
-
-        return $result;
-    }
 
     /**
      * ユーザデータを更新する。

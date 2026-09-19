@@ -3,15 +3,11 @@ namespace App\Http\Controllers\User;
 
 use Auth;
 use Request;
-use URL;
 use Redirect;
 use Route;
 use View;
 
-use OAuth;
-
 use App\Services;
-use App\Models;
 
 class SessionController extends \App\Http\Controllers\Controller {
     private $user;
@@ -23,8 +19,6 @@ class SessionController extends \App\Http\Controllers\Controller {
             'only' => [
                 'getLogin',
                 'postLogin',
-                'loginOAuth',
-                'loginOAuthCallback',
             ]
         ]);
         $this->middleware('auth', ['only' => 'logout']);
@@ -54,33 +48,6 @@ class SessionController extends \App\Http\Controllers\Controller {
 
         if (!$user) {
             return Redirect::to('/user/login')
-                ->withErrors($errors)
-                ->withInput();
-        }
-
-        return Redirect::intended('dashboard');
-    }
-
-    /**
-     * OAuthでシステムにログインする。
-     */
-    public function loginOAuth()
-    {
-        return Redirect::to((string) OAuth::consumer('Facebook', URL::to('user/login-oauth-callback'))->getAuthorizationUri());
-    }
-
-    /**
-     * OAuthでシステムにログインする。(コールバックパス)
-     */
-    public function loginOAuthCallback()
-    {
-        $params = [
-            'code' => Request::input('code')
-        ];
-        $errors = [];
-
-        if (!$this->user->loginOAuth(Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
-            return Redirect::to('user/login')
                 ->withErrors($errors)
                 ->withInput();
         }

@@ -6,13 +6,9 @@ use Request;
 use Lang;
 use Redirect;
 use Route;
-use URL;
 use View;
 
-use OAuth;
-
 use App\Libraries\Condition;
-use App\Models;
 use App\Services;
 
 class RegistrationController extends \App\Http\Controllers\Controller {
@@ -24,8 +20,6 @@ class RegistrationController extends \App\Http\Controllers\Controller {
         $this->middleware('guest', [
             'only' => [
                 'create',
-                'createOAuth',
-                'createOAuthCallback',
                 'store'
             ]
         ]);
@@ -57,33 +51,6 @@ class RegistrationController extends \App\Http\Controllers\Controller {
     public function create()
     {
         return View::make('user/registration/create');
-    }
-
-    /**
-     * OAuthで会員登録を行う。
-     */
-    public function createOAuth()
-    {
-        return Redirect::to((string) OAuth::consumer('Facebook', URL::to('user/create-oauth-callback'))->getAuthorizationUri());
-    }
-
-    /**
-     * OAuthで会員登録を行う (コールバックパス)
-     */
-    public function createOAuthCallback()
-    {
-        $params = [
-            'code' => Request::input('code')
-        ];
-        $errors = [];
-
-        if (!$this->user->createOAuth(Models\UserCredential::CREDENTIAL_TYPE_FACEBOOK, $params, $errors)) {
-            return Redirect::to('user/create')
-                ->withErrors($errors)
-                ->withInput();
-        }
-
-        return Redirect::to('user/done');
     }
 
     /**

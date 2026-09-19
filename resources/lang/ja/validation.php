@@ -81,10 +81,6 @@ return [
             'login' => [
                 'authentication' => 'ログインに失敗しました。'
             ],
-            'create_oauth' => [
-                'registered' => '既に会員登録が完了しています。',
-                'oauth_failed' => '会員登録に失敗しました。'
-            ],
         ],
         'create_record_none' => '登録対象データがありません。',
         'create_success' => '登録が完了しました。',

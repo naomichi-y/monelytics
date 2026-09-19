@@ -62,19 +62,6 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         'password' => 'required|min:8'
     ];
 
-    public function oauthValidate(array $fields)
-    {
-        $this->rules = [
-            'nickname' => 'required|max:32',
-            'email' => 'required|not_exists:users,email'
-        ];
-        $this->messages = [
-            'email.not_exists' => Lang::get('validation.custom.user.create_oauth.registered')
-        ];
-
-        return $this->validate($fields);
-    }
-
     public function loginValidate(array $fields)
     {
         $this->rules = [
