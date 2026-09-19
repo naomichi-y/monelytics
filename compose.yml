@@ -18,6 +18,7 @@ services:
     restart: unless-stopped
 
   php:
+    # uid/gid はホストに合わせる必要がある。ビルド手順は README を参照。
     build: ./etc/docker/php
     container_name: monelytics_php
     depends_on:
@@ -45,7 +46,11 @@ services:
     # 元の redis.conf は 3.2 向けで slave-* 系の記述が残るため、既定設定で起動する。
     image: redis:7-alpine
     container_name: monelytics_redis
+    # SESSION_DRIVER=redis のため、コンテナ再作成でログアウトしないよう永続化する。
+    volumes:
+      - redisdata:/data
     restart: unless-stopped
 
 volumes:
   dbdata:
+  redisdata:

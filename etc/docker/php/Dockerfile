@@ -30,8 +30,12 @@ RUN docker-php-ext-install -j"$(nproc)" \
 # 2.2 は PHP 7.1 をサポートする最後の系列 (2.3 以降は 7.2.5 以上が必須)。
 COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
 
-# アプリのファイル所有者 (uid 1000) と揃え、storage への書き込みを可能にする。
-RUN useradd -m -s /bin/bash -u 1000 webapp
+# チェックアウトの所有者と uid/gid を揃える。ずれると composer install や
+# storage への書き込みが Permission denied になるため、ホスト側の値を渡すこと。
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g "$GID" webapp \
+  && useradd -m -s /bin/bash -u "$UID" -g "$GID" webapp
 
 COPY www.conf /usr/local/etc/php-fpm.d/zz-webapp.conf
 COPY php.ini /usr/local/etc/php/conf.d/zz-webapp.ini
