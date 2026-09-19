@@ -30,8 +30,9 @@ Application is consists of the following container.
 * monelytics_db
 * monelytics_redis
 
-composer, Artisan and PHPUnit run inside `monelytics_php`. Use `-u webapp` so that
-generated files keep the host user's ownership.
+composer, Artisan and PHPUnit run inside `monelytics_php`. The `webapp` user is built
+with the uid/gid passed to `docker compose build`, so pass your own to keep generated
+files owned by you; `-u webapp` then writes as that user.
 
 Setup the containers.
 
@@ -46,13 +47,27 @@ cp .env.example .env
 # please change configuration
 cat .env
 
-docker compose build
+docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
 docker compose up -d
 docker compose exec -u webapp php composer install
 docker compose exec -u webapp php php artisan migrate
 ```
 
 Open the [http://localhost/](http://localhost/) in your browser.
+
+### Upgrading from the MySQL setup
+
+The db service moved from MySQL 5.7 to MariaDB 10.6 and stores its data in the
+`dbdata` volume, so an existing deployment starts with an empty schema. Dump the old
+database before switching and restore it afterwards.
+
+```
+# on the old setup
+docker exec monelytics_db mysqldump -uroot -p --all-databases > dump.sql
+
+# after docker compose up -d
+docker compose exec -T db mariadb -uroot -p monelytics < dump.sql
+```
 
 ### Stop containers
 
