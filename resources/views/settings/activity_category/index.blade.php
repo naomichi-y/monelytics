@@ -5,8 +5,8 @@
 @stop
 
 @section('include_header')
-    {!! Html::style('assets/css/responsive_table.css') !!}
-    {!! Html::script('assets/js/responsive_table.js') !!}
+    {!! Html::versionedStyle('assets/css/responsive_table.css') !!}
+    {!! Html::versionedScript('assets/js/responsive_table.js') !!}
     <script>
         $(function() {
             $("table:eq(0)").responsiveTable();

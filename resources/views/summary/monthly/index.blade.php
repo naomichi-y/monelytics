@@ -6,7 +6,7 @@
 
 @section('include_header')
     {!! Html::script('assets/components/highcharts/4.1.1/js/highcharts.js') !!}
-    {!! Html::script('assets/js/pie-chart.js') !!}
+    {!! Html::versionedScript('assets/js/pie-chart.js') !!}
     <script>
         $(function() {
             $("#date_month").change(function() {
