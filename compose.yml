@@ -5,7 +5,7 @@
 
 services:
   web:
-    image: nginx:1.27-alpine
+    image: nginx:1.31-alpine
     container_name: monelytics_web
     depends_on:
       - php
@@ -30,7 +30,8 @@ services:
 
   db:
     # mysql:5.7 に arm64 版が存在しないため、互換性の高い MariaDB へ置き換えた。
-    image: mariadb:10.6
+    # 本番データを持つため、最新の 13 系ではなく LTS 系列を使う。
+    image: mariadb:12.3
     container_name: monelytics_db
     # Laravel の .env が直下にあり compose の既定変数ファイルと衝突するため、
     # DB の認証情報は専用ファイルに分離する。
@@ -44,7 +45,7 @@ services:
 
   redis:
     # 元の redis.conf は 3.2 向けで slave-* 系の記述が残るため、既定設定で起動する。
-    image: redis:7-alpine
+    image: redis:8-alpine
     container_name: monelytics_redis
     # SESSION_DRIVER=redis のため、コンテナ再作成でログアウトしないよう永続化する。
     volumes:
