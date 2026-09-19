@@ -114,6 +114,31 @@ $(function() {
   }
 
   /**
+   * セレクトの選択状態をクッキーへ保持する。
+   * タブと同じ持ち方 (startTabs と同一の保持期間) にして、リロードしても
+   * 直前の選択が残るようにする。
+   */
+  $.fn.rememberSelect = function(cookie_name) {
+    var $element = $(this);
+    var saved = $.cookie(cookie_name);
+
+    // 値が空文字の選択肢もあるため、未保存かどうかは型で判定する。
+    if (typeof saved === "string" && $element.find("option").filter(function() {
+      return this.value === saved;
+    }).length) {
+      $element.val(saved);
+    }
+
+    $element.change(function() {
+      $.cookie(cookie_name, $element.val(), {
+        expires : 10
+      });
+    });
+
+    return $element;
+  }
+
+  /**
    * 最初のフォーム要素が日付フィールドの場合、Datepickerが開かないよう制御する。
    */
   $.fn.disableDatepickerFocus = function() {

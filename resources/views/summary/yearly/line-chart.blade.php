@@ -11,6 +11,9 @@ $(function () {
         });
     }
 
+    // タブと同じくクッキーへ保持し、リロードしても選択が残るようにする。
+    $("#trend_balance_type").rememberSelect("yearly_summary-balance_type");
+
     $("#trend_balance_type").change(load);
     load();
 });
