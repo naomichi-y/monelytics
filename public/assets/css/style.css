@@ -96,6 +96,15 @@ td a {
   font-size: 0.8em;
 }
 
+/* 科目合計セルの前期間比。金額は右寄せのままなので、独立した行として
+   中央に置き、桁の並びを崩さないようにする。 */
+.comparison {
+  display: block;
+  text-align: center;
+  font-size: 0.9em;
+  color: #777;
+}
+
 .modal-dialog {
   top: 100px;
 }
