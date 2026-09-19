@@ -96,11 +96,12 @@ td a {
   font-size: 0.8em;
 }
 
-/* 科目合計セルの前期間比。金額は右寄せのままなので、独立した行として
-   中央に置き、桁の並びを崩さないようにする。 */
+/* 科目合計セルの前期間比。金額は右寄せのまま、比率を左端に並べる。
+   line-height は td の 1.42857143 を自身の font-size (0.9em) で割った値。
+   行の高さを金額側と揃え、小さい文字が上端に寄らないようにする。 */
 .comparison {
-  display: block;
-  text-align: center;
+  float: left;
+  line-height: 1.5873;
   font-size: 0.9em;
   color: #777;
 }
