@@ -19,6 +19,15 @@ $(function () {
     );
 
     function drawLineChart(labels, series) {
+      // 支出は正に揃えてあるので通常は 0 以上しかない。軸の空いた側を
+      // 描かないよう 0 起点にするが、返金が上回って負になる科目もあるため
+      // その場合だけ自動範囲に戻す。
+      var hasNegative = series.some(function(s) {
+        return s.data.some(function(value) {
+          return value !== null && value < 0;
+        });
+      });
+
       $element.highcharts({
         chart: {
           type: 'line',
@@ -35,6 +44,7 @@ $(function () {
           }
         },
         yAxis: {
+          min: hasNegative ? null : 0,
           title: {
             text: '金額'
           },
