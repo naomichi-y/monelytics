@@ -469,10 +469,17 @@ class ActivityService
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('ac.user_id', '=', $user_id)
             ->whereNull('acg.delete_date')
+            // ONLY_FULL_GROUP_BY 対策。acg.id は主キーで、以下の列はいずれも
+            // acg -> ac の経路で関数従属するため、追加しても group は分割されない。
             ->groupBy('ac.cost_type')
             ->groupBy('acg.id')
             ->groupBy('a.credit_flag')
             ->groupBy('a.special_flag')
+            ->groupBy('ac.id')
+            ->groupBy('ac.category_name')
+            ->groupBy('ac.sort_order')
+            ->groupBy('acg.group_name')
+            ->groupBy('acg.sort_order')
             ->orderBy('ac.cost_type', 'asc')
             ->orderBy('ac.sort_order', 'asc')
             ->orderBy('acg.sort_order', 'asc');
@@ -685,7 +692,9 @@ class ActivityService
                 }
             }
         } else {
-            return null;
+            // ビューは sizeof() で件数を見る。PHP 8 では null を渡せないため
+            // 空配列を返す (PHP 7 までは sizeof(null) が 0 と警告になっていた)。
+            return [];
         }
 
         return $result;
@@ -730,9 +739,17 @@ class ActivityService
             ->whereNull('a.delete_date')
             ->whereNull('acg.delete_date')
             ->whereNull('ac.delete_date')
+            // ONLY_FULL_GROUP_BY 対策。a.activity_category_group_id は内部結合で
+            // acg.id と一致するため、以下の列は関数従属し group は分割されない。
             ->groupBy('date_group')
             ->groupBy('a.activity_category_group_id')
             ->groupBy('a.special_flag')
+            ->groupBy('acg.id')
+            ->groupBy('acg.sort_order')
+            ->groupBy('ac.id')
+            ->groupBy('ac.category_name')
+            ->groupBy('ac.cost_type')
+            ->groupBy('ac.balance_type')
             ->orderBy('date_group', 'DESC')
             ->orderBy('ac.cost_type', 'ASC')
             ->orderBy('ac.balance_type', 'ASC')
@@ -962,7 +979,10 @@ class ActivityService
     public function getRankingByLocation($user_id, $condition)
     {
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('acg.group_name, a.location, COUNT(a.location) AS count, SUM(a.amount) AS amount'))
+            // 場所ごとの集計だが group_name は場所に関数従属しない (同じ場所を
+            // 複数カテゴリで使える)。従来はどれか 1 件が任意に選ばれていたので、
+            // MIN で明示的に 1 件へ畳む (MariaDB に ANY_VALUE はない)。
+            ->select(DB::raw('MIN(acg.group_name) AS group_name, a.location, COUNT(a.location) AS count, SUM(a.amount) AS amount'))
             ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
             ->where('a.user_id', '=', $user_id)
             ->where('a.location', '!=', '');

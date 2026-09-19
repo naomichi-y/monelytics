@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Summary;
+namespace Tests\Controllers\Summary;
 
 use Tests\TestCase;
 

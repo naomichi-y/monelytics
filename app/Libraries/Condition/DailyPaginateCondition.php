@@ -18,6 +18,10 @@ class DailyPaginateCondition extends BaseDateCondition {
             $fields['sort_field'] = 'activity_date';
         }
 
+        // 並び順は利用者入力から来る。Laravel 13 は asc/desc 以外を拒否するため、
+        // 旧来の「asc 以外は降順」という挙動を保ったまま値を確定させる。
+        $fields['sort_type'] = strtolower($fields['sort_type'] ?? '') === 'asc' ? 'asc' : 'desc';
+
         if (empty($fields['limit'])) {
             $fields['limit'] = \Agent::isMobile() ? 5 : 30;
         }

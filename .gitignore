@@ -1,6 +1,7 @@
 /vendor
 .DS_Store
 *.bak
+.phpunit.result.cache
 *.swp
 .env
 etc/docker/db/db.env
