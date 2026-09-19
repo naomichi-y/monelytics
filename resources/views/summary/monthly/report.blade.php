@@ -67,7 +67,13 @@
                                             @endif
                                         </td>
                                         <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_UNUSE], number_format($activity_category_group_summary['special_unuse_amount'])) !!}</td>
-                                        <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], number_format($activity_category_group_summary['group_amount'])) !!}</td>
+                                        <td class="text-right">
+                                            @if ($cost_type == App\Models\ActivityCategory::COST_TYPE_VARIABLE && isset($comparisons[$activity_category_group_id]))
+                                                @php ($rate = $comparisons[$activity_category_group_id])
+                                                <span class="comparison">{!! $rate > 0 ? '&uarr;' : ($rate < 0 ? '&darr;' : '&plusmn;') !!}{{abs($rate)}}%</span>
+                                            @endif
+                                            {!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], number_format($activity_category_group_summary['group_amount'])) !!}
+                                        </td>
                                     </tr>
                                     <?php $j++; ?>
                                 @endforeach

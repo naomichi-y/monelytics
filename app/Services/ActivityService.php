@@ -701,6 +701,111 @@ class ActivityService
     }
 
     /**
+     * 月別集計の科目合計を、ひとつ前の同じ長さの期間と比べた増減率を返す。
+     *
+     * 対象は変動収支のみ。固定収支は毎月同額になりがちで、増減を出しても
+     * 読む意味がないため。範囲は表示先の「科目合計 (特別収支を含む)」に
+     * 合わせる。金額と比率で対象が違うと読み手が混乱するため。
+     *
+     * 次の場合は比較しない (空配列を返す)。
+     *  - 詳細検索で任意の日付が指定されている (前の期間を定義できない)
+     *  - 未来の月が指定されている
+     *  - 前の期間の金額が 0 (比率を出せない)
+     *
+     * 当月を見ているときは今日までで区切り、前月も同じ日数で切る。月末まで
+     * 経っていない額を丸ごと前月と比べると必ず減ったように見えるため。
+     *
+     * @param int $user_id
+     * @param Condition\MonthlySummaryCondition $condition
+     * @return array [科目グループ ID => 増減率 (整数、正なら増加)]
+     */
+    public function getMonthlyComparison($user_id, Condition\MonthlySummaryCondition $condition)
+    {
+        if (strlen((string) $condition->begin_date) || strlen((string) $condition->end_date)) {
+            return [];
+        }
+
+        $date_month = $condition->date_month ?: date('Y-m');
+
+        if (!preg_match('/\A\d{4}-\d{2}\z/', $date_month)) {
+            return [];
+        }
+
+        $current_month = date('Y-m');
+
+        if ($date_month > $current_month) {
+            return [];
+        }
+
+        $begin_date = $date_month . '-01';
+        $previous_begin_date = date('Y-m-01', strtotime($begin_date . ' -1 month'));
+
+        if ($date_month === $current_month) {
+            $end_date = date('Y-m-d');
+
+            // 前月に同じ日がない場合 (3/31 に対する 2 月) は前月の末日まで。
+            $day = min((int) date('j'), (int) date('t', strtotime($previous_begin_date)));
+            $previous_end_date = date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', $day);
+
+        } else {
+            $end_date = date('Y-m-t', strtotime($begin_date));
+            $previous_end_date = date('Y-m-t', strtotime($previous_begin_date));
+        }
+
+        $current = $this->sumVariableCostByGroup($user_id, $begin_date, $end_date);
+        $previous = $this->sumVariableCostByGroup($user_id, $previous_begin_date, $previous_end_date);
+
+        $result = [];
+
+        foreach ($current as $activity_category_group_id => $amount) {
+            if (empty($previous[$activity_category_group_id])) {
+                continue;
+            }
+
+            $base = $previous[$activity_category_group_id];
+            $result[$activity_category_group_id] = (int) round((($amount - $base) / abs($base)) * 100);
+        }
+
+        return $result;
+    }
+
+    /**
+     * 変動収支の金額を、科目グループごとに合計する。
+     *
+     * 支出は負で記録されているため符号を反転し、増えたら正になるよう揃える。
+     *
+     * @param int $user_id
+     * @param string $begin_date
+     * @param string $end_date
+     * @return array [科目グループ ID => 金額]
+     */
+    private function sumVariableCostByGroup($user_id, $begin_date, $end_date)
+    {
+        $rows = DB::table('activities AS a')
+            ->select(DB::raw('a.activity_category_group_id, ac.balance_type, SUM(a.amount) AS amount'))
+            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
+            ->where('a.user_id', '=', $user_id)
+            ->where('ac.cost_type', '=', Models\ActivityCategory::COST_TYPE_VARIABLE)
+            ->whereBetween('a.activity_date', [$begin_date . ' 00:00:00', $end_date . ' 23:59:59'])
+            ->whereNull('a.delete_date')
+            ->whereNull('acg.delete_date')
+            ->whereNull('ac.delete_date')
+            ->groupBy('a.activity_category_group_id')
+            ->groupBy('ac.balance_type')
+            ->get();
+
+        $result = [];
+
+        foreach ($rows as $row) {
+            $sign = ($row->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) ? -1 : 1;
+            $result[$row->activity_category_group_id] = $sign * (int) $row->amount;
+        }
+
+        return $result;
+    }
+
+    /**
      * 推移グラフ用に、科目ごとの金額を期間順に取得する。
      *
      * 横軸の刻みは集計表と揃える (詳細検索の出力形式に従い年単位か月単位)。
