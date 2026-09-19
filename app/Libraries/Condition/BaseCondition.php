@@ -37,10 +37,17 @@ class BaseCondition {
     }
 
     /**
-     * @return array
+     * 画面間の引き継ぎ用にクエリ文字列を組み立てる。
+     *
+     * 区切りは URL そのものの文字である '&' にする。戻り値はリンクの URL と
+     * して使われ、HTML への逃がしは Html::link 側が行うため、ここで '&amp;'
+     * を入れると二重になり、2 つ目以降のパラメータ名が amp;xxx になって
+     * 読み捨てられる。
+     *
+     * @return string
      */
     public function buildQueryString()
     {
-        return http_build_query($this->toArray(), '', '&amp;');
+        return http_build_query($this->toArray(), '', '&');
     }
 }
