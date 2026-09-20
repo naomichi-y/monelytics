@@ -72,14 +72,19 @@ header, footer {
 }
 
 /*
- * 行の区切り線は引かない。縞と余白だけで十分読み取れる。枠を意味として
- * 持たせている集計表 (.table-bordered) は対象外。
+ * 行の区切り。BS3 はセルの上辺に引いていたため、行の間には線が入り、最後の
+ * 行の下には何も残らなかった。BS5 は下辺に引くので、表の一番下にも線が出る。
+ * 上辺に引き直して以前の見え方に戻す。
  *
- * 消すのはセルの下辺だけ。--bs-border-width は入力欄やボタンも参照するため、
+ * 触るのはセルの枠だけ。--bs-border-width は入力欄やボタンも参照するため、
  * 表にまとめて 0 を置くと中の入力欄から枠が消える。
  */
 .table:not(.table-bordered) > :not(caption) > * > * {
   border-bottom-width: 0;
+}
+
+.table:not(.table-bordered) > tbody > tr > * {
+  border-top: var(--bs-border-width) solid var(--bs-table-border-color);
 }
 
 /*
