@@ -85,8 +85,9 @@ header, footer {
  * 12px 16px) で、BS5 版は素の Bootstrap と同じ 34px に戻っている。行の高さが
  * 目に見えて変わるため、以前の寸法に合わせる。
  */
-.form-control,
-.form-select {
+/* -sm を付けた小さい部品は Bootstrap の寸法をそのまま使う。 */
+.form-control:not(.form-control-sm),
+.form-select:not(.form-select-sm) {
   padding: 12px 16px;
 }
 
@@ -222,14 +223,18 @@ hr {
   color: #222;
 }
 
+/* タブ自身の下辺は描かない。帯の下辺と重なって二重線に見えるため。 */
 .ui-tabs .ui-tabs-nav .ui-state-default {
   border: 1px solid #dfd7ca;
+  border-bottom-color: transparent;
   background: #ffffff;
   color: #555;
 }
 
-/* タブの下辺を本文の枠に重ねて、境目に線が残らないようにする。 */
-.ui-tabs .ui-tabs-nav li {
+/* 線は本文の枠の上辺 1 本だけ。タブ側にも下辺を引くと二重に見える
+   (下の .ui-state-default で消している)。選択中のタブだけ 1px 下げて
+   その線に重ね、つながって見えるようにする。 */
+.ui-tabs .ui-tabs-nav .ui-state-active {
   margin-bottom: -1px;
 }
 
