@@ -75,9 +75,7 @@
 @stop
 
 @section('function')
-    <div class="card card-body align-items-end">
-        <a class="btn btn-info btn-sm" id="open_create">科目カテゴリの登録</a>
-    </div>
+    <a class="btn btn-info btn-sm" id="open_create">科目カテゴリの登録</a>
 @stop
 
 @section('content')

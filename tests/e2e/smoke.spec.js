@@ -51,6 +51,59 @@ test('全画面でコンソールエラーと読み込み失敗が出ない', as
 });
 
 /**
+ * 以前は head_tags が固定文字列を出しており、どの画面も同じ表題だった。
+ * 履歴やタブの一覧から画面を見分けられない。
+ */
+test('画面ごとに表題が付く', async ({ page }) => {
+  await login(page);
+
+  const titles = new Set();
+
+  for (const path of paths) {
+    await page.goto(path);
+
+    const title = await page.title();
+
+    expect(title, path).toMatch(/^.+ - monelytics$/);
+    titles.add(title);
+  }
+
+  // 全画面が同じ表題になっていないこと。
+  expect(titles.size).toBe(paths.length);
+});
+
+/**
+ * BS3 は float: right で並べており、先に書いた要素が右端に来ていた。BS5 の
+ * flex では書いた順に左から並ぶため、入れ替えないと検索とアカウントが逆になる。
+ */
+test('ナビは検索の右にアカウントが来る', async ({ page }) => {
+  await login(page);
+
+  const search = await page.locator('.navbar-search').boundingBox();
+  const account = await page
+    .getByRole('button', { name: 'アカウント' })
+    .boundingBox();
+
+  expect(search.x + search.width).toBeLessThanOrEqual(account.x);
+});
+
+/**
+ * 操作列のボタンは 1 行に収まること。余白を広げすぎると折り返し、行の高さが
+ * 倍になって一覧が読みづらくなる。
+ */
+test('一覧の操作ボタンが折り返さない', async ({ page }) => {
+  await login(page);
+  await page.goto('/settings/activityCategory');
+
+  const buttons = page.locator('tbody tr').first().locator('.btn');
+  await expect(buttons).toHaveCount(3);
+
+  const tops = await buttons.evaluateAll((list) => list.map((b) => Math.round(b.getBoundingClientRect().top)));
+
+  expect(new Set(tops).size).toBe(1);
+});
+
+/**
  * Bootstrap 5 では .card が縦方向の flex コンテナになり、.row は col-* を
  * 持たない子にも width: 100% を当てる。置き換え前の .well と float 方式の
  * .row ではどちらも起きなかったため、直下に置いたボタンが横いっぱいに

@@ -42,8 +42,6 @@ header, footer {
  */
 .card {
   --bs-card-bg: #f8f5f0;
-  --bs-card-spacer-y: 1.25rem;
-  --bs-card-spacer-x: 1.25rem;
 }
 
 /*
@@ -92,15 +90,11 @@ header, footer {
   padding: 12px 16px;
 }
 
+/* 高さは入力欄に揃える。横は詰める。16px だと設定画面の操作列に
+   ボタンが 3 つ並ばず、折り返して行が二段になる。 */
 .btn {
   --bs-btn-padding-y: 12px;
-  --bs-btn-padding-x: 16px;
-}
-
-/* 小さいボタンは 3 系でも小さいままで、上下の余白だけ足されていた。 */
-.btn-sm {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  --bs-btn-padding-x: 12px;
 }
 
 /*
@@ -144,21 +138,45 @@ h1 {
   font-size: 2em;
 }
 
+/*
+ * BS5 は見出しの上余白を 0 にする。3 系は 20px あり、詰めると節の
+ * 見出しが直前の表にくっついて、どこで切れているのか読めなくなる。
+ */
 h2 {
   font-size: 1.6em;
+  margin-top: 20px;
 }
 
 h3 {
   font-size: 1.2em;
+  margin-top: 20px;
 }
 
 hr {
   border-bottom: 1px solid #dcdcdc;
 }
 
-/* BS5 のナビは .nav-link が直接並ぶ。 */
+/* BS5 のナビは .nav-link が直接並ぶ。expand 時は左右の余白が 0.5rem まで
+   詰められるため、旧版 (15px) に戻して項目間を空ける。 */
 .navbar .nav-link {
-  font-size: 12px;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.navbar-expand-lg .navbar-nav .nav-link {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* 旧版は文字と ▾ が別要素で間隔があった。BS5 の擬似要素は詰まって見える。 */
+.navbar .dropdown-toggle::after {
+  margin-left: 0.5em;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-link.show {
+  color: #dfd7ca;
 }
 
 .table-highlight th {
@@ -167,7 +185,51 @@ hr {
 }
 
 .ui-tabs {
-  font-size: 0.8em;
+  font-size: 0.9em;
+}
+
+/*
+ * タブ。jquery-ui-dist に付く base テーマは、見出しの帯に灰色を敷き、
+ * 選択中のタブを青で塗り、widget 全体を枠で囲む。以前使っていた配布物は
+ * どれも持たず、本文だけが枠で囲まれていた。その見え方に戻す。
+ */
+/* base テーマは .ui-widget.ui-widget-content で枠を描く。詳細度を合わせないと
+   消えず、タブの上に線が残る。 */
+.ui-tabs.ui-widget-content {
+  border: 0;
+  background: none;
+  padding: 0.2em;
+}
+
+.ui-tabs .ui-tabs-nav {
+  border: 0;
+  background: none;
+  color: #222;
+}
+
+.ui-tabs .ui-tabs-nav .ui-state-default {
+  border: 1px solid #dfd7ca;
+  background: #ffffff;
+  color: #555;
+}
+
+.ui-tabs .ui-tabs-nav .ui-state-active {
+  border: 1px solid #dfd7ca;
+  border-bottom-color: #dfd7ca;
+  background: #dfd7ca;
+}
+
+/* base テーマは選択中のタブの文字を白にする。ベージュの上では読めない。 */
+.ui-tabs .ui-tabs-nav .ui-state-active a,
+.ui-tabs .ui-tabs-nav .ui-state-active a:link,
+.ui-tabs .ui-tabs-nav .ui-state-active a:visited,
+.ui-tabs .ui-tabs-nav .ui-state-active a:hover {
+  color: #000000;
+}
+
+.ui-tabs .ui-tabs-panel {
+  border: 1px solid #dfd7ca;
+  background: none;
 }
 
 .ui-tabs p {
@@ -211,9 +273,10 @@ td a {
   position: relative;
 }
 
-/* 入力文字がボタンの下へ潜らないよう右側を空ける。 */
+/* 入力文字がボタンの下へ潜らないよう右側を空ける。帯の中なので、
+   本文の入力欄より一回り小さくする。 */
 .navbar-search .form-control {
-  padding-right: 34px;
+  padding: 6px 34px 6px 12px;
 }
 
 .navbar-search-button {

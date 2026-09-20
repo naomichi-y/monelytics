@@ -67,6 +67,8 @@ test.describe('集計', () => {
     await page.setViewportSize({ width: 1100, height: 800 });
     await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
 
+    await expect(page.locator('#tab-container')).toBeVisible();
+
     const widths = () => page.evaluate(() => {
       const tables = document.querySelectorAll('#tab-container table');
 
@@ -89,6 +91,29 @@ test.describe('集計', () => {
 
       return container - table;
     }).toBeLessThan(10);
+  });
+
+  /**
+   * 縦スクロールバーが出ると、その幅ぶん表がはみ出して横スクロールバーまで
+   * 現れる。中身は収まっているので月別では止める。年別は列が多くて本当に
+   * 入りきらないため、動かせるままにする。
+   */
+  test('横スクロールは入りきらない表にだけ出る', async ({ page }) => {
+    const scrollers = () => page.evaluate(() => Array.from(document.querySelectorAll('#tab-container div'))
+      .filter((node) => /auto/.test(node.style.overflow) || /auto/.test(node.style.overflowY))
+      .map((node) => ({
+        overflowX: getComputedStyle(node).overflowX,
+        overflow: node.scrollWidth - node.clientWidth,
+      })));
+
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
+    await expect.poll(async () => (await scrollers())[0]?.overflowX).toBe('hidden');
+
+    // 列が入りきらない状態は、画面を狭めて作る。シードの科目数では
+    // 年別集計でも通常の幅に収まってしまう。
+    await page.setViewportSize({ width: 520, height: 800 });
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
+    await expect.poll(async () => (await scrollers())[0]?.overflowX).toBe('auto');
   });
 
   test('前月比の欄に増減が出る', async ({ page }) => {

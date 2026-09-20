@@ -63,17 +63,15 @@
 @stop
 
 @section('function')
-    <div class="card card-body">
-        <div class="row">
-            <div class="row g-2 align-items-center form-group-adjust">
-                <div class="col-md-8">
-                    {!! Form::open(['url' => 'settings/activityCategoryGroup', 'method' => 'get', 'id' => 'search-form']) !!}
-                        {!! Form::select('activity_category_id', $activity_category_list, Request::input('activity_category_id'), ['class' => 'form-select', 'id' => 'search_activity_category_id']) !!}
-                 {!! Form::close() !!}
-                </div>
-                <div class="col-md-4">
-                    <a class="btn btn-info btn-sm" id="open_create">科目の登録</a>
-                </div>
+    <div class="row">
+        <div class="row g-2 align-items-center form-group-adjust">
+            <div class="col-md-8">
+                {!! Form::open(['url' => 'settings/activityCategoryGroup', 'method' => 'get', 'id' => 'search-form']) !!}
+                    {!! Form::select('activity_category_id', $activity_category_list, Request::input('activity_category_id'), ['class' => 'form-select', 'id' => 'search_activity_category_id']) !!}
+             {!! Form::close() !!}
+            </div>
+            <div class="col-md-4">
+                <a class="btn btn-info btn-sm" id="open_create">科目の登録</a>
             </div>
         </div>
     </div>
