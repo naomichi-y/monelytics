@@ -117,12 +117,11 @@ header, footer {
   --bs-btn-disabled-border-color: transparent;
 }
 
-/* BS5 に .page-header はない。BS3 が付けていた下線と余白を自前で持つ。 */
+/* BS5 に .page-header はない。余白だけ自前で持つ (下線は引かない)。 */
 .page-header {
   margin-top: 20px;
   margin-bottom: 20px;
   padding-bottom: 9px;
-  border-bottom: 1px solid #dfd7ca;
 }
 
 /* BS5 の navbar は flex。float は不要で、付けると縦位置がずれる。 */
@@ -168,6 +167,22 @@ hr {
   padding-right: 15px;
 }
 
+/*
+ * 見出し横の操作欄 (月の選択と詳細検索)。本文用の寸法をそのまま使うと
+ * 見出しの高さに対して大きいため、一回り小さくする。
+ */
+.page-header .form-control,
+.page-header .form-select {
+  padding: 6px 12px;
+  font-size: 0.9em;
+}
+
+.page-header .btn {
+  --bs-btn-padding-y: 6px;
+  --bs-btn-padding-x: 12px;
+  --bs-btn-font-size: 0.9em;
+}
+
 /* 旧版は文字と ▾ が別要素で間隔があった。BS5 の擬似要素は詰まって見える。 */
 .navbar .dropdown-toggle::after {
   margin-left: 0.5em;
@@ -211,6 +226,11 @@ hr {
   border: 1px solid #dfd7ca;
   background: #ffffff;
   color: #555;
+}
+
+/* タブの下辺を本文の枠に重ねて、境目に線が残らないようにする。 */
+.ui-tabs .ui-tabs-nav li {
+  margin-bottom: -1px;
 }
 
 .ui-tabs .ui-tabs-nav .ui-state-active {
