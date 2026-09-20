@@ -1,16 +1,10 @@
 <script>
     $(function() {
-        var minHeight = 400;
-        var tabHeight = window.innerHeight - minHeight;
-
-        if (tabHeight < minHeight) {
-            tabHeight = minHeight;
-        }
-
-        // テーブルのヘッダのスクロールを固定
-        $('#table-selector').tablefix({
-            width: $('#tab-container').width() - 4,
-            height: tabHeight,
+        // テーブルのヘッダのスクロールを固定する。幅の追従も含めて
+        // fixTableHeader が面倒を見る (@see assets/js/common.js)。
+        $('#tab-container').fixTableHeader({
+            table: '#table-selector',
+            widthAdjust: 4,
             fixRows: 1
         });
     });

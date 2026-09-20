@@ -58,6 +58,39 @@ test.describe('集計', () => {
     await expect(rows.first()).toContainText('食料品');
   });
 
+  /**
+   * jquery.tablefix は呼ばれた時点の幅をピクセルで書き込む。以前は
+   * それきりで、読み込み後にウィンドウを広げると表だけが元の幅のまま
+   * 残り、右側が大きく空いていた。
+   */
+  test('ウィンドウ幅を変えても集計表が枠いっぱいに保たれる', async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
+
+    const widths = () => page.evaluate(() => {
+      const tables = document.querySelectorAll('#tab-container table');
+
+      return {
+        container: Math.round(document.querySelector('#tab-container').getBoundingClientRect().width),
+        table: Math.round(tables[tables.length - 1].getBoundingClientRect().width),
+      };
+    });
+
+    await expect.poll(async () => {
+      const { container, table } = await widths();
+
+      return container - table;
+    }).toBeLessThan(10);
+
+    await page.setViewportSize({ width: 1400, height: 800 });
+
+    await expect.poll(async () => {
+      const { container, table } = await widths();
+
+      return container - table;
+    }).toBeLessThan(10);
+  });
+
   test('前月比の欄に増減が出る', async ({ page }) => {
     await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
 

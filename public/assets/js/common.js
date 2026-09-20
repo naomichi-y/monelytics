@@ -137,6 +137,47 @@ $(function() {
   }
 
   /**
+   * ヘッダを固定した表を組み立て、ウィンドウ幅が変わったら組み直す。
+   *
+   * jquery.tablefix は呼ばれた時点の幅をピクセルで書き込み、その後は
+   * 追従しない。読み込んだあとにウィンドウの幅を変えると、表だけが元の幅の
+   * まま残り、右側が空く。組み直せるよう、加工前の HTML を控えておく。
+   *
+   * @param {Object} options table (対象のセレクタ)、widthAdjust、fixRows、fixCols
+   */
+  $.fn.fixTableHeader = function(options) {
+    var $container = $(this);
+    var original = $container.html();
+
+    var build = function() {
+      // tablefix は表を複製して重ねる。二重に掛けないよう毎回もとに戻す。
+      $container.html(original);
+
+      var minHeight = 400;
+      var height = window.innerHeight - minHeight;
+
+      $container.find(options.table).tablefix({
+        width: $container.width() - (options.widthAdjust || 0),
+        height: (height < minHeight) ? minHeight : height,
+        fixRows: options.fixRows,
+        fixCols: options.fixCols
+      });
+    };
+
+    build();
+
+    // タブを切り替えるたびに読み込まれるため、前回の分を外してから繋ぐ。
+    var timer = null;
+
+    $(window).off("resize.fixTableHeader").on("resize.fixTableHeader", function() {
+      clearTimeout(timer);
+      timer = setTimeout(build, 200);
+    });
+
+    return $container;
+  };
+
+  /**
    * タブを表示する。
    */
   $.fn.startTabs = function(cookie_name) {
