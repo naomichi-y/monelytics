@@ -65,7 +65,7 @@
                         @foreach ($summary['headers'] as $cost_type => $activity_categories)
                             @foreach ($activity_categories as $activity_categories)
                                 @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_id => $activity_category_groups)
-                                    <td class="text-right">
+                                    <td class="text-end">
                                     @if (isset($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id]))
                                         @if (Request::input('output_type') == App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY)
                                           {!! Html::linkWithQueryString('/summary/daily', ['date_month' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id], number_format($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id])) !!}
@@ -79,9 +79,9 @@
                                 @endforeach
                             @endforeach
                         @endforeach
-                        <td class="text-right">{{number_format($data['total_expense_amount'])}}</td>
-                        <td class="text-right">{{number_format($data['total_income_amount'])}}</td>
-                        <td class="text-right">{{number_format($data['total_amount'])}}</td>
+                        <td class="text-end">{{number_format($data['total_expense_amount'])}}</td>
+                        <td class="text-end">{{number_format($data['total_income_amount'])}}</td>
+                        <td class="text-end">{{number_format($data['total_amount'])}}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -91,7 +91,7 @@
                     @foreach ($summary['headers'] as $cost_type => $activity_categories)
                         @foreach ($activity_categories as $activity_categories)
                             @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_id => $activity_category_group_name)
-                                <td class="text-right">
+                                <td class="text-end">
                                     @if (isset($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id]))
                                         {{number_format($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id])}}
                                     @else
@@ -101,9 +101,9 @@
                             @endforeach
                         @endforeach
                     @endforeach
-                    <td class="text-right">{{number_format($summary['footers']['yearly_total_expense_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['footers']['yearly_total_income_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['footers']['yearly_total_result_amount'])}}</td>
+                    <td class="text-end">{{number_format($summary['footers']['yearly_total_expense_amount'])}}</td>
+                    <td class="text-end">{{number_format($summary['footers']['yearly_total_income_amount'])}}</td>
+                    <td class="text-end">{{number_format($summary['footers']['yearly_total_result_amount'])}}</td>
                 </tr>
             </tfoot>
         </table>

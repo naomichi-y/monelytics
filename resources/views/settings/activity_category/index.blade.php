@@ -17,7 +17,7 @@
                 $.get("/settings/activityCategory/create",
                     {},
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -60,7 +60,7 @@
                 $.get("/settings/activityCategory/" + id + "/edit",
                     {},
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -75,7 +75,7 @@
 @stop
 
 @section('function')
-    <div class="well">
+    <div class="card card-body">
         <a class="btn btn-info btn-sm" id="open_create">科目カテゴリの登録</a>
     </div>
 @stop

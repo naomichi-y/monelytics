@@ -6,8 +6,9 @@ test.describe('認証', () => {
   test('正しい資格情報でログインでき、ダッシュボードに入れる', async ({ page }) => {
     await login(page);
 
-    // ログアウトはアカウントのドロップダウンの中にある。
-    await page.getByRole('link', { name: 'アカウント' }).click();
+    // ログアウトはアカウントのドロップダウンの中にある。BS5 の開閉トグルは
+    // <a> のままだが role="button" を持つため、リンクとしては引けない。
+    await page.getByRole('button', { name: 'アカウント' }).click();
     await expect(page.getByRole('link', { name: 'ログアウト' })).toBeVisible();
   });
 
@@ -31,7 +32,7 @@ test.describe('認証', () => {
   test('ログアウトすると保護された画面に入れなくなる', async ({ page }) => {
     await login(page);
 
-    await page.getByRole('link', { name: 'アカウント' }).click();
+    await page.getByRole('button', { name: 'アカウント' }).click();
     await page.getByRole('link', { name: 'ログアウト' }).click();
 
     await page.goto('/summary/daily');

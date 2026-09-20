@@ -62,7 +62,7 @@
                                             {{$params[$i]['short_date']}}
                                         @endif
                                     </div>
-                                    <div class="amounts text-right">
+                                    <div class="amounts text-end">
                                         {{-- 区切りは URL そのものの文字である '&' にする。HTML への逃がしは
                                              link_to が行うため、ここで '&amp;' を入れると二重になり、
                                              2 つ目以降のパラメータ名が amp;xxx になって読み捨てられる。 --}}
@@ -81,7 +81,7 @@
                 @endforeach
             </tbody>
         </table>
-        <p class="text-right">※括弧内は固定収支</p>
+        <p class="text-end">※括弧内は固定収支</p>
     </div>
 @elseif (is_null($calendar))
     <p>カレンダーを表示するには月指定の検索条件を行って下さい。</p>

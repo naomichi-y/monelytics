@@ -38,16 +38,42 @@ function version(name) {
 const targets = [
   { dir: 'jquery', version: version('jquery'), from: 'jquery/dist/jquery.min.js', to: 'jquery.min.js' },
   { dir: 'js-cookie', version: version('js-cookie'), from: 'js-cookie/dist/js.cookie.min.js', to: 'js.cookie.min.js' },
-  { dir: 'bootstrap', version: version('bootstrap'), from: 'bootstrap/dist/js/bootstrap.min.js', to: 'js/bootstrap.min.js' },
+  // bundle 版には Popper が同梱されている。ドロップダウンに要る。
+  { dir: 'bootstrap', version: version('bootstrap'), from: 'bootstrap/dist/js/bootstrap.bundle.min.js', to: 'js/bootstrap.bundle.min.js' },
   // 見た目は Bootswatch の sandstone テーマ。素の bootstrap.min.css ではない。
-  { dir: 'bootstrap', version: version('bootswatch'), from: 'bootswatch/sandstone/bootstrap.min.css', to: 'sandstone/bootstrap.min.css' },
-  // sandstone の CSS が ../fonts/ を参照する。glyphicon を出すのに要る。
-  { dir: 'bootstrap', version: version('bootstrap'), from: 'bootstrap/dist/fonts', to: 'fonts' },
+  { dir: 'bootstrap', version: version('bootswatch'), from: 'bootswatch/dist/sandstone/bootstrap.min.css', to: 'sandstone/bootstrap.min.css' },
+  // Bootstrap 4 で glyphicon が外れたため、アイコンは別パッケージから入れる。
+  { dir: 'bootstrap-icons', version: version('bootstrap-icons'), from: 'bootstrap-icons/font/bootstrap-icons.min.css', to: 'bootstrap-icons.min.css' },
+  { dir: 'bootstrap-icons', version: version('bootstrap-icons'), from: 'bootstrap-icons/font/fonts', to: 'fonts' },
   { dir: 'jquery-ui', version: version('jquery-ui-dist'), from: 'jquery-ui-dist/jquery-ui.min.js', to: 'jquery-ui.min.js' },
   { dir: 'jquery-ui', version: version('jquery-ui-dist'), from: 'jquery-ui-dist/jquery-ui.min.css', to: 'jquery-ui.min.css' },
   { dir: 'jquery-ui', version: version('jquery-ui-dist'), from: 'jquery-ui-dist/images', to: 'images' },
   { dir: 'highcharts', version: version('highcharts'), from: 'highcharts/highcharts.js', to: 'js/highcharts.js' },
 ];
+
+// 使っていない版のディレクトリを先に落とす。残すと、どれが配信されている
+// のか読めなくなるうえ、古い版が web から取れたままになる。
+const keep = {};
+
+for (const target of targets) {
+  keep[target.dir] = keep[target.dir] || new Set();
+  keep[target.dir].add(target.version);
+}
+
+for (const [dir, versions] of Object.entries(keep)) {
+  const base = path.join(dest, dir);
+
+  if (!fs.existsSync(base)) {
+    continue;
+  }
+
+  for (const entry of fs.readdirSync(base)) {
+    if (!versions.has(entry)) {
+      fs.rmSync(path.join(base, entry), { recursive: true, force: true });
+      console.log(`removed ${path.relative(root, path.join(base, entry))}`);
+    }
+  }
+}
 
 for (const target of targets) {
   const source = path.join(root, 'node_modules', target.from);

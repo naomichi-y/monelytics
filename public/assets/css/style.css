@@ -13,18 +13,17 @@ header, footer {
   opacity: 0.9;
 }
 
-.dropdown-toggle {
-  color: #fff !important;
-}
-
+/* BS5 に .page-header はない。BS3 が付けていた下線と余白を自前で持つ。 */
 .page-header {
   margin-top: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #dfd7ca;
 }
 
+/* BS5 の navbar は flex。float は不要で、付けると縦位置がずれる。 */
 .logo {
-  padding-top: 9px;
   padding-right: 10px;
-  float: left;
 }
 
 .logo img {
@@ -47,7 +46,8 @@ hr {
   border-bottom: 1px solid #dcdcdc;
 }
 
-.navbar .nav > li > a {
+/* BS5 のナビは .nav-link が直接並ぶ。 */
+.navbar .nav-link {
   font-size: 12px;
 }
 
@@ -123,8 +123,10 @@ td a {
 }
 
 
+/* BS5 のモーダルは position: relative ではないため top が効かない。
+   上端から少し下げるのは余白で行う。 */
 .modal-dialog {
-  top: 100px;
+  margin-top: 100px;
 }
 
 footer {
@@ -165,7 +167,7 @@ footer li {
    * ナビゲーションメニューにマウスオーバー時はサブメニューを自動展開。
    * (スマホだと挙動が怪しいのでPC以上限定措置とする)
    */
-  ul.nav li.dropdown:hover > ul.dropdown-menu {
+  .navbar-nav .dropdown:hover > .dropdown-menu {
     display: block;
   }
 }

@@ -18,7 +18,7 @@
                         output_type: {!! Html::encodeJsJsonValue('output_type', App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY) !!}
                     },
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -30,7 +30,7 @@
 @stop
 
 @section('function')
-    <div class="well">
+    <div class="card card-body">
         <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
     </div>
 @stop

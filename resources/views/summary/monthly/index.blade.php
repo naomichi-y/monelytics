@@ -22,7 +22,7 @@
                         end_date: {!! Html::encodeJsJsonValue('end_date') !!}
                     },
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -34,9 +34,9 @@
 @stop
 
 @section('function')
-    <div class="well">
-        {!! Form::open(['url' => 'summary/monthly', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
-            <div class="form-group form-group-sm form-group-adjust">
+    <div class="card card-body">
+        {!! Form::open(['url' => 'summary/monthly', 'id' => 'search_form', 'method' => 'get']) !!}
+            <div class="row g-2 align-items-center form-group-adjust">
                 <div class="col-md-8">
                     {!! Form::select('date_month', $month_list, Request::input('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
                 </div>

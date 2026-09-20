@@ -22,7 +22,7 @@
                         activity_category_id: $("#search_activity_category_id").val()
                     },
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -54,7 +54,7 @@
                 $.get("/settings/activityCategoryGroup/" + id + "/edit",
                     {},
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -63,12 +63,12 @@
 @stop
 
 @section('function')
-    <div class="well">
+    <div class="card card-body">
         <div class="row">
-            <div class="form-group form-group-sm form-group-adjust">
+            <div class="row g-2 align-items-center form-group-adjust">
                 <div class="col-md-8">
-                    {!! Form::open(['url' => 'settings/activityCategoryGroup', 'method' => 'get', 'class' => 'form-horizontal', 'id' => 'search-form']) !!}
-                        {!! Form::select('activity_category_id', $activity_category_list, Request::input('activity_category_id'), ['class' => 'form-control', 'id' => 'search_activity_category_id']) !!}
+                    {!! Form::open(['url' => 'settings/activityCategoryGroup', 'method' => 'get', 'id' => 'search-form']) !!}
+                        {!! Form::select('activity_category_id', $activity_category_list, Request::input('activity_category_id'), ['class' => 'form-select', 'id' => 'search_activity_category_id']) !!}
                  {!! Form::close() !!}
                 </div>
                 <div class="col-md-4">
@@ -96,9 +96,9 @@
                 <tr>
                     <th class="text-center">科目名</th>
                     <th class="text-center">用途</th>
-                    <th class="text-center"><span class="glyphicon glyphicon-credit-card"></span></th>
+                    <th class="text-center"><span class="bi bi-credit-card"></span></th>
                     <th class="text-center">登録日時</th>
-                    <th class="text-center hidden-xs">表示順序</th>
+                    <th class="text-center d-none d-sm-table-row">表示順序</th>
                     <th class="text-center">操作</th>
                 </tr>
             </thead>
@@ -109,15 +109,15 @@
                         <td>{{nl2br(e($activity_category_group->content))}}</td>
                         <td class="text-center">
                             @if ($activity_category_group->credit_flag)
-                                <span class="glyphicon glyphicon-ok"></span>
+                                <span class="bi bi-check-lg"></span>
                             @endif
                         </td>
                         <td class="text-center">{{Html::datetime($activity_category_group->create_date)}}</td>
-                        <td class="text-center sort-col hidden-xs"><span class="glyphicon glyphicon-sort"></span></td>
+                        <td class="text-center sort-col d-none d-sm-table-row"><span class="glyphicon glyphicon-sort"></span></td>
                         <td class="text-center">
                             {!! Form::hidden('sortable_ids[]', $activity_category_group->id) !!}
                             {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}
-                            {!! Form::button('削除', ['class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
+                            {!! Form::button('削除', ['class' => 'btn btn-secondary open_delete', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#delete-modal']) !!}
                         </td>
                     </tr>
                 @endforeach
