@@ -49,3 +49,39 @@ test('全画面でコンソールエラーと読み込み失敗が出ない', as
 
   expect(problems, problems.join('\n')).toEqual([]);
 });
+
+/**
+ * .card は縦方向の flex コンテナなので、直下に置いたボタンは既定で横いっぱいに
+ * 伸びる。置き換え前の .well は素の block で、伸びなかった。
+ */
+test('囲みの中のボタンが横いっぱいに伸びない', async ({ page }) => {
+  await login(page);
+
+  const stretched = [];
+
+  for (const path of paths) {
+    await page.goto(path);
+
+    const found = await page.evaluate(() => {
+      const out = [];
+
+      document.querySelectorAll('.card').forEach((card) => {
+        const cardWidth = card.getBoundingClientRect().width;
+
+        card.querySelectorAll(':scope > .btn, :scope > button').forEach((button) => {
+          const width = button.getBoundingClientRect().width;
+
+          if (cardWidth > 0 && width / cardWidth > 0.9) {
+            out.push(`${button.textContent.trim()} (${Math.round(width)}/${Math.round(cardWidth)})`);
+          }
+        });
+      });
+
+      return out;
+    });
+
+    found.forEach((entry) => stretched.push(`${path} : ${entry}`));
+  }
+
+  expect(stretched, stretched.join('\n')).toEqual([]);
+});

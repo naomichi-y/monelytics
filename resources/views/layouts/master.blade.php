@@ -3,7 +3,11 @@
     @include('layouts.head_tags')
     @yield('include_header')
 
-    <body>
+    {{-- Highcharts 13 は light-dark() で配色を選ぶ。OS が暗色設定だと
+         グラフだけ黒くなるため、用意されている highcharts-light で明色に
+         固定する (:root の color-scheme だけでは .highcharts-container の
+         指定に負ける)。 --}}
+    <body class="highcharts-light">
         @include('layouts.content_header')
 
         <div class="container">
