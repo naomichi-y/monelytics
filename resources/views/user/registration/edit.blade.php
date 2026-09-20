@@ -21,15 +21,15 @@
             <div class="modal-content">
                 {!! Form::open(['url' => 'user/withdrawal', 'id' => 'confirm-form', 'method' => 'put']) !!}
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">退会の確認</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                     </div>
                     <div class="modal-body">
                         <p>サービスから退会します。本当によろしいですか?</p>
                     </div>
                     <div class="modal-footer">
                         {!! Form::button('退会する', ['class' => 'btn btn-primary', 'id' => 'confirm']) !!}
-                        {!! Form::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
+                        {!! Form::button('キャンセル', ['class' => 'btn btn-secondary', 'data-bs-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
                     </div>
                 {!! Form::close() !!}
             </div>
@@ -38,38 +38,38 @@
 
     <div class="row">
         <div class="col-md-5">
-            {!! Form::open(['url' => 'user/update', 'method' => 'put', 'class' => 'form-horizontal']) !!}
-                <div class="form-group">
-                    {!! Form::label('nickname', '名前', ['class' => 'col-md-4 control-label']) !!}
+            {!! Form::open(['url' => 'user/update', 'method' => 'put']) !!}
+                <div class="row mb-3">
+                    {!! Form::label('nickname', '名前', ['class' => 'col-md-4 col-form-label']) !!}
                     <div class="col-md-8">
                         {!! Form::text('nickname', Request::input('nickname', Auth::user()->nickname), ['class' => 'form-control']) !!}
                     </div>
                 </div>
 
-                <div class="form-group">
-                    {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 control-label']) !!}
+                <div class="row mb-3">
+                    {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 col-form-label']) !!}
                     <div class="col-md-8">
                         {!! Form::text('email', Request::input('email', Auth::user()->email), ['class' => 'form-control']) !!}
                     </div>
                 </div>
 
-                <div class="form-group">
-                    {!! Form::label('password', 'パスワード', ['class' => 'col-md-4 control-label']) !!}
+                <div class="row mb-3">
+                    {!! Form::label('password', 'パスワード', ['class' => 'col-md-4 col-form-label']) !!}
                     <div class="col-md-8">
                         {!! Form::password('password', ['class' => 'form-control']) !!}
                         <span class="note">(変更する場合のみ入力)</span>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    {!! Form::label('password_confirmation', 'パスワード (再入力)', ['class' => 'col-md-4 control-label']) !!}
+                <div class="row mb-3">
+                    {!! Form::label('password_confirmation', 'パスワード (再入力)', ['class' => 'col-md-4 col-form-label']) !!}
                     <div class="col-md-8">
                         {!! Form::password('password_confirmation', ['class' => 'form-control']) !!}
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="col-md-8 col-md-offset-4">
+                <div class="row mb-3">
+                    <div class="col-md-8 offset-md-4">
                         {!! Form::submit('更新', ['class' => 'btn btn-primary']) !!}
                     </div>
                 </div>
@@ -78,9 +78,9 @@
     </div>
 
     <hr />
-    <div class="text-right">
+    <div class="text-end">
         {!! Form::open(['url' => 'user/withdrawal']) !!}
-            {!! Form::button('サービスの退会', ['class' => 'btn btn-danger', 'data-toggle' => 'modal', 'data-target' => '#confirm-modal']) !!}
+            {!! Form::button('サービスの退会', ['class' => 'btn btn-danger', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#confirm-modal']) !!}
         {!! Form::close() !!}
     </div>
 @stop

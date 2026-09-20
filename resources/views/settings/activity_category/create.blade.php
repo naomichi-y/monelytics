@@ -28,7 +28,7 @@
                 },
                 function(data) {
                     if (data["result"] == false) {
-                        $("#ajax-errors").removeClass("hide");
+                        $("#ajax-errors").removeClass("d-none");
                         $("#ajax-message-list > li").remove();
 
                         $.each(data["errors"], function(key, value) {
@@ -54,57 +54,57 @@
 <div id="create-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! Form::open(['class' => 'form-horizontal']) !!}
+            {!! Form::open() !!}
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">科目カテゴリの登録</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
 
                 <div class="modal-body">
-                    <div class="alert alert-dismissable alert-warning hide" id="ajax-errors">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <div class="alert alert-dismissible alert-warning d-none" id="ajax-errors">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
                         <ul id="ajax-message-list"></ul>
                     </div>
 
                     <div class="row">
-                        <div class="form-group">
-                            {!! Form::label('category_name', '科目カテゴリ名', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('category_name', '科目カテゴリ名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 {!! Form::text('category_name', Request::input('category_name'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('content', '用途', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('content', '用途', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 {!! Form::textarea('content', Request::input('content'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('', '科目タイプ', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('', '科目タイプ', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                <div class="radio-inline">
-                                    {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_VARIABLE, false, ['id' => 'cost_type_variable']) !!}
-                                    {!! Form::label('cost_type_variable', '変動収支') !!}
+                                <div class="form-check form-check-inline">
+                                    {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_VARIABLE, false, ['id' => 'cost_type_variable', 'class' => 'form-check-input']) !!}
+                                    {!! Form::label('cost_type_variable', '変動収支', ['class' => 'form-check-label']) !!}
                                 </div>
-                                <div class="radio-inline">
-                                    {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_CONSTANT, false, ['id' => 'cost_type_constant']) !!}
-                                    {!! Form::label('cost_type_constant', '固定収支') !!}
+                                <div class="form-check form-check-inline">
+                                    {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_CONSTANT, false, ['id' => 'cost_type_constant', 'class' => 'form-check-input']) !!}
+                                    {!! Form::label('cost_type_constant', '固定収支', ['class' => 'form-check-label']) !!}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('', '収支タイプ', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('', '収支タイプ', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                <div class="radio-inline">
-                                    {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_INCOME, false, ['id' => 'balance_type_income']) !!}
-                                    {!! Form::label('balance_type_income', '収入') !!}
+                                <div class="form-check form-check-inline">
+                                    {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_INCOME, false, ['id' => 'balance_type_income', 'class' => 'form-check-input']) !!}
+                                    {!! Form::label('balance_type_income', '収入', ['class' => 'form-check-label']) !!}
                                 </div>
-                                <div class="radio-inline">
-                                    {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE, false, ['id' => 'balance_type_expense']) !!}
-                                    {!! Form::label('balance_type_expense', '支出') !!}
+                                <div class="form-check form-check-inline">
+                                    {!! Form::radio('balance_type', App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE, false, ['id' => 'balance_type_expense', 'class' => 'form-check-input']) !!}
+                                    {!! Form::label('balance_type_expense', '支出', ['class' => 'form-check-label']) !!}
                                 </div>
                             </div>
                         </div>
@@ -113,7 +113,7 @@
 
                 <div class="modal-footer">
                     {!! Form::button('登録', ['class' => 'btn btn-primary', 'id' => 'create']) !!}
-                    {!! Form::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
+                    {!! Form::button('キャンセル', ['class' => 'btn btn-secondary', 'data-bs-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
                 </div>
             {!! Form::close() !!}
         </div>

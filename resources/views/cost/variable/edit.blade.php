@@ -8,8 +8,8 @@
             });
 
             // @see https://github.com/naomichi-y/monelytics/issues/1
-            $(this).on('hidden.bs.modal', function() {
-                $(".modal").remove();
+            // 取り除きは showModal が行う。ここでは閉じたあとの送信を止める。
+            $(document).on('hidden.bs.modal', function() {
                 active = false;
             });
 
@@ -31,7 +31,7 @@
                     },
                     function(data) {
                         if (data["result"] == false) {
-                            $("#ajax-errors").removeClass("hide");
+                            $("#ajax-errors").removeClass("d-none");
                             $("#ajax-message-list > li").remove();
 
                             $.each(data["errors"], function(key, value) {
@@ -54,22 +54,22 @@
 
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! Form::open(['class' => 'form-horizontal']) !!}
+            {!! Form::open() !!}
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">編集</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
 
                 <div class="modal-body">
-                    <div class="alert alert-dismissable alert-warning hide" id="ajax-errors">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <div class="alert alert-dismissible alert-warning d-none" id="ajax-errors">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
                         <ul id="ajax-message-list"></ul>
                     </div>
 
                     <div class="row">
-                        <div class="form-group">
-                            {!! Form::label('activity_date', '発生日', ['class' => 'col-md-3 control-label']) !!}
-                            <div class="col-md-3">
+                        <div class="row mb-3">
+                            {!! Form::label('activity_date', '発生日', ['class' => 'col-md-3 col-form-label']) !!}
+                            <div class="col-md-4">
                                 @if (Agent::isDesktop())
                                     {!! Form::text('activity_date', Html::date($activity->activity_date, false), ['class' => 'form-control date-picker', 'placeholder' => '月/日']) !!}
                                 @else
@@ -78,61 +78,52 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('activity_category_group_id', '科目名', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('activity_category_group_id', '科目名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-4">
-                                {!! Form::select('activity_category_group_id', $activity_category_groups, $activity->activity_category_group_id, ['class' => 'form-control']) !!}
+                                {!! Form::select('activity_category_group_id', $activity_category_groups, $activity->activity_category_group_id, ['class' => 'form-select']) !!}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('amount', '金額', ['class' => 'col-md-3 control-label']) !!}
-                            <div class="col-md-3">
+                        <div class="row mb-3">
+                            {!! Form::label('amount', '金額', ['class' => 'col-md-3 col-form-label']) !!}
+                            <div class="col-md-4">
                                 {!! Form::number('amount', $activity->amount, ['class' => 'form-control', 'pattern' => '[\-0-9]*']) !!}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('location', '場所', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('location', '場所', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 {!! Form::text('location', $activity->location, ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('content', '用途', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('content', '用途', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 {!! Form::text('content', $activity->content, ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">
-                                <span class="glyphicon glyphicon-credit-card"></span>
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">
+                                <span class="bi bi-credit-card"></span>
                             </label>
                             <div class="col-md-6">
-                                <div class="checkbox-inline">
-                                    {!! Form::checkbox('credit_flag', App\Models\Activity::CREDIT_FLAG_USE, $activity->credit_flag, ['id' => 'credit_flag']) !!}
-                                    {!! Form::label('credit_flag', 'クレジットカードを使用') !!}
+                                <div class="form-check form-check-inline">
+                                    {!! Form::checkbox('credit_flag', App\Models\Activity::CREDIT_FLAG_USE, $activity->credit_flag, ['id' => 'credit_flag', 'class' => 'form-check-input']) !!}
+                                    {!! Form::label('credit_flag', 'クレジットカードを使用', ['class' => 'form-check-label']) !!}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">
-                                <span class="glyphicon glyphicon-star"></span>
-                            </label>
-                            <div class="col-md-6">
-                                <div class="checkbox-inline">
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     {!! Form::button('更新', ['class' => 'btn btn-primary', 'id' => "update-$id"]) !!}
-                    {!! Form::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
+                    {!! Form::button('キャンセル', ['class' => 'btn btn-secondary', 'data-bs-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
                 </div>
             {!! Form::close() !!}
         </div>

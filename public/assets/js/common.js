@@ -14,6 +14,38 @@ function getQueryParams() {
   }
 }
 
+/**
+ * サーバから受け取ったモーダルの HTML を差し込んで開く。
+ *
+ * Bootstrap 5 で jQuery プラグイン形式 ($(html).modal()) が廃止されたため、
+ * 自分で組み立てる。閉じたときに取り除くのは、同じモーダルを開き直した
+ * ときに id が重複しないようにするため。
+ *
+ * 取り除くのは差し込んだ要素だけにする。以前は $(".modal").remove() で
+ * 全部消しており、編集モーダルを閉じると画面に元からある削除モーダルまで
+ * 消えていた。
+ *
+ * @param {string} html
+ * @returns {Element|null}
+ */
+function showModal(html) {
+  // append 経由で差し込むと、中の <script> が実行される。
+  var $injected = $(html).appendTo(document.body);
+  var element = $injected.filter(".modal").get(0) || $injected.find(".modal").get(0);
+
+  if (!element) {
+    return null;
+  }
+
+  element.addEventListener("hidden.bs.modal", function() {
+    $injected.remove();
+  });
+
+  bootstrap.Modal.getOrCreateInstance(element).show();
+
+  return element;
+}
+
 $(function() {
   $.ajaxSetup({
     headers: {

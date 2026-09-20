@@ -27,7 +27,7 @@
                         credit_flag: {!! Html::encodeJsJsonValue('credit_flag') !!},
                     },
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -40,7 +40,7 @@
                 $.get("/cost/variable/" + activity_id + "/edit",
                     {},
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -49,9 +49,9 @@
 @stop
 
 @section('function')
-    <div class="well">
-        {!! Form::open(['url' => 'summary/daily', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
-            <div class="form-group form-group-sm form-group-adjust">
+    <div class="card card-body">
+        {!! Form::open(['url' => 'summary/daily', 'id' => 'search_form', 'method' => 'get']) !!}
+            <div class="row g-2 align-items-center form-group-adjust">
                 <div class="col-md-8">
                     {!! Form::select('date_month', $month_list, Request::get('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
                 </div>
@@ -97,7 +97,7 @@
                         {!! Html::sortLabel('amount', '金額') !!}
                     </th>
                     <th class="text-center">
-                        <span class="glyphicon glyphicon-credit-card"></span>
+                        <span class="bi bi-credit-card"></span>
                         {!! Html::sortLabel('credit_flag', '') !!}
                     </th>
                     <th class="text-center">
@@ -115,25 +115,25 @@
                     <td>{{{$activity->activityCategoryGroup->group_name}}}</td>
                     <td>{{{$activity->location}}}</td>
                     <td>{{{$activity->content}}}</td>
-                    <td class="text-right">{{number_format($activity->amount)}}</td>
+                    <td class="text-end">{{number_format($activity->amount)}}</td>
                     <td class="text-center">
                         @if ($activity->credit_flag)
-                            <span class="glyphicon glyphicon-ok"></span>
+                            <span class="bi bi-check-lg"></span>
                         @endif
                     </td>
                     <td class="text-center">{{Html::datetime($activity->create_date)}}</td>
                     <td class="text-center">
                         {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}
-                        {!! Form::button('削除', ['class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
+                        {!! Form::button('削除', ['class' => 'btn btn-secondary open_delete', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#delete-modal']) !!}
                     </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-        <div class="text-right">
+        <div class="text-end">
             合計金額: {{number_format($activities->total_amount)}}
         </div>
-        <div class="text-right">{!! $activities->render() !!}</div>
+        <div class="text-end">{!! $activities->render() !!}</div>
         {!! Form::close() !!}
     @else
         <p>データがありません。</p>

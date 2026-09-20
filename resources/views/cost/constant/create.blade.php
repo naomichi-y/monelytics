@@ -21,11 +21,11 @@
 @stop
 
 @section('function')
-    <div class="well">
-        {!! Form::open(['url' => 'cost/constant/create', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
-            <div class="form-group form-group-sm form-group-adjust">
-                <div class="col-md-6 col-md-offset-6">
-                    {!! Form::select('date_month', $date_months, $selected_date_month, ['class' => 'form-control', 'id' =>  'date_month']) !!}
+    <div class="card card-body">
+        {!! Form::open(['url' => 'cost/constant/create', 'id' => 'search_form', 'method' => 'get']) !!}
+            <div class="row g-2 align-items-center form-group-adjust">
+                <div class="col-md-6 offset-md-6">
+                    {!! Form::select('date_month', $date_months, $selected_date_month, ['class' => 'form-select', 'id' =>  'date_month']) !!}
                 </div>
             </div>
         {!! Form::close() !!}
@@ -54,7 +54,7 @@
                         <th class="text-center">発生日</th>
                         <th class="text-center">金額</th>
                         <th class="text-center">用途</th>
-                        <th class="text-center"><span class="glyphicon glyphicon-credit-card"></span></th>
+                        <th class="text-center"><span class="bi bi-credit-card"></span></th>
                         <th class="text-center">操作</th>
                     </tr>
                 </thead>
@@ -76,7 +76,7 @@
                                         {!! Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Request::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), ['class' => 'form-control']) !!}
                                     @endif
                                 </td>
-                                <td>{!! Form::number("amount[$selected_date_month][$activity_category_group->id]", Request::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}</td>
+                                <td>{!! Form::number("amount[$selected_date_month][$activity_category_group->id]", Request::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}</td>
                                 <td>{!! Form::text("content[$selected_date_month][$activity_category_group->id]", Request::old("content[$selected_date_month][$activity_category_group->id]", $activity_category_group->content), ['class' => 'form-control']) !!}</td>
                                 <td>
                                     <div class="text-center">
@@ -89,7 +89,7 @@
                                 </td>
                                 <td class="text-center">
                                     @if ($activity_category_group->activity_id !== null)
-                                        {!! Form::button('削除', ['class' => 'btn btn-primary open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
+                                        {!! Form::button('削除', ['class' => 'btn btn-primary open_delete', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#delete-modal']) !!}
                                     @endif
                                 </td>
                             </tr>

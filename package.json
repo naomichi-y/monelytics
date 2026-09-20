@@ -7,8 +7,9 @@
     "vendor:sync": "node tools/sync-vendor.js"
   },
   "dependencies": {
-    "bootstrap": "3.4.1",
-    "bootswatch": "3.4.1",
+    "bootstrap": "5.3.8",
+    "bootstrap-icons": "1.13.1",
+    "bootswatch": "5.3.8",
     "highcharts": "13.1.0",
     "jquery": "3.7.1",
     "jquery-ui-dist": "1.13.3",

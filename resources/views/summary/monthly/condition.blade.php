@@ -33,27 +33,27 @@
 <div id="search_modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! Form::open(['url' => 'summary/monthly', 'method' => 'get', 'class' => 'form-horizontal']) !!}
+            {!! Form::open(['url' => 'summary/monthly', 'method' => 'get']) !!}
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">検索条件</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="form-group">
-                            {!! Form::label('date_month', '月指定', ['class' => 'col-md-3 control-label']) !!}
-                            <div class="col-md-3">
-                                {!! Form::select('date_month', $month_list, Request::input('date_month'), ['class' => 'form-control']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('date_month', '月指定', ['class' => 'col-md-3 col-form-label']) !!}
+                            <div class="col-md-4">
+                                {!! Form::select('date_month', $month_list, Request::input('date_month'), ['class' => 'form-select']) !!}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            {!! Form::label('begin_date', '日付範囲指定', ['class' => 'col-md-3 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('begin_date', '日付範囲指定', ['class' => 'col-md-3 col-form-label']) !!}
                             @if (Agent::isDesktop())
                                 <div class="col-md-3">
                                     {!! Form::text('begin_date', Request::input('begin_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                                 </div>
-                                {!! Form::label('end_date', '〜', ['class' => 'col-md-1 control-label label-range-text']) !!}
+                                {!! Form::label('end_date', '〜', ['class' => 'col-md-1 col-form-label label-range-text']) !!}
                                 <div class="col-md-3">
                                     {!! Form::text('end_date', Request::input('end_date'), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                                 </div>
@@ -61,19 +61,19 @@
                                 <div class="col-md-3">
                                     {!! Form::date('begin_date', Request::input('begin_date'), ['class' => 'form-control']) !!}
                                 </div>
-                                {!! Form::label('end_date', '〜', ['class' => 'col-md-1 control-label label-range-text']) !!}
+                                {!! Form::label('end_date', '〜', ['class' => 'col-md-1 col-form-label label-range-text']) !!}
                                 <div class="col-md-3">
                                     {!! Form::date('end_date', Request::input('end_date'), ['class' => 'form-control']) !!}
                                 </div>
                             @endif
-                            {!! Form::button('クリア', ['class' => 'btn btn-default', 'id' => 'clear_date_range']) !!}
+                            {!! Form::button('クリア', ['class' => 'btn btn-secondary', 'id' => 'clear_date_range']) !!}
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     {!! Form::submit('検索', ['class' => 'btn btn-primary']) !!}
-                    {!! Form::button('リセット', ['class' => 'btn btn-default', 'id' => 'reset']) !!}
-                    {!! Form::button('閉じる', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
+                    {!! Form::button('リセット', ['class' => 'btn btn-secondary', 'id' => 'reset']) !!}
+                    {!! Form::button('閉じる', ['class' => 'btn btn-secondary', 'data-bs-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
                 </div>
             {!! Form::close() !!}
         </div>
