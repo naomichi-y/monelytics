@@ -72,6 +72,14 @@ header, footer {
 }
 
 /*
+ * 行の区切り線は引かない。縞と余白だけで十分読み取れる。枠を意味として
+ * 持たせている集計表 (.table-bordered) は対象外。
+ */
+.table:not(.table-bordered) {
+  --bs-border-width: 0;
+}
+
+/*
  * 表の縞と行のハイライト。BS3 の sandstone は薄いベージュ (#f8f5f0) で、
  * BS5 は黒の半透明を重ねるため灰色になる。囲みや見出しと同じ色へ戻す。
  */
@@ -318,6 +326,11 @@ td a {
   font-size: 0.8em;
 }
 
+/* 下書きの文字。sandstone は本文と同じ暖色で、入力済みの文字と紛れる。 */
+.form-control::placeholder {
+  color: #aaaaaa;
+}
+
 /* ヘッダーの検索。ボタンを入力欄の中へ重ねる。 */
 .navbar-search {
   position: relative;
@@ -359,11 +372,10 @@ td a {
 .pagination {
   justify-content: flex-end;
   margin: 20px 0;
-  --bs-pagination-padding-y: 12px;
-  --bs-pagination-padding-x: 16px;
-
-  /* 送りの文字は本文より小さく。1rem では枠だけが目立つ。 */
-  --bs-pagination-font-size: 0.85rem;
+  /* 送りは本文の部品より小さく。1rem・12px 16px では枠だけが目立つ。 */
+  --bs-pagination-padding-y: 6px;
+  --bs-pagination-padding-x: 12px;
+  --bs-pagination-font-size: 0.8rem;
 }
 
 /* BS5 のモーダルは position: relative ではないため top が効かない。
