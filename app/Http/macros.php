@@ -172,12 +172,13 @@ Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = '
 Html::macro('sortLabel', function($field, $label, $default_sort = false) {
     $sort_type = Request::input('sort_type');
 
+    // Bootstrap 4 で glyphicon が外れたため、Bootstrap Icons の名前を使う。
     if ($sort_type === 'asc') {
-        $style = 'glyphicon-sort-by-attributes';
+        $style = 'bi-sort-down-alt';
     } else if ($sort_type === 'desc' || $default_sort) {
-        $style = 'glyphicon-sort-by-attributes-alt';
+        $style = 'bi-sort-down';
     } else {
-        $style = 'glyphicon glyphicon-sort';
+        $style = 'bi-arrow-down-up';
     }
 
     $uri = URL::full();
@@ -226,7 +227,7 @@ Html::macro('sortLabel', function($field, $label, $default_sort = false) {
         $field,
         $order);
 
-    $markup = sprintf('%s <a href="%s"><i class="glyphicon %s"></i></a>',
+    $markup = sprintf('%s <a href="%s"><i class="bi %s"></i></a>',
         $label,
         $sort_uri,
         $style);

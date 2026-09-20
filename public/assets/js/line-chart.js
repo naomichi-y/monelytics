@@ -28,10 +28,15 @@ $(function () {
         });
       });
 
-      $element.highcharts({
+      // Highcharts 6 で jQuery プラグイン形式 ($element.highcharts()) が
+      // 廃止されたため、DOM 要素を直接渡す。
+      Highcharts.chart($element[0], {
         chart: {
           type: 'line',
-          zoomType: 'x'
+          // zoomType は 11 で chart.zooming.type へ移動した。
+          zooming: {
+            type: 'x'
+          }
         },
         title: {
           text: ''
@@ -50,7 +55,7 @@ $(function () {
           },
           labels: {
             formatter: function() {
-              // Highcharts 4 の既定の桁区切りは空白なので明示する。
+              // 既定の桁区切りは空白なので明示する。
               return Highcharts.numberFormat(this.value, 0, '.', ',');
             }
           }
