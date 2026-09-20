@@ -63,7 +63,7 @@
                 <div class="modal-body">
                     <div class="alert alert-dismissible alert-warning d-none" id="ajax-errors">
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
-                        <ul id="ajax-message-list"></ul>
+                        <ul class="mb-0" id="ajax-message-list"></ul>
                     </div>
 
                     <div class="row">
