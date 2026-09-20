@@ -14,8 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // 画面は Bootstrap 3.3.2。Laravel 13 の既定は Tailwind 版のため差し替える。
-        Paginator::useBootstrapThree();
+        // Laravel 13 の既定は Tailwind 版のため差し替える。3 系の雛形は
+        // page-item / page-link を出さず、5 では素の箇条書きとして並ぶ。
+        Paginator::useBootstrapFive();
 
         //
     }

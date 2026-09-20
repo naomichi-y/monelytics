@@ -69,7 +69,7 @@
                     <div class="row">
                         <div class="row mb-3">
                             {!! Form::label('activity_date', '発生日', ['class' => 'col-md-3 col-form-label']) !!}
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 @if (Agent::isDesktop())
                                     {!! Form::text('activity_date', Html::date($activity->activity_date, false), ['class' => 'form-control date-picker', 'placeholder' => '月/日']) !!}
                                 @else
@@ -87,7 +87,7 @@
 
                         <div class="row mb-3">
                             {!! Form::label('amount', '金額', ['class' => 'col-md-3 col-form-label']) !!}
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 {!! Form::number('amount', $activity->amount, ['class' => 'form-control', 'pattern' => '[\-0-9]*']) !!}
                             </div>
                         </div>

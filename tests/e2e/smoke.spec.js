@@ -161,6 +161,58 @@ test('囲みや行の中のボタンが横いっぱいに伸びない', async ({
 });
 
 /**
+ * 項目名は入力欄の左に右寄せで並ぶこと。Bootstrap 3 の .form-horizontal が
+ * 768px 以上で行っていた配置で、5 には同じ仕組みがない。左寄せのままだと
+ * ラベルと入力欄の対応が読み取りにくい。
+ */
+test('入力画面の項目名が入力欄の側へ右寄せで並ぶ', async ({ page }) => {
+  await login(page);
+  await page.goto('/dashboard');
+
+  // 一覧の見出しにも同じ文言があるため、入力欄に紐づくラベルで引く。
+  const label = page.locator('label[for="activity_date"]');
+  const input = page.locator('#activity_date');
+
+  await expect(label).toHaveCSS('text-align', 'right');
+
+  const [labelBox, inputBox] = [await label.boundingBox(), await input.boundingBox()];
+
+  // 行の中で縦にも揃っていること (ラベルだけ上に付かない)。
+  expect(Math.abs((labelBox.y + labelBox.height / 2) - (inputBox.y + inputBox.height / 2)))
+    .toBeLessThanOrEqual(3);
+});
+
+/**
+ * 編集モーダルは 600px。Bootstrap 5 の既定は 500px で、日付や金額の欄まで
+ * 同じ幅に詰まって並ぶ。
+ */
+test('編集モーダルの幅が 600px ある', async ({ page }) => {
+  await login(page);
+  await page.goto(`/summary/daily?date_month=${formatMonth(new Date())}`);
+
+  await page.getByRole('button', { name: '編集' }).first().click();
+
+  const dialog = page.locator('.modal.show .modal-dialog');
+  await expect(dialog).toBeVisible();
+
+  expect((await dialog.boundingBox()).width).toBe(600);
+});
+
+/**
+ * 見出しの横に置くボタンは、隣の月の選択より小さいこと。sandstone 5 は .btn へ
+ * 文字の大きさと行の高さを直接書くため、--bs-btn-font-size だけでは縮まない。
+ */
+test('見出し横のボタンが月の選択より小さい', async ({ page }) => {
+  await login(page);
+  await page.goto('/summary/daily');
+
+  const button = await page.locator('#open_condition').boundingBox();
+  const select = await page.locator('#date_month').boundingBox();
+
+  expect(button.height).toBeLessThan(select.height);
+});
+
+/**
  * トップページの紹介文は白抜きで、parallax.js が敷く背景写真があって初めて
  * 読める。1.4.2 は $(document).on('ready', ...) で自動初期化するが、jQuery 3 で
  * この呼び出し方は削除されており、放っておくと本文が真っ白な画面に消える。

@@ -133,7 +133,9 @@
         <div class="text-end">
             合計金額: {{number_format($activities->total_amount)}}
         </div>
-        <div class="text-end">{!! $activities->render() !!}</div>
+        {{-- 番号は出さず「前へ / 次へ」だけ。ページ数が多く、番号を並べても
+             行が埋まるだけで選べないため。 --}}
+        <div class="text-end">{!! $activities->render('pagination::simple-bootstrap-5') !!}</div>
         {!! Form::close() !!}
     @else
         <p>データがありません。</p>
