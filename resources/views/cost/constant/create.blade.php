@@ -21,15 +21,13 @@
 @stop
 
 @section('function')
-    <div class="card card-body">
-        {!! Form::open(['url' => 'cost/constant/create', 'id' => 'search_form', 'method' => 'get']) !!}
-            <div class="row g-2 align-items-center form-group-adjust">
-                <div class="col-md-6 offset-md-6">
-                    {!! Form::select('date_month', $date_months, $selected_date_month, ['class' => 'form-select', 'id' =>  'date_month']) !!}
-                </div>
+    {!! Form::open(['url' => 'cost/constant/create', 'id' => 'search_form', 'method' => 'get']) !!}
+        <div class="row g-2 align-items-center form-group-adjust">
+            <div class="col-md-6 offset-md-6">
+                {!! Form::select('date_month', $date_months, $selected_date_month, ['class' => 'form-select', 'id' =>  'date_month']) !!}
             </div>
-        {!! Form::close() !!}
-    </div>
+        </div>
+    {!! Form::close() !!}
 @stop
 
 @section('content')

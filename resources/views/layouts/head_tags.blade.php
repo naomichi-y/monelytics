@@ -1,6 +1,8 @@
 <head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8">
-    <title>monelytics</title>
+    {{-- 画面名は各ビューの @section('title')。前後の改行は @yield が
+         そのまま返すため、ここで詰める。 --}}
+    <title>{{ trim($__env->yieldContent('title')) }} - monelytics</title>
     <meta name="description" content="シンプルで使いやすい無料の家計簿アプリ。タブレットやスマホにも対応しています。">
     <meta name="keywords" content="家計簿, 無料, 簡単, 収支管理, スマホ">
     <meta name="viewport" content="width=device-width, initial-scale=1">

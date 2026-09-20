@@ -44,7 +44,16 @@
             </ul>
 
             @if (Auth::check())
-                <ul class="navbar-nav">
+                {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'd-flex']) !!}
+                    <div class="navbar-search">
+                        {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
+                        <button type="submit" class="navbar-search-button" aria-label="検索">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                {!! Form::close() !!}
+
+                <ul class="navbar-nav ms-lg-3">
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">アカウント</a>
                         {{-- 右端に出るため、既定の左揃えではメニューが画面外へはみ出す。 --}}
@@ -54,15 +63,6 @@
                         </ul>
                     </li>
                 </ul>
-
-                {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'd-flex ms-lg-3']) !!}
-                    <div class="navbar-search">
-                        {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
-                        <button type="submit" class="navbar-search-button" aria-label="検索">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                {!! Form::close() !!}
             @endif
         </div>
     </div>

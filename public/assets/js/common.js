@@ -137,6 +137,12 @@ $(function() {
   }
 
   /**
+   * 縦スクロールバーの幅として見込む値。これを超えるはみ出しは、列が
+   * 入りきっていないものとして横スクロールを残す。
+   */
+  var SCROLLBAR_SLACK = 20;
+
+  /**
    * ヘッダを固定した表を組み立て、ウィンドウ幅が変わったら組み直す。
    *
    * jquery.tablefix は呼ばれた時点の幅をピクセルで書き込み、その後は
@@ -161,6 +167,18 @@ $(function() {
         height: (height < minHeight) ? minHeight : height,
         fixRows: options.fixRows,
         fixCols: options.fixCols
+      });
+
+      // tablefix が作る本体側の入れ物は overflow: auto。縦スクロールバーが
+      // 出るとその幅ぶんだけ表がはみ出し、中身は収まっているのに横スクロール
+      // バーまで現れる。はみ出しがスクロールバーの幅に収まるときだけ横を
+      // 止める。列が多くて本当に入りきらない表 (年別集計) は動かせるまま。
+      $container.find("div").filter(function() {
+        return this.style.overflow === "auto";
+      }).each(function() {
+        var overflow = this.scrollWidth - this.clientWidth;
+
+        this.style.overflowX = (overflow > 0 && overflow <= SCROLLBAR_SLACK) ? "hidden" : "auto";
       });
     };
 
