@@ -30,7 +30,9 @@
 @stop
 
 @section('function')
-    <div class="card card-body">
+    {{-- .card は縦方向の flex コンテナ。そのままだと中のボタンが
+         横いっぱいに伸びるため、右寄せで自然な幅に留める。 --}}
+    <div class="card card-body align-items-end">
         <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
     </div>
 @stop

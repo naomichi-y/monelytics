@@ -124,6 +124,26 @@ test.describe('集計', () => {
     await expect(chart).not.toContainText('データがありません。');
   });
 
+  /**
+   * Highcharts 13 は配色を light-dark() で選ぶ。OS が暗色設定のブラウザだと
+   * グラフだけ黒くなり、明色のページの中で浮く。
+   */
+  test('ブラウザが暗色設定でもグラフは明色のまま', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+
+    const year = new Date().getFullYear();
+
+    await page.goto(`/summary/yearly?begin_year=${year - 2}&end_year=${year}&output_type=2`);
+    await page.getByRole('tab', { name: '推移グラフ' }).click();
+
+    const background = page.locator('#yearly_trend_chart .highcharts-background');
+    await expect(background).toBeAttached();
+
+    await expect
+      .poll(() => background.evaluate((node) => getComputedStyle(node).fill))
+      .toBe('rgb(255, 255, 255)');
+  });
+
   test('年別集計の集計表に過去の年が並ぶ', async ({ page }) => {
     const year = new Date().getFullYear();
 
