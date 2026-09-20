@@ -11,10 +11,16 @@ services:
       - php
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       # nginx が配信するのは公開ディレクトリのみ。アプリ全体はマウントしない。
       - ./public:/data/public:ro
       - ./etc/docker/web/default.conf:/etc/nginx/conf.d/default.conf:ro
+      # TLS 証明書。発行と更新はホストの certbot が行い、nginx は読むだけ。
+      # live/ 配下は archive/ への symlink なので /etc/letsencrypt ごと渡す。
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      # ACME の HTTP-01 チャレンジ応答ファイル置き場。
+      - /var/www/certbot:/var/www/certbot:ro
     restart: unless-stopped
 
   php:
