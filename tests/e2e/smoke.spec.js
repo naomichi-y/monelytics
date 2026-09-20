@@ -237,18 +237,24 @@ test('トップページの紹介文に背景が敷かれる', async ({ page }) 
  * デスクトップのままにしておく。
  */
 /**
- * 表の中に置いた入力欄の枠。行の区切り線を消すのに --bs-border-width を表へ
- * 置くと、同じ変数を読む入力欄やボタンからも枠が消える。白い行では入力欄の
- * 位置が分からなくなる。
+ * 表の中に置いた入力欄の枠と、行の区切り。
+ *
+ * 区切りを消すのに --bs-border-width を表へ置くと、同じ変数を読む入力欄や
+ * ボタンからも枠が消え、白い行では入力欄の位置が分からなくなる。
+ *
+ * 線はセルの上辺に引く。BS5 の既定どおり下辺に引くと、最後の行の下にも残り、
+ * 表とその下のボタンの間に余計な線が入る。
  */
-test('表の中の入力欄に枠がある', async ({ page }) => {
+test('表の中の入力欄に枠があり、行の間にだけ線を引く', async ({ page }) => {
   await login(page);
   await page.goto('/cost/variable/create');
 
-  const field = page.locator('table .form-control').first();
+  await expect(page.locator('table .form-control').first()).toHaveCSS('border-top-width', '1px');
 
-  await expect(field).toHaveCSS('border-top-width', '1px');
-  await expect(page.locator('table tbody td').first()).toHaveCSS('border-bottom-width', '0px');
+  const cells = page.locator('table tbody tr td:first-child');
+
+  await expect(cells.nth(1)).toHaveCSS('border-top-width', '1px');
+  await expect(cells.last()).toHaveCSS('border-bottom-width', '0px');
 });
 
 /**
