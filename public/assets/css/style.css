@@ -294,6 +294,65 @@ hr {
   margin: 0;
 }
 
+/*
+ * カレンダー。jquery-ui-dist に付く base テーマは、見出しに灰色の帯を敷き、
+ * 日付を枠付きのボタンにし、今日を黄色で塗る。以前使っていた配布物はどれも
+ * 持たず、枠のない日付が並ぶだけだった。その見え方に戻す。
+ *
+ * 文字色には触れない。土日と祝日の色は gcalendar-holidays.js が
+ * .gcal-sunday .ui-state-default の形で当てており、ここで色を書くと
+ * 詳細度で勝ってしまって消える。
+ */
+.ui-datepicker {
+  padding: 0.5em;
+  border: 0;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.25);
+}
+
+.ui-datepicker .ui-datepicker-header {
+  border: 0;
+  background: none;
+}
+
+.ui-datepicker td .ui-state-default {
+  border: 0;
+  background: none;
+  text-align: center;
+}
+
+.ui-datepicker td .ui-state-hover {
+  background: #f8f5f0;
+  border-radius: 4px;
+}
+
+/* 今日。base テーマは黄色で塗る。 */
+.ui-datepicker td .ui-state-highlight {
+  background: #ececec;
+  border-radius: 4px;
+}
+
+/* 選択中の日。base テーマは青で塗る。 */
+.ui-datepicker td .ui-state-active {
+  background: #dfd7ca;
+  border-radius: 4px;
+}
+
+/* 土日と祝日の色。以前は gcalendar-holidays.js が style 要素を差し込んで
+   いた。色はそのときの値をそのまま使う。 */
+.ui-datepicker td.calendar-sunday .ui-state-default {
+  color: #ff9999;
+}
+
+.ui-datepicker td.calendar-saturday .ui-state-default {
+  color: #33bfdb;
+}
+
+.ui-datepicker td.calendar-holiday .ui-state-default {
+  color: #26ae90;
+}
+
 .form-group-adjust {
   margin-bottom: 0;
 }

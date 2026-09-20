@@ -42,6 +42,10 @@ Route::resource('contact', 'ContactController', ['only' => ['index']]);
 Route::group(['middleware' => 'auth'], function() {
     Route::resource('dashboard', 'DashboardController');
 
+    // 日付入力のカレンダーが祝日の色付けに読む。外へ取りに行く処理を抱える
+    // ため、画面と同じく認証済みにだけ開ける。
+    Route::get('holidays', 'HolidayController@index');
+
     Route::group(['prefix' => 'gadget'], function($route) {
         $route->get('activity-status', 'GadgetController@activityStatus');
         $route->get('activity-graph', 'GadgetController@activityGraph');

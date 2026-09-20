@@ -236,6 +236,27 @@ test('トップページの紹介文に背景が敷かれる', async ({ page }) 
  * 画面幅だけを狭める。日付入力の種類はサーバが UA で決めるため、ここでは
  * デスクトップのままにしておく。
  */
+/**
+ * 日付入力のカレンダー。祝日は内閣府の一覧を /holidays から読むが、配布元へ
+ * 出られないときも土日の色分けだけは効く。jquery-ui-dist の base テーマも
+ * 落としてあり、日付は枠のない文字として並ぶ。
+ */
+test('カレンダーで土日に印が付き、日付に枠を描かない', async ({ page }) => {
+  await login(page);
+  await page.goto('/cost/variable/create');
+
+  await page.locator('.date-picker').first().click();
+
+  const calendar = page.locator('.ui-datepicker').first();
+  await expect(calendar).toBeVisible();
+
+  await expect(calendar.locator('td.calendar-sunday')).not.toHaveCount(0);
+  await expect(calendar.locator('td.calendar-saturday')).not.toHaveCount(0);
+
+  const day = calendar.locator('td a').first();
+  await expect(day).toHaveCSS('border-top-width', '0px');
+});
+
 test.describe('狭い画面の一覧', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 

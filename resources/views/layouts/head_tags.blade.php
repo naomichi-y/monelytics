@@ -25,7 +25,7 @@
     {!! Html::script('assets/components/jquery-ui/1.13.3/jquery-ui.min.js') !!}
     {!! Html::script('assets/components/jquery_plugins/jquery.ui.datepicker-ja.js') !!}
     {!! Html::script('assets/components/jquery_plugins/darktooltip/js/jquery.darktooltip.min.js') !!}
-    {!! Html::script('assets/components/gcalendar-holidays.js') !!}
+    {!! Html::versionedScript('assets/js/holidays.js') !!}
     {!! Html::script('assets/components/analytics.js') !!}
     {!! Html::versionedScript('assets/js/common.js') !!}
     @yield('extend_head_tags')
