@@ -69,7 +69,7 @@
                                     {!! Form::date('end_date', Request::input('end_date'), ['class' => 'form-control']) !!}
                                 </div>
                             @endif
-                            {!! Form::button('クリア', ['class' => 'btn btn-secondary', 'id' => 'clear_date_range']) !!}
+                            {!! Form::button('クリア', ['class' => 'btn btn-secondary col-auto', 'id' => 'clear_date_range']) !!}
                         </div>
 
                         <div class="row mb-3">

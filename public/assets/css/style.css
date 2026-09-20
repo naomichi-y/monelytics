@@ -46,6 +46,83 @@ header, footer {
   --bs-card-spacer-x: 1.25rem;
 }
 
+/*
+ * 幅。BS3 の .container は 768/992/1200px で 750/970/1170px に切り替わり、
+ * それ未満は横いっぱいだった。BS5 は 576px から効き、最大 1320px まで
+ * 広がるため、同じ画面でも一回り横長になる。以前の刻みに戻す。
+ */
+.container {
+  max-width: none;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 750px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 970px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1170px;
+  }
+}
+
+/*
+ * 表の縞と行のハイライト。BS3 の sandstone は薄いベージュ (#f8f5f0) で、
+ * BS5 は黒の半透明を重ねるため灰色になる。囲みや見出しと同じ色へ戻す。
+ */
+.table {
+  --bs-table-striped-bg: #f8f5f0;
+  --bs-table-hover-bg: #f8f5f0;
+}
+
+/*
+ * 入力欄とボタンの高さ。sandstone 3 は独自に大きめ (高さ 46px、内側余白
+ * 12px 16px) で、BS5 版は素の Bootstrap と同じ 34px に戻っている。行の高さが
+ * 目に見えて変わるため、以前の寸法に合わせる。
+ */
+.form-control,
+.form-select {
+  padding: 12px 16px;
+}
+
+.btn {
+  --bs-btn-padding-y: 12px;
+  --bs-btn-padding-x: 16px;
+}
+
+/* 小さいボタンは 3 系でも小さいままで、上下の余白だけ足されていた。 */
+.btn-sm {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+/*
+ * 副ボタン。BS3 の .btn-default は sandstone では濃い色 (#3e3f3a) の
+ * ボタンだった。移行先の .btn-secondary は明るいベージュで、主ボタンとの
+ * 区別が付きにくい。元の配色に戻す。
+ */
+.btn-secondary {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: #3e3f3a;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: #242422;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-active-bg: #242422;
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-color: #ffffff;
+  --bs-btn-disabled-bg: #3e3f3a;
+  --bs-btn-disabled-border-color: transparent;
+}
+
 /* BS5 に .page-header はない。BS3 が付けていた下線と余白を自前で持つ。 */
 .page-header {
   margin-top: 20px;

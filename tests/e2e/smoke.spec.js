@@ -51,36 +51,57 @@ test('全画面でコンソールエラーと読み込み失敗が出ない', as
 });
 
 /**
- * .card は縦方向の flex コンテナなので、直下に置いたボタンは既定で横いっぱいに
- * 伸びる。置き換え前の .well は素の block で、伸びなかった。
+ * Bootstrap 5 では .card が縦方向の flex コンテナになり、.row は col-* を
+ * 持たない子にも width: 100% を当てる。置き換え前の .well と float 方式の
+ * .row ではどちらも起きなかったため、直下に置いたボタンが横いっぱいに
+ * 伸びる箇所が各所に生まれた。
  */
-test('囲みの中のボタンが横いっぱいに伸びない', async ({ page }) => {
+test('囲みや行の中のボタンが横いっぱいに伸びない', async ({ page }) => {
   await login(page);
+
+  /** @returns {Promise<string[]>} */
+  const findStretched = () => page.evaluate(() => {
+    const out = [];
+    const check = (parent, button) => {
+      const parentWidth = parent.getBoundingClientRect().width;
+      const width = button.getBoundingClientRect().width;
+
+      if (parentWidth > 0 && width / parentWidth > 0.8) {
+        out.push(`${button.textContent.trim()} (${Math.round(width)}/${Math.round(parentWidth)})`);
+      }
+    };
+
+    document.querySelectorAll('.card').forEach((card) => {
+      card.querySelectorAll(':scope > .btn, :scope > button').forEach((button) => check(card, button));
+    });
+
+    document.querySelectorAll('.row').forEach((row) => {
+      Array.from(row.children).forEach((child) => {
+        if (/\bcol(-|$)/.test(child.className) || !/\bbtn\b/.test(child.className)) {
+          return;
+        }
+
+        check(row, child);
+      });
+    });
+
+    return out;
+  });
 
   const stretched = [];
 
   for (const path of paths) {
     await page.goto(path);
+    (await findStretched()).forEach((entry) => stretched.push(`${path} : ${entry}`));
 
-    const found = await page.evaluate(() => {
-      const out = [];
+    // 検索条件はモーダルの中にあり、開かないと DOM に現れない。
+    const opener = page.locator('#open_condition');
 
-      document.querySelectorAll('.card').forEach((card) => {
-        const cardWidth = card.getBoundingClientRect().width;
-
-        card.querySelectorAll(':scope > .btn, :scope > button').forEach((button) => {
-          const width = button.getBoundingClientRect().width;
-
-          if (cardWidth > 0 && width / cardWidth > 0.9) {
-            out.push(`${button.textContent.trim()} (${Math.round(width)}/${Math.round(cardWidth)})`);
-          }
-        });
-      });
-
-      return out;
-    });
-
-    found.forEach((entry) => stretched.push(`${path} : ${entry}`));
+    if (await opener.count()) {
+      await opener.click();
+      await expect(page.locator('.modal.show')).toBeVisible();
+      (await findStretched()).forEach((entry) => stretched.push(`${path} (検索条件) : ${entry}`));
+    }
   }
 
   expect(stretched, stretched.join('\n')).toEqual([]);
