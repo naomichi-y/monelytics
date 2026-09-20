@@ -237,6 +237,21 @@ test('トップページの紹介文に背景が敷かれる', async ({ page }) 
  * デスクトップのままにしておく。
  */
 /**
+ * 表の中に置いた入力欄の枠。行の区切り線を消すのに --bs-border-width を表へ
+ * 置くと、同じ変数を読む入力欄やボタンからも枠が消える。白い行では入力欄の
+ * 位置が分からなくなる。
+ */
+test('表の中の入力欄に枠がある', async ({ page }) => {
+  await login(page);
+  await page.goto('/cost/variable/create');
+
+  const field = page.locator('table .form-control').first();
+
+  await expect(field).toHaveCSS('border-top-width', '1px');
+  await expect(page.locator('table tbody td').first()).toHaveCSS('border-bottom-width', '0px');
+});
+
+/**
  * 日付入力のカレンダー。祝日は内閣府の一覧を /holidays から読むが、配布元へ
  * 出られないときも土日の色分けだけは効く。jquery-ui-dist の base テーマも
  * 落としてあり、日付は枠のない文字として並ぶ。
