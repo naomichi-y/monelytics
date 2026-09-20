@@ -1,0 +1,102 @@
+# push のたびに PHPUnit と E2E を走らせる。
+#
+# どちらも手元と同じ compose の構成を立てて、その中で叩く。CI だけ別の組み方に
+# すると、PHP や MariaDB、Playwright の版が知らないうちにずれる。手順は README と
+# tests/e2e/README.md に書いてあるものと同じ。
+name: test
+
+on: push
+
+# 続けて push したときは、古い実行を打ち切って最後のものだけ残す。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: 設定ファイルを置く
+        run: |
+          cp .env.example .env
+          cp etc/docker/db/db.env.example etc/docker/db/db.env
+
+          # アプリが使う webapp 利用者は docker-entrypoint-initdb.d が作る。
+          # パスワードを二重に書かないよう、その SQL から取り出して .env へ移す。
+          password="$(sed -n "s/.*IDENTIFIED BY '\([^']*\)'.*/\1/p" etc/docker/db/docker-entrypoint-initdb.d/00-create_user.sql)"
+          sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$password/" .env
+
+      - name: コンテナを立てる
+        run: |
+          # webapp の uid/gid は実行者に合わせる。ずれると composer install も
+          # storage への書き込みも Permission denied になる。
+          docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g) php
+          docker compose up -d db redis php
+
+      - name: データベースの用意を待つ
+        run: .github/scripts/wait-for-db.sh
+
+      - name: 依存を入れる
+        run: |
+          docker compose exec -T -u webapp php composer install --no-interaction --no-progress
+          docker compose exec -T -u webapp php php artisan key:generate
+
+      - name: テストを流す
+        run: docker compose exec -T -u webapp php php artisan test
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: 設定ファイルを置く
+        run: |
+          cp .env.example .env
+          cp etc/docker/db/db.env.example etc/docker/db/db.env
+
+          password="$(sed -n "s/.*IDENTIFIED BY '\([^']*\)'.*/\1/p" etc/docker/db/docker-entrypoint-initdb.d/00-create_user.sql)"
+          sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$password/" .env
+
+      - name: コンテナを立てる
+        run: |
+          docker compose --profile e2e build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+          docker compose --profile e2e up -d
+
+      - name: データベースの用意を待つ
+        run: .github/scripts/wait-for-db.sh
+
+      - name: 依存を入れる
+        run: |
+          docker compose exec -T -u webapp php-e2e composer install --no-interaction --no-progress
+          docker compose exec -T -u webapp php-e2e php artisan key:generate
+          docker compose exec -T playwright npm ci
+
+      # php-fpm も webapp で動く。root で流すと storage の中身が root 所有になり、
+      # 画面からの書き込みが弾かれることがある。
+      - name: 画面のデータを作る
+        run: docker compose exec -T -u webapp php-e2e php artisan migrate:fresh --seed --seeder='Seeds\E2eSeeder' --force
+
+      - name: テストを流す
+        run: docker compose exec -T playwright npx playwright test
+
+      - name: 失敗したときの記録を残す
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            tests/e2e/report
+            tests/e2e/results
+          retention-days: 7
+
+      - name: 失敗したときはサーバのログも出す
+        if: failure()
+        run: docker compose logs --no-color --tail 200 web-e2e php-e2e

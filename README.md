@@ -129,3 +129,13 @@ docker compose exec -u webapp php php artisan test
 # e.g. Specify test class
 docker compose exec -u webapp php php artisan test --filter ContactControllerTest
 ```
+
+End-to-end tests run against a separate instance built with the `e2e` compose
+profile. See [tests/e2e/README.md](tests/e2e/README.md) for the steps.
+
+### CI
+
+`.github/workflows/test.yml` runs both suites on every push, in two jobs. Each one
+brings up the same compose stack used locally, so the PHP, MariaDB and Playwright
+versions come from `compose.yml` and `package.json` rather than being pinned again
+in the workflow. A failing E2E run uploads `tests/e2e/report` as an artifact.
