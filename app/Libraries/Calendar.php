@@ -34,7 +34,8 @@ class Calendar {
      */
     private const REQUEST_TIMEOUT = 5;
 
-    private const CACHE_KEY = 'holidays.cao';
+    /** 取り込み済みの一覧を置く場所。運用で消すこともあるため公開する。 */
+    public const CACHE_KEY = 'holidays.cao';
 
     /**
      * 対象月の祝日を取得する。
@@ -47,11 +48,30 @@ class Calendar {
      */
     public static function getHolidays($target_month)
     {
-        $holidays = self::all();
-        $prefix = $target_month . '-';
+        return self::filter($target_month . '-');
+    }
 
+    /**
+     * 対象年の祝日を取得する。日付入力のカレンダーは年の単位で読む。
+     *
+     * @param string $target_year Y
+     * @return array [Y-m-d => [名称]]
+     */
+    public static function getHolidaysOfYear($target_year)
+    {
+        return self::filter($target_year . '-');
+    }
+
+    /**
+     * 日付の先頭が一致するものだけを返す。
+     *
+     * @param string $prefix
+     * @return array [Y-m-d => [名称]]
+     */
+    private static function filter($prefix)
+    {
         return array_filter(
-            $holidays,
+            self::all(),
             static fn ($date) => str_starts_with($date, $prefix),
             ARRAY_FILTER_USE_KEY
         );

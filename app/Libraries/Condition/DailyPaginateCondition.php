@@ -19,6 +19,13 @@ class DailyPaginateCondition extends BaseDateCondition {
         'create_date',
     ];
 
+    /**
+     * 1 ページの件数。狭い画面では 1 件が「見出し / 値」の縦並びに畳まれ、
+     * 同じ件数でも画面がかなり長くなるため少なくする。
+     */
+    const DEFAULT_LIMIT = 30;
+    const MOBILE_LIMIT = 10;
+
     public $activity_category_group_id = [];
     public $keyword;
     public $location;
@@ -39,7 +46,7 @@ class DailyPaginateCondition extends BaseDateCondition {
         $fields['sort_type'] = strtolower($fields['sort_type'] ?? '') === 'asc' ? 'asc' : 'desc';
 
         if (empty($fields['limit'])) {
-            $fields['limit'] = \Agent::isMobile() ? 5 : 30;
+            $fields['limit'] = \Agent::isMobile() ? self::MOBILE_LIMIT : self::DEFAULT_LIMIT;
         }
 
         parent::__construct($fields);

@@ -18,11 +18,9 @@ $(function () {
     load();
 });
 </script>
-<div class="well">
-    {{-- .form-horizontal がないと .form-group に相殺マージンが効かず、列の内側余白の分ずれる --}}
-    <div class="form-horizontal">
-        <div class="form-group form-group-sm form-group-adjust">
-            <div class="col-md-4">
+<div class="card card-body">
+    <div class="row g-2 align-items-center form-group-adjust">
+        <div class="col-md-4">
                 {!! Form::select(
                     'trend_balance_type',
                     [
@@ -31,9 +29,8 @@ $(function () {
                         '' => 'すべて',
                     ],
                     App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE,
-                    ['class' => 'form-control', 'id' => 'trend_balance_type']
+                    ['class' => 'form-select form-select-sm', 'id' => 'trend_balance_type']
                 ) !!}
-            </div>
         </div>
     </div>
 </div>

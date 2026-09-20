@@ -1,6 +1,21 @@
 {
+  "private": true,
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:report": "playwright show-report tests/e2e/report",
+    "vendor:sync": "node tools/sync-vendor.js"
+  },
+  "dependencies": {
+    "bootstrap": "5.3.8",
+    "bootstrap-icons": "1.13.1",
+    "bootswatch": "5.3.8",
+    "highcharts": "13.1.0",
+    "jquery": "3.7.1",
+    "jquery-ui-dist": "1.13.3",
+    "js-cookie": "3.0.8"
+  },
   "devDependencies": {
-    "gulp": "^3.8.8",
-    "laravel-elixir": "*"
+    "@playwright/test": "1.56.0"
   }
 }
