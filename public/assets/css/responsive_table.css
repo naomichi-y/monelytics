@@ -13,6 +13,15 @@
     float: left;
   }
 
+  /*
+   * 列幅の指定 (colgroup) は横に並べたときのためのもの。縦積みにすると
+   * 見出しと値は無名のセル 1 つに入り、その幅が 1 列目の指定まで縮むため、
+   * 下の 40%/60% がまとめて潰れる (見出しも値も 50px ほどになる)。
+   */
+  col {
+    width: auto !important;
+  }
+
   table tr,
   table th,
   table td {
@@ -28,7 +37,14 @@
     width: 60%;
   }
 
-  thead th, tbody td {
+  /*
+   * 揃えは見出しも値も左。BS3 の .text-center / .text-right には !important が
+   * 付かず、この指定だけで揃っていた。5 の text-* は !important 付きのため、
+   * 詳細度で上回る形にする。そろえないと、元からある 1 件目の見出しだけが
+   * 中央で、複製した 2 件目以降は左、と件ごとに位置が変わる。
+   */
+  .table thead th,
+  .table tbody td {
     height: 63px;
     line-height: 340% !important;
     text-align: left !important;

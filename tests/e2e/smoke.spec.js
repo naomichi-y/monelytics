@@ -159,3 +159,71 @@ test('囲みや行の中のボタンが横いっぱいに伸びない', async ({
 
   expect(stretched, stretched.join('\n')).toEqual([]);
 });
+
+/**
+ * トップページの紹介文は白抜きで、parallax.js が敷く背景写真があって初めて
+ * 読める。1.4.2 は $(document).on('ready', ...) で自動初期化するが、jQuery 3 で
+ * この呼び出し方は削除されており、放っておくと本文が真っ白な画面に消える。
+ * ログインしていないときだけ出る画面のため、巡回のほうでは通らない。
+ */
+test('トップページの紹介文に背景が敷かれる', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { name: "Let's get started" })).toBeVisible();
+
+  // 背景は body の裏に固定で敷かれる img として作られる。
+  const slider = page.locator('.parallax-mirror .parallax-slider').first();
+  await expect(slider).toHaveAttribute('src', /\/assets\/images\/parallax\//);
+});
+
+/**
+ * 狭い画面では responsive_table.js が見出しを各行に複製し、表を
+ * 「見出し / 値」の 2 列に畳む。jQuery 3 で削除された .context を読んでいた
+ * ため処理は途中で例外になり、見出しの付かない値だけの表になっていた。
+ *
+ * 画面幅だけを狭める。日付入力の種類はサーバが UA で決めるため、ここでは
+ * デスクトップのままにしておく。
+ */
+test.describe('狭い画面の一覧', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('行ごとに見出しが付き、見出しと値が 4 対 6 で並ぶ', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    await login(page);
+    await page.goto('/summary/daily');
+
+    expect(errors, errors.join('\n')).toEqual([]);
+
+    const table = page.locator('table').first();
+    const rows = await table.locator('tbody tr').count();
+
+    // 8 列ぶんの見出しが行数だけ並ぶ。
+    expect(rows).toBeGreaterThan(1);
+    await expect(table.locator('thead th')).toHaveCount(8 * rows);
+
+    // 列幅の指定 (colgroup) が残っていると、どちらも 50px ほどに潰れる。
+    const head = await table.locator('thead').boundingBox();
+    const body = await table.locator('tbody').boundingBox();
+
+    expect(head.width / (head.width + body.width)).toBeCloseTo(0.4, 1);
+  });
+
+  /**
+   * 見出しの揃えは件をまたいで同じであること。元からある 1 件目の見出しは
+   * text-center を持ち、複製した 2 件目以降は持たない。BS5 の text-* は
+   * !important 付きのため、responsive_table.css の左寄せに勝ってしまい、
+   * 1 件目だけ中央に寄る。
+   */
+  test('件ごとに見出しの揃えが変わらない', async ({ page }) => {
+    await login(page);
+    await page.goto('/summary/daily');
+
+    const aligns = await page.locator('table thead th').evaluateAll(
+      (cells) => [...new Set(cells.map((cell) => getComputedStyle(cell).textAlign))]
+    );
+
+    expect(aligns).toEqual(['left']);
+  });
+});

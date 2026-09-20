@@ -27,7 +27,10 @@ $(function() {
             var $lastHeader = $element.find("thead tr th").last();
             var html;
 
-            if ($headerData[i].context.className.indexOf('hidden-xs') == -1) {
+            // jQuery 3 で .context は削除された。見出しセルそのものから調べる。
+            // 幅の狭い画面で隠す列は、Bootstrap 3 の hidden-xs から 5 の
+            // d-none (+ d-md-table-cell) に変わっている。
+            if (!$headerData[i].hasClass("d-none")) {
               if (i == 0) {
                 // 行が変わるタイミングでセルにCSSを追加 (マージンを入れる)
                 html = "<th class=\"responsive-div\">" + $headerData[i].html() +"</th>";
