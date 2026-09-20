@@ -98,7 +98,7 @@
                     <th class="text-center">用途</th>
                     <th class="text-center"><span class="bi bi-credit-card"></span></th>
                     <th class="text-center">登録日時</th>
-                    <th class="text-center d-none d-sm-table-row">表示順序</th>
+                    <th class="text-center d-none d-md-table-cell">表示順序</th>
                     <th class="text-center">操作</th>
                 </tr>
             </thead>
@@ -113,7 +113,7 @@
                             @endif
                         </td>
                         <td class="text-center">{{Html::datetime($activity_category_group->create_date)}}</td>
-                        <td class="text-center sort-col d-none d-sm-table-row"><span class="glyphicon glyphicon-sort"></span></td>
+                        <td class="text-center sort-col d-none d-md-table-cell"><i class="bi bi-arrow-down-up"></i></td>
                         <td class="text-center">
                             {!! Form::hidden('sortable_ids[]', $activity_category_group->id) !!}
                             {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}

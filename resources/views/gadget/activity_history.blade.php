@@ -26,8 +26,8 @@
             <th class="text-center">発生日</th>
             <th class="text-center">科目名</th>
             <th class="text-center">金額</th>
-            <th class="text-center d-none d-sm-table-row">場所</th>
-            <th class="text-center d-none d-sm-table-row">用途</th>
+            <th class="text-center d-none d-md-table-cell">場所</th>
+            <th class="text-center d-none d-md-table-cell">用途</th>
         </thead>
         <tbody>
             @foreach ($histories as $history)
@@ -35,8 +35,8 @@
                     <td class="text-center">{{Html::date($history->activity_date)}}</td>
                     <td>{{{$history->activityCategoryGroup->group_name}}}</td>
                     <td class="text-end">{{number_format($history->amount)}}</td>
-                    <td class="d-none d-sm-table-row">{{{$history->location}}}</td>
-                    <td class="d-none d-sm-table-row">{{{$history->content}}}</td>
+                    <td class="d-none d-md-table-cell">{{{$history->location}}}</td>
+                    <td class="d-none d-md-table-cell">{{{$history->content}}}</td>
                 </tr>
             @endforeach
         </tbody>

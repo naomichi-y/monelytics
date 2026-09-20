@@ -26,6 +26,17 @@ header, footer {
   opacity: 0.9;
 }
 
+/*
+ * 囲みの色。BS3 の .well は sandstone で薄いベージュ (#f8f5f0) だった。
+ * 置き換え先の .card は白なので、検索条件や入力欄の囲みが背景と同化する。
+ * 表の見出し (.table-highlight th) と同じ色で、元の見え方に揃える。
+ */
+.card {
+  --bs-card-bg: #f8f5f0;
+  --bs-card-spacer-y: 1.25rem;
+  --bs-card-spacer-x: 1.25rem;
+}
+
 /* BS5 に .page-header はない。BS3 が付けていた下線と余白を自前で持つ。 */
 .page-header {
   margin-top: 20px;
