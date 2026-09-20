@@ -34,16 +34,18 @@
 @stop
 
 @section('function')
-    {!! Form::open(['url' => 'summary/monthly', 'id' => 'search_form', 'method' => 'get']) !!}
-        <div class="row g-2 align-items-center form-group-adjust">
-            <div class="col-md-8">
-                {!! Form::select('date_month', $month_list, Request::input('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
+    <div class="card card-body">
+        {!! Form::open(['url' => 'summary/monthly', 'id' => 'search_form', 'method' => 'get']) !!}
+            <div class="row g-2 align-items-center form-group-adjust">
+                <div class="col-md-8">
+                    {!! Form::select('date_month', $month_list, Request::input('date_month', date('Y-m')), ['class' => 'form-select', 'id' => 'date_month']) !!}
+                </div>
+                <div class="col-md-4">
+                    <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
+                </div>
             </div>
-            <div class="col-md-4">
-                <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
-            </div>
-        </div>
-    {!! Form::close() !!}
+        {!! Form::close() !!}
+    </div>
 @stop
 
 @section('content')

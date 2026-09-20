@@ -29,7 +29,7 @@ $(function () {
                         '' => 'すべて',
                     ],
                     App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE,
-                    ['class' => 'form-select', 'id' => 'trend_balance_type']
+                    ['class' => 'form-select form-select-sm', 'id' => 'trend_balance_type']
                 ) !!}
         </div>
     </div>
