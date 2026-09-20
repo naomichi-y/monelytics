@@ -91,6 +91,25 @@ header, footer {
   padding: 12px 16px;
 }
 
+/*
+ * 項目名の位置。BS3 の .form-horizontal は 768px 以上でラベルを右寄せし、
+ * 46px の入力欄と行が揃うよう上に 13px 空けていた。BS5 に form-horizontal は
+ * なく、ラベルは左寄せのまま行の上端に付くため、入力欄との対応が読み取り
+ * にくい。列に置いたラベル (col-* を併せ持つもの) だけ以前の配置へ戻す。
+ */
+@media (min-width: 768px) {
+  label.col-form-label[class*="col-"] {
+    padding-top: 13px;
+    margin-bottom: 0;
+    text-align: right;
+  }
+}
+
+/* 同じ行に並ぶチェックとラジオも、BS3 は 13px 下げて入力欄と揃えていた。 */
+.form-check-inline {
+  padding-top: 13px;
+}
+
 /* 高さは入力欄に揃える。横は詰める。16px だと設定画面の操作列に
    ボタンが 3 つ並ばず、折り返して行が二段になる。 */
 .btn {
@@ -178,10 +197,16 @@ hr {
   font-size: 0.9em;
 }
 
+/*
+ * 見出し横のボタン (詳細検索と登録) は btn-sm だが、sandstone 5 は .btn へ
+ * font-size と line-height を直接書くため、--bs-btn-font-size では縮まない。
+ * 文字と行の高さも指定して、隣の月選択より一回り小さくする。
+ */
 .page-header .btn {
-  --bs-btn-padding-y: 6px;
-  --bs-btn-padding-x: 12px;
-  --bs-btn-font-size: 0.9em;
+  --bs-btn-padding-y: 4px;
+  --bs-btn-padding-x: 10px;
+  font-size: 0.85em;
+  line-height: 1.5;
 }
 
 /* 旧版は文字と ▾ が別要素で間隔があった。BS5 の擬似要素は詰まって見える。 */
@@ -304,6 +329,11 @@ td a {
   padding: 6px 34px 6px 12px;
 }
 
+/* 帯の中の下書き文字。入力済みの文字と紛れない濃さにする。 */
+.navbar-search .form-control::placeholder {
+  color: rgba(223, 215, 202, 0.45);
+}
+
 .navbar-search-button {
   position: absolute;
   top: 0;
@@ -321,10 +351,51 @@ td a {
 }
 
 
+/*
+ * ページ送り。BS3 の .pagination は inline-block で、囲みの text-align に
+ * 従って右へ寄り、上下に 20px の余白を持っていた。BS5 では flex 箱になり、
+ * どちらも効かない。枠の大きさも、入力欄やボタンと同じ 12px 16px に戻す。
+ */
+.pagination {
+  justify-content: flex-end;
+  margin: 20px 0;
+  --bs-pagination-padding-y: 12px;
+  --bs-pagination-padding-x: 16px;
+
+  /* 送りの文字は本文より小さく。1rem では枠だけが目立つ。 */
+  --bs-pagination-font-size: 0.85rem;
+}
+
 /* BS5 のモーダルは position: relative ではないため top が効かない。
    上端から少し下げるのは余白で行う。 */
 .modal-dialog {
   margin-top: 100px;
+}
+
+/*
+ * 幅と枠。BS3 は 768px 以上でモーダルを 600px にし、外枠と見出し・脚の
+ * 仕切りは sandstone の薄いベージュ (#f8f5f0) だった。BS5 は 500px で
+ * 仕切りが灰色 (#dee2e6) のため、入力欄が窮屈になり線だけが目立つ。
+ */
+.modal {
+  --bs-modal-width: 600px;
+  --bs-modal-border-color: #f8f5f0;
+  --bs-modal-header-border-color: #f8f5f0;
+  --bs-modal-footer-border-color: #f8f5f0;
+}
+
+/* 見出しは h4。BS3 では 18px 固定だったが、BS5 の h4 は画面幅で変わる
+   1.5rem 前後で、本文に対して大きい。 */
+.modal-title {
+  font-size: 1.28em;
+}
+
+/* BS3 の .close は不透明度 0.2 の薄い × だった。BS5 の .btn-close は 0.5 で、
+   見出しの中で更新ボタンより目立つ。 */
+.btn-close {
+  --bs-btn-close-opacity: 0.2;
+  --bs-btn-close-hover-opacity: 0.5;
+  --bs-btn-close-focus-opacity: 0.5;
 }
 
 footer {
