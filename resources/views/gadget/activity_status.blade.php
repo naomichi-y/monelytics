@@ -14,14 +14,14 @@
         <h3>収入</h3>
         <p>{{number_format($status[App\Models\ActivityCategory::BALANCE_TYPE_INCOME])}}</p>
     </div>
-    <div class="col-md-1 operator d-none d-sm-table-row">
+    <div class="col-md-1 operator d-none d-md-block">
         <h3>+</h3>
     </div>
     <div class="col-md-3">
         <h3>支出</h3>
         <p>{{number_format($status[App\Models\ActivityCategory::BALANCE_TYPE_EXPENSE])}}</p>
     </div>
-    <div class="col-md-1 operator d-none d-sm-table-row">
+    <div class="col-md-1 operator d-none d-md-block">
         <h3>=</h3>
     </div>
     <div class="col-md-4">

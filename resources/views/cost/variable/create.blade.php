@@ -41,7 +41,7 @@
                         @if ($i == 0)
                             <tr>
                         @else
-                            <tr class="d-none d-sm-table-row">
+                            <tr class="d-none d-md-table-row">
                         @endif
                         <td>
                             @if (Agent::isDesktop())

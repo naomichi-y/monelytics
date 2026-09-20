@@ -15,7 +15,7 @@
                 @if (Auth::check())
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">収支管理</a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" data-bs-theme="light">
                             <li>{!! link_to('cost/variable/create', '変動収支', ['class' => 'dropdown-item']) !!}</li>
                             <li>{!! link_to('cost/constant/create', '固定収支', ['class' => 'dropdown-item']) !!}</li>
                         </ul>
@@ -23,7 +23,7 @@
 
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">レポート</a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" data-bs-theme="light">
                             <li>{!! link_to('summary/daily', '日別集計', ['class' => 'dropdown-item']) !!}</li>
                             <li>{!! link_to('summary/monthly', '月別集計', ['class' => 'dropdown-item']) !!}</li>
                             <li>{!! link_to('summary/yearly', '年別集計', ['class' => 'dropdown-item']) !!}</li>
@@ -32,7 +32,7 @@
 
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">設定</a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu" data-bs-theme="light">
                             <li>{!! link_to('settings/activityCategory', '科目カテゴリ', ['class' => 'dropdown-item']) !!}</li>
                             <li>{!! link_to('settings/activityCategoryGroup', '科目', ['class' => 'dropdown-item']) !!}</li>
                         </ul>
@@ -48,7 +48,7 @@
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">アカウント</a>
                         {{-- 右端に出るため、既定の左揃えではメニューが画面外へはみ出す。 --}}
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end" data-bs-theme="light">
                             <li>{!! link_to('/user', 'プロフィール', ['class' => 'dropdown-item']) !!}</li>
                             <li>{!! link_to('/user/logout', 'ログアウト', ['class' => 'dropdown-item']) !!}</li>
                         </ul>
