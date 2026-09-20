@@ -1,16 +1,8 @@
 <script>
     $(function() {
-        var minHeight = 400;
-        var tabHeight = window.innerHeight - minHeight;
-
-        if (tabHeight < minHeight) {
-            tabHeight = minHeight;
-        }
-
-        // テーブルのヘッダのスクロールを固定
-        $('#table-selector').tablefix({
-            width: $('#tab-container').width(),
-            height: tabHeight,
+        // @see resources/views/summary/monthly/report.blade.php
+        $('#tab-container').fixTableHeader({
+            table: '#table-selector',
             fixRows: 3,
             fixCols: 1
         });

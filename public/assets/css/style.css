@@ -1,6 +1,19 @@
+/*
+ * Bootstrap 3 (sandstone) は body が 14px / 行送り 1.43 だった。5 は 16px /
+ * 1.5 で、そのままだと文字も余白も一回り大きくなり、列の多い集計表が
+ * 収まらなくなる。rem の基準を 14px に戻して従来の密度へ合わせる。
+ *
+ * 5 の寸法は概ね rem なので、基準を変えれば余白も比例して縮む。body だけに
+ * font-size を指定してもボタンや入力欄は 1rem のままで揃わない。
+ */
 html {
   position: relative;
   min-height: 100%;
+  font-size: 87.5%;
+}
+
+:root {
+  --bs-body-line-height: 1.42857143;
 }
 
 body {
