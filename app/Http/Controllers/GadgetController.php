@@ -13,6 +13,12 @@ class GadgetController extends Controller {
      */
     const VARIABLE_EXPENSE_GROUP_LIMIT = 5;
 
+    /**
+     * 並べる履歴の件数。隣に置いた今月の変動支出と同じ数にして、
+     * 2 つの欄の下端を揃える。
+     */
+    const ACTIVITY_HISTORY_LIMIT = 5;
+
     private $activity;
 
     /**
@@ -42,7 +48,7 @@ class GadgetController extends Controller {
     public function activityHistory()
     {
         $data = [];
-        $data['histories'] = $this->activity->getHistories(Auth::id(), 4);
+        $data['histories'] = $this->activity->getHistories(Auth::id(), self::ACTIVITY_HISTORY_LIMIT);
 
         return View::make('gadget/activity_history', $data);
     }

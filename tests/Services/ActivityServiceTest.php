@@ -3,6 +3,7 @@ namespace Tests\Services;
 
 use DB;
 
+use App\Http\Controllers\GadgetController;
 use App\Libraries\Condition\DailyPaginateCondition;
 use App\Libraries\Condition\MonthlySummaryCondition;
 use App\Libraries\Condition\RankingCondition;
@@ -848,7 +849,7 @@ class ActivityServiceTest extends TestCase {
     /**
      * 先の日付で登録した収支は「最近の収支履歴」に出さない。家賃や給与を
      * 翌月分まで先に入れると、それが常に先頭を占め、今記録したものが
-     * 4 件の枠から押し出されていた。
+     * 数件の枠から押し出されていた。
      */
     public function testHistoriesExcludeFutureActivities()
     {
@@ -860,7 +861,7 @@ class ActivityServiceTest extends TestCase {
         $this->createActivity($group_id, $tomorrow, -100);
         $this->createActivity($group_id, date('Y-m-d'), -200);
 
-        $histories = $this->activity->getHistories($this->getUser()->id, 4);
+        $histories = $this->activity->getHistories($this->getUser()->id, GadgetController::ACTIVITY_HISTORY_LIMIT);
 
         $this->assertSame([date('Y-m-d')], $histories->pluck('activity_date')->all());
     }
