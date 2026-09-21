@@ -214,6 +214,133 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 変動支出だけを科目グループごとに集め、前月同時点との差額を添える。
+     */
+    public function testVariableExpenseComparisonReturnsDifferencePerGroup()
+    {
+        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $previous_month = date('Y-m', strtotime(date('Y-m-01') . ' -1 month'));
+
+        DB::table('activities')->truncate();
+
+        $this->createActivity($group, date('Y-m-d'), -3000);
+        $this->createActivity($group, $previous_month . '-01', -2000);
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
+
+        // 支出は負で記録されている。使った額として正で返す。
+        $this->assertSame(3000, $result['groups'][0]['amount']);
+        $this->assertSame(2000, $result['groups'][0]['previous_amount']);
+        $this->assertSame(1000, $result['groups'][0]['difference']);
+
+        $this->assertSame(3000, $result['total']['amount']);
+        $this->assertSame(1000, $result['total']['difference']);
+    }
+
+    /**
+     * 固定支出と収入は外す。どちらも月のうち決まった日にまとめて記録される
+     * ため、月の途中で前月と比べても使いすぎの目安にならない。
+     */
+    public function testVariableExpenseComparisonLeavesOutConstantCostAndIncome()
+    {
+        DB::table('activities')->truncate();
+
+        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -1000);
+        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -80000);
+        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, date('Y-m-d'), 250000);
+        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_INCOME_CREDIT_DISABLE, date('Y-m-d'), 250000);
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
+
+        $this->assertSame(
+            [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE],
+            array_column($result['groups'], 'activity_category_group_id')
+        );
+        $this->assertSame(1000, $result['total']['amount']);
+    }
+
+    /**
+     * 並びは今月使った額の多い順。落とした科目も合計には残す。
+     */
+    public function testVariableExpenseComparisonKeepsDroppedGroupsInTotal()
+    {
+        DB::table('activities')->truncate();
+
+        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -1000);
+        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE, date('Y-m-d'), -3000);
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 1);
+
+        $this->assertSame(
+            [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE],
+            array_column($result['groups'], 'activity_category_group_id')
+        );
+
+        // 棒は 1 本でも、合計は落とした科目を含める。
+        $this->assertSame(4000, $result['total']['amount']);
+
+        // 棒が全部ではないことを画面が言えるように、絞る前の数も返す。
+        $this->assertSame(2, $result['group_count']);
+    }
+
+    /**
+     * 今月の記録がない科目グループは棒を持てないので返さない。前月に使って
+     * いた分は合計の差額に残る。
+     */
+    public function testVariableExpenseComparisonSkipsGroupWithoutCurrentRecord()
+    {
+        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $previous_month = date('Y-m', strtotime(date('Y-m-01') . ' -1 month'));
+
+        DB::table('activities')->truncate();
+
+        $this->createActivity($group, $previous_month . '-01', -2000);
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
+
+        $this->assertSame([], $result['groups']);
+        $this->assertSame(0, $result['total']['amount']);
+        $this->assertSame(-2000, $result['total']['difference']);
+    }
+
+    /**
+     * 返金が上回って純額がプラスになった科目は外す。棒の長さが負になり、
+     * 支出の並びに混ぜると読めないため。
+     */
+    public function testVariableExpenseComparisonSkipsRefundedGroup()
+    {
+        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+
+        DB::table('activities')->truncate();
+
+        $this->createActivity($group, date('Y-m-d'), -1000);
+        $this->createActivity($group, date('Y-m-d'), 1500);
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
+
+        $this->assertSame([], $result['groups']);
+        $this->assertSame(0, $result['total']['amount']);
+    }
+
+    /**
+     * 比べる期間は前月比と同じ切り方をする。当月は今日まで、前月も同じ日数。
+     */
+    public function testVariableExpenseComparisonCutsBothPeriodsAtTheSameDay()
+    {
+        $previous_begin_date = date('Y-m-01', strtotime(date('Y-m-01') . ' -1 month'));
+        $day = min((int) date('j'), (int) date('t', strtotime($previous_begin_date)));
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
+
+        $this->assertSame([
+            'begin_date' => date('Y-m-01'),
+            'end_date' => date('Y-m-d'),
+            'previous_begin_date' => $previous_begin_date,
+            'previous_end_date' => date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', $day)
+        ], $result['period']);
+    }
+
+    /**
      * 前の期間を決められない条件では比較しない。
      */
     public function testMonthlyComparisonReturnsEmptyForUncomparableCondition()
