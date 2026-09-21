@@ -230,6 +230,40 @@ test('見出し横の月の選択が端数のない高さを持つ', async ({ pa
 });
 
 /**
+ * 検索条件は <script> の中へ値として書き出される。以前は引用符しか潰して
+ * いなかったため、引用符を含まない '</script>...' が素通りして script 要素を
+ * 閉じ、URL を踏ませるだけで任意のスクリプトが動いた。
+ *
+ * サーバが出す HTML とブラウザの解釈の継ぎ目なので、ここで押さえる。
+ */
+test('検索条件に script を書いても実行されない', async ({ page }) => {
+  await login(page);
+
+  const fired = [];
+  page.on('dialog', async (dialog) => {
+    fired.push(dialog.message());
+    await dialog.dismiss();
+  });
+
+  const payload = '</script><img src=x onerror="alert(1)">';
+
+  for (const url of [
+    `/summary/monthly?begin_date=${encodeURIComponent(payload)}`,
+    `/summary/daily?keyword=${encodeURIComponent(payload)}`,
+  ]) {
+    await page.goto(url);
+
+    // 仕込んだ要素が組み上がっていないこと。
+    await expect(page.locator('img[src="x"]')).toHaveCount(0);
+
+    // 画面の JS は生きていること (壊れた値で構文誤りになっていない)。
+    await expect(page.locator('#open_condition')).toBeVisible();
+  }
+
+  expect(fired).toEqual([]);
+});
+
+/**
  * トップページの紹介文は白抜きで、parallax.js が敷く背景写真があって初めて
  * 読める。1.4.2 は $(document).on('ready', ...) で自動初期化するが、jQuery 3 で
  * この呼び出し方は削除されており、放っておくと本文が真っ白な画面に消える。
