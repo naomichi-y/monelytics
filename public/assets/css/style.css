@@ -220,11 +220,18 @@ hr {
 /*
  * 見出し横の操作欄 (月の選択と詳細検索)。本文用の寸法をそのまま使うと
  * 見出しの高さに対して大きいため、一回り小さくする。
+ *
+ * 行の高さは px で固定して、欄の高さを整数に保つ。em で縮めた文字は
+ * 12.6px になり、既定の line-height (1.5) では行が 18.9px、欄が 32.89px と
+ * 端数を持つ。端数は行の下に溜まるため、文字だけが上へ寄って見える
+ * (実測で数字が 1、和文が 1.5 device px 上。.btn と .ui-tabs-anchor も
+ * 同じ端数を持つが、あちらは --text-optical-shift が打ち消している)。
  */
 .page-header .form-control,
 .page-header .form-select {
   padding: 6px 12px;
   font-size: 0.9em;
+  line-height: 18px;
 }
 
 /*
