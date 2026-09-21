@@ -1,6 +1,28 @@
+/*
+ * この画面は明色しか用意していない。宣言しないと、OS が暗色設定のときに
+ * ブラウザがフォーム部品やスクロールバーを暗くし、Highcharts 13 も
+ * light-dark() で暗い配色を選ぶ (グラフだけ黒い背景になる)。
+ */
+:root {
+  color-scheme: light;
+}
+
+/*
+ * Bootstrap 3 (sandstone) は body が 14px / 行送り 1.43 だった。5 は 16px /
+ * 1.5 で、そのままだと文字も余白も一回り大きくなり、列の多い集計表が
+ * 収まらなくなる。rem の基準を 14px に戻して従来の密度へ合わせる。
+ *
+ * 5 の寸法は概ね rem なので、基準を変えれば余白も比例して縮む。body だけに
+ * font-size を指定してもボタンや入力欄は 1rem のままで揃わない。
+ */
 html {
   position: relative;
   min-height: 100%;
+  font-size: 87.5%;
+}
+
+:root {
+  --bs-body-line-height: 1.42857143;
 }
 
 body {
@@ -13,18 +35,134 @@ header, footer {
   opacity: 0.9;
 }
 
-.dropdown-toggle {
-  color: #fff !important;
+/*
+ * 囲みの色。BS3 の .well は sandstone で薄いベージュ (#f8f5f0) だった。
+ * 置き換え先の .card は白なので、検索条件や入力欄の囲みが背景と同化する。
+ * 表の見出し (.table-highlight th) と同じ色で、元の見え方に揃える。
+ */
+.card {
+  --bs-card-bg: #f8f5f0;
 }
 
+/*
+ * 幅。BS3 の .container は 768/992/1200px で 750/970/1170px に切り替わり、
+ * それ未満は横いっぱいだった。BS5 は 576px から効き、最大 1320px まで
+ * 広がるため、同じ画面でも一回り横長になる。以前の刻みに戻す。
+ */
+.container {
+  max-width: none;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 750px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 970px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1170px;
+  }
+}
+
+/*
+ * 行の区切り。BS3 はセルの上辺に引いていたため、行の間には線が入り、最後の
+ * 行の下には何も残らなかった。BS5 は下辺に引くので、表の一番下にも線が出る。
+ * 上辺に引き直して以前の見え方に戻す。
+ *
+ * 触るのはセルの枠だけ。--bs-border-width は入力欄やボタンも参照するため、
+ * 表にまとめて 0 を置くと中の入力欄から枠が消える。
+ */
+.table:not(.table-bordered) > :not(caption) > * > * {
+  border-bottom-width: 0;
+}
+
+.table:not(.table-bordered) > tbody > tr > * {
+  border-top: var(--bs-border-width) solid var(--bs-table-border-color);
+}
+
+/*
+ * 表の縞と行のハイライト。BS3 の sandstone は薄いベージュ (#f8f5f0) で、
+ * BS5 は黒の半透明を重ねるため灰色になる。囲みや見出しと同じ色へ戻す。
+ */
+.table {
+  --bs-table-striped-bg: #f8f5f0;
+  --bs-table-hover-bg: #f8f5f0;
+}
+
+/*
+ * 入力欄とボタンの高さ。sandstone 3 は独自に大きめ (高さ 46px、内側余白
+ * 12px 16px) で、BS5 版は素の Bootstrap と同じ 34px に戻っている。行の高さが
+ * 目に見えて変わるため、以前の寸法に合わせる。
+ */
+/* -sm を付けた小さい部品は Bootstrap の寸法をそのまま使う。 */
+.form-control:not(.form-control-sm),
+.form-select:not(.form-select-sm) {
+  padding: 12px 16px;
+}
+
+/*
+ * 項目名の位置。BS3 の .form-horizontal は 768px 以上でラベルを右寄せし、
+ * 46px の入力欄と行が揃うよう上に 13px 空けていた。BS5 に form-horizontal は
+ * なく、ラベルは左寄せのまま行の上端に付くため、入力欄との対応が読み取り
+ * にくい。列に置いたラベル (col-* を併せ持つもの) だけ以前の配置へ戻す。
+ */
+@media (min-width: 768px) {
+  label.col-form-label[class*="col-"] {
+    padding-top: 13px;
+    margin-bottom: 0;
+    text-align: right;
+  }
+}
+
+/* 同じ行に並ぶチェックとラジオも、BS3 は 13px 下げて入力欄と揃えていた。 */
+.form-check-inline {
+  padding-top: 13px;
+}
+
+/* 高さは入力欄に揃える。横は詰める。16px だと設定画面の操作列に
+   ボタンが 3 つ並ばず、折り返して行が二段になる。 */
+.btn {
+  --bs-btn-padding-y: 12px;
+  --bs-btn-padding-x: 12px;
+}
+
+/*
+ * 副ボタン。BS3 の .btn-default は sandstone では濃い色 (#3e3f3a) の
+ * ボタンだった。移行先の .btn-secondary は明るいベージュで、主ボタンとの
+ * 区別が付きにくい。元の配色に戻す。
+ */
+.btn-secondary {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: #3e3f3a;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: #242422;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-active-bg: #242422;
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-color: #ffffff;
+  --bs-btn-disabled-bg: #3e3f3a;
+  --bs-btn-disabled-border-color: transparent;
+}
+
+/* BS5 に .page-header はない。余白だけ自前で持つ (下線は引かない)。 */
 .page-header {
   margin-top: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 9px;
 }
 
+/* BS5 の navbar は flex。float は不要で、付けると縦位置がずれる。 */
 .logo {
-  padding-top: 9px;
   padding-right: 10px;
-  float: left;
 }
 
 .logo img {
@@ -35,20 +173,67 @@ h1 {
   font-size: 2em;
 }
 
+/*
+ * BS5 は見出しの上余白を 0 にする。3 系は 20px あり、詰めると節の
+ * 見出しが直前の表にくっついて、どこで切れているのか読めなくなる。
+ */
 h2 {
   font-size: 1.6em;
+  margin-top: 20px;
 }
 
 h3 {
   font-size: 1.2em;
+  margin-top: 20px;
 }
 
 hr {
   border-bottom: 1px solid #dcdcdc;
 }
 
-.navbar .nav > li > a {
-  font-size: 12px;
+/* BS5 のナビは .nav-link が直接並ぶ。expand 時は左右の余白が 0.5rem まで
+   詰められるため、旧版 (15px) に戻して項目間を空ける。 */
+.navbar .nav-link {
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.navbar-expand-lg .navbar-nav .nav-link {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/*
+ * 見出し横の操作欄 (月の選択と詳細検索)。本文用の寸法をそのまま使うと
+ * 見出しの高さに対して大きいため、一回り小さくする。
+ */
+.page-header .form-control,
+.page-header .form-select {
+  padding: 6px 12px;
+  font-size: 0.9em;
+}
+
+/*
+ * 見出し横のボタン (詳細検索と登録) は btn-sm だが、sandstone 5 は .btn へ
+ * font-size と line-height を直接書くため、--bs-btn-font-size では縮まない。
+ * 文字と行の高さも指定して、隣の月選択より一回り小さくする。
+ */
+.page-header .btn {
+  --bs-btn-padding-y: 4px;
+  --bs-btn-padding-x: 10px;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+/* 旧版は文字と ▾ が別要素で間隔があった。BS5 の擬似要素は詰まって見える。 */
+.navbar .dropdown-toggle::after {
+  margin-left: 0.5em;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-link.show {
+  color: #dfd7ca;
 }
 
 .table-highlight th {
@@ -57,11 +242,127 @@ hr {
 }
 
 .ui-tabs {
-  font-size: 0.8em;
+  font-size: 0.9em;
+}
+
+/*
+ * タブ。jquery-ui-dist に付く base テーマは、見出しの帯に灰色を敷き、
+ * 選択中のタブを青で塗り、widget 全体を枠で囲む。以前使っていた配布物は
+ * どれも持たず、本文だけが枠で囲まれていた。その見え方に戻す。
+ */
+/* base テーマは .ui-widget.ui-widget-content で枠を描く。詳細度を合わせないと
+   消えず、タブの上に線が残る。 */
+.ui-tabs.ui-widget-content {
+  border: 0;
+  background: none;
+  padding: 0.2em;
+}
+
+/* 帯の左右の余白は base テーマの padding: .2em .2em 0 による。本文の枠は
+   その外側に引かれるため、残したままだとタブだけが 2px ほど右へずれる。 */
+.ui-tabs .ui-tabs-nav {
+  border: 0;
+  background: none;
+  color: #222;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* タブ自身の下辺は描かない。帯の下辺と重なって二重線に見えるため。 */
+.ui-tabs .ui-tabs-nav .ui-state-default {
+  border: 1px solid #dfd7ca;
+  border-bottom-color: transparent;
+  background: #ffffff;
+  color: #555;
+}
+
+/* 線は本文の枠の上辺 1 本だけ。タブ側にも下辺を引くと二重に見える
+   (下の .ui-state-default で消している)。選択中のタブだけ 1px 下げて
+   その線に重ね、つながって見えるようにする。 */
+.ui-tabs .ui-tabs-nav .ui-state-active {
+  margin-bottom: -1px;
+}
+
+.ui-tabs .ui-tabs-nav .ui-state-active {
+  border: 1px solid #dfd7ca;
+  border-bottom-color: #dfd7ca;
+  background: #dfd7ca;
+}
+
+/* base テーマは選択中のタブの文字を白にする。ベージュの上では読めない。 */
+.ui-tabs .ui-tabs-nav .ui-state-active a,
+.ui-tabs .ui-tabs-nav .ui-state-active a:link,
+.ui-tabs .ui-tabs-nav .ui-state-active a:visited,
+.ui-tabs .ui-tabs-nav .ui-state-active a:hover {
+  color: #000000;
+}
+
+.ui-tabs .ui-tabs-panel {
+  border: 1px solid #dfd7ca;
+  background: none;
 }
 
 .ui-tabs p {
   margin: 0;
+}
+
+/*
+ * カレンダー。jquery-ui-dist に付く base テーマは、見出しに灰色の帯を敷き、
+ * 日付を枠付きのボタンにし、今日を黄色で塗る。以前使っていた配布物はどれも
+ * 持たず、枠のない日付が並ぶだけだった。その見え方に戻す。
+ *
+ * 文字色には触れない。土日と祝日の色は gcalendar-holidays.js が
+ * .gcal-sunday .ui-state-default の形で当てており、ここで色を書くと
+ * 詳細度で勝ってしまって消える。
+ */
+.ui-datepicker {
+  padding: 0.5em;
+  border: 0;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.25);
+}
+
+.ui-datepicker .ui-datepicker-header {
+  border: 0;
+  background: none;
+}
+
+.ui-datepicker td .ui-state-default {
+  border: 0;
+  background: none;
+  text-align: center;
+}
+
+.ui-datepicker td .ui-state-hover {
+  background: #f8f5f0;
+  border-radius: 4px;
+}
+
+/* 今日。base テーマは黄色で塗る。 */
+.ui-datepicker td .ui-state-highlight {
+  background: #ececec;
+  border-radius: 4px;
+}
+
+/* 選択中の日。base テーマは青で塗る。 */
+.ui-datepicker td .ui-state-active {
+  background: #dfd7ca;
+  border-radius: 4px;
+}
+
+/* 土日と祝日の色。以前は gcalendar-holidays.js が style 要素を差し込んで
+   いた。色はそのときの値をそのまま使う。 */
+.ui-datepicker td.calendar-sunday .ui-state-default {
+  color: #ff9999;
+}
+
+.ui-datepicker td.calendar-saturday .ui-state-default {
+  color: #33bfdb;
+}
+
+.ui-datepicker td.calendar-holiday .ui-state-default {
+  color: #26ae90;
 }
 
 .form-group-adjust {
@@ -96,9 +397,88 @@ td a {
   font-size: 0.8em;
 }
 
+/* 下書きの文字。sandstone は本文と同じ暖色で、入力済みの文字と紛れる。 */
+.form-control::placeholder {
+  color: #aaaaaa;
+}
 
+/* ヘッダーの検索。ボタンを入力欄の中へ重ねる。 */
+.navbar-search {
+  position: relative;
+}
+
+/* 入力文字がボタンの下へ潜らないよう右側を空ける。帯の中なので、
+   本文の入力欄より一回り小さくする。 */
+.navbar-search .form-control {
+  padding: 6px 34px 6px 12px;
+}
+
+/* 帯の中の下書き文字。入力済みの文字と紛れない濃さにする。 */
+.navbar-search .form-control::placeholder {
+  color: rgba(223, 215, 202, 0.45);
+}
+
+.navbar-search-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: #999;
+}
+
+.navbar-search-button:hover,
+.navbar-search-button:focus {
+  color: #333;
+}
+
+
+/*
+ * ページ送り。BS3 の .pagination は inline-block で、囲みの text-align に
+ * 従って右へ寄り、上下に 20px の余白を持っていた。BS5 では flex 箱になり、
+ * どちらも効かない。枠の大きさも、入力欄やボタンと同じ 12px 16px に戻す。
+ */
+.pagination {
+  justify-content: flex-end;
+  margin: 20px 0;
+  /* 送りは本文の部品より小さく。1rem・12px 16px では枠だけが目立つ。 */
+  --bs-pagination-padding-y: 6px;
+  --bs-pagination-padding-x: 12px;
+  --bs-pagination-font-size: 0.8rem;
+}
+
+/* BS5 のモーダルは position: relative ではないため top が効かない。
+   上端から少し下げるのは余白で行う。 */
 .modal-dialog {
-  top: 100px;
+  margin-top: 100px;
+}
+
+/*
+ * 幅と枠。BS3 は 768px 以上でモーダルを 600px にし、外枠と見出し・脚の
+ * 仕切りは sandstone の薄いベージュ (#f8f5f0) だった。BS5 は 500px で
+ * 仕切りが灰色 (#dee2e6) のため、入力欄が窮屈になり線だけが目立つ。
+ */
+.modal {
+  --bs-modal-width: 600px;
+  --bs-modal-border-color: #f8f5f0;
+  --bs-modal-header-border-color: #f8f5f0;
+  --bs-modal-footer-border-color: #f8f5f0;
+}
+
+/* 見出しは h4。BS3 では 18px 固定だったが、BS5 の h4 は画面幅で変わる
+   1.5rem 前後で、本文に対して大きい。 */
+.modal-title {
+  font-size: 1.28em;
+}
+
+/* BS3 の .close は不透明度 0.2 の薄い × だった。BS5 の .btn-close は 0.5 で、
+   見出しの中で更新ボタンより目立つ。 */
+.btn-close {
+  --bs-btn-close-opacity: 0.2;
+  --bs-btn-close-hover-opacity: 0.5;
+  --bs-btn-close-focus-opacity: 0.5;
 }
 
 footer {
@@ -139,7 +519,7 @@ footer li {
    * ナビゲーションメニューにマウスオーバー時はサブメニューを自動展開。
    * (スマホだと挙動が怪しいのでPC以上限定措置とする)
    */
-  ul.nav li.dropdown:hover > ul.dropdown-menu {
+  .navbar-nav .dropdown:hover > .dropdown-menu {
     display: block;
   }
 }

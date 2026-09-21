@@ -120,6 +120,40 @@ docker compose exec -u webapp php php artisan [COMMAND]
 docker compose exec -u webapp php php artisan migrate
 ```
 
+## TLS certificate
+
+The production host terminates TLS in the `web` container with a Let's Encrypt
+certificate. Certbot runs on the host, not in a container, and `compose.yml`
+mounts `/etc/letsencrypt` and `/var/www/certbot` into `web` read-only, so nginx
+only ever reads what certbot writes.
+
+The `web` container will not start if the certificate is missing, because
+`etc/docker/web/default.conf` references it. On a new host, issue it before
+bringing the stack up:
+
+```
+sudo snap install --classic certbot
+sudo mkdir -p /var/www/certbot
+
+# nginx must already answer on port 80 for the HTTP-01 challenge, so bring the
+# stack up once with the server block for 443 commented out.
+sudo certbot certonly --webroot -w /var/www/certbot -d monelytics.me \
+  --email <address> --agree-tos --no-eff-email
+```
+
+Renewal is handled by certbot's own `snap.certbot.renew.timer`. The deploy hook
+at `/etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh` reloads nginx inside
+the container afterwards:
+
+```sh
+#!/bin/sh
+set -e
+exec /usr/bin/docker exec monelytics_web nginx -s reload
+```
+
+Port 443 has to be open both in the host firewall (`/etc/iptables/rules.v4`) and
+in the OCI security list for the instance's subnet.
+
 ## Test
 
 ```
@@ -129,3 +163,13 @@ docker compose exec -u webapp php php artisan test
 # e.g. Specify test class
 docker compose exec -u webapp php php artisan test --filter ContactControllerTest
 ```
+
+End-to-end tests run against a separate instance built with the `e2e` compose
+profile. See [tests/e2e/README.md](tests/e2e/README.md) for the steps.
+
+### CI
+
+`.github/workflows/test.yml` runs both suites on every push, in two jobs. Each one
+brings up the same compose stack used locally, so the PHP, MariaDB and Playwright
+versions come from `compose.yml` and `package.json` rather than being pinned again
+in the workflow. A failing E2E run uploads `tests/e2e/report` as an artifact.

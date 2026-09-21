@@ -2,11 +2,34 @@
 namespace App\Libraries\Condition;
 
 class DailyPaginateCondition extends BaseDateCondition {
+    /**
+     * 並び替えを許す列。Html::sortLabel が一覧の見出しに出しているものと揃える。
+     *
+     * 利用者入力をそのまま orderBy へ渡すと、存在しない列名で QueryException が
+     * 出て 500 になる。列名はクエリビルダが逃がすため注入は成立しないが、
+     * 受け付ける値をここで閉じておく。
+     */
+    const SORT_FIELDS = [
+        'activity_date',
+        'activity_category_group_id',
+        'location',
+        'content',
+        'amount',
+        'credit_flag',
+        'create_date',
+    ];
+
+    /**
+     * 1 ページの件数。狭い画面では 1 件が「見出し / 値」の縦並びに畳まれ、
+     * 同じ件数でも画面がかなり長くなるため少なくする。
+     */
+    const DEFAULT_LIMIT = 30;
+    const MOBILE_LIMIT = 10;
+
     public $activity_category_group_id = [];
     public $keyword;
     public $location;
     public $credit_flag;
-    public $special_flag;
     public $cost_type;
     public $sort_field;
     public $sort_type;
@@ -14,7 +37,7 @@ class DailyPaginateCondition extends BaseDateCondition {
 
     public function __construct(array $fields = [])
     {
-        if (empty($fields['sort_field'])) {
+        if (!in_array($fields['sort_field'] ?? null, self::SORT_FIELDS, true)) {
             $fields['sort_field'] = 'activity_date';
         }
 
@@ -23,7 +46,7 @@ class DailyPaginateCondition extends BaseDateCondition {
         $fields['sort_type'] = strtolower($fields['sort_type'] ?? '') === 'asc' ? 'asc' : 'desc';
 
         if (empty($fields['limit'])) {
-            $fields['limit'] = \Agent::isMobile() ? 5 : 30;
+            $fields['limit'] = \Agent::isMobile() ? self::MOBILE_LIMIT : self::DEFAULT_LIMIT;
         }
 
         parent::__construct($fields);

@@ -28,10 +28,15 @@ $(function () {
         });
       });
 
-      $element.highcharts({
+      // Highcharts 6 で jQuery プラグイン形式 ($element.highcharts()) が
+      // 廃止されたため、DOM 要素を直接渡す。
+      Highcharts.chart($element[0], {
         chart: {
           type: 'line',
-          zoomType: 'x'
+          // zoomType は 11 で chart.zooming.type へ移動した。
+          zooming: {
+            type: 'x'
+          }
         },
         title: {
           text: ''
@@ -50,7 +55,7 @@ $(function () {
           },
           labels: {
             formatter: function() {
-              // Highcharts 4 の既定の桁区切りは空白なので明示する。
+              // 既定の桁区切りは空白なので明示する。
               return Highcharts.numberFormat(this.value, 0, '.', ',');
             }
           }
@@ -58,8 +63,18 @@ $(function () {
         tooltip: {
           shared: true,
           pointFormatter: function() {
-            return '<span style="color:' + this.series.color + '">●</span> '
-              + this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0, '.', ',') + '</b><br/>';
+            var amount = Highcharts.numberFormat(this.y, 0, '.', ',');
+
+            // 共有ツールチップは同じ目盛りの科目を全て並べるため、指している
+            // ものが埋もれる。捉えた科目は太字にし、残りは薄く落とす。
+            if (this === this.series.chart.hoverPoint) {
+              return '<span style="color:' + this.series.color + '">●</span> '
+                + '<b>' + this.series.name + '</b>: <b>' + amount + '</b><br/>';
+            }
+
+            // 薄さは fill-opacity で出す。tspan に opacity は効かない。
+            return '<span style="color:' + this.series.color + ';fill-opacity:0.45">●</span> '
+              + '<span style="fill-opacity:0.45">' + this.series.name + ': ' + amount + '</span><br/>';
           }
         },
         plotOptions: {

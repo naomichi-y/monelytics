@@ -19,24 +19,32 @@ Route::get('/', ['uses' => 'IndexController@getIndex', 'as' => 'home']);
 
 Route::group(['namespace' => 'User', 'prefix' => 'user'], function($route) {
     $route->get('login', 'SessionController@getLogin');
-    $route->post('login', 'SessionController@postLogin');
+    // 総当たりを抑える。失敗も成功も同じ IP で数える。
+    $route->post('login', 'SessionController@postLogin')->middleware('throttle:' . config('app.rate_limits.login'));
     $route->get('logout', 'SessionController@logout');
 
     $route->get('done', 'RegistrationController@done');
     $route->put('update', 'RegistrationController@update');
     $route->post('withdrawal', 'RegistrationController@withdrawal');
 
-    $route->resource('', 'RegistrationController', ['only' => ['index', 'create', 'store']]);
+    // 登録フォームに CAPTCHA がなく、同一 IP から際限なく作成できていた。
+    $route->resource('', 'RegistrationController', ['only' => ['index', 'create', 'store']])
+        ->middlewareFor('store', 'throttle:' . config('app.rate_limits.registration'));
 });
 
 Route::group(['prefix' => 'contact'], function($route) {
-    $route->post('send', 'ContactController@send');
+    // 問い合わせも同様に無制限だった。
+    $route->post('send', 'ContactController@send')->middleware('throttle:' . config('app.rate_limits.contact'));
     $route->get('done', 'ContactController@done');
 });
 Route::resource('contact', 'ContactController', ['only' => ['index']]);
 
 Route::group(['middleware' => 'auth'], function() {
     Route::resource('dashboard', 'DashboardController');
+
+    // 日付入力のカレンダーが祝日の色付けに読む。外へ取りに行く処理を抱える
+    // ため、画面と同じく認証済みにだけ開ける。
+    Route::get('holidays', 'HolidayController@index');
 
     Route::group(['prefix' => 'gadget'], function($route) {
         $route->get('activity-status', 'GadgetController@activityStatus');
@@ -45,8 +53,15 @@ Route::group(['middleware' => 'auth'], function() {
     });
 
     Route::group(['namespace' => 'Cost', 'prefix' => 'cost'], function($route) {
-        $route->resource('variable', 'VariableController');
-        $route->resource('constant', 'ConstantController');
+        // どちらも一覧 (index) と単体表示 (show) の画面を持たない。既定の
+        // resource はその 2 つもルートに載せてしまい、直接開くと
+        // BadMethodCallException で 500 になる。実装のある動作だけを登録する。
+        $route->resource('variable', 'VariableController', [
+            'only' => ['create', 'store', 'edit', 'update', 'destroy']
+        ]);
+        $route->resource('constant', 'ConstantController', [
+            'only' => ['create', 'store', 'destroy']
+        ]);
     });
 
     Route::group(['namespace' => 'Summary', 'prefix' => 'summary'], function($route) {

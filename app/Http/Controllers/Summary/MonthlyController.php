@@ -84,13 +84,8 @@ class MonthlyController extends \App\Http\Controllers\Controller {
      */
     public function pieChart()
     {
-        $fields = Request::only(
-            'date_month',
-            'begin_date',
-            'end_date',
-            'balance_type'
-        );
-
+        // 検索条件は描画側の pie-chart.blade.php が Request から直接読み、
+        // pie-chart-data へ渡す。ここで組み立てる必要はない。
         return View::make('summary/monthly/pie-chart');
     }
 

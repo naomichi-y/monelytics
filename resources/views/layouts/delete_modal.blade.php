@@ -2,10 +2,9 @@
     $(function() {
         var id;
 
-        // 削除モーダルの表示
+        // 開くのは data-bs-toggle に任せる。ここでは対象の行を覚えるだけ。
         $(".open_delete").click(function() {
-            id = $(this).parent().parent().attr("data-id");
-            window.location.href = "#delete-modal";
+            id = $(this).closest("[data-id]").attr("data-id");
         });
 
         $("#delete").click(function() {
@@ -20,15 +19,15 @@
         <div class="modal-content">
             {!! Form::open(['id' => 'delete_form', 'method' => 'delete']) !!}
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">削除の確認</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
                 <div class="modal-body">
                     <p>対象レコードを削除します。よろしいですか?</p>
                 </div>
                 <div class="modal-footer">
                     {!! Form::button('削除', ['class' => 'btn btn-primary', 'id' => 'delete']) !!}
-                    {!! Form::button('キャンセル', ['class' => 'btn btn-default', 'data-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
+                    {!! Form::button('キャンセル', ['class' => 'btn btn-secondary', 'data-bs-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
                 </div>
             {!! Form::close() !!}
         </div>
