@@ -258,10 +258,14 @@ hr {
   padding: 0.2em;
 }
 
+/* 帯の左右の余白は base テーマの padding: .2em .2em 0 による。本文の枠は
+   その外側に引かれるため、残したままだとタブだけが 2px ほど右へずれる。 */
 .ui-tabs .ui-tabs-nav {
   border: 0;
   background: none;
   color: #222;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /* タブ自身の下辺は描かない。帯の下辺と重なって二重線に見えるため。 */
