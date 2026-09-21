@@ -31,6 +31,28 @@ test.describe('ダッシュボード', () => {
     expect(new Set(cellTops).size).toBe(1);
   });
 
+  /**
+   * 今月の収支状況は実額しか出しておらず、使いすぎかどうかが読めなかった。
+   * 増減率は ajax で取り込む断片に載るので、率そのものの正しさは PHPUnit に
+   * 任せ、ここでは画面まで届いているかだけを見る。
+   */
+  test('今月の収支状況に前月比が並ぶ', async ({ page }) => {
+    const status = page.locator('#activity_status');
+    await expect(status.locator('.activity-status')).toBeVisible();
+
+    // 収入・支出・残高の 3 つに付く。
+    const rates = status.locator('.comparison');
+    await expect(rates).toHaveCount(3);
+
+    for (const text of await rates.allInnerTexts()) {
+      expect(text).toMatch(/^[+\-\u00b1][0-9]/);
+    }
+
+    // 金額は今月まるごと、増減率は今日までと基準が違う。どこまでを比べたのか
+    // 書いていないと読み違える。
+    await expect(status.getByText('までとの比較です。')).toBeVisible();
+  });
+
   test('かんたん入力から登録できる', async ({ page }) => {
     await page.locator('#activity_category_group_id').selectOption({ label: '食料品' });
     await page.locator('#amount').fill('4321');
