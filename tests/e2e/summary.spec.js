@@ -7,6 +7,23 @@ const { login, formatMonth, reportTable } = require('./helpers');
  * いる。壊れるのは JS 側でも PHP 側でもなく、その継ぎ目 (URL、要素の id、
  * クエリの引き継ぎ) なので、ここを画面越しに押さえる。
  */
+/**
+ * 推移グラフの Highcharts インスタンスを取り出して fn に渡す。
+ *
+ * @param {import('@playwright/test').Page} page
+ * @param {Function} fn
+ */
+function chartEvaluate(page, fn) {
+  return page.locator('#yearly_trend_chart').evaluate(
+    (node, body) => {
+      const chart = Highcharts.charts.filter(Boolean).find((entry) => entry.renderTo === node);
+
+      return new Function('chart', `return (${body})(chart);`)(chart);
+    },
+    fn.toString()
+  );
+}
+
 test.describe('集計', () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
@@ -147,6 +164,68 @@ test.describe('集計', () => {
     const chart = page.locator('#yearly_trend_chart');
     await expect(chart.locator('svg')).toBeVisible();
     await expect(chart).not.toContainText('データがありません。');
+  });
+
+  /**
+   * ツールチップは同じ目盛りの科目を全て並べる。どれを指しているのか
+   * 分かるよう、カーソルが捉えた科目だけ濃い太字にし、残りは薄くしている。
+   */
+  test('推移グラフは指している科目だけを立たせる', async ({ page }) => {
+    const year = new Date().getFullYear();
+
+    await page.goto(`/summary/yearly?begin_year=${year - 2}&end_year=${year}&output_type=2`);
+    await page.getByRole('tab', { name: '推移グラフ' }).click();
+    await expect(page.locator('#yearly_trend_chart svg')).toBeVisible();
+
+    // 「すべて」にして、支出と収入の科目を同じグラフへ並べる。行が 1 つしか
+    // 出ないツールチップでは、濃さの違いを比べられない。
+    await page.selectOption('#trend_balance_type', '');
+    await expect(page.locator('#yearly_trend_chart svg')).toBeVisible();
+
+    // 最も多くの科目が値を持つ目盛りを選ぶ。
+    const target = await chartEvaluate(page, (chart) => {
+      const counts = chart.xAxis[0].categories.map(
+        (label, index) => chart.series.filter((s) => s.points[index] && s.points[index].y !== null).length
+      );
+      const index = counts.indexOf(Math.max(...counts));
+      const point = chart.series.find((s) => s.points[index] && s.points[index].y !== null).points[index];
+      const box = chart.container.getBoundingClientRect();
+
+      return { x: box.left + chart.plotLeft + point.plotX, y: box.top + chart.plotTop + point.plotY };
+    });
+
+    // 一度離れた場所を通す。いきなり点の上へ跳ぶと mousemove が届かない。
+    await page.mouse.move(target.x - 60, target.y - 60);
+    await page.mouse.move(target.x, target.y);
+
+    await expect
+      .poll(() => chartEvaluate(page, (chart) => (chart.hoverPoint ? chart.hoverPoint.series.name : null)))
+      .not.toBeNull();
+
+    // 科目名を持つ行だけを見る。先頭の丸と日付は対象外。
+    const rows = await chartEvaluate(page, (chart) => {
+      const hovered = chart.hoverPoint.series.name;
+
+      return Array.from(chart.tooltip.label.text.element.querySelectorAll('tspan'))
+        .filter((node) => chart.series.some((s) => node.textContent.startsWith(s.name)))
+        .map((node) => ({
+          hovered: node.textContent.startsWith(hovered),
+          weight: getComputedStyle(node).fontWeight,
+          opacity: Number(getComputedStyle(node).fillOpacity),
+        }));
+    });
+
+    expect(rows.length).toBeGreaterThan(1);
+
+    const hovered = rows.find((row) => row.hovered);
+
+    expect(hovered.weight).toBe('700');
+    expect(hovered.opacity).toBe(1);
+
+    for (const row of rows.filter((entry) => !entry.hovered)) {
+      expect(row.weight).toBe('400');
+      expect(row.opacity).toBeLessThan(1);
+    }
   });
 
   /**
