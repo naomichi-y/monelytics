@@ -136,7 +136,7 @@ class ActivityService
 
         $builder->activityDate($condition->getDateRange());
 
-        // 科目
+        // 小項目
         if (sizeof($condition->activity_category_item_id)) {
             $builder->whereIn('activity_category_item_id', $condition->activity_category_item_id);
         }
@@ -218,7 +218,7 @@ class ActivityService
     /**
      * 変動収支データを更新する。
      *
-     * 対象レコードも付け替え先の科目も、必ず $user_id で絞り込んでから
+     * 対象レコードも付け替え先の小項目も、必ず $user_id で絞り込んでから
      * 取得する。ID は利用者が自由に送れるため、絞り込まずに取得すると他人の
      * 収支を書き換えられる。
      *
@@ -532,7 +532,7 @@ class ActivityService
         ];
 
         foreach ($data as $value) {
-            // 科目配列の初期化
+            // 小項目配列の初期化
             if (!isset($category_summary[$value->cost_type][$value->activity_category_id][$value->id])) {
                 $category_summary[$value->cost_type][$value->activity_category_id]['category_name'] = $value->category_name;
                 $data = &$category_summary[$value->cost_type][$value->activity_category_id]['data'][$value->id];
@@ -564,10 +564,10 @@ class ActivityService
                 $data['credit_amount'] += $value->amount;
             }
 
-            // 科目ごとの合計加算
+            // 小項目ごとの合計加算
             $data['group_amount'] += $value->amount;
 
-            // 全科目の収入加算
+            // 全小項目の収入加算
             if ($value->amount > 0) {
                 if ($value->credit_flag == Models\Activity::CREDIT_FLAG_UNUSE) {
                     $income_summary['cash_amount'] += $value->amount;
@@ -577,7 +577,7 @@ class ActivityService
 
                 $income_summary['income_amount'] += $value->amount;
 
-            // 全科目の支出加算
+            // 全小項目の支出加算
             } else {
                 if ($value->credit_flag == Models\Activity::CREDIT_FLAG_UNUSE) {
                     $expense_summary['cash_amount'] += $value->amount;
@@ -687,9 +687,9 @@ class ActivityService
     }
 
     /**
-     * 月別集計の科目合計を、ひとつ前の同じ長さの期間と比べた増減率を返す。
+     * 月別集計の小項目合計を、ひとつ前の同じ長さの期間と比べた増減率を返す。
      *
-     * 対象は変動収支と固定収支の全科目。科目ごとに加えて、収入合計・支出合計・
+     * 対象は変動収支と固定収支の全小項目。小項目ごとに加えて、収入合計・支出合計・
      * 合計も比較する。
      *
      * 次の場合は比較しない (その項目を返さない)。
@@ -702,7 +702,7 @@ class ActivityService
      *
      * @param int $user_id
      * @param Condition\MonthlySummaryCondition $condition
-     * @return array ['groups' => [科目 ID => 増減率], 'totals' => [income|expense|total => 増減率],
+     * @return array ['groups' => [小項目 ID => 増減率], 'totals' => [income|expense|total => 増減率],
      *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
      *               増減率は整数で、正なら増加。period は実際に比べた 2 つの
      *               期間。呼び出し側で日付を組み直すと、ここでの月末の丸め方
@@ -797,24 +797,24 @@ class ActivityService
     }
 
     /**
-     * 今月の変動支出を科目ごとに集計し、前月の同じ時点との差額を添える。
+     * 今月の変動支出を小項目ごとに集計し、前月の同じ時点との差額を添える。
      *
      * 収入と固定支出は外す。どちらも月のうち決まった日にまとめて記録される
      * ため、月の途中で前月と比べても、給与日や家賃の登録日を過ぎたかどうかが
      * 出るだけで使いすぎの目安にならない。残高も収入を含む以上は同じ。
      *
-     * 差額は率ではなく金額で返す。元が小さい科目は率が跳ね上がり (100 円から
-     * 300 円で +200%)、額の大きい科目より目立ってしまうため。
+     * 差額は率ではなく金額で返す。元が小さい小項目は率が跳ね上がり (100 円から
+     * 300 円で +200%)、額の大きい小項目より目立ってしまうため。
      *
-     * 今月の記録がない科目は返さない。棒が描けないうえ、科目は
+     * 今月の記録がない小項目は返さない。棒が描けないうえ、小項目は
      * 利用者が好きなだけ作れるので、使っていない分まで並べると画面が伸びる。
      * 落とした分は合計には含める。
      *
      * @param int $user_id
-     * @param int $limit 返す科目の数。今月の金額が多い順。
+     * @param int $limit 返す小項目の数。今月の金額が多い順。
      * @return array ['groups' => [['activity_category_item_id', 'item_name', 'amount',
      *                             'previous_amount', 'difference'], ...],
-     *                'group_count' => 今月の記録がある科目の数,
+     *                'group_count' => 今月の記録がある小項目の数,
      *                'total' => ['amount', 'previous_amount', 'difference'],
      *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
      *               金額は支出を正で返す。difference は正なら前月より使っている。
@@ -844,7 +844,7 @@ class ActivityService
             ];
         }
 
-        // 今月使った額の多い順。同額のときは科目の並び順で落ち着かせる
+        // 今月使った額の多い順。同額のときは小項目の並び順で落ち着かせる
         // (順序が実行ごとに変わると、読む人には理由のない入れ替わりに見える)。
         usort($groups, function($a, $b) {
             return [$b['amount'], $a['activity_category_item_id']] <=> [$a['amount'], $b['activity_category_item_id']];
@@ -868,16 +868,16 @@ class ActivityService
     }
 
     /**
-     * 変動支出を科目ごとに合計する。支出は負で記録されているため
+     * 変動支出を小項目ごとに合計する。支出は負で記録されているため
      * 符号を反転し、使った額が多いほど大きくなるようにする。
      *
-     * 返金が上回って純額がプラスになった科目は落とす。棒の長さが負に
+     * 返金が上回って純額がプラスになった小項目は落とす。棒の長さが負に
      * なり、支出の並びに混ぜると読めないため。
      *
      * @param int $user_id
      * @param string $begin_date
      * @param string $end_date
-     * @return array [科目 ID => ['item_name', 'amount']]
+     * @return array [小項目 ID => ['item_name', 'amount']]
      */
     private function sumVariableExpenseByGroup($user_id, $begin_date, $end_date)
     {
@@ -932,20 +932,20 @@ class ActivityService
     }
 
     /**
-     * 収支の金額を、科目ごとと全体の合計で集計する。
+     * 収支の金額を、小項目ごとと全体の合計で集計する。
      *
-     * 科目の金額は、支出が負で記録されているため符号を反転し、
+     * 小項目の金額は、支出が負で記録されているため符号を反転し、
      * 増えたら正になるよう揃える。
      *
-     * 収入合計と支出合計は、集計表の表示と同じ振り分けにする。つまり科目の
+     * 収入合計と支出合計は、集計表の表示と同じ振り分けにする。つまり小項目の
      * 収支タイプではなく、現金・クレジットごとの小計の符号で分ける
-     * (@see ActivityService::calculateMonthlySummary)。支出合計も科目と同じく
+     * (@see ActivityService::calculateMonthlySummary)。支出合計も小項目と同じく
      * 正の値で返し、使った額が増えたら正になるようにする。
      *
      * @param int $user_id
      * @param string $begin_date
      * @param string $end_date
-     * @return array ['groups' => [科目 ID => 金額], 'totals' => [income|expense|total => 金額]]
+     * @return array ['groups' => [小項目 ID => 金額], 'totals' => [income|expense|total => 金額]]
      */
     private function sumCostByGroup($user_id, $begin_date, $end_date)
     {
@@ -983,7 +983,7 @@ class ActivityService
                 $groups[$row->activity_category_item_id] = 0;
             }
 
-            // 現金とクレジットで行が分かれるため、科目ごとに足し合わせる。
+            // 現金とクレジットで行が分かれるため、小項目ごとに足し合わせる。
             $groups[$row->activity_category_item_id] += $sign * $amount;
         }
 
@@ -991,21 +991,21 @@ class ActivityService
     }
 
     /**
-     * 推移グラフ用に、科目ごとの金額を期間順に取得する。
+     * 推移グラフ用に、小項目ごとの金額を期間順に取得する。
      *
      * 横軸の刻みは集計表と揃える (詳細検索の出力形式に従い年単位か月単位)。
-     * 系列は科目。科目まで割ると系列が増えすぎて線が読めない。
+     * 系列は小項目。小項目まで割ると系列が増えすぎて線が読めない。
      *
      * 支出は符号を反転して返し、使った額が多いほど線が上に来るようにする
      * (集計表は負のまま表示するので、そこだけ向きが異なる)。abs ではなく
-     * 反転なのは、返金が上回って純額がプラスの科目を下向きに出すため。
+     * 反転なのは、返金が上回って純額がプラスの小項目を下向きに出すため。
      *
-     * ある期間に記録のない科目は 0 ではなく null にする。0 を返すと
+     * ある期間に記録のない小項目は 0 ではなく null にする。0 を返すと
      * 「その期間は使っていない」と「記録がない」が区別できないため。
      *
      * @param int $user_id
      * @param Condition\YearlyTrendCondition $condition
-     * @return array ['labels' => [...], 'series' => [['name' => 科目, 'data' => [...]]]]
+     * @return array ['labels' => [...], 'series' => [['name' => 小項目, 'data' => [...]]]]
      */
     public function getYearlyTrend($user_id, Condition\YearlyTrendCondition $condition)
     {
@@ -1208,7 +1208,7 @@ class ActivityService
 
         $headers = $this->activity_category->getCategoryItemData($user_id);
 
-        // 科目数を取得
+        // 小項目数を取得
         $header_size = [
             'total' => 0,
             'cost_type' => [
@@ -1262,7 +1262,7 @@ class ActivityService
     {
         $builder = DB::table('activities AS a')
             // 場所ごとの集計だが item_name は場所に関数従属しない (同じ場所を
-            // 複数カテゴリで使える)。従来はどれか 1 件が任意に選ばれていたので、
+            // 複数の小項目で使える)。従来はどれか 1 件が任意に選ばれていたので、
             // MIN で明示的に 1 件へ畳む (MariaDB に ANY_VALUE はない)。
             ->select(DB::raw('MIN(acg.item_name) AS item_name, a.location, COUNT(a.location) AS count, SUM(a.amount) AS amount'))
             ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')

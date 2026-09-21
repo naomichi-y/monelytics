@@ -85,7 +85,7 @@
                         {!! Html::sortLabel('activity_date', '発生日', true) !!}
                     </th>
                     <th class="text-center">
-                        {!! Html::sortLabel('activity_category_item_id', '科目') !!}
+                        {!! Html::sortLabel('activity_category_item_id', '小項目') !!}
                     </th>
                     <th class="text-center">
                         {!! Html::sortLabel('location', '場所') !!}

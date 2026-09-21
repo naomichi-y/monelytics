@@ -13,7 +13,7 @@
                 <thead>
                     <tr>
                         <th class="text-center">ランク</th>
-                        <th class="text-center">科目</th>
+                        <th class="text-center">小項目</th>
                         <th class="text-center">場所</th>
                         <th class="text-center">利用回数</th>
                         <th class="text-center">総額</th>
@@ -53,7 +53,7 @@
                     <tr>
                         <th class="text-center">ランク</th>
                         <th class="text-center">発生日</th>
-                        <th class="text-center">科目</th>
+                        <th class="text-center">小項目</th>
                         <th class="text-center">場所</th>
                         <th class="text-center">用途</th>
                         <th class="text-center">金額</th>

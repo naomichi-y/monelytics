@@ -41,7 +41,7 @@
         <div class="modal-content">
             {!! Form::open() !!}
                 <div class="modal-header">
-                    <h4 class="modal-title">科目の編集</h4>
+                    <h4 class="modal-title">小項目の編集</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
 
@@ -53,14 +53,14 @@
 
                     <div class="row">
                         <div class="row mb-3">
-                            {!! Form::label('activity_category_id', '分類', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('activity_category_id', '大項目', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-4">
                                 {!! Form::select('activity_category_id', $category_list,  Request::input('activity_category_id', $activity_category_item->activity_category_id), ['class' => 'form-select']) !!}
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            {!! Form::label('item_name', '科目名', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('item_name', '小項目名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 {!! Form::text('item_name', Request::input('item_name', $activity_category_item->item_name), ['class' => 'form-control']) !!}
                             </div>

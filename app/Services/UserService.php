@@ -81,7 +81,7 @@ class UserService
         $path = base_path() . '/resources/master/setup.json';
         $activity_category_datum = json_decode(File::get($path));
 
-        // 科目カテゴリの登録
+        // 大項目の登録
         foreach ($activity_category_datum as $activity_category_data) {
             $data = $activity_category_data->record;
             $data->user_id = $user_id;
@@ -89,7 +89,7 @@ class UserService
             $activity_category = new $this->activity_category((array) $data);
             $activity_category->save();
 
-            // 科目の登録
+            // 小項目の登録
             if (isset($activity_category_data->relations)) {
                 $activity_category_item_datum = $activity_category_data->relations->activity_category_items;
 

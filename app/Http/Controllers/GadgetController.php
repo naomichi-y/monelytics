@@ -8,7 +8,7 @@ use App\Services;
 
 class GadgetController extends Controller {
     /**
-     * 棒に並べる科目の数。科目は利用者が好きなだけ作れるため、
+     * 棒に並べる小項目の数。小項目は利用者が好きなだけ作れるため、
      * 全部並べるとダッシュボードが際限なく伸びる。
      */
     const VARIABLE_EXPENSE_GROUP_LIMIT = 5;
@@ -26,7 +26,7 @@ class GadgetController extends Controller {
     }
 
     /**
-     * 今月の変動支出を、科目ごとの棒と前月同時点との差額で表示する。
+     * 今月の変動支出を、小項目ごとの棒と前月同時点との差額で表示する。
      */
     public function variableExpense()
     {

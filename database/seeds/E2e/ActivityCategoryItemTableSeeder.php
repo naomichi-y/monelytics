@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\ActivityCategoryItem;
 
 /**
- * 科目。入力フォームのセレクトに並ぶ名前になる。
+ * 小項目。入力フォームのセレクトに並ぶ名前になる。
  */
 class ActivityCategoryItemTableSeeder extends Seeder {
     const FOOD = 1;

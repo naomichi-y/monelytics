@@ -13,7 +13,7 @@ class YearlyTrendCondition extends BaseCondition {
 
     /**
      * ActivityCategory::BALANCE_TYPE_* のいずれか。
-     * 未指定なら支出と収入の科目を両方対象にする。
+     * 未指定なら支出と収入の小項目を両方対象にする。
      */
     public $balance_type;
 }

@@ -12,7 +12,7 @@ class GadgetControllerTest extends TestCase {
     }
 
     /**
-     * 科目ごとの棒と、前月同時点との差額を出す。棒の長さと振り分けの正しさは
+     * 小項目ごとの棒と、前月同時点との差額を出す。棒の長さと振り分けの正しさは
      * ActivityServiceTest が押さえているので、ここは画面まで届いているか。
      */
     public function testVariableExpenseShowsBarsAndDifference()

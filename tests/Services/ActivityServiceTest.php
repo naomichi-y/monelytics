@@ -56,7 +56,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 変動収支だけでなく固定収支の科目も比較する。
+     * 変動収支だけでなく固定収支の小項目も比較する。
      */
     public function testMonthlyComparisonCoversVariableAndConstantCost()
     {
@@ -76,7 +76,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 科目ごとに加えて、収入合計・支出合計・合計も比較する。
+     * 小項目ごとに加えて、収入合計・支出合計・合計も比較する。
      */
     public function testMonthlyComparisonReturnsTotals()
     {
@@ -85,7 +85,7 @@ class ActivityServiceTest extends TestCase {
         // 収入 1,000 -> 2,000
         $this->assertSame(100.0, $result['totals']['income']);
 
-        // 支出 2,000 -> 3,500。科目と同じく、使った額が増えたら正にする。
+        // 支出 2,000 -> 3,500。小項目と同じく、使った額が増えたら正にする。
         $this->assertSame(75.0, $result['totals']['expense']);
 
         // 合計 -1,000 -> -1,500
@@ -93,7 +93,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 現金とクレジットに分かれた記録は、科目ごとに合算してから比べる。
+     * 現金とクレジットに分かれた記録は、小項目ごとに合算してから比べる。
      */
     public function testMonthlyComparisonSumsCashAndCredit()
     {
@@ -113,7 +113,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 収入と支出の振り分けは科目の収支タイプではなく、集計表の表示と同じく
+     * 収入と支出の振り分けは小項目の収支タイプではなく、集計表の表示と同じく
      * 現金・クレジットごとの小計の符号で決める。
      */
     public function testMonthlyComparisonSplitsTotalsBySubtotalSign()
@@ -125,7 +125,7 @@ class ActivityServiceTest extends TestCase {
         $this->createActivity($group, $previous_month . '-05', -1000, Activity::CREDIT_FLAG_USE);
         $this->createActivity($group, $previous_month . '-05', 1000, Activity::CREDIT_FLAG_UNUSE);
 
-        // 支出の科目でも、現金の小計が返金で正になったら収入として数える。
+        // 支出の小項目でも、現金の小計が返金で正になったら収入として数える。
         $this->createActivity($group, $month . '-05', -2000, Activity::CREDIT_FLAG_USE);
         $this->createActivity($group, $month . '-05', 3000, Activity::CREDIT_FLAG_UNUSE);
 
@@ -215,7 +215,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 変動支出だけを科目ごとに集め、前月同時点との差額を添える。
+     * 変動支出だけを小項目ごとに集め、前月同時点との差額を添える。
      */
     public function testVariableExpenseComparisonReturnsDifferencePerGroup()
     {
@@ -261,7 +261,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 並びは今月使った額の多い順。落とした科目も合計には残す。
+     * 並びは今月使った額の多い順。落とした小項目も合計には残す。
      */
     public function testVariableExpenseComparisonKeepsDroppedGroupsInTotal()
     {
@@ -277,7 +277,7 @@ class ActivityServiceTest extends TestCase {
             array_column($result['groups'], 'activity_category_item_id')
         );
 
-        // 棒は 1 本でも、合計は落とした科目を含める。
+        // 棒は 1 本でも、合計は落とした小項目を含める。
         $this->assertSame(4000, $result['total']['amount']);
 
         // 棒が全部ではないことを画面が言えるように、絞る前の数も返す。
@@ -285,7 +285,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 今月の記録がない科目は棒を持てないので返さない。前月に使って
+     * 今月の記録がない小項目は棒を持てないので返さない。前月に使って
      * いた分は合計の差額に残る。
      */
     public function testVariableExpenseComparisonSkipsGroupWithoutCurrentRecord()
@@ -305,7 +305,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 返金が上回って純額がプラスになった科目は外す。棒の長さが負になり、
+     * 返金が上回って純額がプラスになった小項目は外す。棒の長さが負になり、
      * 支出の並びに混ぜると読めないため。
      */
     public function testVariableExpenseComparisonSkipsRefundedGroup()
@@ -426,7 +426,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 収支タイプを指定した場合は、その科目だけを対象にする。
+     * 収支タイプを指定した場合は、その小項目だけを対象にする。
      */
     public function testYearlyTrendFiltersByBalanceType()
     {
@@ -513,7 +513,7 @@ class ActivityServiceTest extends TestCase {
 
     /**
      * 年を指定して調べるため、初期データ (今日の日付で作られる) を消す。
-     * あわせて、系列名で見分けられるよう科目に別々の名前を付ける。
+     * あわせて、系列名で見分けられるよう小項目に別々の名前を付ける。
      */
     private function prepareTrendFixture()
     {
@@ -643,7 +643,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 付け替え先の科目も自分のものに限る。
+     * 付け替え先の小項目も自分のものに限る。
      */
     public function testUpdateRejectsOtherUsersCategoryItem()
     {
@@ -665,7 +665,7 @@ class ActivityServiceTest extends TestCase {
 
         try {
             $this->activity->update($user->id, $activity->id, $fields);
-            $this->fail('他人の科目へ付け替えられてしまった');
+            $this->fail('他人の小項目へ付け替えられてしまった');
 
         } catch (ModelNotFoundException $e) {
             // 期待どおり
@@ -697,7 +697,7 @@ class ActivityServiceTest extends TestCase {
 
         $this->assertTrue($this->activity->update($user->id, $activity->id, $fields));
 
-        // 支出の科目なので負に揃えられる。
+        // 支出の小項目なので負に揃えられる。
         $this->assertSame(-2000, Activity::find($activity->id)->amount);
     }
 

@@ -32,7 +32,7 @@ test.describe('集計', () => {
   test('月別集計のタブを切り替えると、その中身が読み込まれる', async ({ page }) => {
     await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
 
-    // 既定は集計表。科目名が出ていれば断片の差し込みまで届いている。
+    // 既定は集計表。小項目名が出ていれば断片の差し込みまで届いている。
     await expect(reportTable(page).getByText('食料品').first()).toBeVisible();
 
     await page.getByRole('tab', { name: 'カレンダー' }).click();
@@ -93,7 +93,7 @@ test.describe('集計', () => {
 
     await expect(page).toHaveURL(/\/summary\/daily\?/);
 
-    // 科目とクレジット区分が URL に乗っていること。ここが壊れると、
+    // 小項目とクレジット区分が URL に乗っていること。ここが壊れると、
     // 絞り込んだはずの一覧に関係のない行が出る。
     const url = new URL(page.url());
     expect(url.searchParams.get('date_month')).toBe(month);
@@ -155,7 +155,7 @@ test.describe('集計', () => {
     await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
     await expect.poll(async () => (await scrollers())[0]?.overflowX).toBe('hidden');
 
-    // 列が入りきらない状態は、画面を狭めて作る。シードの科目数では
+    // 列が入りきらない状態は、画面を狭めて作る。シードの小項目数では
     // 年別集計でも通常の幅に収まってしまう。
     await page.setViewportSize({ width: 520, height: 800 });
     await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
@@ -196,22 +196,22 @@ test.describe('集計', () => {
   });
 
   /**
-   * ツールチップは同じ目盛りの科目を全て並べる。どれを指しているのか
-   * 分かるよう、カーソルが捉えた科目だけ濃い太字にし、残りは薄くしている。
+   * ツールチップは同じ目盛りの小項目を全て並べる。どれを指しているのか
+   * 分かるよう、カーソルが捉えた小項目だけ濃い太字にし、残りは薄くしている。
    */
-  test('推移グラフは指している科目だけを立たせる', async ({ page }) => {
+  test('推移グラフは指している小項目だけを立たせる', async ({ page }) => {
     const year = new Date().getFullYear();
 
     await page.goto(`/summary/yearly?begin_year=${year - 2}&end_year=${year}&output_type=2`);
     await page.getByRole('tab', { name: '推移グラフ' }).click();
     await expect(page.locator('#yearly_trend_chart svg')).toBeVisible();
 
-    // 「すべて」にして、支出と収入の科目を同じグラフへ並べる。行が 1 つしか
+    // 「すべて」にして、支出と収入の小項目を同じグラフへ並べる。行が 1 つしか
     // 出ないツールチップでは、濃さの違いを比べられない。
     await page.selectOption('#trend_balance_type', '');
     await expect(page.locator('#yearly_trend_chart svg')).toBeVisible();
 
-    // 最も多くの科目が値を持つ目盛りを選ぶ。
+    // 最も多くの小項目が値を持つ目盛りを選ぶ。
     const target = await chartEvaluate(page, (chart) => {
       const counts = chart.xAxis[0].categories.map(
         (label, index) => chart.series.filter((s) => s.points[index] && s.points[index].y !== null).length
@@ -231,7 +231,7 @@ test.describe('集計', () => {
       .poll(() => chartEvaluate(page, (chart) => (chart.hoverPoint ? chart.hoverPoint.series.name : null)))
       .not.toBeNull();
 
-    // 科目名を持つ行だけを見る。先頭の丸と日付は対象外。
+    // 小項目名を持つ行だけを見る。先頭の丸と日付は対象外。
     const rows = await chartEvaluate(page, (chart) => {
       const hovered = chart.hoverPoint.series.name;
 

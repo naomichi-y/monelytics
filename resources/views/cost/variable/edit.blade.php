@@ -79,7 +79,7 @@
                         </div>
 
                         <div class="row mb-3">
-                            {!! Form::label('activity_category_item_id', '科目', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('activity_category_item_id', '小項目', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-4">
                                 {!! Form::select('activity_category_item_id', $activity_category_items, $activity->activity_category_item_id, ['class' => 'form-select']) !!}
                             </div>

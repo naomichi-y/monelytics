@@ -33,10 +33,10 @@
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">設定</a>
                         <ul class="dropdown-menu" data-bs-theme="light">
-                            {{-- 科目を先に置く。日々足すのは科目で、分類は
+                            {{-- 小項目を先に置く。日々足すのは小項目で、大項目は
                                  最初に作ったあとはほとんど触らない。 --}}
-                            <li>{!! link_to('settings/activityCategoryItem', '科目', ['class' => 'dropdown-item']) !!}</li>
-                            <li>{!! link_to('settings/activityCategory', '分類', ['class' => 'dropdown-item']) !!}</li>
+                            <li>{!! link_to('settings/activityCategoryItem', '小項目', ['class' => 'dropdown-item']) !!}</li>
+                            <li>{!! link_to('settings/activityCategory', '大項目', ['class' => 'dropdown-item']) !!}</li>
                         </ul>
                     </li>
                 @else

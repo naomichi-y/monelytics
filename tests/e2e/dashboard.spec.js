@@ -36,7 +36,7 @@ test.describe('ダッシュボード', () => {
    * 前月と比べても使いすぎの目安にならない。画面には変動支出だけを出す。
    * 額の正しさは PHPUnit に任せ、ここは ajax の断片が画面まで届いているか。
    */
-  test('今月の変動支出が科目ごとの棒で並ぶ', async ({ page }) => {
+  test('今月の変動支出が小項目ごとの棒で並ぶ', async ({ page }) => {
     const panel = page.locator('#variable_expense');
     await expect(panel.locator('.variable-expense')).toBeVisible();
 
@@ -46,7 +46,7 @@ test.describe('ダッシュボード', () => {
     await expect(panel.getByText('給与')).toHaveCount(0);
     await expect(panel.getByText('家賃')).toHaveCount(0);
 
-    // 棒は科目の数だけ並び、最も多い科目が横いっぱいになる。
+    // 棒は小項目の数だけ並び、最も多い小項目が横いっぱいになる。
     const bars = panel.locator('.bar');
     expect(await bars.count()).toBeGreaterThan(1);
 
@@ -63,9 +63,9 @@ test.describe('ダッシュボード', () => {
 
   /**
    * かんたん入力の送り先は cost/variable で、作られるのは変動収支。固定収支の
-   * 科目を選べてしまうと、選んだとおりに登録されない。
+   * 小項目を選べてしまうと、選んだとおりに登録されない。
    */
-  test('かんたん入力の科目は変動収支だけ', async ({ page }) => {
+  test('かんたん入力の小項目は変動収支だけ', async ({ page }) => {
     const options = page.locator('#activity_category_item_id option');
 
     await expect(options.filter({ hasText: '食料品' })).toHaveCount(1);

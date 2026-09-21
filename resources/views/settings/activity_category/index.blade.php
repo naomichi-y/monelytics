@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-分類
+大項目
 @stop
 
 @section('include_header')
@@ -12,7 +12,7 @@
             $("table:eq(0)").responsiveTable();
             $("table:eq(1)").responsiveTable();
 
-            // 科目の登録押下
+            // 小項目の登録押下
             $("#open_create").click(function() {
                 $.get("/settings/activityCategory/create",
                     {},
@@ -65,7 +65,7 @@
                 );
             });
 
-            // 科目の確認を押下
+            // 小項目の確認を押下
             $(".show-category-group").click(function() {
                 var id = $(this).parent().parent().attr("data-id");
                 window.location.href = "/settings/activityCategoryItem?activity_category_id=" + id;
@@ -75,7 +75,7 @@
 @stop
 
 @section('function')
-    <a class="btn btn-info btn-sm" id="open_create">分類の登録</a>
+    <a class="btn btn-info btn-sm" id="open_create">大項目の登録</a>
 @stop
 
 @section('content')

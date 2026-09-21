@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-科目
+小項目
 @stop
 
 @section('include_header')
@@ -15,7 +15,7 @@
                 $("#search-form").submit();
             });
 
-            // 科目の登録押下
+            // 小項目の登録押下
             $("#open_create").click(function() {
                 $.get("/settings/activityCategoryItem/create",
                     {
@@ -71,7 +71,7 @@
              {!! Form::close() !!}
             </div>
             <div class="col-md-4">
-                <a class="btn btn-info btn-sm" id="open_create">科目の登録</a>
+                <a class="btn btn-info btn-sm" id="open_create">小項目の登録</a>
             </div>
         </div>
     </div>
@@ -92,7 +92,7 @@
             </colgroup>
             <thead>
                 <tr>
-                    <th class="text-center">科目名</th>
+                    <th class="text-center">小項目名</th>
                     <th class="text-center">用途</th>
                     <th class="text-center"><span class="bi bi-credit-card"></span></th>
                     <th class="text-center">登録日時</th>
@@ -122,7 +122,7 @@
             </tbody>
         </table>
     @elseif (!Request::has('activity_category_id'))
-        <p>分類を選択して下さい。</p>
+        <p>大項目を選択して下さい。</p>
     @else
         <p>データがありません。</p>
     @endif

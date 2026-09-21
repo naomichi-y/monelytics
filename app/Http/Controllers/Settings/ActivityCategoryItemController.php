@@ -27,7 +27,7 @@ class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     }
 
     /**
-     * 科目リストを表示する。
+     * 小項目リストを表示する。
      */
     public function index()
     {
@@ -46,7 +46,7 @@ class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     }
 
     /**
-     * 科目の並び順を更新する。
+     * 小項目の並び順を更新する。
      */
     public function sort()
     {
@@ -63,7 +63,7 @@ class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     }
 
     /**
-     * 科目を新規入力する。
+     * 小項目を新規入力する。
      */
     public function create()
     {
@@ -74,7 +74,7 @@ class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     }
 
     /**
-     * 科目を新規登録する。
+     * 小項目を新規登録する。
      */
     public function store()
     {
@@ -102,7 +102,7 @@ class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     }
 
     /**
-     * 科目を編集する。
+     * 小項目を編集する。
      */
     public function edit($id)
     {
@@ -124,7 +124,7 @@ class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     }
 
     /**
-     * 科目を更新する。
+     * 小項目を更新する。
      */
     public function update($id)
     {
@@ -151,7 +151,7 @@ class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     }
 
     /**
-     * 科目を削除する。
+     * 小項目を削除する。
      */
     public function destroy($id)
     {

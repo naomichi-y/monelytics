@@ -21,7 +21,7 @@ class ActivityCategoryService
     }
 
     /**
-     * ユーザに紐づく全ての科目カテゴリデータを取得する。
+     * ユーザに紐づく全ての大項目データを取得する。
      *
      * @param int $user_id
      * @param int $cost_type
@@ -38,7 +38,7 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリの表示順序を更新する。
+     * 大項目の表示順序を更新する。
      *
      * @param int $user_id
      * @param int $id
@@ -52,7 +52,7 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリの最終表示順序を取得する。
+     * 大項目の最終表示順序を取得する。
      *
      * @param int $user_id
      * @return int
@@ -72,7 +72,7 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリを登録する。
+     * 大項目を登録する。
      *
      * @param int $user_id
      * @param array $fields
@@ -99,7 +99,7 @@ class ActivityCategoryService
     }
 
     /**
-     * ユーザに紐づく科目カテゴリのリストを取得する。
+     * ユーザに紐づく大項目のリストを取得する。
      *
      * @param int $user_id
      * @param bool $header:w
@@ -122,14 +122,14 @@ class ActivityCategoryService
         }
 
         if ($header) {
-            $array = ['' => '科目カテゴリの指定'] + $array;
+            $array = ['' => '大項目の指定'] + $array;
         }
 
         return $array;
     }
 
     /**
-     * 科目のリストを取得する。
+     * 小項目のリストを取得する。
      *
      * @param int $user_id
      * @param int $cost_type
@@ -166,14 +166,14 @@ class ActivityCategoryService
         }
 
         if ($header) {
-            $result = ['' => '科目の指定'] + $result;
+            $result = ['' => '小項目の指定'] + $result;
         }
 
         return $result;
     }
 
     /**
-     * 科目カテゴリに紐づく科目を連想配列形式で取得する。
+     * 大項目に紐づく小項目を連想配列形式で取得する。
      *
      * @param int $user_id
      * @return array
@@ -209,7 +209,7 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリデータを取得する。
+     * 大項目データを取得する。
      *
      * @param int $user_id
      * @param int $activity_category_item_id
@@ -224,24 +224,24 @@ class ActivityCategoryService
     }
 
     /**
-     * 構成グラフ用に、科目カテゴリごとの金額を取得する。
+     * 構成グラフ用に、大項目ごとの金額を取得する。
      *
      * 支出は DB 上マイナスで記録されている。符号を反転して正で返し、使った額が
      * 多いほど大きくなるようにする。推移グラフと向きを揃えるため
      * (@see ActivityService::getYearlyTrend)。反転しないと円グラフが負の値を
      * 受け取り、扇が描けない。
      *
-     * 返金が上回って純額が逆を向いた科目カテゴリは落とす。同じ理由で扇にできない。
+     * 返金が上回って純額が逆を向いた大項目は落とす。同じ理由で扇にできない。
      *
      * 割合は返さない。金額から Highcharts が算出するので、両方を持つと表示と
      * 計算がずれる余地ができる。
      *
-     * 名前をキーにした連想配列では返さない。科目カテゴリ名に一意制約がなく、
+     * 名前をキーにした連想配列では返さない。大項目名に一意制約がなく、
      * 同名が 2 つあると片方が消えるため。
      *
      * @param int $user_id
      * @param Condition\PieChartCondition $condition
-     * @return array [['name' => 科目カテゴリ名, 'amount' => 金額], ...]
+     * @return array [['name' => 大項目名, 'amount' => 金額], ...]
      */
     public function getAmountConstituents($user_id, Condition\PieChartCondition $condition)
     {
@@ -290,7 +290,7 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリデータを更新する。
+     * 大項目データを更新する。
      *
      * @param int $user_id
      * @param int @id
@@ -317,7 +317,7 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリデータを削除する。
+     * 大項目データを削除する。
      *
      * @param int $user_id
      * @param int $activity_category_item_cateogyr_id

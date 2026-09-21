@@ -25,7 +25,7 @@
 
 .variable-expense table {
     margin: 10px 0 0;
-    /* 列幅を colgroup のとおりに固定する。科目名は利用者が 32 文字まで
+    /* 列幅を colgroup のとおりに固定する。小項目名は利用者が 32 文字まで
        付けられ、成り行きに任せると狭い画面で名前だけが何行にも折り返して
        棒が潰れる。 */
     table-layout: fixed;
@@ -37,7 +37,7 @@
     vertical-align: middle;
 }
 
-/* 入りきらない科目名は折り返さず省略する。全文は title と、たどった先の
+/* 入りきらない小項目名は折り返さず省略する。全文は title と、たどった先の
    一覧で読める。 */
 .variable-expense .group-name {
     overflow: hidden;
@@ -45,7 +45,7 @@
     white-space: nowrap;
 }
 
-/* 科目名は本文と同じ色にする。5 行すべてがリンクなので、色まで付けると
+/* 小項目名は本文と同じ色にする。5 行すべてがリンクなので、色まで付けると
    並びの中でリンクだけが目立ち、肝心の棒と額から目を引く。下線は残して
    あるので、たどれることは分かる。 */
 .variable-expense .group-name a {
@@ -106,8 +106,8 @@
                             'activity_category_item_id[]' => $group['activity_category_item_id']
                         ], $group['item_name'], ['title' => $group['item_name']]) !!}</td>
                         <td>
-                            {{-- 棒の長さは合計ではなく最も多い科目を基準にする。
-                                 科目どうしの多い少ないを見るための図なので。 --}}
+                            {{-- 棒の長さは合計ではなく最も多い小項目を基準にする。
+                                 小項目どうしの多い少ないを見るための図なので。 --}}
                             <span class="bar" style="width: {{round($group['amount'] / $largest_amount * 100)}}%"></span>
                         </td>
                         <td class="amount">{!! Html::amount($group['amount']) !!}</td>
@@ -117,12 +117,12 @@
             </tbody>
         </table>
 
-        {{-- 合計は今月の変動支出すべてで、棒は科目を絞ったとき合計に届かない。
+        {{-- 合計は今月の変動支出すべてで、棒は小項目を絞ったとき合計に届かない。
              黙って並べると棒の合計が上の数字と合わないように見えるため、
              絞ったときだけそう書く。 --}}
         <p class="note">
             @if ($expense['group_count'] > sizeof($expense['groups']))
-                {{$expense['group_count']}} 科目中の上位 {{sizeof($expense['groups'])}} /
+                {{$expense['group_count']}} 小項目中の上位 {{sizeof($expense['groups'])}} /
             @endif
             増減は先月の {{Html::date($expense['period']['previous_end_date'], false)}} までとの比較
         </p>
