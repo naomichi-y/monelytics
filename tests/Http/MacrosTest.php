@@ -127,6 +127,57 @@ class MacrosTest extends TestCase {
     }
 
     /**
+     * 検索条件は <script> の中へ書き出される。引用符しか潰していなかった頃は、
+     * 引用符を含まない '</script>...' が素通りして script 要素を閉じ、クエリ
+     * 文字列を仕込んだ URL を踏ませるだけで任意のスクリプトが動いた。
+     */
+    public function testEncodeJsJsonValueClosesNoScriptTag()
+    {
+        $payload = '</script><img src=x onerror=alert(1)>';
+
+        request()->merge(['keyword' => $payload]);
+        $markup = Html::encodeJsJsonValue('keyword');
+
+        $this->assertStringNotContainsString('<', $markup);
+        $this->assertStringNotContainsString('>', $markup);
+
+        // 逃がしても、受け取る側に届く値は元のまま。
+        $this->assertSame($payload, json_decode($markup));
+    }
+
+    /**
+     * 型ごとに、JS の値として読める形で書き出す。数値として 'abc' を書けば
+     * 構文誤りになり、その画面の JS が丸ごと動かなくなる。
+     */
+    public function testEncodeJsJsonValueKeepsTheRequestedType()
+    {
+        request()->merge([
+            'number' => 'abc',
+            'items' => ['3', '食料品'],
+            'flag' => '1',
+        ]);
+
+        $this->assertSame(0, json_decode(Html::encodeJsJsonValue('number', null, 'numeric')));
+        $this->assertTrue(json_decode(Html::encodeJsJsonValue('flag', null, 'bool')));
+
+        // 数値でない要素を落としていた。小項目名のような文字列も残すこと。
+        $this->assertSame(['3', '食料品'], json_decode(Html::encodeJsJsonValue('items', null, 'array'), true));
+
+        $this->assertSame('null', Html::encodeJsJsonValue('missing'));
+    }
+
+    /**
+     * 文字列を期待する項目へ ?keyword[]=x のように配列が来ても落ちないこと。
+     * 配列を文字列へ倒すと PHP 8 は警告を出し、Laravel はそれを例外に変える。
+     */
+    public function testEncodeJsJsonValueSurvivesArrayForStringField()
+    {
+        request()->merge(['keyword' => ['x']]);
+
+        $this->assertSame('', json_decode(Html::encodeJsJsonValue('keyword')));
+    }
+
+    /**
      * リンクの href を、ブラウザが送るクエリとして読み直す。
      *
      * @param string $markup

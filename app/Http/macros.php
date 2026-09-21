@@ -102,65 +102,51 @@ Html::macro('formatDate', function($date, $format, $append_week) {
 });
 
 /**
+ * 検索条件を <script> の中へ値として埋め込む。
+ *
+ * 逃がしは json_encode に任せ、'<' と '>' も \u に倒す (JSON_HEX_TAG)。
+ * 以前は addslashes で引用符だけを潰していたため、引用符を含まない
+ * '</script><img src=x onerror=...>' のような値がそのまま出て、script 要素を
+ * 閉じてしまっていた。値はクエリ文字列から来るので、URL を踏ませるだけで
+ * 任意のスクリプトが動く状態だった。
+ *
+ * 型を指定するのは、受け取る側が文字列か配列かを決めたいため。指定と違う値が
+ * 来たときは、その型の空の値へ倒す。JS の構文として壊れたものを書き出すと、
+ * その画面の JS が丸ごと動かなくなる (数値として 'abc' を書けば構文誤り)。
+ *
  * @param string $field
- * @param string $type
+ * @param mixed $alternative 未指定のときの値
+ * @param string $type string|numeric|bool|array
  * @return string
  */
 Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = 'string') {
     $value = Request::input($field, $alternative);
 
     if ($value === null) {
-        $markup = 'null';
-
-    } else {
-        switch ($type) {
-            case 'string':
-                $markup = '"' . addslashes($value) . '"';
-                break;
-
-            case 'numeric':
-                $markup = addslashes($value);
-                break;
-
-            case 'bool':
-                if ($value) {
-                    $markup = 'true';
-                } else {
-                    $markup = 'false';
-                }
-
-                break;
-
-            case 'array':
-                $markup = '[';
-
-                if (is_array($value)) {
-                    foreach ($value as $array_value) {
-                        if (is_string($value)) {
-                            $markup .= '"' . addslashes($array_value) . '", ';
-
-                        } else if (is_numeric($array_value)) {
-                            $markup .= $array_value . ', ';
-
-                        } else if (is_bool($array_value)) {
-                            if ($array_value) {
-                                $markup = 'true, ';
-                            } else {
-                                $markup = 'false, ';
-                            }
-                        }
-                    }
-
-                    $markup = rtrim($markup, ', ');
-                }
-
-                $markup .= ']';
-
-                break;
-        }
+        return 'null';
     }
 
-    return $markup;
+    switch ($type) {
+        case 'numeric':
+            $value = is_numeric($value) ? $value + 0 : 0;
+            break;
+
+        case 'bool':
+            $value = (bool) $value;
+            break;
+
+        case 'array':
+            $value = is_array($value) ? array_values($value) : [];
+            break;
+
+        default:
+            // 配列を文字列へ倒すと PHP 8 は警告を出し、Laravel はそれを例外に
+            // 変えるため、?keyword[]=x のような指定で画面ごと落ちる。
+            $value = is_array($value) ? '' : (string) $value;
+            break;
+    }
+
+    return json_encode($value, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 });
 
 /**
