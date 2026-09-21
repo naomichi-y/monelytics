@@ -199,12 +199,40 @@ $(function() {
    * タブを表示する。
    */
   $.fn.startTabs = function(cookie_name) {
+    dropLegacyCookie(cookie_name);
+
     $(this).tabs({
       active: Cookies.get(cookie_name),
       activate: function(e, ui){
-        Cookies.set(cookie_name, ui.newTab.index(), { expires: 10 });
+        Cookies.set(cookie_name, ui.newTab.index(), { expires: 10, path: "/" });
       }
     });
+  }
+
+  /**
+   * 同じ名前でページのパスに紐付いた Cookie を消す。
+   *
+   * 以前使っていた jquery.cookie は path を指定せずに書いていた。その場合の
+   * 保存先はブラウザが決め、URL の「最後の / まで」になる (/summary/monthly
+   * で書いたものは /summary に付く)。js-cookie は "/" に書く。
+   *
+   * 両方が残るとブラウザは document.cookie でパスの長いほうを先に並べ、
+   * js-cookie は最初に見つけたものを返して打ち切るため、移行前の古い値が
+   * 新しい値を隠し続ける。月別集計でタブを選んでリロードすると集計表に戻る、
+   * という形で表に出た。移行前からの利用者だけに起きるため、まっさらな
+   * ブラウザでは再現しない。
+   *
+   * 古い保存先を 1 つに決め打ちできないので、今のページの上位パスを順に消す。
+   * "/" は今の保存先なので対象にしない。
+   */
+  function dropLegacyCookie(cookie_name) {
+    var segments = window.location.pathname.split("/").filter(Boolean);
+    var path = "";
+
+    for (var i = 0; i < segments.length; i++) {
+      path += "/" + segments[i];
+      Cookies.remove(cookie_name, { path: path });
+    }
   }
 
   /**
@@ -214,6 +242,9 @@ $(function() {
    */
   $.fn.rememberSelect = function(cookie_name) {
     var $element = $(this);
+
+    dropLegacyCookie(cookie_name);
+
     var saved = Cookies.get(cookie_name);
 
     // 値が空文字の選択肢もあるため、未保存かどうかは型で判定する。
@@ -224,7 +255,7 @@ $(function() {
     }
 
     $element.change(function() {
-      Cookies.set(cookie_name, $element.val(), { expires: 10 });
+      Cookies.set(cookie_name, $element.val(), { expires: 10, path: "/" });
     });
 
     return $element;
