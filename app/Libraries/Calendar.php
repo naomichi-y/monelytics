@@ -38,6 +38,18 @@ class Calendar {
     public const CACHE_KEY = 'holidays.cao';
 
     /**
+     * 配布元が名前を書かない祝日の表記と、こちらで補う名前。
+     *
+     * 内閣府の CSV は、祝日法 3 条 2 項の振替休日も 3 項の国民の休日も
+     * まとめて「休日」とだけ書く。画面には日付の横に出るため、2026/9/22 の
+     * ように敬老の日と秋分の日に挟まれた日が「休日」とだけ表示され、
+     * 何の日か分からなかった。
+     */
+    private const UNNAMED = '休日';
+    private const SUBSTITUTE = '振替休日';
+    private const NATIONAL = '国民の休日';
+
+    /**
      * 対象月の祝日を取得する。
      *
      * 祝日は表示の補助情報でしかないため、キャッシュにも配布元にも依存して
@@ -70,8 +82,10 @@ class Calendar {
      */
     private static function filter($prefix)
     {
+        // 名前を補うには前後の日が要る。月や年で切り出したあとでは、境目に
+        // 当たる日の判断材料が落ちるため、絞り込む前に全期間へ当てる。
         return array_filter(
-            self::all(),
+            self::resolveUnnamed(self::all()),
             static fn ($date) => str_starts_with($date, $prefix),
             ARRAY_FILTER_USE_KEY
         );
@@ -154,6 +168,100 @@ class Calendar {
         }
 
         return $holidays;
+    }
+
+    /**
+     * 「休日」とだけ書かれた日に、祝日法どおりの名前を与える。
+     *
+     * 取り込みではなく読み出しの側で行う。取り込み時に名前を書き込むと、
+     * すでにキャッシュへ入っている一覧が TTL の 1 日が切れるまで古い名前の
+     * まま残る。ここなら、配布元から取り直さなくても次の表示から直る。
+     *
+     * 名前の付いた日しか持たない一覧に当てても何も起きない (冪等)。
+     *
+     * 元の一覧を見ながら別の配列へ書くのは、名前を付けた日をその場で
+     * 上書きすると、後の日から見て「休日」が祝日に化けるため。国民の休日は
+     * 前後が祝日であることが条件なので、判定が変わってしまう。
+     *
+     * @param array $holidays [Y-m-d => [名称]]
+     * @return array [Y-m-d => [名称]]
+     */
+    private static function resolveUnnamed(array $holidays)
+    {
+        $resolved = $holidays;
+
+        foreach ($holidays as $date => $names) {
+            if ($names !== [self::UNNAMED]) {
+                continue;
+            }
+
+            if (self::isSubstitute($date, $holidays)) {
+                $resolved[$date] = [self::SUBSTITUTE];
+
+            } else if (self::isNationalHoliday($date, $holidays)) {
+                $resolved[$date] = [self::NATIONAL];
+            }
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * 振替休日か。祝日法 3 条 2 項。
+     *
+     * 日曜に当たった祝日の後、最初の祝日でない日が振替休日になる。間に祝日が
+     * 続けば後ろへずれるため (2026 年は 5/3 の憲法記念日が日曜で、みどりの日と
+     * こどもの日を越えた 5/6 が振替休日)、祝日の連なりを遡って日曜の祝日に
+     * 着くかどうかで見る。
+     *
+     * 国民の休日より先に判定する。3 条 3 項が振替休日を除いているため、
+     * 両方の条件に当たる日 (日曜の憲法記念日に続く 5/4 など) は振替休日。
+     *
+     * @param string $date Y-m-d
+     * @param array $holidays [Y-m-d => [名称]]
+     * @return bool
+     */
+    private static function isSubstitute($date, array $holidays)
+    {
+        $cursor = strtotime($date . ' -1 day');
+
+        while (isset($holidays[date('Y-m-d', $cursor)])) {
+            if (self::isNamed($holidays, date('Y-m-d', $cursor)) && (int) date('w', $cursor) === 0) {
+                return true;
+            }
+
+            $cursor = strtotime('-1 day', $cursor);
+        }
+
+        return false;
+    }
+
+    /**
+     * 国民の休日か。祝日法 3 条 3 項。前日と翌日がともに祝日である日。
+     *
+     * 前後に見るのは名前の付いた祝日だけ。「休日」同士が並ぶことはあるが、
+     * それは条文が言う「国民の祝日」ではない。
+     *
+     * @param string $date Y-m-d
+     * @param array $holidays [Y-m-d => [名称]]
+     * @return bool
+     */
+    private static function isNationalHoliday($date, array $holidays)
+    {
+        return self::isNamed($holidays, date('Y-m-d', strtotime($date . ' -1 day')))
+            && self::isNamed($holidays, date('Y-m-d', strtotime($date . ' +1 day')));
+    }
+
+    /**
+     * その日が、名前の付いた祝日として収録されているか。
+     *
+     * @param array $holidays [Y-m-d => [名称]]
+     * @param string $date Y-m-d
+     * @return bool
+     */
+    private static function isNamed(array $holidays, $date)
+    {
+        return isset($holidays[$date]) && $holidays[$date] !== [self::UNNAMED];
     }
 
     /**
