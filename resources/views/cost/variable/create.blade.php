@@ -8,7 +8,7 @@
     {!! Html::versionedStyle('assets/css/responsive_table.css') !!}
     <script>
         $(function() {
-            $("[name^=activity_date]").dateFormat();
+            $("[name^=activity_date]").dateFormat("[name^=activity_date]");
             $("[name^=activity_date]").first().disableDatepickerFocus();
         });
     </script>
@@ -21,11 +21,11 @@
                 <colgroup>
                     <col style="width: 15%" />
                     <col style="width: 15%" />
-                    <col style="width: 10%" />
-                    <col style="width: 25%" />
-                    <col style="width: 25%" />
+                    <col style="width: 11%" />
+                    <col style="width: 27%" />
+                    <col style="width: 27%" />
+                    <col style="width: 5%" />
                 </colgroup>
-                <colgroup span="2" style="width: 5%">
                 <thead>
                     <tr>
                         <th class="text-center">発生日</th>
@@ -33,8 +33,7 @@
                         <th class="text-center">金額</th>
                         <th class="text-center">場所</th>
                         <th class="text-center">用途</th>
-                        <th class="text-center"><span class="glyphicon glyphicon-credit-card"></span></th>
-                        <th class="text-center"><span class="glyphicon glyphicon-star"></span></th>
+                        <th class="text-center"><span class="bi bi-credit-card"></span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,7 +41,7 @@
                         @if ($i == 0)
                             <tr>
                         @else
-                            <tr class="hidden-xs">
+                            <tr class="d-none d-md-table-row">
                         @endif
                         <td>
                             @if (Agent::isDesktop())
@@ -52,10 +51,10 @@
                             @endif
                         </td>
                         <td>
-                            {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Request::old("activity_category_group_id[$i]"), ['class' => 'form-control']) !!}
+                            {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Request::old("activity_category_group_id[$i]"), ['class' => 'form-select']) !!}
                         </td>
                         <td>
-                            {!! Form::number("amount[$i]", Request::old("amount[$i]"), ['class' => 'form-control text-right', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                            {!! Form::number("amount[$i]", Request::old("amount[$i]"), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
                         </td>
                         <td>
                             {!! Form::text("location[$i]", Request::old("location[$i]"), ['class' => 'form-control']) !!}
@@ -68,18 +67,13 @@
                                 {!! Form::checkbox("credit_flag[$i]", '1', Request::old("credit_flag[$i]")) !!}
                             </div>
                         </td>
-                        <td>
-                            <div class="text-center">
-                                {!! Form::checkbox("special_flag[$i]", '1', Request::old("special_flag[$i]")) !!}
-                            </div>
-                        </td>
                     </tr>
                     @endfor
                 </tbody>
             </table>
             <div class="text-center">
                 {!! Form::submit('登録', ['class' => 'btn btn-primary']) !!}
-                {!! Form::reset('リセット', ['class' => 'btn btn-default']) !!}
+                {!! Form::reset('リセット', ['class' => 'btn btn-secondary']) !!}
             </div>
         {!! Form::close() !!}
     @else

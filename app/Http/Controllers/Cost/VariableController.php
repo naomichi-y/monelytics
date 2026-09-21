@@ -49,8 +49,7 @@ class VariableController extends \App\Http\Controllers\Controller {
             'amount',
             'location',
             'content',
-            'credit_flag',
-            'special_flag'
+            'credit_flag'
         );
         $errors = [];
 
@@ -90,13 +89,12 @@ class VariableController extends \App\Http\Controllers\Controller {
             'amount',
             'location',
             'content',
-            'credit_flag',
-            'special_flag'
+            'credit_flag'
         );
         $data = [];
         $errors = [];
 
-        if ($this->activity->update($id, $fields, $errors)) {
+        if ($this->activity->update(Auth::id(), $id, $fields, $errors)) {
             $data['result'] = true;
 
             Session::flash('success', Lang::get('validation.custom.update_success'));

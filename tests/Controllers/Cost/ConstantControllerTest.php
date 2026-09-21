@@ -22,6 +22,22 @@ class ConstantControllerTest extends TestCase {
         $this->assertUserOnlyContent('GET', '/cost/constant/create');
     }
 
+    /**
+     * 一覧・単体表示・編集の画面は持たない。@see VariableControllerTest
+     *
+     * 編集だけはどの動詞でも使わないため 404 になる。
+     */
+    public function testHasNoIndexOrShowRoute()
+    {
+        $this->login();
+
+        $this->call('GET', '/cost/constant')->assertMethodNotAllowed();
+        $this->call('GET', '/cost/constant/1')->assertMethodNotAllowed();
+        $this->call('GET', '/cost/constant/1/edit')->assertNotFound();
+
+        $this->logout();
+    }
+
     public function testStore()
     {
         $this->login();

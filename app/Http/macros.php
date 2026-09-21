@@ -172,12 +172,13 @@ Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = '
 Html::macro('sortLabel', function($field, $label, $default_sort = false) {
     $sort_type = Request::input('sort_type');
 
+    // Bootstrap 4 で glyphicon が外れたため、Bootstrap Icons の名前を使う。
     if ($sort_type === 'asc') {
-        $style = 'glyphicon-sort-by-attributes';
+        $style = 'bi-sort-down-alt';
     } else if ($sort_type === 'desc' || $default_sort) {
-        $style = 'glyphicon-sort-by-attributes-alt';
+        $style = 'bi-sort-down';
     } else {
-        $style = 'glyphicon glyphicon-sort';
+        $style = 'bi-arrow-down-up';
     }
 
     $uri = URL::full();
@@ -226,7 +227,7 @@ Html::macro('sortLabel', function($field, $label, $default_sort = false) {
         $field,
         $order);
 
-    $markup = sprintf('%s <a href="%s"><i class="glyphicon %s"></i></a>',
+    $markup = sprintf('%s <a href="%s"><i class="bi %s"></i></a>',
         $label,
         $sort_uri,
         $style);
@@ -266,4 +267,27 @@ Html::macro('assetVersion', function($path) {
     }
 
     return $path . '?v=' . filemtime($file);
+});
+
+/**
+ * 前月比の増減率を、符号を付けて返す。
+ *
+ * 支出は増えたときに正となるよう符号を揃えて渡されるため、金額そのものが
+ * 負で表示される行でも正の値は「増えた」を意味する。
+ *
+ * 記号に ▲▼ は使わない。日本の会計表記では ▲ が負の数を指すのが通例で、
+ * 「増えた」を ▲ で表すと支出欄で意味が逆に読まれる。+ / - なら取り違えない。
+ */
+Html::macro('comparisonRate', function($rate) {
+    // ± は増減がちょうど 0 のときだけ。1% 未満の増減を整数に丸めると
+    // 「増減なし」と区別が付かなくなるため、その範囲は小数第 1 位まで出す。
+    if ($rate == 0) {
+        return '±0%';
+    }
+
+    $mark = $rate > 0 ? '+' : '-';
+    $absolute = abs($rate);
+    $value = $absolute < 1 ? number_format($absolute, 1) : (string) round($absolute);
+
+    return $mark . $value . '%';
 });

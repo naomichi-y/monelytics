@@ -36,12 +36,14 @@ $(function () {
         var j = Object.keys(data).length;
 
         for (i = 0; i < j; i += 1) {
-          colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
+          // 11 以降、色の生成は小文字の Highcharts.color()。
+          colors.push(Highcharts.color(base).brighten((i - 3) / 7).get());
         }
         return colors;
       }());
 
-      $element.highcharts({
+      // Highcharts 6 で jQuery プラグイン形式が廃止された。
+      Highcharts.chart($element[0], {
         chart: {
           plotBackgroundColor: null,
           plotBorderWidth: null,

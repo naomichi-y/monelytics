@@ -1,16 +1,10 @@
 <script>
     $(function() {
-        var minHeight = 400;
-        var tabHeight = window.innerHeight - minHeight;
-
-        if (tabHeight < minHeight) {
-            tabHeight = minHeight;
-        }
-
-        // テーブルのヘッダのスクロールを固定
-        $('#table-selector').tablefix({
-            width: $('#tab-container').width() - 4,
-            height: tabHeight,
+        // テーブルのヘッダのスクロールを固定する。幅の追従も含めて
+        // fixTableHeader が面倒を見る (@see assets/js/common.js)。
+        $('#tab-container').fixTableHeader({
+            table: '#table-selector',
+            widthAdjust: 4,
             fixRows: 1
         });
     });
@@ -19,9 +13,10 @@
 @if ($summary['cost_size'][App\Models\ActivityCategory::COST_TYPE_VARIABLE] || $summary['cost_size'][App\Models\ActivityCategory::COST_TYPE_CONSTANT])
     <div id="tab-container">
         <table class="table table-hover table-bordered table-highlight" id="table-selector">
-            <colgroup span="3" style="width: 10%">
-            <colgroup span="5" style="width: 12%">
-            <colgroup style="width: 10%">
+            <colgroup span="3" style="width: 10%"></colgroup>
+            <colgroup span="2" style="width: 18%"></colgroup>
+            <colgroup style="width: 16%"></colgroup>
+            <colgroup style="width: 18%"></colgroup>
             <thead>
                 <tr>
                     <th class="text-center">収支タイプ</th>
@@ -29,10 +24,8 @@
                     <th class="text-center">科目</th>
                     <th class="text-center">現金収支額</th>
                     <th class="text-center">クレジット収支額</th>
-                    <th class="text-center">特別収支</th>
-                    <th class="text-center">科目合計<br /><span class="note">(特別収支を含まない)</span></th>
-                    <th class="text-center">科目合計<br /><span class="note">(特別収支を含む)</span></th>
-                    <th class="text-center">前月比<br /><span class="note">(変動収支のみ)</span></th>
+                    <th class="text-center">前月比</th>
+                    <th class="text-center">科目合計</th>
                 </tr>
             </thead>
             <tbody>
@@ -59,23 +52,14 @@
                                         <tr>
                                     @endif
                                         <th>{{{$activity_category_group_summary['group_name']}}}</th>
-                                        <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE], number_format($activity_category_group_summary['cash_amount'])) !!}</td>
-                                        <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE], number_format($activity_category_group_summary['credit_amount'])) !!}</td>
-                                        <td class="text-right">
-                                            @if ($cost_type == App\Models\ActivityCategory::COST_TYPE_VARIABLE)
-                                             {!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_USE], number_format($activity_category_group_summary['special_use_amount'])) !!}
-                                            @else
-                                             N/A
+                                        <td class="text-end">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE], number_format($activity_category_group_summary['cash_amount'])) !!}</td>
+                                        <td class="text-end">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE], number_format($activity_category_group_summary['credit_amount'])) !!}</td>
+                                        <td class="text-end">
+                                            @if (isset($comparisons['groups'][$activity_category_group_id]))
+                                                {{Html::comparisonRate($comparisons['groups'][$activity_category_group_id])}}
                                             @endif
                                         </td>
-                                        <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'special_flag' => App\Models\Activity::SPECIAL_FLAG_UNUSE], number_format($activity_category_group_summary['special_unuse_amount'])) !!}</td>
-                                        <td class="text-right">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], number_format($activity_category_group_summary['group_amount'])) !!}</td>
-                                        <td class="text-right">
-                                            @if ($cost_type == App\Models\ActivityCategory::COST_TYPE_VARIABLE && isset($comparisons[$activity_category_group_id]))
-                                                @php ($rate = $comparisons[$activity_category_group_id])
-                                                {!! $rate > 0 ? '&uarr;' : ($rate < 0 ? '&darr;' : '&plusmn;') !!}{{abs($rate)}}%
-                                            @endif
-                                        </td>
+                                        <td class="text-end">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], number_format($activity_category_group_summary['group_amount'])) !!}</td>
                                     </tr>
                                     <?php $j++; ?>
                                 @endforeach
@@ -88,34 +72,40 @@
                             <th class="text-center">-</th>
                             <th class="text-center">-</th>
                             <th class="text-center">-</th>
-                            <th class="text-center">-</th>
-                            <th class="text-center">-</th>
                         @endif
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
                     <th colspan="3">収入合計</th>
-                    <td class="text-right">{{number_format($summary['income_summary']['cash_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['income_summary']['credit_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['income_summary']['special_use_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['income_summary']['special_unuse_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['income_summary']['income_amount'])}}</td>
-                    <td></td>
+                    <td class="text-end">{{number_format($summary['income_summary']['cash_amount'])}}</td>
+                    <td class="text-end">{{number_format($summary['income_summary']['credit_amount'])}}</td>
+                    <td class="text-end">
+                        @if (isset($comparisons['totals']['income']))
+                            {{Html::comparisonRate($comparisons['totals']['income'])}}
+                        @endif
+                    </td>
+                    <td class="text-end">{{number_format($summary['income_summary']['income_amount'])}}</td>
                 </tr>
                 <tr>
                     <th colspan="3">支出合計</th>
-                    <td class="text-right">{{number_format($summary['expense_summary']['cash_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['expense_summary']['credit_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['expense_summary']['special_use_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['expense_summary']['special_unuse_amount'])}}</td>
-                    <td class="text-right">{{number_format($summary['expense_summary']['expense_amount'])}}</td>
-                    <td></td>
+                    <td class="text-end">{{number_format($summary['expense_summary']['cash_amount'])}}</td>
+                    <td class="text-end">{{number_format($summary['expense_summary']['credit_amount'])}}</td>
+                    <td class="text-end">
+                        @if (isset($comparisons['totals']['expense']))
+                            {{Html::comparisonRate($comparisons['totals']['expense'])}}
+                        @endif
+                    </td>
+                    <td class="text-end">{{number_format($summary['expense_summary']['expense_amount'])}}</td>
                 </tr>
                 <tr>
-                    <th colspan="7">合計</th>
-                    <td class="text-right">{{number_format($summary['total_amount'])}}</td>
-                    <td></td>
+                    <th colspan="5">合計</th>
+                    <td class="text-end">
+                        @if (isset($comparisons['totals']['total']))
+                            {{Html::comparisonRate($comparisons['totals']['total'])}}
+                        @endif
+                    </td>
+                    <td class="text-end">{{number_format($summary['total_amount'])}}</td>
                 </tr>
             </tfoot>
         </table>

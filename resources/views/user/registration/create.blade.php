@@ -6,30 +6,30 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            <div class="well">
-                {!! Form::open(['url' => 'user', 'class' => 'form-horizontal']) !!}
+        <div class="col-md-6 offset-md-3">
+            <div class="card card-body">
+                {!! Form::open(['url' => 'user']) !!}
                     <fieldset>
-                        <div class="form-group">
-                            {!! Form::label('nickname', '名前', ['class' => 'col-md-4 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('nickname', '名前', ['class' => 'col-md-4 col-form-label']) !!}
                             <div class="col-md-8">
                                 {!! Form::text('nickname', null, ['class' => 'form-control']) !!}
                             </div>
                         </div>
-                        <div class="form-group">
-                            {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 col-form-label']) !!}
                             <div class="col-md-8">
                                 {!! Form::email('email', null, ['class' => 'form-control']) !!}
                             </div>
                         </div>
-                        <div class="form-group">
-                            {!! Form::label('password', 'パスワード', ['class' => 'col-md-4 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('password', 'パスワード', ['class' => 'col-md-4 col-form-label']) !!}
                             <div class="col-md-8">
                                 {!! Form::password('password', ['class' => 'form-control']) !!}
                             </div>
                         </div>
-                        <div class="form-group form-group-adjust">
-                            <div class="col-md-8 col-md-offset-4">
+                        <div class="row mb-3 form-group-adjust">
+                            <div class="col-md-8 offset-md-4">
                                 {!! Form::submit('会員登録', ['class' => 'btn btn-primary']) !!}
                             </div>
                         </div>

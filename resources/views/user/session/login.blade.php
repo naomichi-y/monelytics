@@ -6,30 +6,28 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            <div class="well">
-                {!! Form::open(['url' => 'user/login', 'class' => 'form-horizontal']) !!}
+        <div class="col-md-6 offset-md-3">
+            <div class="card card-body">
+                {!! Form::open(['url' => 'user/login']) !!}
                     <fieldset>
-                        <div class="form-group">
-                            {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 col-form-label']) !!}
                             <div class="col-md-8">
                                 {!! Form::email('email', null, ['class' => 'form-control', 'autofocus']) !!}
                             </div>
                         </div>
-                        <div class="form-group">
-                            {!! Form::label('password', 'パスワード', ['class' => 'col-md-4 control-label']) !!}
+                        <div class="row mb-3">
+                            {!! Form::label('password', 'パスワード', ['class' => 'col-md-4 col-form-label']) !!}
                             <div class="col-md-8">
                                 {!! Form::password('password', ['class' => 'form-control']) !!}
                             </div>
                         </div>
-                        <div class="form-group form-group-adjust">
-                            <div class="col-md-3 col-md-offset-4">
+                        <div class="row mb-3 form-group-adjust">
+                            <div class="col-md-8 offset-md-4 d-flex align-items-center gap-3">
                                 {!! Form::submit('ログイン', ['class' => 'btn btn-primary']) !!}
-                            </div>
-                            <div class="col-md-5">
-                                <div class="checkbox-inline">
-                                    {!! Form::checkbox('remember_me', '1', null, ['id' => 'remember_me']) !!}
-                                    {!! Form::label('remember_me', '保存する') !!}
+                                <div class="form-check mb-0">
+                                    {!! Form::checkbox('remember_me', '1', null, ['id' => 'remember_me', 'class' => 'form-check-input']) !!}
+                                    {!! Form::label('remember_me', 'ログイン状態を保持する', ['class' => 'form-check-label']) !!}
                                 </div>
                             </div>
                         </div>

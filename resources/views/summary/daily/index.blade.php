@@ -25,10 +25,9 @@
                         activity_category_group_id: {!! Html::encodeJsJsonValue('activity_category_group_id', null, 'array') !!},
                         keyword: {!! Html::encodeJsJsonValue('keyword') !!},
                         credit_flag: {!! Html::encodeJsJsonValue('credit_flag') !!},
-                        special_flag: {!! Html::encodeJsJsonValue('special_flag') !!}
                     },
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -41,7 +40,7 @@
                 $.get("/cost/variable/" + activity_id + "/edit",
                     {},
                     function(data) {
-                        $(data).modal();
+                        showModal(data);
                     }
                 );
             });
@@ -50,11 +49,11 @@
 @stop
 
 @section('function')
-    <div class="well">
-        {!! Form::open(['url' => 'summary/daily', 'class' => 'form-horizontal', 'id' => 'search_form', 'method' => 'get']) !!}
-            <div class="form-group form-group-sm form-group-adjust">
+    <div class="card card-body">
+        {!! Form::open(['url' => 'summary/daily', 'id' => 'search_form', 'method' => 'get']) !!}
+            <div class="row g-2 align-items-center form-group-adjust">
                 <div class="col-md-8">
-                    {!! Form::select('date_month', $month_list, Request::get('date_month', date('Y-m')), ['class' => 'form-control', 'id' => 'date_month']) !!}
+                    {!! Form::select('date_month', $month_list, Request::get('date_month', date('Y-m')), ['class' => 'form-select', 'id' => 'date_month']) !!}
                 </div>
                 <div class="col-md-4">
                     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
@@ -75,10 +74,11 @@
                 <col style="width: 11%" />
                 <col style="width: 19%" />
                 <col style="width: 19%" />
+                <col style="width: 8%" />
                 <col style="width: 4%" />
+                <col style="width: 14%" />
+                <col style="width: 14%" />
             </colgroup>
-            <colgroup span="2" style="width: 4%">
-            <colgroup span="2" style="width: 14%">
             <thead>
                 <tr>
                     <th class="text-center">
@@ -97,12 +97,8 @@
                         {!! Html::sortLabel('amount', '金額') !!}
                     </th>
                     <th class="text-center">
-                        <span class="glyphicon glyphicon-credit-card"></span>
+                        <span class="bi bi-credit-card"></span>
                         {!! Html::sortLabel('credit_flag', '') !!}
-                    </th>
-                    <th class="text-center">
-                        <span class="glyphicon glyphicon-star"></span>
-                        {!! Html::sortLabel('special_flag', '') !!}
                     </th>
                     <th class="text-center">
                         {!! Html::sortLabel('create_date', '登録日時') !!}
@@ -119,30 +115,27 @@
                     <td>{{{$activity->activityCategoryGroup->group_name}}}</td>
                     <td>{{{$activity->location}}}</td>
                     <td>{{{$activity->content}}}</td>
-                    <td class="text-right">{{number_format($activity->amount)}}</td>
+                    <td class="text-end">{{number_format($activity->amount)}}</td>
                     <td class="text-center">
                         @if ($activity->credit_flag)
-                            <span class="glyphicon glyphicon-ok"></span>
-                        @endif
-                    </td>
-                    <td class="text-center">
-                        @if ($activity->special_flag)
-                            <span class="glyphicon glyphicon-ok"></span>
+                            <span class="bi bi-check-lg"></span>
                         @endif
                     </td>
                     <td class="text-center">{{Html::datetime($activity->create_date)}}</td>
                     <td class="text-center">
                         {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}
-                        {!! Form::button('削除', ['class' => 'btn btn-default open_delete', 'data-toggle' => 'modal', 'data-target' => '#delete-modal']) !!}
+                        {!! Form::button('削除', ['class' => 'btn btn-secondary open_delete', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#delete-modal']) !!}
                     </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
-        <div class="text-right">
+        <div class="text-end">
             合計金額: {{number_format($activities->total_amount)}}
         </div>
-        <div class="text-right">{!! $activities->render() !!}</div>
+        {{-- 番号は出さず「前へ / 次へ」だけ。ページ数が多く、番号を並べても
+             行が埋まるだけで選べないため。 --}}
+        <div class="text-end">{!! $activities->render('pagination::simple-bootstrap-5') !!}</div>
         {!! Form::close() !!}
     @else
         <p>データがありません。</p>

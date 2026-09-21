@@ -95,6 +95,25 @@ class ActivityService
     }
 
     /**
+     * LIKE のメタ文字を打ち消す。
+     *
+     * 検索語はそのまま LIKE のパターンになるため、'%' や '_' を含む語で
+     * 検索すると意図しない行まで一致する ('%' だけで全件、'Q_PROBE' が
+     * 'QAPROBE' に一致する)。値自体はクエリビルダが束縛するので、ここで
+     * 必要なのはワイルドカードの無効化だけ。
+     *
+     * エスケープ文字そのものを先に処理しないと、後から付けた '\\' を
+     * 二重に潰してしまう。
+     *
+     * @param string $keyword
+     * @return string
+     */
+    private function escapeLikeWildcards($keyword)
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $keyword);
+    }
+
+    /**
      * 日別集計の結果を取得する。
      *
      * @param int $user_id
@@ -124,28 +143,21 @@ class ActivityService
 
         // 場所・内容
         if (strlen($condition->keyword)) {
-            $keyword = $condition->keyword;
+            $query_keyword = '%' . $this->escapeLikeWildcards($condition->keyword) . '%';
 
-            $builder->where(function($builder) use ($keyword) {
-                $query_keyword = '%' .  addslashes($keyword) . '%';
-
+            $builder->where(function($builder) use ($query_keyword) {
                 $builder->where('location', 'LIKE', $query_keyword);
                 $builder->orWhere('content', 'LIKE', $query_keyword);
             });
         }
 
         if (strlen($condition->location)) {
-            $builder->where('location', '=', addslashes($condition->location));
+            $builder->where('location', '=', $condition->location);
         }
 
         // クレジットカード
         if (strlen($condition->credit_flag)) {
             $builder->where('credit_flag', '=', $condition->credit_flag);
-        }
-
-        // 特別収支
-        if (strlen($condition->special_flag)) {
-            $builder->where('special_flag', '=', $condition->special_flag);
         }
 
         // 並び順
@@ -206,20 +218,26 @@ class ActivityService
     /**
      * 変動収支データを更新する。
      *
+     * 対象レコードも付け替え先の科目グループも、必ず $user_id で絞り込んでから
+     * 取得する。ID は利用者が自由に送れるため、絞り込まずに取得すると他人の
+     * 収支を書き換えられる。
+     *
+     * @param int $user_id
      * @param int $id
      * @param array $fields
      * @param array &$errors
      * @return bool
      */
-    public function update($id, array $fields, &$errors = [])
+    public function update($user_id, $id, array $fields, &$errors = [])
     {
         $result = false;
 
         if ($this->activity->validate($fields)) {
-            $activity = $this->activity->findOrFail($id);
+            $activity = $this->find($user_id, $id);
             $activity->fill($fields);
 
-            $balance_type = $activity->activityCategoryGroup->activityCategory->balance_type;
+            $activity_category_group = $this->activity_category_group->find($user_id, $activity->activity_category_group_id);
+            $balance_type = $activity_category_group->activityCategory->balance_type;
 
             $activity->amount = $this->adjustSignAmount($activity->amount, $balance_type);
             $activity->save();
@@ -451,7 +469,7 @@ class ActivityService
         $date_range = $condition->getDateRange();
 
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('ac.cost_type, ac.id AS activity_category_id, ac.category_name, acg.id, acg.group_name, a.credit_flag, a.special_flag, IFNULL(SUM(a.amount), 0) AS amount'))
+            ->select(DB::raw('ac.cost_type, ac.id AS activity_category_id, ac.category_name, acg.id, acg.group_name, a.credit_flag, IFNULL(SUM(a.amount), 0) AS amount'))
             ->rightJoin('activity_category_groups AS acg', function($join) use($date_range)
             {
                 // @see Activity::getConstantCosts()
@@ -474,7 +492,6 @@ class ActivityService
             ->groupBy('ac.cost_type')
             ->groupBy('acg.id')
             ->groupBy('a.credit_flag')
-            ->groupBy('a.special_flag')
             ->groupBy('ac.id')
             ->groupBy('ac.category_name')
             ->groupBy('ac.sort_order')
@@ -502,15 +519,11 @@ class ActivityService
         $income_summary = [
             'cash_amount' => 0,
             'credit_amount' => 0,
-            'special_use_amount' => 0,
-            'special_unuse_amount' => 0,
             'income_amount' => 0
         ];
         $expense_summary = [
             'cash_amount' => 0,
             'credit_amount' => 0,
-            'special_use_amount' => 0,
-            'special_unuse_amount' => 0,
             'expense_amount' => 0
         ];
         $cost_size = [
@@ -538,14 +551,6 @@ class ActivityService
                     $data['credit_amount'] = 0;
                 }
 
-                if (!isset($data['special_use_amount'])) {
-                    $data['special_use_amount'] = 0;
-                }
-
-                if (!isset($data['special_unuse_amount'])) {
-                    $data['special_unuse_amount'] = 0;
-                }
-
                 if (!isset($data['group_amount'])) {
                     $data['group_amount'] = 0;
                 }
@@ -559,13 +564,6 @@ class ActivityService
                 $data['credit_amount'] += $value->amount;
             }
 
-            // 特別収支の加算
-            if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
-                $data['special_use_amount'] += $value->amount;
-            } else {
-                $data['special_unuse_amount'] += $value->amount;
-            }
-
             // 科目ごとの合計加算
             $data['group_amount'] += $value->amount;
 
@@ -577,12 +575,6 @@ class ActivityService
                     $income_summary['credit_amount'] += $value->amount;
                 }
 
-                if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
-                    $income_summary['special_use_amount'] += $value->amount;
-                } else {
-                    $income_summary['special_unuse_amount'] += $value->amount;
-                }
-
                 $income_summary['income_amount'] += $value->amount;
 
             // 全科目の支出加算
@@ -591,12 +583,6 @@ class ActivityService
                     $expense_summary['cash_amount'] += $value->amount;
                 } else {
                     $expense_summary['credit_amount'] += $value->amount;
-                }
-
-                if ($value->special_flag == Models\Activity::SPECIAL_FLAG_USE) {
-                    $expense_summary['special_use_amount'] += $value->amount;
-                } else {
-                    $expense_summary['special_unuse_amount'] += $value->amount;
                 }
 
                 $expense_summary['expense_amount'] += $value->amount;
@@ -703,11 +689,10 @@ class ActivityService
     /**
      * 月別集計の科目合計を、ひとつ前の同じ長さの期間と比べた増減率を返す。
      *
-     * 対象は変動収支のみ。固定収支は毎月同額になりがちで、増減を出しても
-     * 読む意味がないため。範囲は表示先の「科目合計 (特別収支を含む)」に
-     * 合わせる。金額と比率で対象が違うと読み手が混乱するため。
+     * 対象は変動収支と固定収支の全科目。科目ごとに加えて、収入合計・支出合計・
+     * 合計も比較する。
      *
-     * 次の場合は比較しない (空配列を返す)。
+     * 次の場合は比較しない (その項目を返さない)。
      *  - 詳細検索で任意の日付が指定されている (前の期間を定義できない)
      *  - 未来の月が指定されている
      *  - 前の期間の金額が 0 (比率を出せない)
@@ -717,24 +702,30 @@ class ActivityService
      *
      * @param int $user_id
      * @param Condition\MonthlySummaryCondition $condition
-     * @return array [科目グループ ID => 増減率 (整数、正なら増加)]
+     * @return array ['groups' => [科目グループ ID => 増減率], 'totals' => [income|expense|total => 増減率],
+     *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
+     *               増減率は整数で、正なら増加。period は実際に比べた 2 つの
+     *               期間。呼び出し側で日付を組み直すと、ここでの月末の丸め方
+     *               (3/31 に対する 2/28) とずれるため返す。
      */
     public function getMonthlyComparison($user_id, Condition\MonthlySummaryCondition $condition)
     {
+        $empty = ['groups' => [], 'totals' => [], 'period' => []];
+
         if (strlen((string) $condition->begin_date) || strlen((string) $condition->end_date)) {
-            return [];
+            return $empty;
         }
 
         $date_month = $condition->date_month ?: date('Y-m');
 
         if (!preg_match('/\A\d{4}-\d{2}\z/', $date_month)) {
-            return [];
+            return $empty;
         }
 
         $current_month = date('Y-m');
 
         if ($date_month > $current_month) {
-            return [];
+            return $empty;
         }
 
         $begin_date = $date_month . '-01';
@@ -752,57 +743,113 @@ class ActivityService
             $previous_end_date = date('Y-m-t', strtotime($previous_begin_date));
         }
 
-        $current = $this->sumVariableCostByGroup($user_id, $begin_date, $end_date);
-        $previous = $this->sumVariableCostByGroup($user_id, $previous_begin_date, $previous_end_date);
+        $current = $this->sumCostByGroup($user_id, $begin_date, $end_date);
+        $previous = $this->sumCostByGroup($user_id, $previous_begin_date, $previous_end_date);
 
-        $result = [];
+        $groups = [];
 
-        foreach ($current as $activity_category_group_id => $amount) {
-            if (empty($previous[$activity_category_group_id])) {
+        foreach ($current['groups'] as $activity_category_group_id => $amount) {
+            if (empty($previous['groups'][$activity_category_group_id])) {
                 continue;
             }
 
-            $base = $previous[$activity_category_group_id];
-            $result[$activity_category_group_id] = (int) round((($amount - $base) / abs($base)) * 100);
+            $groups[$activity_category_group_id] = $this->calculateComparisonRate($amount, $previous['groups'][$activity_category_group_id]);
         }
 
-        return $result;
+        $totals = [];
+
+        foreach ($current['totals'] as $key => $amount) {
+            if (empty($previous['totals'][$key])) {
+                continue;
+            }
+
+            $totals[$key] = $this->calculateComparisonRate($amount, $previous['totals'][$key]);
+        }
+
+        $period = [
+            'begin_date' => $begin_date,
+            'end_date' => $end_date,
+            'previous_begin_date' => $previous_begin_date,
+            'previous_end_date' => $previous_end_date
+        ];
+
+        return ['groups' => $groups, 'totals' => $totals, 'period' => $period];
     }
 
     /**
-     * 変動収支の金額を、科目グループごとに合計する。
+     * 前の期間を基準とした増減率を百分率で返す。
      *
-     * 支出は負で記録されているため符号を反転し、増えたら正になるよう揃える。
+     * 整数に丸めない。合計のように元の額が大きいと、0.5% 未満の増減が 0 に
+     * なって「増減なし」と見分けが付かなくなる (収入 1,127,668 円と
+     * 1,130,364 円の比較が 0% になる)。表示の丸めは Html::comparisonRate
+     * に任せる。
+     *
+     * @param int $current
+     * @param int $previous 0 以外であること
+     * @return float
+     */
+    private function calculateComparisonRate($current, $previous)
+    {
+        return round((($current - $previous) / abs($previous)) * 100, 1);
+    }
+
+    /**
+     * 収支の金額を、科目グループごとと全体の合計で集計する。
+     *
+     * 科目グループの金額は、支出が負で記録されているため符号を反転し、
+     * 増えたら正になるよう揃える。
+     *
+     * 収入合計と支出合計は、集計表の表示と同じ振り分けにする。つまり科目の
+     * 収支タイプではなく、現金・クレジットごとの小計の符号で分ける
+     * (@see ActivityService::calculateMonthlySummary)。支出合計も科目と同じく
+     * 正の値で返し、使った額が増えたら正になるようにする。
      *
      * @param int $user_id
      * @param string $begin_date
      * @param string $end_date
-     * @return array [科目グループ ID => 金額]
+     * @return array ['groups' => [科目グループ ID => 金額], 'totals' => [income|expense|total => 金額]]
      */
-    private function sumVariableCostByGroup($user_id, $begin_date, $end_date)
+    private function sumCostByGroup($user_id, $begin_date, $end_date)
     {
         $rows = DB::table('activities AS a')
-            ->select(DB::raw('a.activity_category_group_id, ac.balance_type, SUM(a.amount) AS amount'))
+            ->select(DB::raw('a.activity_category_group_id, ac.balance_type, a.credit_flag, SUM(a.amount) AS amount'))
             ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', '=', $user_id)
-            ->where('ac.cost_type', '=', Models\ActivityCategory::COST_TYPE_VARIABLE)
             ->whereBetween('a.activity_date', [$begin_date . ' 00:00:00', $end_date . ' 23:59:59'])
             ->whereNull('a.delete_date')
             ->whereNull('acg.delete_date')
             ->whereNull('ac.delete_date')
             ->groupBy('a.activity_category_group_id')
             ->groupBy('ac.balance_type')
+            ->groupBy('a.credit_flag')
             ->get();
 
-        $result = [];
+        $groups = [];
+        $totals = ['income' => 0, 'expense' => 0, 'total' => 0];
 
         foreach ($rows as $row) {
+            $amount = (int) $row->amount;
+
+            if ($amount > 0) {
+                $totals['income'] += $amount;
+            } else {
+                $totals['expense'] -= $amount;
+            }
+
+            $totals['total'] += $amount;
+
             $sign = ($row->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) ? -1 : 1;
-            $result[$row->activity_category_group_id] = $sign * (int) $row->amount;
+
+            if (!isset($groups[$row->activity_category_group_id])) {
+                $groups[$row->activity_category_group_id] = 0;
+            }
+
+            // 現金とクレジットで行が分かれるため、科目グループごとに足し合わせる。
+            $groups[$row->activity_category_group_id] += $sign * $amount;
         }
 
-        return $result;
+        return ['groups' => $groups, 'totals' => $totals];
     }
 
     /**
@@ -937,12 +984,25 @@ class ActivityService
      */
     public function getYearlySummary($user_id, Condition\YearlySummaryCondition $condition)
     {
-        $begin_date = sprintf('%s-01-01 00:00:00', $condition->begin_year);
-        $end_date = sprintf('%s-12-31 23:59:59', $condition->end_year);
-        $date_group_format = ($condition->output_type == 1) ? '%Y/%m' : '%Y';
+        // 年は利用者入力から来る。%s のままだと 'abc-01-01 00:00:00' のような
+        // 日付にならない文字列を組み立ててしまうため、整数に寄せてから埋める。
+        $begin_year = (int) $condition->begin_year;
+        $end_year = (int) $condition->end_year;
+
+        // 推移グラフ (@see ActivityService::getYearlyTrend) と同じ判定にする。
+        // 片方だけ緩いと、同じ検索条件で表とグラフの対象期間がずれる。
+        $is_valid_range = $begin_year && $end_year && $begin_year <= $end_year;
+
+        $begin_date = sprintf('%04d-01-01 00:00:00', $begin_year);
+        $end_date = sprintf('%04d-12-31 23:59:59', $end_year);
+
+        // 既定も推移グラフと揃える。未指定なら月単位。
+        $date_group_format = ($condition->output_type == Condition\YearlySummaryCondition::OUTPUT_TYPE_YEARLY)
+            ? '%Y'
+            : '%Y/%m';
 
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group, ac.id AS activity_category_id, ac.category_name, ac.cost_type, ac.balance_type, acg.id as activity_category_group_id, a.special_flag, SUM(a.amount) AS group_amount'))
+            ->select(DB::raw('DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group, ac.id AS activity_category_id, ac.category_name, ac.cost_type, ac.balance_type, acg.id as activity_category_group_id, SUM(a.amount) AS group_amount'))
             ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', $user_id)
@@ -954,7 +1014,6 @@ class ActivityService
             // acg.id と一致するため、以下の列は関数従属し group は分割されない。
             ->groupBy('date_group')
             ->groupBy('a.activity_category_group_id')
-            ->groupBy('a.special_flag')
             ->groupBy('acg.id')
             ->groupBy('acg.sort_order')
             ->groupBy('ac.id')
@@ -965,7 +1024,7 @@ class ActivityService
             ->orderBy('ac.cost_type', 'ASC')
             ->orderBy('ac.balance_type', 'ASC')
             ->orderBy('acg.sort_order', 'ASC');
-        $result = $builder->get();
+        $result = $is_valid_range ? $builder->get() : collect();
 
         $data = [];
         $footers = [
