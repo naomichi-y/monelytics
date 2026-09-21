@@ -16,4 +16,10 @@ class YearlyTrendCondition extends BaseCondition {
      * 未指定なら支出と収入の小項目を両方対象にする。
      */
     public $balance_type;
+
+    /**
+     * 場所と用途に対する絞り込み。集計表と同じ行を対象にするため、詳細検索の
+     * 指定をそのまま受ける。
+     */
+    public $keyword;
 }

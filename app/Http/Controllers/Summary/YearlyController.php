@@ -26,7 +26,16 @@ class YearlyController extends \App\Http\Controllers\Controller {
      */
     public function index()
     {
-        return View::make('summary/yearly/index');
+        // タブの中身は ajax で読むため、その URL へ検索条件をそのまま渡す。
+        // 既定値をここで埋めるのは、画面側で組み直すと集計表と推移グラフで
+        // 食い違うため。
+        $fields = Request::only('begin_year', 'end_year', 'output_type', 'keyword') + [
+            'begin_year' => date('Y'),
+            'end_year' => date('Y'),
+            'output_type' => Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY,
+        ];
+
+        return View::make('summary/yearly/index', ['condition' => new Condition\YearlySummaryCondition($fields)]);
     }
 
     /**
@@ -67,7 +76,8 @@ class YearlyController extends \App\Http\Controllers\Controller {
             'begin_year',
             'end_year',
             'output_type',
-            'balance_type'
+            'balance_type',
+            'keyword'
         );
         $condition = new Condition\YearlyTrendCondition($fields);
 
@@ -83,7 +93,8 @@ class YearlyController extends \App\Http\Controllers\Controller {
         $fields = Request::only(
             'begin_year',
             'end_year',
-            'output_type'
+            'output_type',
+            'keyword'
         );
         $condition = new Condition\YearlySummaryCondition($fields);
 

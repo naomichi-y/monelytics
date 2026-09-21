@@ -315,4 +315,52 @@ test.describe('集計', () => {
     await expect(page.locator('#tabs')).toContainText(String(year));
     await expect(page.locator('#tabs')).toContainText(String(year - 1));
   });
+
+  /**
+   * 年別集計のキーワードは、詳細検索で指定してタブの URL へ乗り、集計表と
+   * 推移グラフの両方に効く。どちらか片方へ渡し忘れると、同じ検索条件のまま
+   * 表とグラフに別の小項目が並ぶ。当たり方そのものは PHPUnit が見ているので、
+   * ここは画面から指定した値が両方のタブまで届くか。
+   *
+   * 小項目の見出しは検索条件に関わらず全て並ぶ (利用者の持ち物の一覧なので)。
+   * 絞り込めたかどうかは合計で見る。シードで場所が「E2E スーパー」なのは
+   * 食料品だけなので、収入の側は 0 円になる。
+   */
+  test('年別集計をキーワードで絞り込める', async ({ page }) => {
+    const year = new Date().getFullYear();
+
+    const totals = () => reportTable(page)
+      .locator('tfoot td')
+      .evaluateAll((cells) => cells.slice(-3).map((cell) => cell.innerText.trim()));
+
+    await page.goto(`/summary/yearly?begin_year=${year - 2}&end_year=${year}&output_type=2`);
+    await reportTable(page).waitFor();
+
+    const [, incomeBefore] = await totals();
+    expect(incomeBefore).not.toBe('0 円');
+
+    await page.getByText('詳細検索').click();
+    await page.getByLabel('場所・用途').fill('E2E スーパー');
+
+    // 帯の検索ボタンも「検索」なので、モーダルの中へ絞る。
+    await page.locator('#search_modal').getByRole('button', { name: '検索' }).click();
+
+    await expect(page).toHaveURL(/keyword=/);
+    await reportTable(page).waitFor();
+
+    const [expenseAfter, incomeAfter] = await totals();
+    expect(incomeAfter).toBe('0 円');
+    expect(expenseAfter).not.toBe('0 円');
+
+    // 推移グラフも同じ条件で読む。系列は大項目なので、残るのは生活費だけ。
+    await page.getByRole('tab', { name: '推移グラフ' }).click();
+    await expect(page.locator('#yearly_trend_chart svg')).toBeVisible();
+
+    const series = await chartEvaluate(page, (chart) => chart.series.map((entry) => entry.name));
+    expect(series).toEqual(['生活費']);
+
+    // 詳細検索を開き直すと、指定した語が残っていること。
+    await page.getByText('詳細検索').click();
+    await expect(page.getByLabel('場所・用途')).toHaveValue('E2E スーパー');
+  });
 });

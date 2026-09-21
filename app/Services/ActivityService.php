@@ -114,6 +114,34 @@ class ActivityService
     }
 
     /**
+     * 場所か用途にキーワードを含む行だけに絞る。
+     *
+     * 日別集計と年別集計で同じ当たり方をさせるため 1 箇所に置く。画面ごとに
+     * 書き直すと、帯の検索で出た行が年別集計では出ない、といった食い違いが出る。
+     *
+     * 文字列以外は絞り込みなしとして扱う。?keyword[]=x のような指定で配列が
+     * 来ると strlen が TypeError を投げ、画面ごと落ちるため。
+     *
+     * @param Builder $builder
+     * @param mixed $keyword
+     * @param string $prefix 結合した表の別名 ('a.' など)。単独の表なら空
+     * @return void
+     */
+    private function applyKeyword($builder, $keyword, $prefix = '')
+    {
+        if (!is_string($keyword) || !strlen($keyword)) {
+            return;
+        }
+
+        $query_keyword = '%' . $this->escapeLikeWildcards($keyword) . '%';
+
+        $builder->where(function($builder) use ($query_keyword, $prefix) {
+            $builder->where($prefix . 'location', 'LIKE', $query_keyword);
+            $builder->orWhere($prefix . 'content', 'LIKE', $query_keyword);
+        });
+    }
+
+    /**
      * 日別集計の結果を取得する。
      *
      * @param int $user_id
@@ -142,14 +170,7 @@ class ActivityService
         }
 
         // 場所・内容
-        if (strlen($condition->keyword)) {
-            $query_keyword = '%' . $this->escapeLikeWildcards($condition->keyword) . '%';
-
-            $builder->where(function($builder) use ($query_keyword) {
-                $builder->where('location', 'LIKE', $query_keyword);
-                $builder->orWhere('content', 'LIKE', $query_keyword);
-            });
-        }
+        $this->applyKeyword($builder, $condition->keyword);
 
         if (strlen($condition->location)) {
             $builder->where('location', '=', $condition->location);
@@ -1042,6 +1063,8 @@ class ActivityService
             ->whereNull('acg.delete_date')
             ->whereNull('ac.delete_date');
 
+        $this->applyKeyword($builder, $condition->keyword, 'a.');
+
         if ($condition->balance_type) {
             $builder->where('ac.balance_type', '=', $condition->balance_type);
         }
@@ -1162,6 +1185,10 @@ class ActivityService
             ->orderBy('ac.cost_type', 'ASC')
             ->orderBy('ac.balance_type', 'ASC')
             ->orderBy('acg.sort_order', 'ASC');
+
+        // 推移グラフ (@see ActivityService::getYearlyTrend) と同じ当たり方をさせる。
+        $this->applyKeyword($builder, $condition->keyword, 'a.');
+
         $result = $is_valid_range ? $builder->get() : collect();
 
         $data = [];
