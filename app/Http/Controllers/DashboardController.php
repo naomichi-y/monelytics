@@ -28,7 +28,7 @@ class DashboardController extends Controller
         // 固定収支の科目まで選べると、選んだとおりに登録されないか、固定費を
         // 二重に積むことになる。入力欄の一覧を送り先と揃える
         // (@see Cost\VariableController::create)。
-        $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList(
+        $data['activity_category_items'] = $this->activity_category->getCategoryItemList(
             Auth::id(),
             Models\ActivityCategory::COST_TYPE_VARIABLE,
             true

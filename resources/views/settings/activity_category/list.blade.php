@@ -10,7 +10,7 @@
         </colgroup>
         <thead>
             <tr>
-                <th class="text-center">科目カテゴリ名</th>
+                <th class="text-center">分類名</th>
                 <th class="text-center">用途</th>
                 <th class="text-center">収支タイプ</th>
                 <th class="text-center">登録日時</th>
@@ -24,7 +24,7 @@
                     <td>
                         {{{$activity_category->category_name}}}
                         <p class="note">
-                        {{{Html::collection_to_string($activity_category->activityCategoryGroups, 'group_name')}}}
+                        {{{Html::collection_to_string($activity_category->activityCategoryItems, 'item_name')}}}
                         </p>
                     </td>
                     <td>{{nl2br(e($activity_category->content))}}</td>

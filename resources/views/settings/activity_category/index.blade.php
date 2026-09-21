@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-科目カテゴリ
+分類
 @stop
 
 @section('include_header')
@@ -68,14 +68,14 @@
             // 科目の確認を押下
             $(".show-category-group").click(function() {
                 var id = $(this).parent().parent().attr("data-id");
-                window.location.href = "/settings/activityCategoryGroup?activity_category_id=" + id;
+                window.location.href = "/settings/activityCategoryItem?activity_category_id=" + id;
             });
         });
     </script>
 @stop
 
 @section('function')
-    <a class="btn btn-info btn-sm" id="open_create">科目カテゴリの登録</a>
+    <a class="btn btn-info btn-sm" id="open_create">分類の登録</a>
 @stop
 
 @section('content')

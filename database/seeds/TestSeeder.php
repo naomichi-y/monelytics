@@ -19,7 +19,7 @@ class TestSeeder extends Seeder {
         $this->call('Seeds\Test\UserTableSeeder');
         $this->call('Seeds\Test\ActivityTableSeeder');
         $this->call('Seeds\Test\ActivityCategoryTableSeeder');
-        $this->call('Seeds\Test\ActivityCategoryGroupTableSeeder');
+        $this->call('Seeds\Test\ActivityCategoryItemTableSeeder');
     }
 
 }

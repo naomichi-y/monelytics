@@ -5,10 +5,10 @@
                 // クレジットカードの値取得
                 var creditFlag = $("#credit_flag").prop("checked") ? 1 : 0;
 
-                $.put("/settings/activityCategoryGroup/{{$id}}",
+                $.put("/settings/activityCategoryItem/{{$id}}",
                     {
                         activity_category_id: $("#activity_category_id").val(),
-                        group_name: $("#group_name").val(),
+                        item_name: $("#item_name").val(),
                         content: $("#content").val(),
                         credit_flag: creditFlag
                     },
@@ -53,23 +53,23 @@
 
                     <div class="row">
                         <div class="row mb-3">
-                            {!! Form::label('activity_category_id', '科目カテゴリ', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('activity_category_id', '分類', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-4">
-                                {!! Form::select('activity_category_id', $category_list,  Request::input('activity_category_id', $activity_category_group->activity_category_id), ['class' => 'form-select']) !!}
+                                {!! Form::select('activity_category_id', $category_list,  Request::input('activity_category_id', $activity_category_item->activity_category_id), ['class' => 'form-select']) !!}
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            {!! Form::label('group_name', '科目名', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('item_name', '科目名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::text('group_name', Request::input('group_name', $activity_category_group->group_name), ['class' => 'form-control']) !!}
+                                {!! Form::text('item_name', Request::input('item_name', $activity_category_item->item_name), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             {!! Form::label('content', '用途', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::textarea('content', Request::input('content', $activity_category_group->content), ['class' => 'form-control']) !!}
+                                {!! Form::textarea('content', Request::input('content', $activity_category_item->content), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 

@@ -33,7 +33,7 @@ class VariableController extends \App\Http\Controllers\Controller {
     {
         $data = [];
         $data['input_size'] = 8;
-        $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList(Auth::id(), Models\ActivityCategory::COST_TYPE_VARIABLE, true);
+        $data['activity_category_items'] = $this->activity_category->getCategoryItemList(Auth::id(), Models\ActivityCategory::COST_TYPE_VARIABLE, true);
 
         return View::make('cost/variable/create', $data);
     }
@@ -45,7 +45,7 @@ class VariableController extends \App\Http\Controllers\Controller {
     {
         $fields = Request::only(
             'activity_date',
-            'activity_category_group_id',
+            'activity_category_item_id',
             'amount',
             'location',
             'content',
@@ -73,7 +73,7 @@ class VariableController extends \App\Http\Controllers\Controller {
         $data = [];
         $data['id'] = $id;
         $data['activity'] = $this->activity->find($user_id, $id);
-        $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList($user_id);
+        $data['activity_category_items'] = $this->activity_category->getCategoryItemList($user_id);
 
         return View::make('cost/variable/edit', $data);
     }
@@ -85,7 +85,7 @@ class VariableController extends \App\Http\Controllers\Controller {
     {
         $fields = Request::only(
             'activity_date',
-            'activity_category_group_id',
+            'activity_category_item_id',
             'amount',
             'location',
             'content',

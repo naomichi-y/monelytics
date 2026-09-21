@@ -1,7 +1,7 @@
 <?php
 namespace Tests\Controllers;
 
-use Seeds\Test\ActivityCategoryGroupTableSeeder;
+use Seeds\Test\ActivityCategoryItemTableSeeder;
 use Tests\TestCase;
 
 class DashboardControllerTest extends TestCase {
@@ -23,14 +23,14 @@ class DashboardControllerTest extends TestCase {
         $response->assertOk();
 
         $variable = [
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE,
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_ENABLE,
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE,
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_ENABLE,
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE
         ];
 
         // 科目名はシードでどれも同じなので、選択肢は値で見分ける。
-        preg_match('/<select[^>]*activity_category_group_id.*?<\/select>/s', $response->getContent(), $matches);
+        preg_match('/<select[^>]*activity_category_item_id.*?<\/select>/s', $response->getContent(), $matches);
         $this->assertNotEmpty($matches, 'かんたん入力に科目の選択欄がない');
 
         preg_match_all('/<option value="(\d+)"/', $matches[0], $options);

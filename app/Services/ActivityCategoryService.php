@@ -29,7 +29,7 @@ class ActivityCategoryService
      */
     public function findAll($user_id, $cost_type)
     {
-        $builder = $this->activity_category->with('activityCategoryGroups')
+        $builder = $this->activity_category->with('activityCategoryItems')
             ->where('user_id', '=', $user_id)
             ->where('cost_type', '=', $cost_type)
             ->orderBy('sort_order', 'asc');
@@ -129,13 +129,13 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリグループのリストを取得する。
+     * 科目のリストを取得する。
      *
      * @param int $user_id
      * @param int $cost_type
      * @return array
      */
-    public function getCategoryGroupList($user_id, $cost_type = null, $header = false, $assoc = false)
+    public function getCategoryItemList($user_id, $cost_type = null, $header = false, $assoc = false)
     {
         $builder = $this->activity_category->where('user_id', '=', $user_id);
 
@@ -149,15 +149,15 @@ class ActivityCategoryService
         $result = [];
 
         foreach ($activity_categories as $activity_category) {
-            $builder = $activity_category->activityCategoryGroups()
+            $builder = $activity_category->activityCategoryItems()
                 ->where('user_id', '=', $user_id)
                 ->orderBy('sort_order', 'asc');
 
-            $activity_category_groups = $builder->get();
+            $activity_category_items = $builder->get();
             $array = [];
 
-            foreach ($activity_category_groups as $activity_category_group) {
-                $array[$activity_category_group->id] = $activity_category_group->group_name;
+            foreach ($activity_category_items as $activity_category_item) {
+                $array[$activity_category_item->id] = $activity_category_item->item_name;
             }
 
             if (sizeof($array)) {
@@ -173,12 +173,12 @@ class ActivityCategoryService
     }
 
     /**
-     * 科目カテゴリに紐づく科目カテゴリグループを連想配列形式で取得する。
+     * 科目カテゴリに紐づく科目を連想配列形式で取得する。
      *
      * @param int $user_id
      * @return array
      */
-    public function getCategoryGroupData($user_id)
+    public function getCategoryItemData($user_id)
     {
         $activity_categories = $this->activity_category->where('user_id', '=', $user_id)
             ->orderBy('cost_type', 'asc')
@@ -187,20 +187,20 @@ class ActivityCategoryService
         $result = [];
 
         foreach ($activity_categories as $activity_category) {
-            $builder = $activity_category->activityCategoryGroups()
+            $builder = $activity_category->activityCategoryItems()
                 ->where('user_id', '=', $user_id)
                 ->orderBy('sort_order', 'asc');
-            $activity_category_groups = [];
+            $activity_category_items = [];
 
-            foreach ($builder->get() as $activity_category_group) {
-                $activity_category_groups[$activity_category_group->id] = $activity_category_group->group_name;
+            foreach ($builder->get() as $activity_category_item) {
+                $activity_category_items[$activity_category_item->id] = $activity_category_item->item_name;
             }
 
-            if (sizeof($activity_category_groups)) {
+            if (sizeof($activity_category_items)) {
                 $result[$activity_category->cost_type][] = [
                     'activity_category_id' => $activity_category->id,
                     'activity_category_name' => $activity_category->category_name,
-                    'activity_category_groups' => $activity_category_groups
+                    'activity_category_items' => $activity_category_items
                 ];
             }
         }
@@ -212,12 +212,12 @@ class ActivityCategoryService
      * 科目カテゴリデータを取得する。
      *
      * @param int $user_id
-     * @param int $activity_category_group_id
-     * @return ActivityCategoryGroup
+     * @param int $activity_category_item_id
+     * @return ActivityCategoryItem
      */
-    public function find($user_id, $activity_category_group_id)
+    public function find($user_id, $activity_category_item_id)
     {
-        $builder = $this->activity_category->where('id', '=', $activity_category_group_id)
+        $builder = $this->activity_category->where('id', '=', $activity_category_item_id)
             ->where('user_id', '=', $user_id);
 
         return $builder->first();
@@ -248,7 +248,7 @@ class ActivityCategoryService
         $date_range = $condition->getDateRange();
         $builder = DB::table('activities AS a')
             ->select(DB::raw('ac.category_name, SUM(a.amount) AS category_amount'))
-            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', '=', $user_id);
 
@@ -320,7 +320,7 @@ class ActivityCategoryService
      * 科目カテゴリデータを削除する。
      *
      * @param int $user_id
-     * @param int $activity_category_group_cateogyr_id
+     * @param int $activity_category_item_cateogyr_id
      */
     public function delete($user_id, $activity_category_id)
     {

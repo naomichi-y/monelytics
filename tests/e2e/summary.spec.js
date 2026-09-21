@@ -97,7 +97,7 @@ test.describe('集計', () => {
     // 絞り込んだはずの一覧に関係のない行が出る。
     const url = new URL(page.url());
     expect(url.searchParams.get('date_month')).toBe(month);
-    expect(url.searchParams.getAll('activity_category_group_id[]').length).toBeGreaterThan(0);
+    expect(url.searchParams.getAll('activity_category_item_id[]').length).toBeGreaterThan(0);
 
     // 引き継いだ条件で絞り込まれた結果が出ていること。
     const rows = page.locator('tr[data-id]');

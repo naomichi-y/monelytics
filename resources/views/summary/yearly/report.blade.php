@@ -36,15 +36,15 @@
                 <tr>
                     @foreach ($summary['headers'] as $cost_type => $activity_categories)
                         @foreach ($activity_categories as $activity_categories)
-                            <th colspan="{{sizeof($activity_categories['activity_category_groups'])}}" class="text-center">{{{$activity_categories['activity_category_name']}}}</th>
+                            <th colspan="{{sizeof($activity_categories['activity_category_items'])}}" class="text-center">{{{$activity_categories['activity_category_name']}}}</th>
                         @endforeach
                     @endforeach
                 </tr>
                 <tr>
                     @foreach ($summary['headers'] as $cost_type => $activity_categories)
                         @foreach ($activity_categories as $activity_categories)
-                            @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_name)
-                                <th class="text-center">{{{$activity_category_group_name}}}</th>
+                            @foreach ($activity_categories['activity_category_items'] as $activity_category_item_name)
+                                <th class="text-center">{{{$activity_category_item_name}}}</th>
                             @endforeach
                         @endforeach
                     @endforeach
@@ -56,13 +56,13 @@
                         <th class="text-center">{{$summary_date}}</th>
                         @foreach ($summary['headers'] as $cost_type => $activity_categories)
                             @foreach ($activity_categories as $activity_categories)
-                                @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_id => $activity_category_groups)
+                                @foreach ($activity_categories['activity_category_items'] as $activity_category_item_id => $activity_category_items)
                                     <td class="text-end">
-                                    @if (isset($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id]))
+                                    @if (isset($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_item_id]))
                                         @if (Request::input('output_type') == App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY)
-                                          {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_month' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id], $text)) !!}
+                                          {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_item_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_month' => str_replace('/', '-', $summary_date), 'activity_category_item_id[]' => $activity_category_item_id], $text)) !!}
                                         @else
-                                          {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_year' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id], $text)) !!}
+                                          {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_item_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_year' => str_replace('/', '-', $summary_date), 'activity_category_item_id[]' => $activity_category_item_id], $text)) !!}
                                         @endif
                                     @else
                                         {!! Html::amount(0) !!}
@@ -82,10 +82,10 @@
                     <th class="text-center">合計</th>
                     @foreach ($summary['headers'] as $cost_type => $activity_categories)
                         @foreach ($activity_categories as $activity_categories)
-                            @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_id => $activity_category_group_name)
+                            @foreach ($activity_categories['activity_category_items'] as $activity_category_item_id => $activity_category_item_name)
                                 <td class="text-end">
-                                    @if (isset($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id]))
-                                        {!! Html::amount($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id]) !!}
+                                    @if (isset($summary['footers']['yearly_total_activity_categories'][$activity_category_item_id]))
+                                        {!! Html::amount($summary['footers']['yearly_total_activity_categories'][$activity_category_item_id]) !!}
                                     @else
                                         {!! Html::amount(0) !!}
                                     @endif

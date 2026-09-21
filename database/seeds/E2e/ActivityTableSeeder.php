@@ -22,31 +22,31 @@ class ActivityTableSeeder extends Seeder {
 
         $rows = [
             // 当月。食料品は前月 2,000 に対し 3,000 で +50%。
-            [$this->monthsAgo(0), ActivityCategoryGroupTableSeeder::FOOD, -3000, 'E2E スーパー', '当月の食料品'],
-            [$this->monthsAgo(0), ActivityCategoryGroupTableSeeder::DAILY_GOODS, -1000, 'E2E ドラッグストア', '当月の日用品'],
-            [$this->monthsAgo(0), ActivityCategoryGroupTableSeeder::SALARY, 250000, '', '当月の給与'],
+            [$this->monthsAgo(0), ActivityCategoryItemTableSeeder::FOOD, -3000, 'E2E スーパー', '当月の食料品'],
+            [$this->monthsAgo(0), ActivityCategoryItemTableSeeder::DAILY_GOODS, -1000, 'E2E ドラッグストア', '当月の日用品'],
+            [$this->monthsAgo(0), ActivityCategoryItemTableSeeder::SALARY, 250000, '', '当月の給与'],
 
             // 前月。前月比の基準になる。
-            [$this->monthsAgo(1), ActivityCategoryGroupTableSeeder::FOOD, -2000, 'E2E スーパー', '前月の食料品'],
-            [$this->monthsAgo(1), ActivityCategoryGroupTableSeeder::SALARY, 250000, '', '前月の給与'],
+            [$this->monthsAgo(1), ActivityCategoryItemTableSeeder::FOOD, -2000, 'E2E スーパー', '前月の食料品'],
+            [$this->monthsAgo(1), ActivityCategoryItemTableSeeder::SALARY, 250000, '', '前月の給与'],
 
             // 前々月。月リストに複数の選択肢を出すために置く。
-            [$this->monthsAgo(2), ActivityCategoryGroupTableSeeder::FOOD, -1500, 'E2E スーパー', '前々月の食料品'],
+            [$this->monthsAgo(2), ActivityCategoryItemTableSeeder::FOOD, -1500, 'E2E スーパー', '前々月の食料品'],
 
             // 過去 2 年。年別集計の推移グラフに複数の目盛りを出すために置く。
-            [$this->yearsAgo(1), ActivityCategoryGroupTableSeeder::FOOD, -5000, 'E2E スーパー', '昨年の食料品'],
-            [$this->yearsAgo(1), ActivityCategoryGroupTableSeeder::BONUS, 100000, '', '昨年の臨時ボーナス'],
-            [$this->yearsAgo(2), ActivityCategoryGroupTableSeeder::FOOD, -4000, 'E2E スーパー', '一昨年の食料品'],
+            [$this->yearsAgo(1), ActivityCategoryItemTableSeeder::FOOD, -5000, 'E2E スーパー', '昨年の食料品'],
+            [$this->yearsAgo(1), ActivityCategoryItemTableSeeder::BONUS, 100000, '', '昨年の臨時ボーナス'],
+            [$this->yearsAgo(2), ActivityCategoryItemTableSeeder::FOOD, -4000, 'E2E スーパー', '一昨年の食料品'],
 
             // 固定収支の画面で既存レコードとして見える分。
-            [$this->monthsAgo(1), ActivityCategoryGroupTableSeeder::RENT, -80000, '', '前月の家賃'],
+            [$this->monthsAgo(1), ActivityCategoryItemTableSeeder::RENT, -80000, '', '前月の家賃'],
         ];
 
-        foreach ($rows as list($activity_date, $activity_category_group_id, $amount, $location, $content)) {
+        foreach ($rows as list($activity_date, $activity_category_item_id, $amount, $location, $content)) {
             Activity::create([
                 'user_id' => UserTableSeeder::USER_ID,
                 'activity_date' => $activity_date,
-                'activity_category_group_id' => $activity_category_group_id,
+                'activity_category_item_id' => $activity_category_item_id,
                 'amount' => $amount,
                 'location' => $location,
                 'content' => $content,

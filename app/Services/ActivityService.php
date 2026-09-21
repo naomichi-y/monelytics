@@ -15,23 +15,23 @@ class ActivityService
 {
     private $activity;
     private $activity_category;
-    private $activity_category_group;
+    private $activity_category_item;
 
     /**
      * コンストラクタ。
      *
      * @param Models\Activity $activity
      * @param Servicss\ActivityCategoryService $activity_category
-     * @param Services\ActivityCategoryGroupService $activity_category_group
+     * @param Services\ActivityCategoryItemService $activity_category_item
      */
     public function __construct(
         Models\Activity $activity,
         Services\ActivityCategoryService $activity_category,
-        Services\ActivityCategoryGroupService $activity_category_group)
+        Services\ActivityCategoryItemService $activity_category_item)
     {
         $this->activity = $activity;
         $this->activity_category = $activity_category;
-        $this->activity_category_group = $activity_category_group;
+        $this->activity_category_item = $activity_category_item;
     }
 
     /**
@@ -50,8 +50,8 @@ class ActivityService
             foreach ($valid_fields as $name => $value) {
                 $value['user_id'] = $user_id;
 
-                $activity_category_group = $this->activity_category_group->find($user_id, $value['activity_category_group_id']);
-                $balance_type = $activity_category_group->activityCategory->balance_type;
+                $activity_category_item = $this->activity_category_item->find($user_id, $value['activity_category_item_id']);
+                $balance_type = $activity_category_item->activityCategory->balance_type;
 
                 $value['amount'] = $this->adjustSignAmount($value['amount'], $balance_type);
 
@@ -122,12 +122,12 @@ class ActivityService
      */
     public function getDailyPaginate($user_id, Condition\DailyPaginateCondition $condition)
     {
-        $builder = $this->activity->with('activityCategoryGroup')
+        $builder = $this->activity->with('activityCategoryItem')
             ->where('user_id', '=', $user_id);
 
         // 収支タイプ
         if ($condition->cost_type !== null) {
-            $builder->whereHas('activityCategoryGroup', function($builder) use ($condition) {
+            $builder->whereHas('activityCategoryItem', function($builder) use ($condition) {
                 $builder->whereHas('activityCategory', function($builder) use ($condition) {
                     $builder->where('cost_type', '=', $condition->cost_type);
                 });
@@ -137,8 +137,8 @@ class ActivityService
         $builder->activityDate($condition->getDateRange());
 
         // 科目
-        if (sizeof($condition->activity_category_group_id)) {
-            $builder->whereIn('activity_category_group_id', $condition->activity_category_group_id);
+        if (sizeof($condition->activity_category_item_id)) {
+            $builder->whereIn('activity_category_item_id', $condition->activity_category_item_id);
         }
 
         // 場所・内容
@@ -218,7 +218,7 @@ class ActivityService
     /**
      * 変動収支データを更新する。
      *
-     * 対象レコードも付け替え先の科目グループも、必ず $user_id で絞り込んでから
+     * 対象レコードも付け替え先の科目も、必ず $user_id で絞り込んでから
      * 取得する。ID は利用者が自由に送れるため、絞り込まずに取得すると他人の
      * 収支を書き換えられる。
      *
@@ -236,8 +236,8 @@ class ActivityService
             $activity = $this->find($user_id, $id);
             $activity->fill($fields);
 
-            $activity_category_group = $this->activity_category_group->find($user_id, $activity->activity_category_group_id);
-            $balance_type = $activity_category_group->activityCategory->balance_type;
+            $activity_category_item = $this->activity_category_item->find($user_id, $activity->activity_category_item_id);
+            $balance_type = $activity_category_item->activityCategory->balance_type;
 
             $activity->amount = $this->adjustSignAmount($activity->amount, $balance_type);
             $activity->save();
@@ -273,7 +273,7 @@ class ActivityService
     public function getConstantCostMonthlyList($user_id)
     {
         $builder = $this->activity->where('user_id', '=', $user_id)
-            ->whereHas('activityCategoryGroup', function($builder) {
+            ->whereHas('activityCategoryItem', function($builder) {
                 $builder->whereHas('activityCategory', function($builder) {
                     $builder->where('cost_type', '=', Models\ActivityCategory::COST_TYPE_CONSTANT);
                 });
@@ -330,11 +330,11 @@ class ActivityService
         $end_date = sprintf('%s-%s', $target_month, $last_day);
 
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('a.id AS activity_id, ac.id AS activity_category_id, ac.category_name, acg.id, DATE_FORMAT(a.activity_date, \'%Y/%m/%d\') AS activity_date, acg.group_name, a.content, acg.credit_flag as default_credit_flag, a.amount, a.credit_flag'))
-            ->rightJoin('activity_category_groups AS acg', function($join) use($begin_date, $end_date)
+            ->select(DB::raw('a.id AS activity_id, ac.id AS activity_category_id, ac.category_name, acg.id, DATE_FORMAT(a.activity_date, \'%Y/%m/%d\') AS activity_date, acg.item_name, a.content, acg.credit_flag as default_credit_flag, a.amount, a.credit_flag'))
+            ->rightJoin('activity_category_items AS acg', function($join) use($begin_date, $end_date)
             {
                 // $join(JoinClause)はwhereBetween()をサポートしていないので日付はwhere()で検索
-                $join->on('a.activity_category_group_id', '=', 'acg.id')
+                $join->on('a.activity_category_item_id', '=', 'acg.id')
                     ->where('a.activity_date', '>=', $begin_date)
                     ->where('a.activity_date', '<=', $end_date)
                     ->whereNull('a.delete_date');
@@ -353,11 +353,11 @@ class ActivityService
             if (!isset($result[$data->activity_category_id])) {
                 $result[$data->activity_category_id] = [
                     'category_name' => $data->category_name,
-                    'activity_category_groups' => []
+                    'activity_category_items' => []
                 ];
             }
 
-            $result[$data->activity_category_id]['activity_category_groups'][] = $data;
+            $result[$data->activity_category_id]['activity_category_items'][] = $data;
         }
 
         return $result;
@@ -368,10 +368,10 @@ class ActivityService
      *
      * @param int $user_id
      * @param string $target_month
-     * @param int $activity_category_group_id
+     * @param int $activity_category_item_id
      * @return Activity
      */
-    public function findConstantCost($user_id, $target_month, $activity_category_group_id)
+    public function findConstantCost($user_id, $target_month, $activity_category_item_id)
     {
         $begin_date = sprintf('%s-01', str_replace('/', '-', $target_month));
         $last_day = date('d', strtotime('last day of ' . $target_month));
@@ -379,7 +379,7 @@ class ActivityService
 
         $builder = $this->activity->where('user_id', '=', $user_id)
             ->whereBetween('activity_date', [$begin_date, $end_date])
-            ->where('activity_category_group_id', '=', $activity_category_group_id);
+            ->where('activity_category_item_id', '=', $activity_category_item_id);
 
         return $builder->first();
     }
@@ -401,7 +401,7 @@ class ActivityService
             $target_month = key($fields['activity_date']);
 
             foreach ($valid_fields as $name => $value) {
-                $current_constant_cost = $this->findConstantCost($user_id, $target_month, $value['activity_category_group_id']);
+                $current_constant_cost = $this->findConstantCost($user_id, $target_month, $value['activity_category_item_id']);
 
                 // 対象の固定収支レコードが登録済みの場合、登録済みデータと入力データを比較し、違いがあればレコードを更新する
                 if ($current_constant_cost) {
@@ -409,7 +409,7 @@ class ActivityService
 
                     // データの整形
                     $activity_date = str_replace('/', '-', $value['activity_date']);
-                    $balance_type = $current_constant_cost->activityCategoryGroup->activityCategory->balance_type;
+                    $balance_type = $current_constant_cost->activityCategoryItem->activityCategory->balance_type;
                     $amount = $this->adjustSignAmount($value['amount'], $balance_type);
                     $value['amount'] = $amount;
 
@@ -436,8 +436,8 @@ class ActivityService
 
                 // 固定収支データの新規登録
                 } else {
-                    $activity_category_group = $this->activity_category_group->find($user_id, $value['activity_category_group_id']);
-                    $balance_type = $activity_category_group->activityCategory->balance_type;
+                    $activity_category_item = $this->activity_category_item->find($user_id, $value['activity_category_item_id']);
+                    $balance_type = $activity_category_item->activityCategory->balance_type;
                     $amount = $this->adjustSignAmount($value['amount'], $balance_type);
 
                     $value['user_id'] = $user_id;
@@ -469,11 +469,11 @@ class ActivityService
         $date_range = $condition->getDateRange();
 
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('ac.cost_type, ac.id AS activity_category_id, ac.category_name, acg.id, acg.group_name, a.credit_flag, IFNULL(SUM(a.amount), 0) AS amount'))
-            ->rightJoin('activity_category_groups AS acg', function($join) use($date_range)
+            ->select(DB::raw('ac.cost_type, ac.id AS activity_category_id, ac.category_name, acg.id, acg.item_name, a.credit_flag, IFNULL(SUM(a.amount), 0) AS amount'))
+            ->rightJoin('activity_category_items AS acg', function($join) use($date_range)
             {
                 // @see Activity::getConstantCosts()
-                $join->on('a.activity_category_group_id', '=', 'acg.id')
+                $join->on('a.activity_category_item_id', '=', 'acg.id')
                     ->whereNull('a.delete_date');
 
                 if (strlen($date_range->begin_date)) {
@@ -495,7 +495,7 @@ class ActivityService
             ->groupBy('ac.id')
             ->groupBy('ac.category_name')
             ->groupBy('ac.sort_order')
-            ->groupBy('acg.group_name')
+            ->groupBy('acg.item_name')
             ->groupBy('acg.sort_order')
             ->orderBy('ac.cost_type', 'asc')
             ->orderBy('ac.sort_order', 'asc')
@@ -537,11 +537,11 @@ class ActivityService
                 $category_summary[$value->cost_type][$value->activity_category_id]['category_name'] = $value->category_name;
                 $data = &$category_summary[$value->cost_type][$value->activity_category_id]['data'][$value->id];
 
-                if (!isset($data['group_name'])) {
+                if (!isset($data['item_name'])) {
                     $cost_size[$value->cost_type]++;
                 }
 
-                $data['group_name'] = $value->group_name;
+                $data['item_name'] = $value->item_name;
 
                 if (!isset($data['cash_amount'])) {
                     $data['cash_amount'] = 0;
@@ -616,7 +616,7 @@ class ActivityService
 
             $builder = DB::table('activities AS a')
                 ->select(DB::raw('a.activity_date, SUM(a.amount) AS amount, ac.cost_type'))
-                ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+                ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
                 ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
                 ->where('a.user_id', '=', $user_id)
                 ->whereBetween('a.activity_date', [$begin_date, $end_date])
@@ -702,7 +702,7 @@ class ActivityService
      *
      * @param int $user_id
      * @param Condition\MonthlySummaryCondition $condition
-     * @return array ['groups' => [科目グループ ID => 増減率], 'totals' => [income|expense|total => 増減率],
+     * @return array ['groups' => [科目 ID => 増減率], 'totals' => [income|expense|total => 増減率],
      *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
      *               増減率は整数で、正なら増加。period は実際に比べた 2 つの
      *               期間。呼び出し側で日付を組み直すと、ここでの月末の丸め方
@@ -740,12 +740,12 @@ class ActivityService
 
         $groups = [];
 
-        foreach ($current['groups'] as $activity_category_group_id => $amount) {
-            if (empty($previous['groups'][$activity_category_group_id])) {
+        foreach ($current['groups'] as $activity_category_item_id => $amount) {
+            if (empty($previous['groups'][$activity_category_item_id])) {
                 continue;
             }
 
-            $groups[$activity_category_group_id] = $this->calculateComparisonRate($amount, $previous['groups'][$activity_category_group_id]);
+            $groups[$activity_category_item_id] = $this->calculateComparisonRate($amount, $previous['groups'][$activity_category_item_id]);
         }
 
         $totals = [];
@@ -797,7 +797,7 @@ class ActivityService
     }
 
     /**
-     * 今月の変動支出を科目グループごとに集計し、前月の同じ時点との差額を添える。
+     * 今月の変動支出を科目ごとに集計し、前月の同じ時点との差額を添える。
      *
      * 収入と固定支出は外す。どちらも月のうち決まった日にまとめて記録される
      * ため、月の途中で前月と比べても、給与日や家賃の登録日を過ぎたかどうかが
@@ -806,15 +806,15 @@ class ActivityService
      * 差額は率ではなく金額で返す。元が小さい科目は率が跳ね上がり (100 円から
      * 300 円で +200%)、額の大きい科目より目立ってしまうため。
      *
-     * 今月の記録がない科目グループは返さない。棒が描けないうえ、科目は
+     * 今月の記録がない科目は返さない。棒が描けないうえ、科目は
      * 利用者が好きなだけ作れるので、使っていない分まで並べると画面が伸びる。
      * 落とした分は合計には含める。
      *
      * @param int $user_id
-     * @param int $limit 返す科目グループの数。今月の金額が多い順。
-     * @return array ['groups' => [['activity_category_group_id', 'group_name', 'amount',
+     * @param int $limit 返す科目の数。今月の金額が多い順。
+     * @return array ['groups' => [['activity_category_item_id', 'item_name', 'amount',
      *                             'previous_amount', 'difference'], ...],
-     *                'group_count' => 今月の記録がある科目グループの数,
+     *                'group_count' => 今月の記録がある科目の数,
      *                'total' => ['amount', 'previous_amount', 'difference'],
      *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
      *               金額は支出を正で返す。difference は正なら前月より使っている。
@@ -830,24 +830,24 @@ class ActivityService
 
         $groups = [];
 
-        foreach ($current as $activity_category_group_id => $row) {
-            $previous_amount = isset($previous[$activity_category_group_id])
-                ? $previous[$activity_category_group_id]['amount']
+        foreach ($current as $activity_category_item_id => $row) {
+            $previous_amount = isset($previous[$activity_category_item_id])
+                ? $previous[$activity_category_item_id]['amount']
                 : 0;
 
             $groups[] = [
-                'activity_category_group_id' => $activity_category_group_id,
-                'group_name' => $row['group_name'],
+                'activity_category_item_id' => $activity_category_item_id,
+                'item_name' => $row['item_name'],
                 'amount' => $row['amount'],
                 'previous_amount' => $previous_amount,
                 'difference' => $row['amount'] - $previous_amount
             ];
         }
 
-        // 今月使った額の多い順。同額のときは科目グループの並び順で落ち着かせる
+        // 今月使った額の多い順。同額のときは科目の並び順で落ち着かせる
         // (順序が実行ごとに変わると、読む人には理由のない入れ替わりに見える)。
         usort($groups, function($a, $b) {
-            return [$b['amount'], $a['activity_category_group_id']] <=> [$a['amount'], $b['activity_category_group_id']];
+            return [$b['amount'], $a['activity_category_item_id']] <=> [$a['amount'], $b['activity_category_item_id']];
         });
 
         $total_amount = array_sum(array_column($current, 'amount'));
@@ -868,22 +868,22 @@ class ActivityService
     }
 
     /**
-     * 変動支出を科目グループごとに合計する。支出は負で記録されているため
+     * 変動支出を科目ごとに合計する。支出は負で記録されているため
      * 符号を反転し、使った額が多いほど大きくなるようにする。
      *
-     * 返金が上回って純額がプラスになった科目グループは落とす。棒の長さが負に
+     * 返金が上回って純額がプラスになった科目は落とす。棒の長さが負に
      * なり、支出の並びに混ぜると読めないため。
      *
      * @param int $user_id
      * @param string $begin_date
      * @param string $end_date
-     * @return array [科目グループ ID => ['group_name', 'amount']]
+     * @return array [科目 ID => ['item_name', 'amount']]
      */
     private function sumVariableExpenseByGroup($user_id, $begin_date, $end_date)
     {
         $rows = DB::table('activities AS a')
-            ->select(DB::raw('a.activity_category_group_id, acg.group_name, SUM(a.amount) AS amount'))
-            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->select(DB::raw('a.activity_category_item_id, acg.item_name, SUM(a.amount) AS amount'))
+            ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', '=', $user_id)
             ->where('ac.cost_type', '=', Models\ActivityCategory::COST_TYPE_VARIABLE)
@@ -892,8 +892,8 @@ class ActivityService
             ->whereNull('a.delete_date')
             ->whereNull('acg.delete_date')
             ->whereNull('ac.delete_date')
-            ->groupBy('a.activity_category_group_id')
-            ->groupBy('acg.group_name')
+            ->groupBy('a.activity_category_item_id')
+            ->groupBy('acg.item_name')
             ->get();
 
         $groups = [];
@@ -905,8 +905,8 @@ class ActivityService
                 continue;
             }
 
-            $groups[$row->activity_category_group_id] = [
-                'group_name' => $row->group_name,
+            $groups[$row->activity_category_item_id] = [
+                'item_name' => $row->item_name,
                 'amount' => $amount
             ];
         }
@@ -932,9 +932,9 @@ class ActivityService
     }
 
     /**
-     * 収支の金額を、科目グループごとと全体の合計で集計する。
+     * 収支の金額を、科目ごとと全体の合計で集計する。
      *
-     * 科目グループの金額は、支出が負で記録されているため符号を反転し、
+     * 科目の金額は、支出が負で記録されているため符号を反転し、
      * 増えたら正になるよう揃える。
      *
      * 収入合計と支出合計は、集計表の表示と同じ振り分けにする。つまり科目の
@@ -945,20 +945,20 @@ class ActivityService
      * @param int $user_id
      * @param string $begin_date
      * @param string $end_date
-     * @return array ['groups' => [科目グループ ID => 金額], 'totals' => [income|expense|total => 金額]]
+     * @return array ['groups' => [科目 ID => 金額], 'totals' => [income|expense|total => 金額]]
      */
     private function sumCostByGroup($user_id, $begin_date, $end_date)
     {
         $rows = DB::table('activities AS a')
-            ->select(DB::raw('a.activity_category_group_id, ac.balance_type, a.credit_flag, SUM(a.amount) AS amount'))
-            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->select(DB::raw('a.activity_category_item_id, ac.balance_type, a.credit_flag, SUM(a.amount) AS amount'))
+            ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', '=', $user_id)
             ->whereBetween('a.activity_date', [$begin_date . ' 00:00:00', $end_date . ' 23:59:59'])
             ->whereNull('a.delete_date')
             ->whereNull('acg.delete_date')
             ->whereNull('ac.delete_date')
-            ->groupBy('a.activity_category_group_id')
+            ->groupBy('a.activity_category_item_id')
             ->groupBy('ac.balance_type')
             ->groupBy('a.credit_flag')
             ->get();
@@ -979,12 +979,12 @@ class ActivityService
 
             $sign = ($row->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) ? -1 : 1;
 
-            if (!isset($groups[$row->activity_category_group_id])) {
-                $groups[$row->activity_category_group_id] = 0;
+            if (!isset($groups[$row->activity_category_item_id])) {
+                $groups[$row->activity_category_item_id] = 0;
             }
 
-            // 現金とクレジットで行が分かれるため、科目グループごとに足し合わせる。
-            $groups[$row->activity_category_group_id] += $sign * $amount;
+            // 現金とクレジットで行が分かれるため、科目ごとに足し合わせる。
+            $groups[$row->activity_category_item_id] += $sign * $amount;
         }
 
         return ['groups' => $groups, 'totals' => $totals];
@@ -994,7 +994,7 @@ class ActivityService
      * 推移グラフ用に、科目ごとの金額を期間順に取得する。
      *
      * 横軸の刻みは集計表と揃える (詳細検索の出力形式に従い年単位か月単位)。
-     * 系列は科目。科目グループまで割ると系列が増えすぎて線が読めない。
+     * 系列は科目。科目まで割ると系列が増えすぎて線が読めない。
      *
      * 支出は符号を反転して返し、使った額が多いほど線が上に来るようにする
      * (集計表は負のまま表示するので、そこだけ向きが異なる)。abs ではなく
@@ -1031,7 +1031,7 @@ class ActivityService
                 .' ac.balance_type,'
                 .' SUM(a.amount) AS amount'
             ))
-            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', '=', $user_id)
             ->whereBetween('a.activity_date', [
@@ -1140,18 +1140,18 @@ class ActivityService
             : '%Y/%m';
 
         $builder = DB::table('activities AS a')
-            ->select(DB::raw('DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group, ac.id AS activity_category_id, ac.category_name, ac.cost_type, ac.balance_type, acg.id as activity_category_group_id, SUM(a.amount) AS group_amount'))
-            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->select(DB::raw('DATE_FORMAT(a.activity_date, \'' . $date_group_format . '\') AS date_group, ac.id AS activity_category_id, ac.category_name, ac.cost_type, ac.balance_type, acg.id as activity_category_item_id, SUM(a.amount) AS group_amount'))
+            ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
             ->where('a.user_id', $user_id)
             ->whereBetween('a.activity_date', [$begin_date, $end_date])
             ->whereNull('a.delete_date')
             ->whereNull('acg.delete_date')
             ->whereNull('ac.delete_date')
-            // ONLY_FULL_GROUP_BY 対策。a.activity_category_group_id は内部結合で
+            // ONLY_FULL_GROUP_BY 対策。a.activity_category_item_id は内部結合で
             // acg.id と一致するため、以下の列は関数従属し group は分割されない。
             ->groupBy('date_group')
-            ->groupBy('a.activity_category_group_id')
+            ->groupBy('a.activity_category_item_id')
             ->groupBy('acg.id')
             ->groupBy('acg.sort_order')
             ->groupBy('ac.id')
@@ -1180,11 +1180,11 @@ class ActivityService
                     $data[$value->date_group]['total_amount'] = 0;
                 }
 
-                if (!isset($data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_group_id])) {
-                    $data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_group_id] = 0;
+                if (!isset($data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_item_id])) {
+                    $data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_item_id] = 0;
                 }
 
-                $data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_group_id] += $value->group_amount;
+                $data[$value->date_group]['amount'][$value->cost_type][$value->activity_category_id][$value->activity_category_item_id] += $value->group_amount;
 
                 if ($value->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) {
                     $data[$value->date_group]['total_expense_amount'] += $value->group_amount;
@@ -1198,15 +1198,15 @@ class ActivityService
                 $data[$value->date_group]['total_amount'] += $value->group_amount;
                 $footers['yearly_total_result_amount'] += $value->group_amount;
 
-                if (!isset($footers['yearly_total_activity_categories'][$value->activity_category_group_id])) {
-                    $footers['yearly_total_activity_categories'][$value->activity_category_group_id] = 0;
+                if (!isset($footers['yearly_total_activity_categories'][$value->activity_category_item_id])) {
+                    $footers['yearly_total_activity_categories'][$value->activity_category_item_id] = 0;
                 }
 
-                $footers['yearly_total_activity_categories'][$value->activity_category_group_id] += $value->group_amount;
+                $footers['yearly_total_activity_categories'][$value->activity_category_item_id] += $value->group_amount;
             }
         }
 
-        $headers = $this->activity_category->getCategoryGroupData($user_id);
+        $headers = $this->activity_category->getCategoryItemData($user_id);
 
         // 科目数を取得
         $header_size = [
@@ -1217,9 +1217,9 @@ class ActivityService
             ]
         ];
 
-        foreach ($headers as $cost_type => $activity_category_groups) {
-            foreach ($activity_category_groups as $activity_categories) {
-                $count = sizeof($activity_categories['activity_category_groups']);
+        foreach ($headers as $cost_type => $activity_category_items) {
+            foreach ($activity_category_items as $activity_categories) {
+                $count = sizeof($activity_categories['activity_category_items']);
 
                 $header_size['total'] += $count;
                 $header_size['cost_type'][$cost_type] += $count;
@@ -1261,11 +1261,11 @@ class ActivityService
     public function getRankingByLocation($user_id, $condition)
     {
         $builder = DB::table('activities AS a')
-            // 場所ごとの集計だが group_name は場所に関数従属しない (同じ場所を
+            // 場所ごとの集計だが item_name は場所に関数従属しない (同じ場所を
             // 複数カテゴリで使える)。従来はどれか 1 件が任意に選ばれていたので、
             // MIN で明示的に 1 件へ畳む (MariaDB に ANY_VALUE はない)。
-            ->select(DB::raw('MIN(acg.group_name) AS group_name, a.location, COUNT(a.location) AS count, SUM(a.amount) AS amount'))
-            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->select(DB::raw('MIN(acg.item_name) AS item_name, a.location, COUNT(a.location) AS count, SUM(a.amount) AS amount'))
+            ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
             ->where('a.user_id', '=', $user_id)
             ->where('a.location', '!=', '');
 
@@ -1302,7 +1302,7 @@ class ActivityService
     public function getRankingByExpense($user_id, $condition)
     {
         $builder = $this->activity->where('user_id', '=', $user_id)
-            ->whereHas('activityCategoryGroup', function($builder) {
+            ->whereHas('activityCategoryItem', function($builder) {
                 $builder->whereHas('activityCategory', function($builder) {
                     $builder->where('cost_type', '=', Models\ActivityCategory::COST_TYPE_VARIABLE);
                     $builder->where('balance_type', '=', Models\ActivityCategory::BALANCE_TYPE_EXPENSE);

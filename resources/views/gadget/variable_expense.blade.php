@@ -103,8 +103,8 @@
                         <td class="group-name">{!! Html::linkWithQueryString('/summary/daily', [
                             'begin_date' => $expense['period']['begin_date'],
                             'end_date' => $expense['period']['end_date'],
-                            'activity_category_group_id[]' => $group['activity_category_group_id']
-                        ], $group['group_name'], ['title' => $group['group_name']]) !!}</td>
+                            'activity_category_item_id[]' => $group['activity_category_item_id']
+                        ], $group['item_name'], ['title' => $group['item_name']]) !!}</td>
                         <td>
                             {{-- 棒の長さは合計ではなく最も多い科目を基準にする。
                                  科目どうしの多い少ないを見るための図なので。 --}}

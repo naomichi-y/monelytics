@@ -11,7 +11,7 @@ class DailyPaginateCondition extends BaseDateCondition {
      */
     const SORT_FIELDS = [
         'activity_date',
-        'activity_category_group_id',
+        'activity_category_item_id',
         'location',
         'content',
         'amount',
@@ -26,7 +26,7 @@ class DailyPaginateCondition extends BaseDateCondition {
     const DEFAULT_LIMIT = 30;
     const MOBILE_LIMIT = 10;
 
-    public $activity_category_group_id = [];
+    public $activity_category_item_id = [];
     public $keyword;
     public $location;
     public $credit_flag;

@@ -50,8 +50,8 @@
                 </colgroup>
                 <thead>
                     <tr>
-                        <th class="text-center">科目カテゴリ名</th>
-                        <th class="text-center">科目名</th>
+                        <th class="text-center">分類</th>
+                        <th class="text-center">科目</th>
                         <th class="text-center">発生日</th>
                         <th class="text-center">金額</th>
                         <th class="text-center">用途</th>
@@ -62,39 +62,39 @@
                 <tbody>
                     @foreach ($constant_costs as $constant_category)
                         <?php $i = 0 ?>
-                        @foreach ($constant_category['activity_category_groups'] as $activity_category_group)
-                            <tr data-id="{{$activity_category_group->activity_id}}">
+                        @foreach ($constant_category['activity_category_items'] as $activity_category_item)
+                            <tr data-id="{{$activity_category_item->activity_id}}">
                                 @if ($i == 0)
                                     <td>{{{$constant_category['category_name']}}}</td>
                                 @else
                                     <td></td>
                                 @endif
-                                <td>{{{$activity_category_group->group_name}}}</td>
+                                <td>{{{$activity_category_item->item_name}}}</td>
                                 <td>
                                     @if (Agent::isDesktop())
-                                        {!! Form::text("activity_date[$selected_date_month][$activity_category_group->id]", Request::old("activity_date[$selected_date_month][$activity_category_group->id'", $activity_category_group->activity_date), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
+                                        {!! Form::text("activity_date[$selected_date_month][$activity_category_item->id]", Request::old("activity_date[$selected_date_month][$activity_category_item->id'", $activity_category_item->activity_date), ['class' => 'form-control date-picker', 'placeholder' => '月/日', 'autocomplete' => 'off']) !!}
                                     @else
-                                        {!! Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Request::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), ['class' => 'form-control']) !!}
+                                        {!! Form::date("activity_date[$selected_date_month][$activity_category_item->id]", Request::old("activity_date[$selected_date_month][$activity_category_item->id'", str_replace('/', '-', $activity_category_item->activity_date)), ['class' => 'form-control']) !!}
                                     @endif
                                 </td>
                                 <td>
                                     <div class="input-group">
-                                        {!! Form::number("amount[$selected_date_month][$activity_category_group->id]", Request::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                                        {!! Form::number("amount[$selected_date_month][$activity_category_item->id]", Request::old("constant[$selected_date_month][$activity_category_item->id]", $activity_category_item->amount), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
                                         <span class="input-group-text">円</span>
                                     </div>
                                 </td>
-                                <td>{!! Form::text("content[$selected_date_month][$activity_category_group->id]", Request::old("content[$selected_date_month][$activity_category_group->id]", $activity_category_group->content), ['class' => 'form-control']) !!}</td>
+                                <td>{!! Form::text("content[$selected_date_month][$activity_category_item->id]", Request::old("content[$selected_date_month][$activity_category_item->id]", $activity_category_item->content), ['class' => 'form-control']) !!}</td>
                                 <td>
                                     <div class="text-center">
-                                        @if ($activity_category_group->credit_flag === null)
-                                            {!! Form::checkbox("credit_flag[$selected_date_month][$activity_category_group->id]", '1', $activity_category_group->default_credit_flag) !!}
+                                        @if ($activity_category_item->credit_flag === null)
+                                            {!! Form::checkbox("credit_flag[$selected_date_month][$activity_category_item->id]", '1', $activity_category_item->default_credit_flag) !!}
                                         @else
-                                            {!! Form::checkbox("credit_flag[$selected_date_month][$activity_category_group->id]", '1', $activity_category_group->credit_flag) !!}
+                                            {!! Form::checkbox("credit_flag[$selected_date_month][$activity_category_item->id]", '1', $activity_category_item->credit_flag) !!}
                                         @endif
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    @if ($activity_category_group->activity_id !== null)
+                                    @if ($activity_category_item->activity_id !== null)
                                         {!! Form::button('削除', ['class' => 'btn btn-primary open_delete', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#delete-modal']) !!}
                                     @endif
                                 </td>
@@ -109,6 +109,6 @@
             </div>
         {!! Form::close() !!}
     @else
-        <p>科目が未登録です。{!! link_to('/activityCategoryGroup', '科目ページ') !!} からデータを登録して下さい。</p>
+        <p>科目が未登録です。{!! link_to('/settings/activityCategoryItem', '科目ページ') !!} からデータを登録して下さい。</p>
     @endif
 @stop

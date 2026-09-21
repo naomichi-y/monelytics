@@ -20,7 +20,7 @@
             <thead>
                 <tr>
                     <th class="text-center">収支タイプ</th>
-                    <th class="text-center">科目カテゴリ名</th>
+                    <th class="text-center">分類</th>
                     <th class="text-center">科目</th>
                     <th class="text-center">現金収支額</th>
                     <th class="text-center">クレジット収支額</th>
@@ -47,19 +47,19 @@
                                 <th rowspan="{{sizeof($activity_category_summary['data'])}}">{{{$activity_category_summary['category_name']}}}</th>
 
                                 <?php $j = 0; ?>
-                                @foreach ($activity_category_summary['data'] as $activity_category_group_id => $activity_category_group_summary)
+                                @foreach ($activity_category_summary['data'] as $activity_category_item_id => $activity_category_item_summary)
                                     @if ($j > 0)
                                         <tr>
                                     @endif
-                                        <th>{{{$activity_category_group_summary['group_name']}}}</th>
-                                        <td class="text-end">{!! Html::amountLink($activity_category_group_summary['cash_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE], $text)) !!}</td>
-                                        <td class="text-end">{!! Html::amountLink($activity_category_group_summary['credit_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE], $text)) !!}</td>
+                                        <th>{{{$activity_category_item_summary['item_name']}}}</th>
+                                        <td class="text-end">{!! Html::amountLink($activity_category_item_summary['cash_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_item_id[]' => $activity_category_item_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE], $text)) !!}</td>
+                                        <td class="text-end">{!! Html::amountLink($activity_category_item_summary['credit_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_item_id[]' => $activity_category_item_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE], $text)) !!}</td>
                                         <td class="text-end">
-                                            @if (isset($comparisons['groups'][$activity_category_group_id]))
-                                                {{Html::comparisonRate($comparisons['groups'][$activity_category_group_id])}}
+                                            @if (isset($comparisons['groups'][$activity_category_item_id]))
+                                                {{Html::comparisonRate($comparisons['groups'][$activity_category_item_id])}}
                                             @endif
                                         </td>
-                                        <td class="text-end">{!! Html::amountLink($activity_category_group_summary['group_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], $text)) !!}</td>
+                                        <td class="text-end">{!! Html::amountLink($activity_category_item_summary['group_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_item_id[]' => $activity_category_item_id], $text)) !!}</td>
                                     </tr>
                                     <?php $j++; ?>
                                 @endforeach

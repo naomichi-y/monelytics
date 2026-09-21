@@ -8,12 +8,12 @@
             "sort_order": 1
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "食料品",
+                        "item_name": "食料品",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -22,7 +22,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "外食費",
+                        "item_name": "外食費",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -39,12 +39,12 @@
             "sort_order": 2
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "日用品",
+                        "item_name": "日用品",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -53,7 +53,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "その他",
+                        "item_name": "その他",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -70,12 +70,12 @@
             "sort_order": 3
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "定期",
+                        "item_name": "定期",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -84,7 +84,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "その他",
+                        "item_name": "その他",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -101,12 +101,12 @@
             "sort_order": 4
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "遊興費",
+                        "item_name": "遊興費",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -115,7 +115,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "その他",
+                        "item_name": "その他",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -132,12 +132,12 @@
             "sort_order": 5
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "衣類",
+                        "item_name": "衣類",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -146,7 +146,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "クリーニング",
+                        "item_name": "クリーニング",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -163,12 +163,12 @@
             "sort_order": 6
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "冠婚葬祭",
+                        "item_name": "冠婚葬祭",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -177,7 +177,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "会費",
+                        "item_name": "会費",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -194,12 +194,12 @@
             "sort_order": 7
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "学費",
+                        "item_name": "学費",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -208,7 +208,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "習い事",
+                        "item_name": "習い事",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -225,12 +225,12 @@
             "sort_order": 8
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "美容院",
+                        "item_name": "美容院",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -239,7 +239,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "医療費",
+                        "item_name": "医療費",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -256,12 +256,12 @@
             "sort_order": 9
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "給与",
+                        "item_name": "給与",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -270,7 +270,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "美容院",
+                        "item_name": "美容院",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -287,12 +287,12 @@
             "sort_order": 1
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "電気代",
+                        "item_name": "電気代",
                         "credit_flag": 1,
                         "sort_order": 1
                     }
@@ -301,7 +301,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "ガス代",
+                        "item_name": "ガス代",
                         "credit_flag": 1,
                         "sort_order": 2
                     }
@@ -310,7 +310,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "水道代",
+                        "item_name": "水道代",
                         "credit_flag": 1,
                         "sort_order": 3
                     }
@@ -327,12 +327,12 @@
             "sort_order": 2
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "住宅ローン",
+                        "item_name": "住宅ローン",
                         "credit_flag": 0,
                         "sort_order": 1
                     }
@@ -341,7 +341,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "管理費・修繕費",
+                        "item_name": "管理費・修繕費",
                         "credit_flag": 0,
                         "sort_order": 2
                     }
@@ -350,7 +350,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "駐車場",
+                        "item_name": "駐車場",
                         "credit_flag": 0,
                         "sort_order": 3
                     }
@@ -367,12 +367,12 @@
             "sort_order": 3
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "携帯電話",
+                        "item_name": "携帯電話",
                         "credit_flag": 1,
                         "sort_order": 1
                     }
@@ -381,7 +381,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "インターネット",
+                        "item_name": "インターネット",
                         "credit_flag": 1,
                         "sort_order": 2
                     }
@@ -390,7 +390,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "新聞",
+                        "item_name": "新聞",
                         "credit_flag": 0,
                         "sort_order": 3
                     }
@@ -407,12 +407,12 @@
             "sort_order": 4
         },
         "relations": {
-            "activity_category_groups": [
+            "activity_category_items": [
                 {
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "生命保険",
+                        "item_name": "生命保険",
                         "credit_flag": 1,
                         "sort_order": 1
                     }
@@ -421,7 +421,7 @@
                     "record": {
                         "activity_category_id": "*",
                         "user_id": "*",
-                        "group_name": "医療保険",
+                        "item_name": "医療保険",
                         "credit_flag": 1,
                         "sort_order": 2
                     }

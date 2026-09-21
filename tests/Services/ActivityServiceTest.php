@@ -10,11 +10,11 @@ use App\Libraries\Condition\YearlySummaryCondition;
 use App\Libraries\Condition\YearlyTrendCondition;
 use App\Models\Activity;
 use App\Models\ActivityCategory;
-use App\Models\ActivityCategoryGroup;
+use App\Models\ActivityCategoryItem;
 use App\Models\User;
 use App\Services\ActivityService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Seeds\Test\ActivityCategoryGroupTableSeeder;
+use Seeds\Test\ActivityCategoryItemTableSeeder;
 use Seeds\Test\ActivityCategoryTableSeeder;
 use Tests\TestCase;
 
@@ -33,7 +33,7 @@ class ActivityServiceTest extends TestCase {
         $user = $this->getUser();
         $params = [
             'activity_date' => [date('Y-m-d')],
-            'activity_category_group_id' => [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE],
+            'activity_category_item_id' => [ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE],
             'amount' => [100],
             'location' => [''],
             'content' => [''],
@@ -48,7 +48,7 @@ class ActivityServiceTest extends TestCase {
         $activity = Activity::limit(1)->orderBy('id', 'desc')->get()->first();
         $this->assertEquals($activity->amount, -100);
 
-        $params['activity_category_group_id'] = [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_ENABLE];
+        $params['activity_category_item_id'] = [ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_ENABLE];
         $params['amount'] = [-100];
         $this->assertEquals($this->activity->createVariableCosts($user->id, $params), true);
         $activity = Activity::limit(1)->orderBy('id', 'desc')->get()->first();
@@ -60,9 +60,9 @@ class ActivityServiceTest extends TestCase {
      */
     public function testMonthlyComparisonCoversVariableAndConstantCost()
     {
-        $variable_expense = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
-        $constant_expense = ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE;
-        $variable_income = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE;
+        $variable_expense = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $constant_expense = ActivityCategoryItemTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE;
+        $variable_income = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE;
 
         $result = $this->createComparisonFixture();
 
@@ -99,7 +99,7 @@ class ActivityServiceTest extends TestCase {
     {
         $month = $this->monthBefore(2);
         $previous_month = $this->monthBefore(3);
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE;
 
         $this->createActivity($group, $previous_month . '-05', -1000, Activity::CREDIT_FLAG_UNUSE);
         $this->createActivity($group, $previous_month . '-05', -1000, Activity::CREDIT_FLAG_USE);
@@ -120,7 +120,7 @@ class ActivityServiceTest extends TestCase {
     {
         $month = $this->monthBefore(2);
         $previous_month = $this->monthBefore(3);
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE;
 
         $this->createActivity($group, $previous_month . '-05', -1000, Activity::CREDIT_FLAG_USE);
         $this->createActivity($group, $previous_month . '-05', 1000, Activity::CREDIT_FLAG_UNUSE);
@@ -144,7 +144,7 @@ class ActivityServiceTest extends TestCase {
     public function testMonthlyComparisonSkipsItemWithoutPreviousAmount()
     {
         $month = $this->monthBefore(2);
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         $this->createActivity($group, $month . '-05', -1000);
 
@@ -162,7 +162,7 @@ class ActivityServiceTest extends TestCase {
         $month = $this->monthBefore(2);
         $previous_month = $this->monthBefore(3);
         $next_month = $this->monthBefore(1);
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         $this->createActivity($group, $previous_month . '-01', -500);
         $this->createActivity($group, $this->lastDayOf($previous_month), -500);
@@ -215,11 +215,11 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 変動支出だけを科目グループごとに集め、前月同時点との差額を添える。
+     * 変動支出だけを科目ごとに集め、前月同時点との差額を添える。
      */
     public function testVariableExpenseComparisonReturnsDifferencePerGroup()
     {
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
         $previous_month = date('Y-m', strtotime(date('Y-m-01') . ' -1 month'));
 
         DB::table('activities')->truncate();
@@ -246,16 +246,16 @@ class ActivityServiceTest extends TestCase {
     {
         DB::table('activities')->truncate();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -1000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -80000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, date('Y-m-d'), 250000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_INCOME_CREDIT_DISABLE, date('Y-m-d'), 250000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -1000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -80000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, date('Y-m-d'), 250000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_CONSTANT_INCOME_CREDIT_DISABLE, date('Y-m-d'), 250000);
 
         $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
 
         $this->assertSame(
-            [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE],
-            array_column($result['groups'], 'activity_category_group_id')
+            [ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE],
+            array_column($result['groups'], 'activity_category_item_id')
         );
         $this->assertSame(1000, $result['total']['amount']);
     }
@@ -267,14 +267,14 @@ class ActivityServiceTest extends TestCase {
     {
         DB::table('activities')->truncate();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -1000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE, date('Y-m-d'), -3000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -1000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE, date('Y-m-d'), -3000);
 
         $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 1);
 
         $this->assertSame(
-            [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE],
-            array_column($result['groups'], 'activity_category_group_id')
+            [ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE],
+            array_column($result['groups'], 'activity_category_item_id')
         );
 
         // 棒は 1 本でも、合計は落とした科目を含める。
@@ -285,12 +285,12 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 今月の記録がない科目グループは棒を持てないので返さない。前月に使って
+     * 今月の記録がない科目は棒を持てないので返さない。前月に使って
      * いた分は合計の差額に残る。
      */
     public function testVariableExpenseComparisonSkipsGroupWithoutCurrentRecord()
     {
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
         $previous_month = date('Y-m', strtotime(date('Y-m-01') . ' -1 month'));
 
         DB::table('activities')->truncate();
@@ -310,7 +310,7 @@ class ActivityServiceTest extends TestCase {
      */
     public function testVariableExpenseComparisonSkipsRefundedGroup()
     {
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         DB::table('activities')->truncate();
 
@@ -370,8 +370,8 @@ class ActivityServiceTest extends TestCase {
     {
         $this->prepareTrendFixture();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, '2020-05-01', 2000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, '2020-05-01', 2000);
 
         $result = $this->getYearlyTrend(2020, 2020, YearlySummaryCondition::OUTPUT_TYPE_YEARLY);
 
@@ -391,8 +391,8 @@ class ActivityServiceTest extends TestCase {
     {
         $this->prepareTrendFixture();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, '2021-05-01', 2000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, '2021-05-01', 2000);
 
         $result = $this->getYearlyTrend(2020, 2021, YearlySummaryCondition::OUTPUT_TYPE_YEARLY);
 
@@ -410,7 +410,7 @@ class ActivityServiceTest extends TestCase {
     {
         $this->prepareTrendFixture();
 
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
         $this->createActivity($group, '2020-01-15', -1000);
         $this->createActivity($group, '2020-03-15', -2000);
 
@@ -432,8 +432,8 @@ class ActivityServiceTest extends TestCase {
     {
         $this->prepareTrendFixture();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, '2020-05-01', 2000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, '2020-05-01', 2000);
 
         $result = $this->getYearlyTrend(2020, 2020, YearlySummaryCondition::OUTPUT_TYPE_YEARLY, ActivityCategory::BALANCE_TYPE_EXPENSE);
 
@@ -447,7 +447,7 @@ class ActivityServiceTest extends TestCase {
     {
         $this->prepareTrendFixture();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, '2020-05-01', -1000);
 
         $empty = ['labels' => [], 'series' => []];
 
@@ -466,7 +466,7 @@ class ActivityServiceTest extends TestCase {
      */
     public function testRankingsStopAtTheConditionLimit()
     {
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         DB::table('activities')->truncate();
 
@@ -496,9 +496,9 @@ class ActivityServiceTest extends TestCase {
         $month = $this->monthBefore(2);
         $previous_month = $this->monthBefore(3);
 
-        $variable_expense = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
-        $constant_expense = ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE;
-        $variable_income = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE;
+        $variable_expense = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $constant_expense = ActivityCategoryItemTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE;
+        $variable_income = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE;
 
         $this->createActivity($variable_expense, $previous_month . '-05', -1000);
         $this->createActivity($constant_expense, $previous_month . '-05', -1000);
@@ -557,18 +557,18 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * @param int $activity_category_group_id
+     * @param int $activity_category_item_id
      * @param string $activity_date
      * @param int $amount
      * @param int $credit_flag
      * @return Activity
      */
-    private function createActivity($activity_category_group_id, $activity_date, $amount, $credit_flag = Activity::CREDIT_FLAG_UNUSE)
+    private function createActivity($activity_category_item_id, $activity_date, $amount, $credit_flag = Activity::CREDIT_FLAG_UNUSE)
     {
         return Activity::create([
             'user_id' => $this->getUser()->id,
             'activity_date' => $activity_date,
-            'activity_category_group_id' => $activity_category_group_id,
+            'activity_category_item_id' => $activity_category_item_id,
             'amount' => $amount,
             'credit_flag' => $credit_flag,
         ]);
@@ -602,7 +602,7 @@ class ActivityServiceTest extends TestCase {
     public function testMonthlyComparisonKeepsChangeUnderOnePercent()
     {
         $month = $this->monthBefore(2);
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         // 前月 -100,000 に対し当月 -100,200。増減は 0.2%。
         $this->createActivity($group, $this->monthBefore(3) . '-05', -100000);
@@ -620,14 +620,14 @@ class ActivityServiceTest extends TestCase {
     {
         $other_user = $this->createOtherUser();
         $activity = $this->createActivity(
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
             date('Y-m-d'),
             -1000
         );
 
         $fields = [
             'activity_date' => date('Y-m-d'),
-            'activity_category_group_id' => $activity->activity_category_group_id,
+            'activity_category_item_id' => $activity->activity_category_item_id,
             'amount' => 99999,
         ];
 
@@ -643,37 +643,37 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 付け替え先の科目グループも自分のものに限る。
+     * 付け替え先の科目も自分のものに限る。
      */
-    public function testUpdateRejectsOtherUsersCategoryGroup()
+    public function testUpdateRejectsOtherUsersCategoryItem()
     {
         $user = $this->getUser();
         $other_user = $this->createOtherUser();
-        $other_group = $this->createCategoryGroupFor($other_user->id);
+        $other_group = $this->createCategoryItemFor($other_user->id);
 
         $activity = $this->createActivity(
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
             date('Y-m-d'),
             -1000
         );
 
         $fields = [
             'activity_date' => date('Y-m-d'),
-            'activity_category_group_id' => $other_group->id,
+            'activity_category_item_id' => $other_group->id,
             'amount' => 1000,
         ];
 
         try {
             $this->activity->update($user->id, $activity->id, $fields);
-            $this->fail('他人の科目グループへ付け替えられてしまった');
+            $this->fail('他人の科目へ付け替えられてしまった');
 
         } catch (ModelNotFoundException $e) {
             // 期待どおり
         }
 
         $this->assertSame(
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
-            Activity::find($activity->id)->activity_category_group_id
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            Activity::find($activity->id)->activity_category_item_id
         );
     }
 
@@ -684,14 +684,14 @@ class ActivityServiceTest extends TestCase {
     {
         $user = $this->getUser();
         $activity = $this->createActivity(
-            ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
             date('Y-m-d'),
             -1000
         );
 
         $fields = [
             'activity_date' => date('Y-m-d'),
-            'activity_category_group_id' => $activity->activity_category_group_id,
+            'activity_category_item_id' => $activity->activity_category_item_id,
             'amount' => 2000,
         ];
 
@@ -743,7 +743,7 @@ class ActivityServiceTest extends TestCase {
      */
     public function testKeywordSearchTreatsWildcardsAsLiterals()
     {
-        $group_id = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group_id = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         $this->createActivity($group_id, date('Y-m-d'), -100)->update(['location' => 'ABPROBE']);
         $this->createActivity($group_id, date('Y-m-d'), -200)->update(['location' => 'A_PROBE']);
@@ -801,7 +801,7 @@ class ActivityServiceTest extends TestCase {
     {
         return [
             'activity_date' => [date('Y-m-d')],
-            'activity_category_group_id' => [ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE],
+            'activity_category_item_id' => [ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE],
             'amount' => [$amount],
             'location' => [''],
             'content' => [''],
@@ -860,15 +860,15 @@ class ActivityServiceTest extends TestCase {
 
     /**
      * @param int $user_id
-     * @return ActivityCategoryGroup
+     * @return ActivityCategoryItem
      */
-    private function createCategoryGroupFor($user_id)
+    private function createCategoryItemFor($user_id)
     {
-        return ActivityCategoryGroup::create([
+        return ActivityCategoryItem::create([
             'activity_category_id' => ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE,
             'user_id' => $user_id,
-            'group_name' => 'other',
-            'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE,
+            'item_name' => 'other',
+            'credit_flag' => ActivityCategoryItem::CREDIT_FLAG_DISABLE,
             'sort_order' => 1,
         ]);
     }

@@ -1,14 +1,14 @@
 <?php
 namespace App\Models;
 
-class ActivityCategoryGroup extends BaseModel {
+class ActivityCategoryItem extends BaseModel {
     const CREDIT_FLAG_ENABLE = 1;
     const CREDIT_FLAG_DISABLE = 0;
 
     protected $guarded = ['id'];
     protected $rules = [
         'activity_category_id' => 'required',
-        'group_name' => 'required|max:32',
+        'item_name' => 'required|max:32',
         'content' => 'max:255'
     ];
 
@@ -31,8 +31,8 @@ class ActivityCategoryGroup extends BaseModel {
     {
         parent::boot();
 
-        static::deleting(function($activity_category_group) {
-            $activity_category_group->activity()->delete();
+        static::deleting(function($activity_category_item) {
+            $activity_category_item->activity()->delete();
         });
     }
 }

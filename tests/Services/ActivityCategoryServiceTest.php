@@ -6,7 +6,7 @@ use DB;
 use App\Libraries\Condition\PieChartCondition;
 use App\Models\Activity;
 use App\Models\ActivityCategory;
-use Seeds\Test\ActivityCategoryGroupTableSeeder;
+use Seeds\Test\ActivityCategoryItemTableSeeder;
 use Tests\TestCase;
 
 class ActivityCategoryServiceTest extends TestCase {
@@ -27,7 +27,7 @@ class ActivityCategoryServiceTest extends TestCase {
     {
         DB::table('activities')->truncate();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, -3000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, -3000);
 
         $result = $this->getAmountConstituents(ActivityCategory::BALANCE_TYPE_EXPENSE);
 
@@ -41,7 +41,7 @@ class ActivityCategoryServiceTest extends TestCase {
     {
         DB::table('activities')->truncate();
 
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, 250000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE, 250000);
 
         $result = $this->getAmountConstituents(ActivityCategory::BALANCE_TYPE_INCOME);
 
@@ -55,7 +55,7 @@ class ActivityCategoryServiceTest extends TestCase {
     {
         DB::table('activities')->truncate();
 
-        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
         $this->createActivity($group, -1000);
         $this->createActivity($group, 1500);
 
@@ -71,8 +71,8 @@ class ActivityCategoryServiceTest extends TestCase {
         DB::table('activities')->truncate();
 
         // シードの科目カテゴリはどれも 'test'。変動支出と固定支出の 2 つを使う。
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, -1000);
-        $this->createActivity(ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE, -2000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, -1000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE, -2000);
 
         $result = $this->getAmountConstituents(ActivityCategory::BALANCE_TYPE_EXPENSE);
 
@@ -81,15 +81,15 @@ class ActivityCategoryServiceTest extends TestCase {
     }
 
     /**
-     * @param int $activity_category_group_id
+     * @param int $activity_category_item_id
      * @param int $amount
      */
-    private function createActivity($activity_category_group_id, $amount)
+    private function createActivity($activity_category_item_id, $amount)
     {
         Activity::create([
             'user_id' => $this->getUser()->id,
             'activity_date' => date('Y-m-d'),
-            'activity_category_group_id' => $activity_category_group_id,
+            'activity_category_item_id' => $activity_category_item_id,
             'amount' => $amount,
             'credit_flag' => Activity::CREDIT_FLAG_UNUSE,
         ]);
