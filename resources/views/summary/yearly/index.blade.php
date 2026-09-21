@@ -24,7 +24,7 @@
                 );
             });
 
-            $("#tabs").startTabs("yearly_summary-tab");
+            $("#tabs").startTabs();
         });
     </script>
     {!! Html::script('assets/components/jquery_plugins/jquery.tablefix_1.0.1.js') !!}
@@ -45,8 +45,8 @@
          代わりにならない。 --}}
     <div id="tabs">
         <ul>
-            <li><a href="/summary/yearly/report?{{ $condition->buildQueryString() }}">集計表</a></li>
-            <li><a href="/summary/yearly/line-chart?{{ $condition->buildQueryString() }}">推移グラフ</a></li>
+            <li data-tab="report"><a href="/summary/yearly/report?{{ $condition->buildQueryString() }}">集計表</a></li>
+            <li data-tab="line-chart"><a href="/summary/yearly/line-chart?{{ $condition->buildQueryString() }}">推移グラフ</a></li>
         </ul>
     </div>
 @stop

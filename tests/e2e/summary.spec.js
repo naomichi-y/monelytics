@@ -42,45 +42,116 @@ test.describe('集計', () => {
     await expect(page.locator('#tabs')).toContainText('E2E スーパー');
   });
 
-  test('選んだタブはリロードしても残る', async ({ page }) => {
+  /**
+   * 選んだタブは URL に残す。クッキーに入れていた頃は、同じ画面を 2 つ開くと
+   * 後から切り替えたほうに引きずられ、URL を人に渡しても相手には別のタブが
+   * 出ていた。
+   */
+  test('選んだタブが URL に残り、開き直しても同じタブが出る', async ({ page }) => {
     await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
 
     await page.getByRole('tab', { name: 'ランキング' }).click();
-    await expect(page.locator('#tabs')).toContainText('E2E スーパー');
+    await expect(page.locator('#tabs')).toContainText('利用頻度ランキング');
+
+    // 番号ではなく名前。並べ替えたときに別のタブを指さないこと、URL を見て
+    // どのタブか読めることの両方を、ここで押さえる。
+    expect(new URL(page.url()).searchParams.get('tab')).toBe('ranking');
 
     await page.reload();
-
-    // 選択状態はクッキーに入れている。リロードで集計表へ戻ってはいけない。
     await expect(page.getByRole('tab', { name: 'ランキング' })).toHaveAttribute('aria-selected', 'true');
+
+    // 渡された URL から直接開いても同じタブ。
+    const url = page.url();
+    await page.goto('/dashboard');
+    await page.goto(url);
+    await expect(page.getByRole('tab', { name: 'ランキング' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  /**
+   * 知らないタブ名を渡されても落ちず、先頭のタブを出す。URL は人が書き換えも
+   * するし、タブの名前を変えたあとの古いリンクも届く。
+   */
+  test('知らないタブ名は先頭のタブになる', async ({ page }) => {
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}&tab=nosuchtab`);
+
+    await expect(page.getByRole('tab', { name: '集計表' })).toHaveAttribute('aria-selected', 'true');
+    await expect(reportTable(page).getByText('食料品').first()).toBeVisible();
+  });
+
+  /**
+   * 月を変える、詳細検索を掛ける、はどちらも GET のフォームで、送信時に
+   * クエリを自分の入力欄から組み直す。タブを持たせないと、そのたびに
+   * 集計表へ戻ってしまう。
+   */
+  test('月を変えても詳細検索を掛けてもタブが残る', async ({ page }) => {
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
+
+    await page.getByRole('tab', { name: 'カレンダー' }).click();
+    await expect(page.locator('#tabs')).toContainText('日');
+
+    // 月の選択は変更と同時に送信される。
+    const previous = formatMonth(new Date(new Date().setDate(0)));
+    await page.locator('#date_month').selectOption(previous);
+
+    await expect(page).toHaveURL(new RegExp(`date_month=${previous}`));
+    await expect(page.getByRole('tab', { name: 'カレンダー' })).toHaveAttribute('aria-selected', 'true');
+
+    // 詳細検索のモーダルは ajax で後から差し込まれる。
+    await page.getByText('詳細検索').click();
+    await page.locator('#search_modal').getByRole('button', { name: '検索' }).click();
+
+    await expect(page.getByRole('tab', { name: 'カレンダー' })).toHaveAttribute('aria-selected', 'true');
   });
 
   /**
    * 以前使っていた jquery.cookie は path を指定せずに書いていた。その場合の
    * 保存先はブラウザが決め、URL の「最後の / まで」になる。つまり
-   * /summary/monthly で書いたものは /summary に付く。js-cookie は "/" に書く。
+   * /summary/yearly で書いたものは /summary に付く。js-cookie は "/" に書く。
    *
    * 両方が残るとブラウザはパスの長いほうを先に並べ、js-cookie は最初に
    * 見つけたものを返して打ち切るため、古い値が新しい値を隠し続ける。
    *
-   * まっさらなブラウザでは起きないので、古い Cookie を自分で置いて確かめる。
+   * タブは URL に移したので、クッキーに残っているのはグラフの絞り込みだけ。
+   * まっさらなブラウザでは起きないため、古い Cookie を自分で置いて確かめる。
    */
-  test('移行前のパス付きクッキーが残っていてもタブは保持される', async ({ page, context }) => {
+  test('移行前のパス付きクッキーが残っていてもグラフの絞り込みは保持される', async ({ page, context }) => {
+    const year = new Date().getFullYear();
     const url = new URL(page.url());
 
     await context.addCookies([{
-      name: 'monthly_summary-tab',
-      value: '0',
+      name: 'yearly_summary-balance_type',
+      value: '1',
       domain: url.hostname,
       path: '/summary',
     }]);
 
-    await page.goto('/summary/monthly');
-    await page.getByRole('tab', { name: 'ランキング' }).click();
-    await expect(page.locator('#tabs')).toContainText('E2E スーパー');
+    await page.goto(`/summary/yearly?begin_year=${year - 2}&end_year=${year}&output_type=2`);
+    await page.getByRole('tab', { name: '推移グラフ' }).click();
+
+    await page.selectOption('#trend_balance_type', '2');
+    await expect(page.locator('#yearly_trend_chart svg')).toBeVisible();
 
     await page.reload();
+    await page.getByRole('tab', { name: '推移グラフ' }).click();
 
-    await expect(page.getByRole('tab', { name: 'ランキング' })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#trend_balance_type')).toHaveValue('2');
+  });
+
+  /**
+   * 帯の検索は日別集計へ送る。そちらにタブはないので、意味のない値を
+   * クエリに残さないこと。
+   */
+  test('行き先の違うフォームにはタブを付けない', async ({ page }) => {
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
+
+    await page.getByRole('tab', { name: 'ランキング' }).click();
+    await expect(page.locator('#tabs')).toContainText('利用頻度ランキング');
+
+    await page.getByPlaceholder('キーワード').fill('E2E スーパー');
+    await page.getByPlaceholder('キーワード').press('Enter');
+
+    await expect(page).toHaveURL(/\/summary\/daily\?/);
+    expect(new URL(page.url()).searchParams.has('tab')).toBe(false);
   });
 
   /**
