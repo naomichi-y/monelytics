@@ -46,11 +46,11 @@ class MacrosTest extends TestCase {
     public function testLinkWithQueryStringKeepsArrayParameter()
     {
         $markup = Html::linkWithQueryString('/summary/daily', [
-            'activity_category_group_id' => [1, 2],
+            'activity_category_item_id' => [1, 2],
         ], 'link');
 
         $this->assertSame([
-            'activity_category_group_id' => ['1', '2'],
+            'activity_category_item_id' => ['1', '2'],
         ], $this->queryOf($markup));
     }
 

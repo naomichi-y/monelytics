@@ -29,9 +29,9 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         return $this->hasMany('App\Models\ActivityCategory');
     }
 
-    public function activityCategoryGroups()
+    public function activityCategoryItems()
     {
-        return $this->hasMany('App\Models\ActivityCategoryGroup');
+        return $this->hasMany('App\Models\ActivityCategoryItem');
     }
 
     /**

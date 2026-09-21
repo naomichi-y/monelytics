@@ -1,29 +1,29 @@
 <?php
 namespace Tests\Controllers\Settings;
 
-use App\Models\ActivityCategoryGroup;
+use App\Models\ActivityCategoryItem;
 use Seeds\Test\ActivityCategoryTableSeeder;
 use Tests\TestCase;
 
-class ActivityCategoryGroupControllerTest extends TestCase {
-    private $activity_category_group;
+class ActivityCategoryItemControllerTest extends TestCase {
+    private $activity_category_item;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->activity_category_group = new ActivityCategoryGroup;
+        $this->activity_category_item = new ActivityCategoryItem;
     }
 
     public function testIndex()
     {
-        $this->assertUserOnlyContent('GET', '/settings/activityCategoryGroup');
+        $this->assertUserOnlyContent('GET', '/settings/activityCategoryItem');
     }
 
     public function testSort()
     {
         $this->login();
-        $request_id_orders = $this->activity_category_group
+        $request_id_orders = $this->activity_category_item
             ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
             ->pluck('id')
             ->all();
@@ -34,12 +34,12 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         ];
         $this->call(
             'POST',
-            '/settings/activityCategoryGroup/sort',
+            '/settings/activityCategoryItem/sort',
             $params
         );
-        $this->assertRedirectedTo('/settings/activityCategoryGroup');
+        $this->assertRedirectedTo('/settings/activityCategoryItem');
 
-        $result_id_orders = $this->activity_category_group
+        $result_id_orders = $this->activity_category_item
             ->where('activity_category_id', '=', ActivityCategoryTableSeeder::TYPE_VARIABLE_EXPENSE)
             ->orderBy('sort_order')
             ->pluck('id')
@@ -50,7 +50,7 @@ class ActivityCategoryGroupControllerTest extends TestCase {
 
     public function testCreate()
     {
-        $this->assertUserOnlyContent('GET', '/settings/activityCategoryGroup/create');
+        $this->assertUserOnlyContent('GET', '/settings/activityCategoryItem/create');
     }
 
     public function testStore()
@@ -58,17 +58,17 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $this->login();
         $params = [
             'activity_category_id' => 1,
-            'group_name' => 'test',
-            'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE
+            'item_name' => 'test',
+            'credit_flag' => ActivityCategoryItem::CREDIT_FLAG_DISABLE
         ];
 
-        $default_count = $this->activity_category_group->all()->count();
+        $default_count = $this->activity_category_item->all()->count();
         $this->assertValidAjaxResponse(
             'POST',
-            '/settings/activityCategoryGroup',
+            '/settings/activityCategoryItem',
             $params
         );
-        $this->assertEquals($this->activity_category_group->all()->count(), $default_count + 1);
+        $this->assertEquals($this->activity_category_item->all()->count(), $default_count + 1);
     }
 
     public function testEdit()
@@ -79,15 +79,15 @@ class ActivityCategoryGroupControllerTest extends TestCase {
     public function testUpdate()
     {
         $this->login();
-        $params = $this->activity_category_group->find(1)->toArray();
-        $params['group_name'] = 'update';
+        $params = $this->activity_category_item->find(1)->toArray();
+        $params['item_name'] = 'update';
 
         $this->assertValidAjaxResponse(
             'PUT',
-            '/settings/activityCategoryGroup/1',
+            '/settings/activityCategoryItem/1',
             $params
         );
-        $this->assertEquals($this->activity_category_group->find(1)->group_name, 'update');
+        $this->assertEquals($this->activity_category_item->find(1)->item_name, 'update');
     }
 
     public function testDestroy()
@@ -96,13 +96,13 @@ class ActivityCategoryGroupControllerTest extends TestCase {
         $this->login();
         $this->call(
             'DELETE',
-            '/settings/activityCategoryGroup/1',
+            '/settings/activityCategoryItem/1',
             [],
             [],
             [],
-            ['HTTP_REFERER' => 'http://localhost/settings/activityCategoryGroup']
+            ['HTTP_REFERER' => 'http://localhost/settings/activityCategoryItem']
         );
-        $this->assertRedirectedTo('/settings/activityCategoryGroup');
-        $this->assertEquals($this->activity_category_group->find(1), null);
+        $this->assertRedirectedTo('/settings/activityCategoryItem');
+        $this->assertEquals($this->activity_category_item->find(1), null);
     }
 }

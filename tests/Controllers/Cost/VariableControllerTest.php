@@ -43,7 +43,7 @@ class VariableControllerTest extends TestCase {
         $params = [
             'user_id' => [1],
             'activity_date' => [date('Y/m/d')],
-            'activity_category_group_id' => [1],
+            'activity_category_item_id' => [1],
             'amount' => [-1000]
         ];
 

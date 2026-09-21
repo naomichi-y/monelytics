@@ -20,9 +20,9 @@ class ActivityCategory extends BaseModel {
         return $this->belongTo('App\Models\User');
     }
 
-    public function activityCategoryGroups()
+    public function activityCategoryItems()
     {
-        return $this->hasMany('App\Models\ActivityCategoryGroup');
+        return $this->hasMany('App\Models\ActivityCategoryItem');
     }
 
     public static function boot()
@@ -30,10 +30,10 @@ class ActivityCategory extends BaseModel {
         parent::boot();
 
         static::deleting(function($activity_category) {
-            $activity_category_groups = $activity_category->activityCategoryGroups()->get();
+            $activity_category_items = $activity_category->activityCategoryItems()->get();
 
-            foreach ($activity_category_groups as $activity_category_group) {
-                $activity_category_group->delete();
+            foreach ($activity_category_items as $activity_category_item) {
+                $activity_category_item->delete();
             }
         });
     }

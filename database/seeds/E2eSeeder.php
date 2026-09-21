@@ -17,7 +17,7 @@ class E2eSeeder extends Seeder {
 
         $this->call('Seeds\E2e\UserTableSeeder');
         $this->call('Seeds\E2e\ActivityCategoryTableSeeder');
-        $this->call('Seeds\E2e\ActivityCategoryGroupTableSeeder');
+        $this->call('Seeds\E2e\ActivityCategoryItemTableSeeder');
         $this->call('Seeds\E2e\ActivityTableSeeder');
     }
 }

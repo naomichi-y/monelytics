@@ -94,9 +94,9 @@ Route::group(['middleware' => 'auth'], function() {
         });
         $route->resource('activityCategory', 'ActivityCategoryController');
 
-        $route->group(['prefix' => 'activityCategoryGroup'], function($route) {
-            $route->post('sort', 'ActivityCategoryGroupController@sort');
+        $route->group(['prefix' => 'activityCategoryItem'], function($route) {
+            $route->post('sort', 'ActivityCategoryItemController@sort');
         });
-        $route->resource('activityCategoryGroup', 'ActivityCategoryGroupController');
+        $route->resource('activityCategoryItem', 'ActivityCategoryItemController');
     });
 });

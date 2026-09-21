@@ -11,19 +11,19 @@ use View;
 use App\Services;
 use App\Models;
 
-class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
+class ActivityCategoryItemController extends \App\Http\Controllers\Controller {
     private $activity_category;
     private $activity_categor_group;
 
     /**
      * @see BaseController::__construct()
      */
-    public function __construct(Services\ActivityCategoryService $activity_category, Services\ActivityCategoryGroupService $activity_category_group)
+    public function __construct(Services\ActivityCategoryService $activity_category, Services\ActivityCategoryItemService $activity_category_item)
     {
         parent::__construct();
 
         $this->activity_category = $activity_category;
-        $this->activity_category_group = $activity_category_group;
+        $this->activity_category_item = $activity_category_item;
     }
 
     /**
@@ -36,13 +36,13 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
 
         $data = [];
         $data['activity_category_list'] = $this->activity_category->getCategoryList($user_id, true);
-        $data['activity_category_groups'] = [];
+        $data['activity_category_items'] = [];
 
         if ($activity_category_id) {
-            $data['activity_category_groups'] = $this->activity_category_group->findAll($user_id, $activity_category_id);
+            $data['activity_category_items'] = $this->activity_category_item->findAll($user_id, $activity_category_id);
         }
 
-        return View::make('settings/activity_category_group/index', $data);
+        return View::make('settings/activity_category_item/index', $data);
     }
 
     /**
@@ -56,10 +56,10 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
         $j = sizeof($ids);
 
         for ($i = 0; $i < $j; $i++) {
-            $this->activity_category_group->updateSortOrder($user_id, $ids[$i], $i + 1);
+            $this->activity_category_item->updateSortOrder($user_id, $ids[$i], $i + 1);
         }
 
-        return Redirect::to('settings/activityCategoryGroup');
+        return Redirect::to('settings/activityCategoryItem');
     }
 
     /**
@@ -70,7 +70,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
         $data = [];
         $data['category_list'] = $this->activity_category->getCategoryList(Auth::id(), true);
 
-        return View::make('settings/activity_category_group/create', $data);
+        return View::make('settings/activity_category_item/create', $data);
     }
 
     /**
@@ -80,7 +80,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
     {
         $fields = Request::only(
             'activity_category_id',
-            'group_name',
+            'item_name',
             'content',
             'credit_flag'
         );
@@ -88,7 +88,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
         $data = [];
         $errors = [];
 
-        if ($this->activity_category_group->create(Auth::id(), $fields, $errors)) {
+        if ($this->activity_category_item->create(Auth::id(), $fields, $errors)) {
             $data['result'] = true;
 
             Session::flash('success', Lang::get('validation.custom.create_success'));
@@ -107,20 +107,20 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
     public function edit($id)
     {
         $user_id = Auth::id();
-        $activity_category_group = $this->activity_category_group->find($user_id, $id);
+        $activity_category_item = $this->activity_category_item->find($user_id, $id);
 
         $data = [];
         $data['id'] = $id;
         $data['category_list'] = $this->activity_category->getCategoryList($user_id, true);
-        $data['activity_category_group'] = $activity_category_group;
+        $data['activity_category_item'] = $activity_category_item;
 
-        if ($activity_category_group->credit_flag == Models\Activity::CREDIT_FLAG_USE) {
+        if ($activity_category_item->credit_flag == Models\Activity::CREDIT_FLAG_USE) {
             $data['credit_flag'] = true;
         } else {
             $data['credit_flag'] = false;
         }
 
-        return View::make('settings/activity_category_group/edit', $data);
+        return View::make('settings/activity_category_item/edit', $data);
     }
 
     /**
@@ -133,13 +133,13 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
 
         $fields = Request::only(
             'activity_category_id',
-            'group_name',
+            'item_name',
             'content',
             'credit_flag'
         );
         $fields['user_id'] = Auth::id();
 
-        if ($this->activity_category_group->update($id, $fields, $errors)) {
+        if ($this->activity_category_item->update($id, $fields, $errors)) {
             $data['result'] = true;
 
         } else {
@@ -155,7 +155,7 @@ class ActivityCategoryGroupController extends \App\Http\Controllers\Controller {
      */
     public function destroy($id)
     {
-        $this->activity_category_group->delete(Auth::id(), $id);
+        $this->activity_category_item->delete(Auth::id(), $id);
 
         return Redirect::back()
             ->with('success', Lang::get('validation.custom.delete_success'));

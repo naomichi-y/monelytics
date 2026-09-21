@@ -13,7 +13,7 @@ class Activity extends BaseModel {
     protected $guarded = ['id'];
     protected $rules = [
         'activity_date' => 'required|date',
-        'activity_category_group_id' => 'required',
+        'activity_category_item_id' => 'required',
         'location' => 'max:64',
         'content' => 'max:255',
         // numeric だけだと '1.5' や '1e5' を通してしまう。前者は int カラムへの
@@ -27,9 +27,9 @@ class Activity extends BaseModel {
         return $this->belongTo('App\Models\User');
     }
 
-    public function activityCategoryGroup()
+    public function activityCategoryItem()
     {
-        return $this->belongsTo('App\Models\ActivityCategoryGroup');
+        return $this->belongsTo('App\Models\ActivityCategoryItem');
     }
 
     /**
@@ -67,7 +67,7 @@ class Activity extends BaseModel {
             if (strlen($fields['activity_date'][$i])) {
                 $rules = [
                     sprintf('activity_date.%s', $i) => $this->rules['activity_date'],
-                    sprintf('activity_category_group_id.%s', $i) => $this->rules['activity_category_group_id'],
+                    sprintf('activity_category_item_id.%s', $i) => $this->rules['activity_category_item_id'],
                     sprintf('location.%s', $i) => $this->rules['location'],
                     sprintf('content.%s', $i) => $this->rules['content'],
                     sprintf('amount.%s', $i) => $this->rules['amount']
@@ -75,7 +75,7 @@ class Activity extends BaseModel {
 
                 $attribute_names = [
                     sprintf('activity_date.%s', $i) => Lang::get('validation.attributes.activity_date'),
-                    sprintf('activity_category_group_id.%s', $i) => Lang::get('validation.attributes.group_name'),
+                    sprintf('activity_category_item_id.%s', $i) => Lang::get('validation.attributes.item_name'),
                     sprintf('location.%s', $i) => Lang::get('validation.attributes.location'),
                     sprintf('content.%s', $i) => Lang::get('validation.attributes.content'),
                     sprintf('amount.%s', $i) => Lang::get('validation.attributes.amount')
@@ -92,7 +92,7 @@ class Activity extends BaseModel {
                 }
 
                 $valid_fields[$k]['activity_date'] = $fields['activity_date'][$i];
-                $valid_fields[$k]['activity_category_group_id'] = $fields['activity_category_group_id'][$i];
+                $valid_fields[$k]['activity_category_item_id'] = $fields['activity_category_item_id'][$i];
                 $valid_fields[$k]['amount'] = $fields['amount'][$i];
                 // location と content は任意項目で未送信になりうる。
                 $valid_fields[$k]['location'] = $fields['location'][$i] ?? null;
@@ -135,18 +135,18 @@ class Activity extends BaseModel {
 
         $target_month = key($fields['activity_date']);
 
-        foreach ($fields['activity_date'][$target_month] as $activity_category_group_id => $activity_date) {
+        foreach ($fields['activity_date'][$target_month] as $activity_category_item_id => $activity_date) {
             // 日付が入力されている場合は検証対象
             if (strlen($activity_date)) {
                 $rules = [
-                    sprintf('activity_date.%s.%s', $target_month, $activity_category_group_id) => 'date',
+                    sprintf('activity_date.%s.%s', $target_month, $activity_category_item_id) => 'date',
                     // 変動収支と同じ規則を使う。個別に書くと一方だけ直したときにずれる。
-                    sprintf('amount.%s.%s', $target_month, $activity_category_group_id) => $this->rules['amount']
+                    sprintf('amount.%s.%s', $target_month, $activity_category_item_id) => $this->rules['amount']
                 ];
 
                 $attribute_names = [
-                    sprintf('activity_date.%s.%s', $target_month, $activity_category_group_id) => Lang::get('validation.attributes.activity_date'),
-                    sprintf('amount.%s.%s', $target_month, $activity_category_group_id) => Lang::get('validation.attributes.amount')
+                    sprintf('activity_date.%s.%s', $target_month, $activity_category_item_id) => Lang::get('validation.attributes.activity_date'),
+                    sprintf('amount.%s.%s', $target_month, $activity_category_item_id) => Lang::get('validation.attributes.amount')
                 ];
 
                 $validator = Validator::make($fields, $rules);
@@ -159,14 +159,14 @@ class Activity extends BaseModel {
                     break;
                 }
 
-                $valid_fields[$j]['activity_category_group_id'] = $activity_category_group_id;
-                $valid_fields[$j]['activity_date'] = $fields['activity_date'][$target_month][$activity_category_group_id];
-                $valid_fields[$j]['amount'] = $fields['amount'][$target_month][$activity_category_group_id];
+                $valid_fields[$j]['activity_category_item_id'] = $activity_category_item_id;
+                $valid_fields[$j]['activity_date'] = $fields['activity_date'][$target_month][$activity_category_item_id];
+                $valid_fields[$j]['amount'] = $fields['amount'][$target_month][$activity_category_item_id];
                 // content は任意項目で未送信になりうる。
-                $valid_fields[$j]['content'] = $fields['content'][$target_month][$activity_category_group_id] ?? null;
+                $valid_fields[$j]['content'] = $fields['content'][$target_month][$activity_category_item_id] ?? null;
 
-                if (isset($fields['credit_flag'][$target_month][$activity_category_group_id])) {
-                    $valid_fields[$j]['credit_flag'] = $fields['credit_flag'][$target_month][$activity_category_group_id];
+                if (isset($fields['credit_flag'][$target_month][$activity_category_item_id])) {
+                    $valid_fields[$j]['credit_flag'] = $fields['credit_flag'][$target_month][$activity_category_item_id];
                 } else {
                     $valid_fields[$j]['credit_flag'] = Activity::CREDIT_FLAG_UNUSE;
                 }

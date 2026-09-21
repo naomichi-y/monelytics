@@ -35,7 +35,7 @@
                         <ul class="dropdown-menu" data-bs-theme="light">
                             {{-- 科目を先に置く。日々足すのは科目で、分類は
                                  最初に作ったあとはほとんど触らない。 --}}
-                            <li>{!! link_to('settings/activityCategoryGroup', '科目', ['class' => 'dropdown-item']) !!}</li>
+                            <li>{!! link_to('settings/activityCategoryItem', '科目', ['class' => 'dropdown-item']) !!}</li>
                             <li>{!! link_to('settings/activityCategory', '分類', ['class' => 'dropdown-item']) !!}</li>
                         </ul>
                     </li>

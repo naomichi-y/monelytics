@@ -68,7 +68,7 @@
             // 科目の確認を押下
             $(".show-category-group").click(function() {
                 var id = $(this).parent().parent().attr("data-id");
-                window.location.href = "/settings/activityCategoryGroup?activity_category_id=" + id;
+                window.location.href = "/settings/activityCategoryItem?activity_category_id=" + id;
             });
         });
     </script>

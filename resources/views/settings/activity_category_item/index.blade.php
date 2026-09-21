@@ -17,7 +17,7 @@
 
             // 科目の登録押下
             $("#open_create").click(function() {
-                $.get("/settings/activityCategoryGroup/create",
+                $.get("/settings/activityCategoryItem/create",
                     {
                         activity_category_id: $("#search_activity_category_id").val()
                     },
@@ -36,7 +36,7 @@
                         ids.push(this.value);
                     });
 
-                    $.post("/settings/activityCategoryGroup/sort",
+                    $.post("/settings/activityCategoryItem/sort",
                         {
                             ids: ids
                         }
@@ -51,7 +51,7 @@
                 var row = $(".open_edit").index(this);
                 var id = $("#sortable tr:eq(" + row + ")").attr("data-id");
 
-                $.get("/settings/activityCategoryGroup/" + id + "/edit",
+                $.get("/settings/activityCategoryItem/" + id + "/edit",
                     {},
                     function(data) {
                         showModal(data);
@@ -66,7 +66,7 @@
     <div class="row">
         <div class="row g-2 align-items-center form-group-adjust">
             <div class="col-md-8">
-                {!! Form::open(['url' => 'settings/activityCategoryGroup', 'method' => 'get', 'id' => 'search-form']) !!}
+                {!! Form::open(['url' => 'settings/activityCategoryItem', 'method' => 'get', 'id' => 'search-form']) !!}
                     {!! Form::select('activity_category_id', $activity_category_list, Request::input('activity_category_id'), ['class' => 'form-select', 'id' => 'search_activity_category_id']) !!}
              {!! Form::close() !!}
             </div>
@@ -78,9 +78,9 @@
 @stop
 
 @section('content')
-    @include('layouts/delete_modal', ['action' => 'settings/activityCategoryGroup'])
+    @include('layouts/delete_modal', ['action' => 'settings/activityCategoryItem'])
 
-    @if (sizeof($activity_category_groups))
+    @if (sizeof($activity_category_items))
         <table class="table table-striped table-hover">
             <colgroup>
                 <col style="width: 20%" />
@@ -101,19 +101,19 @@
                 </tr>
             </thead>
             <tbody id="sortable">
-                @foreach ($activity_category_groups as $activity_category_group)
-                    <tr data-id="{{$activity_category_group->id}}">
-                        <td>{{{$activity_category_group->group_name}}}</td>
-                        <td>{{nl2br(e($activity_category_group->content))}}</td>
+                @foreach ($activity_category_items as $activity_category_item)
+                    <tr data-id="{{$activity_category_item->id}}">
+                        <td>{{{$activity_category_item->item_name}}}</td>
+                        <td>{{nl2br(e($activity_category_item->content))}}</td>
                         <td class="text-center">
-                            @if ($activity_category_group->credit_flag)
+                            @if ($activity_category_item->credit_flag)
                                 <span class="bi bi-check-lg"></span>
                             @endif
                         </td>
-                        <td class="text-center">{{Html::datetime($activity_category_group->create_date)}}</td>
+                        <td class="text-center">{{Html::datetime($activity_category_item->create_date)}}</td>
                         <td class="text-center sort-col d-none d-md-table-cell"><i class="bi bi-arrow-down-up"></i></td>
                         <td class="text-center">
-                            {!! Form::hidden('sortable_ids[]', $activity_category_group->id) !!}
+                            {!! Form::hidden('sortable_ids[]', $activity_category_item->id) !!}
                             {!! Form::button('編集', ['class' => 'btn btn-primary open_edit']) !!}
                             {!! Form::button('削除', ['class' => 'btn btn-secondary open_delete', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#delete-modal']) !!}
                         </td>

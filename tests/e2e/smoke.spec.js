@@ -17,7 +17,7 @@ const paths = [
   '/cost/variable/create',
   '/cost/constant/create',
   '/settings/activityCategory',
-  '/settings/activityCategoryGroup',
+  '/settings/activityCategoryItem',
   '/user',
   '/contact',
 ];

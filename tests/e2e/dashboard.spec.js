@@ -66,7 +66,7 @@ test.describe('ダッシュボード', () => {
    * 科目を選べてしまうと、選んだとおりに登録されない。
    */
   test('かんたん入力の科目は変動収支だけ', async ({ page }) => {
-    const options = page.locator('#activity_category_group_id option');
+    const options = page.locator('#activity_category_item_id option');
 
     await expect(options.filter({ hasText: '食料品' })).toHaveCount(1);
     await expect(options.filter({ hasText: '臨時ボーナス' })).toHaveCount(1);
@@ -77,7 +77,7 @@ test.describe('ダッシュボード', () => {
   });
 
   test('かんたん入力から登録できる', async ({ page }) => {
-    await page.locator('#activity_category_group_id').selectOption({ label: '食料品' });
+    await page.locator('#activity_category_item_id').selectOption({ label: '食料品' });
     await page.locator('#amount').fill('4321');
     await page.locator('#location').fill('E2E-DASHBOARD');
     await page.getByRole('button', { name: '登録' }).click();

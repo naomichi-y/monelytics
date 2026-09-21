@@ -24,7 +24,7 @@
                     @foreach ($location_rankings as $location_ranking)
                         <tr>
                             <td class="text-center">{{$i++}}</td>
-                            <td>{{{$location_ranking->group_name}}}</td>
+                            <td>{{{$location_ranking->item_name}}}</td>
                             <td>{!! Html::linkWithQueryString('/summary/daily', ['begin_date' => $date_range->begin_date, 'end_date' => $date_range->end_date, 'location' => $location_ranking->location], $location_ranking->location) !!}</td>
                             <td class="text-end">{{number_format($location_ranking->count)}}回</td>
                             <td class="text-end">{!! Html::amount($location_ranking->amount) !!}</td>
@@ -65,7 +65,7 @@
                         <tr>
                             <td class="text-center">{{$i++}}</td>
                             <td class="text-center">{{Html::date($expense_ranking->activity_date)}}</td>
-                            <td>{{{$expense_ranking->activityCategoryGroup->group_name}}}</td>
+                            <td>{{{$expense_ranking->activityCategoryItem->item_name}}}</td>
                             <td>{{{$expense_ranking->location}}}</td>
                             <td>{{{$expense_ranking->content}}}</td>
                             <td class="text-end">{!! Html::amount($expense_ranking->amount) !!}</td>

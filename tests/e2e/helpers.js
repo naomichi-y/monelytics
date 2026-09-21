@@ -77,7 +77,7 @@ async function createVariableCost(page, params) {
   await page.goto('/cost/variable/create');
 
   await page.locator('[name="activity_date[0]"]').fill(formatDate(new Date()));
-  await page.locator('[name="activity_category_group_id[0]"]').selectOption({ label: params.groupName });
+  await page.locator('[name="activity_category_item_id[0]"]').selectOption({ label: params.groupName });
   await page.locator('[name="amount[0]"]').fill(String(params.amount));
   await page.locator('[name="location[0]"]').fill(params.marker);
 

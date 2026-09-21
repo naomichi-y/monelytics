@@ -8,7 +8,7 @@ use App\Services;
 
 class GadgetController extends Controller {
     /**
-     * 棒に並べる科目グループの数。科目は利用者が好きなだけ作れるため、
+     * 棒に並べる科目の数。科目は利用者が好きなだけ作れるため、
      * 全部並べるとダッシュボードが際限なく伸びる。
      */
     const VARIABLE_EXPENSE_GROUP_LIMIT = 5;

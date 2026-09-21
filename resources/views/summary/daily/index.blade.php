@@ -22,7 +22,7 @@
                         date_month: {!! Html::encodeJsJsonValue('date_month', date('Y-m')) !!},
                         begin_date: {!! Html::encodeJsJsonValue('begin_date') !!},
                         end_date: {!! Html::encodeJsJsonValue('end_date') !!},
-                        activity_category_group_id: {!! Html::encodeJsJsonValue('activity_category_group_id', null, 'array') !!},
+                        activity_category_item_id: {!! Html::encodeJsJsonValue('activity_category_item_id', null, 'array') !!},
                         keyword: {!! Html::encodeJsJsonValue('keyword') !!},
                         credit_flag: {!! Html::encodeJsJsonValue('credit_flag') !!},
                     },
@@ -85,7 +85,7 @@
                         {!! Html::sortLabel('activity_date', '発生日', true) !!}
                     </th>
                     <th class="text-center">
-                        {!! Html::sortLabel('activity_category_group_id', '科目') !!}
+                        {!! Html::sortLabel('activity_category_item_id', '科目') !!}
                     </th>
                     <th class="text-center">
                         {!! Html::sortLabel('location', '場所') !!}
@@ -112,7 +112,7 @@
                     <td class="text-center">
                         {{Html::date($activity->activity_date)}}
                     </td>
-                    <td>{{{$activity->activityCategoryGroup->group_name}}}</td>
+                    <td>{{{$activity->activityCategoryItem->item_name}}}</td>
                     <td>{{{$activity->location}}}</td>
                     <td>{{{$activity->content}}}</td>
                     <td class="text-end">{!! Html::amount($activity->amount) !!}</td>

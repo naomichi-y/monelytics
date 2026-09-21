@@ -13,7 +13,7 @@ class UserService
     private $user;
     private $user_credential;
     private $activity_category;
-    private $activity_category_group;
+    private $activity_category_item;
 
     /**
      * コンストラクタ。
@@ -21,18 +21,18 @@ class UserService
      * @param \Models\User $user
      * @param \Models\UserCredential $user_credential
      * @param \Models\ActivityCategory $activity_category
-     * @param \Models\ActivityCategoryGroup $activity_category_group
+     * @param \Models\ActivityCategoryItem $activity_category_item
      */
     public function __construct(
         Models\User $user,
         Models\UserCredential $user_credential,
         Models\ActivityCategory $activity_category,
-        Models\ActivityCategoryGroup $activity_category_group)
+        Models\ActivityCategoryItem $activity_category_item)
     {
         $this->user = $user;
         $this->user_credential = $user_credential;
         $this->activity_category = $activity_category;
-        $this->activity_category_group = $activity_category_group;
+        $this->activity_category_item = $activity_category_item;
     }
 
     /**
@@ -89,20 +89,20 @@ class UserService
             $activity_category = new $this->activity_category((array) $data);
             $activity_category->save();
 
-            // 科目カテゴリグループの登録
+            // 科目の登録
             if (isset($activity_category_data->relations)) {
-                $activity_category_group_datum = $activity_category_data->relations->activity_category_groups;
+                $activity_category_item_datum = $activity_category_data->relations->activity_category_items;
 
-                foreach ($activity_category_group_datum as $activity_category_group_data) {
-                    $data = $activity_category_group_data->record;
+                foreach ($activity_category_item_datum as $activity_category_item_data) {
+                    $data = $activity_category_item_data->record;
                     $data->activity_category_id = $activity_category->id;
 
-                    $activity_category_group = new $this->activity_category_group((array) $data);
-                    $activity_category_group->user_id = $user_id;
-                    $activity_category_group->save();
+                    $activity_category_item = new $this->activity_category_item((array) $data);
+                    $activity_category_item->user_id = $user_id;
+                    $activity_category_item->save();
 
                     $result[] = [
-                        'id' => $activity_category_group->id,
+                        'id' => $activity_category_item->id,
                         'balance_type' => $activity_category->balance_type,
                         'cost_type' => $activity_category->cost_type
                     ];

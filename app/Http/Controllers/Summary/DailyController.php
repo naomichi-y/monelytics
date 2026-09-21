@@ -33,7 +33,7 @@ class DailyController extends \App\Http\Controllers\Controller {
             'date_month',
             'begin_date',
             'end_date',
-            'activity_category_group_id',
+            'activity_category_item_id',
             'keyword',
             'location',
             'credit_flag',
@@ -80,7 +80,7 @@ class DailyController extends \App\Http\Controllers\Controller {
         }
 
         // 科目リスト
-        $data['activity_category_groups'] = $this->activity_category->getCategoryGroupList($user_id);
+        $data['activity_category_items'] = $this->activity_category->getCategoryItemList($user_id);
 
         return View::make('summary/daily/condition', $data);
     }

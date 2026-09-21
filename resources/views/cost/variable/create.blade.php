@@ -15,7 +15,7 @@
 @stop
 
 @section('content')
-    @if (sizeof($activity_category_groups) > 1)
+    @if (sizeof($activity_category_items) > 1)
         {!! Form::open(['url' => 'cost/variable']) !!}
             <table class="table table-striped table-hover">
                 {{-- 金額は単位の分だけ入力欄が狭くなる。元の 11% では 7 桁が
@@ -54,7 +54,7 @@
                             @endif
                         </td>
                         <td>
-                            {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Request::old("activity_category_group_id[$i]"), ['class' => 'form-select']) !!}
+                            {!! Form::select("activity_category_item_id[$i]", $activity_category_items, Request::old("activity_category_item_id[$i]"), ['class' => 'form-select']) !!}
                         </td>
                         <td>
                             <div class="input-group">
@@ -83,6 +83,6 @@
             </div>
         {!! Form::close() !!}
     @else
-        <p>科目が未登録です。{!! link_to('/activityCategoryGroup', '科目ページ') !!} からデータを登録して下さい。</p>
+        <p>科目が未登録です。{!! link_to('/settings/activityCategoryItem', '科目ページ') !!} からデータを登録して下さい。</p>
     @endif
 @stop

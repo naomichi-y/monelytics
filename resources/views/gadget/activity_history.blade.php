@@ -34,7 +34,7 @@
             @foreach ($histories as $history)
                 <tr data-date="{{$history->activity_date}}" class="activity-history">
                     <td class="text-center">{{Html::date($history->activity_date)}}</td>
-                    <td>{{{$history->activityCategoryGroup->group_name}}}</td>
+                    <td>{{{$history->activityCategoryItem->item_name}}}</td>
                     <td class="text-end">{!! Html::amount($history->amount) !!}</td>
                     <td class="d-none d-md-table-cell">{{{$history->location}}}</td>
                     <td class="d-none d-md-table-cell">{{{$history->content}}}</td>

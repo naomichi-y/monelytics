@@ -5,9 +5,9 @@ use DB;
 
 use Illuminate\Database\Seeder;
 
-use App\Models\ActivityCategoryGroup;
+use App\Models\ActivityCategoryItem;
 
-class ActivityCategoryGroupTableSeeder extends Seeder {
+class ActivityCategoryItemTableSeeder extends Seeder {
     const TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE = 1;
     const TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE = 2;
     const TYPE_VARIABLE_INCOME_CREDIT_ENABLE = 3;
@@ -19,7 +19,7 @@ class ActivityCategoryGroupTableSeeder extends Seeder {
 
     public function run()
     {
-        DB::table('activity_category_groups')->truncate();
+        DB::table('activity_category_items')->truncate();
 
         $ids = [
             self::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE,
@@ -41,27 +41,27 @@ class ActivityCategoryGroupTableSeeder extends Seeder {
 
         $index = 1;
         foreach ($types as $type) {
-            $activity_category_groups = [
+            $activity_category_items = [
                 [
                     'id' => $index++,
                     'activity_category_id' => $type,
                     'user_id' => 1,
-                    'group_name' => 'test',
-                    'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_DISABLE,
+                    'item_name' => 'test',
+                    'credit_flag' => ActivityCategoryItem::CREDIT_FLAG_DISABLE,
                     'sort_order' => 1
                  ],
                  [
                     'id' => $index++,
                     'activity_category_id' => $type,
                     'user_id' => 1,
-                    'group_name' => 'test',
-                    'credit_flag' => ActivityCategoryGroup::CREDIT_FLAG_ENABLE,
+                    'item_name' => 'test',
+                    'credit_flag' => ActivityCategoryItem::CREDIT_FLAG_ENABLE,
                     'sort_order' => 2
                 ]
             ];
 
-            foreach ($activity_category_groups as $activity_category_group) {
-                ActivityCategoryGroup::create($activity_category_group);
+            foreach ($activity_category_items as $activity_category_item) {
+                ActivityCategoryItem::create($activity_category_item);
             }
         }
     }

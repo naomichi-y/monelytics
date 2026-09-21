@@ -2,7 +2,7 @@
 namespace Tests\Controllers;
 
 use App\Models\Activity;
-use Seeds\Test\ActivityCategoryGroupTableSeeder;
+use Seeds\Test\ActivityCategoryItemTableSeeder;
 use Tests\TestCase;
 
 class GadgetControllerTest extends TestCase {
@@ -23,7 +23,7 @@ class GadgetControllerTest extends TestCase {
         Activity::create([
             'user_id' => $this->getUser()->id,
             'activity_date' => $previous_month . '-01',
-            'activity_category_group_id' => ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE,
+            'activity_category_item_id' => ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE,
             'amount' => -400,
             'credit_flag' => Activity::CREDIT_FLAG_UNUSE
         ]);

@@ -3,7 +3,7 @@ namespace Tests\Controllers\Summary;
 
 use App\Libraries\Condition\DailyPaginateCondition;
 use App\Models\Activity;
-use Seeds\Test\ActivityCategoryGroupTableSeeder;
+use Seeds\Test\ActivityCategoryItemTableSeeder;
 use Tests\TestCase;
 
 class DailyControllerTest extends TestCase {
@@ -81,7 +81,7 @@ class DailyControllerTest extends TestCase {
             Activity::create([
                 'user_id' => 1,
                 'activity_date' => date('Y-m-d'),
-                'activity_category_group_id' => ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+                'activity_category_item_id' => ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
                 'amount' => -100,
                 'credit_flag' => Activity::CREDIT_FLAG_UNUSE,
                 'special_flag' => Activity::SPECIAL_FLAG_UNUSE,
