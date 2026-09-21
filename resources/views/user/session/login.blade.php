@@ -23,13 +23,11 @@
                             </div>
                         </div>
                         <div class="row mb-3 form-group-adjust">
-                            <div class="col-md-3 offset-md-4">
+                            <div class="col-md-8 offset-md-4 d-flex align-items-center gap-3">
                                 {!! Form::submit('ログイン', ['class' => 'btn btn-primary']) !!}
-                            </div>
-                            <div class="col-md-5">
-                                <div class="form-check form-check-inline">
+                                <div class="form-check mb-0">
                                     {!! Form::checkbox('remember_me', '1', null, ['id' => 'remember_me', 'class' => 'form-check-input']) !!}
-                                    {!! Form::label('remember_me', '保存する', ['class' => 'form-check-label']) !!}
+                                    {!! Form::label('remember_me', 'ログイン状態を保持する', ['class' => 'form-check-label']) !!}
                                 </div>
                             </div>
                         </div>

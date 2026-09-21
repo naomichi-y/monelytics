@@ -79,6 +79,9 @@ services:
       REDIS_DB: "2"
       REDIS_CACHE_DB: "3"
       MAIL_MAILER: array
+      # .env は本番向けに SESSION_SECURE_COOKIE=true を持つが、ここは平文の
+      # http で配信するため、そのままでは Cookie が返らず全ての POST が 419 になる。
+      SESSION_SECURE_COOKIE: "false"
       # 同一 IP から繰り返しログインするため、本番の値では 429 になる。
       RATE_LIMIT_LOGIN: "1000,1"
       RATE_LIMIT_REGISTRATION: "1000,1"
