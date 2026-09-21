@@ -87,8 +87,12 @@
 
                         <div class="row mb-3">
                             {!! Form::label('amount', '金額', ['class' => 'col-md-3 col-form-label']) !!}
-                            <div class="col-md-3">
-                                {!! Form::number('amount', $activity->amount, ['class' => 'form-control', 'pattern' => '[\-0-9]*']) !!}
+                            {{-- 単位とスピナーの分だけ入力欄が狭くなる。 --}}
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    {!! Form::number('amount', $activity->amount, ['class' => 'form-control', 'pattern' => '[\-0-9]*']) !!}
+                                    <span class="input-group-text">円</span>
+                                </div>
                             </div>
                         </div>
 

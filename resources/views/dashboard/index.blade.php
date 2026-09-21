@@ -55,8 +55,13 @@
 
                         <div class="row mb-3">
                             {!! Form::label('amount', '金額', ['class' => 'col-md-3 col-form-label']) !!}
-                            <div class="col-md-5">
-                                {!! Form::number('amount[0]', '', ['class' => 'form-control text-end', 'id' => 'amount', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                            {{-- 単位とスピナーの分だけ入力欄が狭くなる。col-md-5 では
+                                 7 桁の頭が切れる。 --}}
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    {!! Form::number('amount[0]', '', ['class' => 'form-control text-end', 'id' => 'amount', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                                    <span class="input-group-text">円</span>
+                                </div>
                             </div>
                         </div>
 

@@ -66,10 +66,10 @@
                                         {{-- 区切りは URL そのものの文字である '&' にする。HTML への逃がしは
                                              link_to が行うため、ここで '&amp;' を入れると二重になり、
                                              2 つ目以降のパラメータ名が amp;xxx になって読み捨てられる。 --}}
-                                        {!! link_to("summary/daily?begin_date={$params[$i]['date']}&end_date={$params[$i]['date']}&cost_type=1", number_format($params[$i]['variable_amount'])) !!}
+                                        {!! Html::amountLink($params[$i]['variable_amount'], fn($text) => link_to("summary/daily?begin_date={$params[$i]['date']}&end_date={$params[$i]['date']}&cost_type=1", $text)) !!}
                                             <br />
                                         @if ($params[$i]['constant_amount'])
-                                            {!! link_to("summary/daily?begin_date={$params[$i]['date']}&end_date={$params[$i]['date']}&cost_type=2", number_format($params[$i]['constant_amount'])) !!}
+                                            {!! Html::amountLink($params[$i]['constant_amount'], fn($text) => link_to("summary/daily?begin_date={$params[$i]['date']}&end_date={$params[$i]['date']}&cost_type=2", $text)) !!}
                                         @else
                                             &nbsp;
                                         @endif

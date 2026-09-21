@@ -60,20 +60,20 @@
                                     <td class="text-end">
                                     @if (isset($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id]))
                                         @if (Request::input('output_type') == App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY)
-                                          {!! Html::linkWithQueryString('/summary/daily', ['date_month' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id], number_format($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id])) !!}
+                                          {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_month' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id], $text)) !!}
                                         @else
-                                          {!! Html::linkWithQueryString('/summary/daily', ['date_year' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id], number_format($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id])) !!}
+                                          {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_group_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_year' => str_replace('/', '-', $summary_date), 'activity_category_group_id[]' => $activity_category_group_id], $text)) !!}
                                         @endif
                                     @else
-                                        0
+                                        {!! Html::amount(0) !!}
                                     @endif
                                     </td>
                                 @endforeach
                             @endforeach
                         @endforeach
-                        <td class="text-end">{{number_format($data['total_expense_amount'])}}</td>
-                        <td class="text-end">{{number_format($data['total_income_amount'])}}</td>
-                        <td class="text-end">{{number_format($data['total_amount'])}}</td>
+                        <td class="text-end">{!! Html::amount($data['total_expense_amount']) !!}</td>
+                        <td class="text-end">{!! Html::amount($data['total_income_amount']) !!}</td>
+                        <td class="text-end">{!! Html::amount($data['total_amount']) !!}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -85,17 +85,17 @@
                             @foreach ($activity_categories['activity_category_groups'] as $activity_category_group_id => $activity_category_group_name)
                                 <td class="text-end">
                                     @if (isset($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id]))
-                                        {{number_format($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id])}}
+                                        {!! Html::amount($summary['footers']['yearly_total_activity_categories'][$activity_category_group_id]) !!}
                                     @else
-                                        0
+                                        {!! Html::amount(0) !!}
                                     @endif
                                 </td>
                             @endforeach
                         @endforeach
                     @endforeach
-                    <td class="text-end">{{number_format($summary['footers']['yearly_total_expense_amount'])}}</td>
-                    <td class="text-end">{{number_format($summary['footers']['yearly_total_income_amount'])}}</td>
-                    <td class="text-end">{{number_format($summary['footers']['yearly_total_result_amount'])}}</td>
+                    <td class="text-end">{!! Html::amount($summary['footers']['yearly_total_expense_amount']) !!}</td>
+                    <td class="text-end">{!! Html::amount($summary['footers']['yearly_total_income_amount']) !!}</td>
+                    <td class="text-end">{!! Html::amount($summary['footers']['yearly_total_result_amount']) !!}</td>
                 </tr>
             </tfoot>
         </table>

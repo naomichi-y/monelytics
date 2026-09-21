@@ -270,6 +270,55 @@ Html::macro('assetVersion', function($path) {
 });
 
 /**
+ * 金額に単位を添える。
+ *
+ * 単位はどの欄にも付ける。見出しが「金額」と言っていても、数字だけを抜き出して
+ * 読む人には何の数か分からないため。
+ *
+ * 戻り値はマークアップなので {!! !!} で出す。数字は number_format を通した
+ * あとなので、逃がすものは含まれない。
+ *
+ * @param int $amount
+ * @return string
+ */
+Html::macro('amount', function($amount) {
+    return Html::withUnit(number_format($amount));
+});
+
+/**
+ * 金額をリンクにして単位を添える。
+ *
+ * 0 のときはリンクにしない。押しても絞り込みの結果は空で、開く意味がない。
+ *
+ * @param int $amount
+ * @param callable $link 桁区切り済みの文字列を受け取り、リンクを返す
+ * @return string
+ */
+Html::macro('amountLink', function($amount, callable $link) {
+    if (!$amount) {
+        return Html::amount(0);
+    }
+
+    return Html::withUnit($link(number_format($amount)));
+});
+
+/**
+ * 組み立て済みの金額表記 (リンクなど) に単位を添える。
+ *
+ * リンクの外側に置く。単位はリンク先と関係がなく、含めると押せる範囲が
+ * 数字より広がる。
+ *
+ * 数字と単位の間は半角空白 1 つ。詰めると桁の並びに単位が食い込んで読みにくく、
+ * リンクでは下線が数字で止まるぶん特に接して見える。
+ *
+ * @param string $markup
+ * @return string
+ */
+Html::macro('withUnit', function($markup) {
+    return '<span class="money">' . $markup . ' <span class="unit">円</span></span>';
+});
+
+/**
  * 前月比の増減額を、符号と桁区切りを付けて返す。
  *
  * 科目ごとの比較は率ではなく額で出す。元が小さい科目は率が跳ね上がり

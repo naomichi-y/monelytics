@@ -54,6 +54,35 @@ test.describe('集計', () => {
     await expect(page.getByRole('tab', { name: 'ランキング' })).toHaveAttribute('aria-selected', 'true');
   });
 
+  /**
+   * 以前使っていた jquery.cookie は path を指定せずに書いていた。その場合の
+   * 保存先はブラウザが決め、URL の「最後の / まで」になる。つまり
+   * /summary/monthly で書いたものは /summary に付く。js-cookie は "/" に書く。
+   *
+   * 両方が残るとブラウザはパスの長いほうを先に並べ、js-cookie は最初に
+   * 見つけたものを返して打ち切るため、古い値が新しい値を隠し続ける。
+   *
+   * まっさらなブラウザでは起きないので、古い Cookie を自分で置いて確かめる。
+   */
+  test('移行前のパス付きクッキーが残っていてもタブは保持される', async ({ page, context }) => {
+    const url = new URL(page.url());
+
+    await context.addCookies([{
+      name: 'monthly_summary-tab',
+      value: '0',
+      domain: url.hostname,
+      path: '/summary',
+    }]);
+
+    await page.goto('/summary/monthly');
+    await page.getByRole('tab', { name: 'ランキング' }).click();
+    await expect(page.locator('#tabs')).toContainText('E2E スーパー');
+
+    await page.reload();
+
+    await expect(page.getByRole('tab', { name: 'ランキング' })).toHaveAttribute('aria-selected', 'true');
+  });
+
   test('集計表の金額から日別集計へ検索条件が引き継がれる', async ({ page }) => {
     const month = formatMonth(new Date());
 

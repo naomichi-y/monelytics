@@ -69,6 +69,25 @@ class MacrosTest extends TestCase {
     }
 
     /**
+     * 数字と単位の間は半角空白 1 つ。詰めると桁の並びに単位が食い込む。
+     * 0 のときはリンクにしない。押しても絞り込みの結果は空で、開く意味がない。
+     */
+    public function testAmountLinkSeparatesUnitAndDropsZeroLink()
+    {
+        $link = fn($text) => '<a href="/summary/daily">' . $text . '</a>';
+
+        $this->assertSame(
+            '<span class="money"><a href="/summary/daily">1,200</a> <span class="unit">円</span></span>',
+            Html::amountLink(1200, $link)
+        );
+
+        $this->assertSame(
+            '<span class="money">0 <span class="unit">円</span></span>',
+            Html::amountLink(0, $link)
+        );
+    }
+
+    /**
      * 科目ごとの比較は率ではなく額で出す。元が小さい科目は率が跳ね上がり、
      * 額の大きい科目より目立ってしまうため。記号は増減率と揃える。
      */

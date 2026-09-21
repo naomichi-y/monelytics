@@ -3,15 +3,6 @@
     cursor: pointer;
 }
 
-/* 単位は数字より小さくして、桁を読むのを邪魔しないようにする。 */
-.activity-history .unit {
-    font-size: 0.85em;
-}
-
-/* 桁と単位を切り離さない。折り返すと「円」だけが次の行に落ちる。 */
-.activity-history .amount {
-    white-space: nowrap;
-}
 </style>
 <script>
     $(function() {
@@ -44,7 +35,7 @@
                 <tr data-date="{{$history->activity_date}}" class="activity-history">
                     <td class="text-center">{{Html::date($history->activity_date)}}</td>
                     <td>{{{$history->activityCategoryGroup->group_name}}}</td>
-                    <td class="text-end amount">{{number_format($history->amount)}}<span class="unit">円</span></td>
+                    <td class="text-end">{!! Html::amount($history->amount) !!}</td>
                     <td class="d-none d-md-table-cell">{{{$history->location}}}</td>
                     <td class="d-none d-md-table-cell">{{{$history->content}}}</td>
                 </tr>

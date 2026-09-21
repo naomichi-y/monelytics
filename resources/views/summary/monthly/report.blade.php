@@ -52,14 +52,14 @@
                                         <tr>
                                     @endif
                                         <th>{{{$activity_category_group_summary['group_name']}}}</th>
-                                        <td class="text-end">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE], number_format($activity_category_group_summary['cash_amount'])) !!}</td>
-                                        <td class="text-end">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE], number_format($activity_category_group_summary['credit_amount'])) !!}</td>
+                                        <td class="text-end">{!! Html::amountLink($activity_category_group_summary['cash_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE], $text)) !!}</td>
+                                        <td class="text-end">{!! Html::amountLink($activity_category_group_summary['credit_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE], $text)) !!}</td>
                                         <td class="text-end">
                                             @if (isset($comparisons['groups'][$activity_category_group_id]))
                                                 {{Html::comparisonRate($comparisons['groups'][$activity_category_group_id])}}
                                             @endif
                                         </td>
-                                        <td class="text-end">{!! Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], number_format($activity_category_group_summary['group_amount'])) !!}</td>
+                                        <td class="text-end">{!! Html::amountLink($activity_category_group_summary['group_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_group_id[]' => $activity_category_group_id], $text)) !!}</td>
                                     </tr>
                                     <?php $j++; ?>
                                 @endforeach
@@ -78,25 +78,25 @@
             <tfoot>
                 <tr>
                     <th colspan="3">収入合計</th>
-                    <td class="text-end">{{number_format($summary['income_summary']['cash_amount'])}}</td>
-                    <td class="text-end">{{number_format($summary['income_summary']['credit_amount'])}}</td>
+                    <td class="text-end">{!! Html::amount($summary['income_summary']['cash_amount']) !!}</td>
+                    <td class="text-end">{!! Html::amount($summary['income_summary']['credit_amount']) !!}</td>
                     <td class="text-end">
                         @if (isset($comparisons['totals']['income']))
                             {{Html::comparisonRate($comparisons['totals']['income'])}}
                         @endif
                     </td>
-                    <td class="text-end">{{number_format($summary['income_summary']['income_amount'])}}</td>
+                    <td class="text-end">{!! Html::amount($summary['income_summary']['income_amount']) !!}</td>
                 </tr>
                 <tr>
                     <th colspan="3">支出合計</th>
-                    <td class="text-end">{{number_format($summary['expense_summary']['cash_amount'])}}</td>
-                    <td class="text-end">{{number_format($summary['expense_summary']['credit_amount'])}}</td>
+                    <td class="text-end">{!! Html::amount($summary['expense_summary']['cash_amount']) !!}</td>
+                    <td class="text-end">{!! Html::amount($summary['expense_summary']['credit_amount']) !!}</td>
                     <td class="text-end">
                         @if (isset($comparisons['totals']['expense']))
                             {{Html::comparisonRate($comparisons['totals']['expense'])}}
                         @endif
                     </td>
-                    <td class="text-end">{{number_format($summary['expense_summary']['expense_amount'])}}</td>
+                    <td class="text-end">{!! Html::amount($summary['expense_summary']['expense_amount']) !!}</td>
                 </tr>
                 <tr>
                     <th colspan="5">合計</th>
@@ -105,7 +105,7 @@
                             {{Html::comparisonRate($comparisons['totals']['total'])}}
                         @endif
                     </td>
-                    <td class="text-end">{{number_format($summary['total_amount'])}}</td>
+                    <td class="text-end">{!! Html::amount($summary['total_amount']) !!}</td>
                 </tr>
             </tfoot>
         </table>

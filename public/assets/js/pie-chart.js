@@ -7,8 +7,8 @@ $(function () {
       function(data) {
         var result = [];
 
-        $.each(data.constituents, function(key, value) {
-           result.push(new Array(key, value));
+        $.each(data.constituents, function(index, row) {
+           result.push([row.name, row.amount]);
         });
 
         if (result.length) {
@@ -19,6 +19,13 @@ $(function () {
       },
       "json"
     );
+
+    /**
+     * 金額に単位を添える。画面の他の金額と揃える。
+     */
+    function formatAmount(amount) {
+      return Highcharts.numberFormat(amount, 0, '.', ',') + ' 円';
+    }
 
     function drawPieChart(data) {
       Highcharts.getOptions().plotOptions.pie.colors = (function () {
@@ -53,7 +60,11 @@ $(function () {
           text: ''
         },
         tooltip: {
-          pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+          // 金額を主、割合を従にする。桁区切りは既定が空白なので明示する。
+          pointFormatter: function() {
+            return '<b>' + formatAmount(this.y) + '</b> ('
+              + Highcharts.numberFormat(this.percentage, 1) + '%)';
+          }
         },
         plotOptions: {
           pie: {
@@ -61,7 +72,10 @@ $(function () {
             cursor: 'pointer',
             dataLabels: {
               enabled: (window.innerWidth > 768) ? true : false,
-              format: '<b>{point.name}</b>: {point.percentage:.1f} % {}',
+              formatter: function() {
+                return '<b>' + this.point.name + '</b> ' + formatAmount(this.y)
+                  + ' (' + Highcharts.numberFormat(this.percentage, 1) + '%)';
+              },
               style: {
                   color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
               }

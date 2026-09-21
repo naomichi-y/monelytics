@@ -5,6 +5,7 @@ use DB;
 
 use App\Libraries\Condition\DailyPaginateCondition;
 use App\Libraries\Condition\MonthlySummaryCondition;
+use App\Libraries\Condition\RankingCondition;
 use App\Libraries\Condition\YearlySummaryCondition;
 use App\Libraries\Condition\YearlyTrendCondition;
 use App\Models\Activity;
@@ -458,6 +459,28 @@ class ActivityServiceTest extends TestCase {
 
         // 記録のない年
         $this->assertSame($empty, $this->getYearlyTrend(2019, 2019, YearlySummaryCondition::OUTPUT_TYPE_YEARLY));
+    }
+
+    /**
+     * ランキングは上位だけを見る画面。件数を絞らないと順位が読めない。
+     */
+    public function testRankingsStopAtTheConditionLimit()
+    {
+        $group = ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+
+        DB::table('activities')->truncate();
+
+        for ($i = 0; $i < 15; $i++) {
+            $activity = $this->createActivity($group, date('Y-m-d'), -1000 - $i);
+            $activity->location = 'LOCATION-' . $i;
+            $activity->save();
+        }
+
+        $condition = new RankingCondition(['date_month' => date('Y-m')]);
+
+        $this->assertSame(10, $condition->limit);
+        $this->assertCount($condition->limit, $this->activity->getRankingByExpense($this->getUser()->id, $condition));
+        $this->assertCount($condition->limit, $this->activity->getRankingByLocation($this->getUser()->id, $condition));
     }
 
     /**
