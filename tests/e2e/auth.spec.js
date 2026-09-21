@@ -23,6 +23,38 @@ test.describe('認証', () => {
     await expect(page.getByText('ログインに失敗しました。')).toBeVisible();
   });
 
+  test('ログイン状態を保持すると、セッションが切れても入り直せる', async ({ page, context }) => {
+    await page.goto('/user/login');
+
+    await page.getByLabel('メールアドレス').fill(USER.email);
+    await page.getByLabel('パスワード').fill(USER.password);
+    await page.getByLabel('ログイン状態を保持する').check();
+    await page.getByRole('button', { name: 'ログイン' }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    // セッション Cookie だけを捨てる。有効期限切れやブラウザを閉じた状態と
+    // 同じで、残るのは remember_web_* の記憶 Cookie だけになる。
+    const kept = (await context.cookies()).filter((cookie) => !/session/i.test(cookie.name));
+    expect(kept.some((cookie) => cookie.name.startsWith('remember_web_'))).toBe(true);
+
+    await context.clearCookies();
+    await context.addCookies(kept);
+
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/\/dashboard$/);
+  });
+
+  test('保持しなければ、セッションが切れるとログイン画面へ戻される', async ({ page, context }) => {
+    await login(page);
+
+    const kept = (await context.cookies()).filter((cookie) => !/session/i.test(cookie.name));
+    await context.clearCookies();
+    await context.addCookies(kept);
+
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/\/user\/login$/);
+  });
+
   test('未ログインで集計画面を開くとログイン画面へ送られる', async ({ page }) => {
     await page.goto('/summary/daily');
 
