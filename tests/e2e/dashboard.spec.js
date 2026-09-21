@@ -33,6 +33,9 @@ test.describe('ダッシュボード', () => {
     // 先の日付で登録したものを出さないことわりは、表と同じ断片で返る。
     // どちらが欠けても、今記録したものが出ない理由が画面から読めない。
     await expect(page.locator('#activity_history')).toContainText('発生日が本日までのもの');
+
+    // 隣の「今月の変動支出」と同じ件数にして、2 つの欄の下端を揃えている。
+    await expect(table.locator('tbody tr')).toHaveCount(5);
   });
 
   /**
