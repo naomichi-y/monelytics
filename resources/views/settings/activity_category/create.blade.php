@@ -1,7 +1,7 @@
 <script>
     $(function() {
         var doSubmit = function doSubmit() {
-            // 科目タイプの値取得
+            // 変動・固定の値取得
             var costType = "";
 
             if ($("#cost_type_variable").prop("checked")) {
@@ -56,7 +56,7 @@
         <div class="modal-content">
             {!! Form::open() !!}
                 <div class="modal-header">
-                    <h4 class="modal-title">科目カテゴリの登録</h4>
+                    <h4 class="modal-title">分類の登録</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
 
@@ -68,7 +68,7 @@
 
                     <div class="row">
                         <div class="row mb-3">
-                            {!! Form::label('category_name', '科目カテゴリ名', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('category_name', '分類名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 {!! Form::text('category_name', Request::input('category_name'), ['class' => 'form-control']) !!}
                             </div>
@@ -82,7 +82,7 @@
                         </div>
 
                         <div class="row mb-3">
-                            {!! Form::label('', '科目タイプ', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('', '変動・固定', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 <div class="form-check form-check-inline">
                                     {!! Form::radio('cost_type', App\Models\ActivityCategory::COST_TYPE_VARIABLE, false, ['id' => 'cost_type_variable', 'class' => 'form-check-input']) !!}

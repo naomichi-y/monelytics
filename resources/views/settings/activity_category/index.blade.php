@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-科目カテゴリ
+分類
 @stop
 
 @section('include_header')
@@ -75,7 +75,7 @@
 @stop
 
 @section('function')
-    <a class="btn btn-info btn-sm" id="open_create">科目カテゴリの登録</a>
+    <a class="btn btn-info btn-sm" id="open_create">分類の登録</a>
 @stop
 
 @section('content')

@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="row mb-3">
-                            {!! Form::label('activity_category_group_id', '科目名', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('activity_category_group_id', '科目', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-8">
                                 {!! Form::select('activity_category_group_id[0]', $activity_category_groups, '', ['class' => 'form-select', 'id' => 'activity_category_group_id']) !!}
                             </div>

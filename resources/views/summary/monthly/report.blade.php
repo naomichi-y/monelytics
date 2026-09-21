@@ -20,7 +20,7 @@
             <thead>
                 <tr>
                     <th class="text-center">収支タイプ</th>
-                    <th class="text-center">科目カテゴリ名</th>
+                    <th class="text-center">分類</th>
                     <th class="text-center">科目</th>
                     <th class="text-center">現金収支額</th>
                     <th class="text-center">クレジット収支額</th>

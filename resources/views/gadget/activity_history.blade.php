@@ -25,7 +25,7 @@
         </colgroup>
         <thead>
             <th class="text-center">発生日</th>
-            <th class="text-center">科目名</th>
+            <th class="text-center">科目</th>
             <th class="text-center">金額</th>
             <th class="text-center d-none d-md-table-cell">場所</th>
             <th class="text-center d-none d-md-table-cell">用途</th>

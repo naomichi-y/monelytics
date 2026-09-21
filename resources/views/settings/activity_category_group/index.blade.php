@@ -122,7 +122,7 @@
             </tbody>
         </table>
     @elseif (!Request::has('activity_category_id'))
-        <p>科目カテゴリを選択して下さい。</p>
+        <p>分類を選択して下さい。</p>
     @else
         <p>データがありません。</p>
     @endif

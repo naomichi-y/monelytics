@@ -32,7 +32,7 @@
                 <thead>
                     <tr>
                         <th class="text-center">発生日</th>
-                        <th class="text-center">科目名</th>
+                        <th class="text-center">科目</th>
                         <th class="text-center">金額</th>
                         <th class="text-center">場所</th>
                         <th class="text-center">用途</th>

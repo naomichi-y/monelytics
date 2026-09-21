@@ -10,7 +10,7 @@
         </colgroup>
         <thead>
             <tr>
-                <th class="text-center">科目カテゴリ名</th>
+                <th class="text-center">分類名</th>
                 <th class="text-center">用途</th>
                 <th class="text-center">収支タイプ</th>
                 <th class="text-center">登録日時</th>
