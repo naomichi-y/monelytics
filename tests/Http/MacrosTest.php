@@ -69,6 +69,17 @@ class MacrosTest extends TestCase {
     }
 
     /**
+     * 科目ごとの比較は率ではなく額で出す。元が小さい科目は率が跳ね上がり、
+     * 額の大きい科目より目立ってしまうため。記号は増減率と揃える。
+     */
+    public function testComparisonAmountShowsDirection()
+    {
+        $this->assertSame('+1,600', Html::comparisonAmount(1600));
+        $this->assertSame('-900', Html::comparisonAmount(-900));
+        $this->assertSame('±0', Html::comparisonAmount(0));
+    }
+
+    /**
      * 支出は増えたときに正となるよう符号を揃えて渡されるため、+ は
      * 金額が負の行でも「増えた」を意味する。
      *

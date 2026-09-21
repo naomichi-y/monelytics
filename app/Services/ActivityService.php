@@ -728,20 +728,12 @@ class ActivityService
             return $empty;
         }
 
-        $begin_date = $date_month . '-01';
-        $previous_begin_date = date('Y-m-01', strtotime($begin_date . ' -1 month'));
+        $period = $this->buildComparisonPeriod($date_month);
 
-        if ($date_month === $current_month) {
-            $end_date = date('Y-m-d');
-
-            // 前月に同じ日がない場合 (3/31 に対する 2 月) は前月の末日まで。
-            $day = min((int) date('j'), (int) date('t', strtotime($previous_begin_date)));
-            $previous_end_date = date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', $day);
-
-        } else {
-            $end_date = date('Y-m-t', strtotime($begin_date));
-            $previous_end_date = date('Y-m-t', strtotime($previous_begin_date));
-        }
+        $begin_date = $period['begin_date'];
+        $end_date = $period['end_date'];
+        $previous_begin_date = $period['previous_begin_date'];
+        $previous_end_date = $period['previous_end_date'];
 
         $current = $this->sumCostByGroup($user_id, $begin_date, $end_date);
         $previous = $this->sumCostByGroup($user_id, $previous_begin_date, $previous_end_date);
@@ -766,14 +758,160 @@ class ActivityService
             $totals[$key] = $this->calculateComparisonRate($amount, $previous['totals'][$key]);
         }
 
-        $period = [
+        return ['groups' => $groups, 'totals' => $totals, 'period' => $period];
+    }
+
+    /**
+     * 前月と比べる 2 つの期間を組み立てる。
+     *
+     * 当月は今日までで区切り、前月も同じ日数で切る。月末まで経っていない額を
+     * 丸ごと前月と比べると必ず減ったように見えるため。過ぎた月は両方とも
+     * 月末まで。
+     *
+     * @param string $date_month 'YYYY-MM' 形式で、当月かそれ以前であること
+     * @return array [begin_date|end_date|previous_begin_date|previous_end_date]
+     */
+    private function buildComparisonPeriod($date_month)
+    {
+        $begin_date = $date_month . '-01';
+        $previous_begin_date = date('Y-m-01', strtotime($begin_date . ' -1 month'));
+
+        if ($date_month === date('Y-m')) {
+            $end_date = date('Y-m-d');
+
+            // 前月に同じ日がない場合 (3/31 に対する 2 月) は前月の末日まで。
+            $day = min((int) date('j'), (int) date('t', strtotime($previous_begin_date)));
+            $previous_end_date = date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', $day);
+
+        } else {
+            $end_date = date('Y-m-t', strtotime($begin_date));
+            $previous_end_date = date('Y-m-t', strtotime($previous_begin_date));
+        }
+
+        return [
             'begin_date' => $begin_date,
             'end_date' => $end_date,
             'previous_begin_date' => $previous_begin_date,
             'previous_end_date' => $previous_end_date
         ];
+    }
 
-        return ['groups' => $groups, 'totals' => $totals, 'period' => $period];
+    /**
+     * 今月の変動支出を科目グループごとに集計し、前月の同じ時点との差額を添える。
+     *
+     * 収入と固定支出は外す。どちらも月のうち決まった日にまとめて記録される
+     * ため、月の途中で前月と比べても、給与日や家賃の登録日を過ぎたかどうかが
+     * 出るだけで使いすぎの目安にならない。残高も収入を含む以上は同じ。
+     *
+     * 差額は率ではなく金額で返す。元が小さい科目は率が跳ね上がり (100 円から
+     * 300 円で +200%)、額の大きい科目より目立ってしまうため。
+     *
+     * 今月の記録がない科目グループは返さない。棒が描けないうえ、科目は
+     * 利用者が好きなだけ作れるので、使っていない分まで並べると画面が伸びる。
+     * 落とした分は合計には含める。
+     *
+     * @param int $user_id
+     * @param int $limit 返す科目グループの数。今月の金額が多い順。
+     * @return array ['groups' => [['activity_category_group_id', 'group_name', 'amount',
+     *                             'previous_amount', 'difference'], ...],
+     *                'group_count' => 今月の記録がある科目グループの数,
+     *                'total' => ['amount', 'previous_amount', 'difference'],
+     *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
+     *               金額は支出を正で返す。difference は正なら前月より使っている。
+     *               group_count は $limit で切る前の数。棒が全部かどうかを
+     *               画面が言えるように返す。
+     */
+    public function getVariableExpenseComparison($user_id, $limit)
+    {
+        $period = $this->buildComparisonPeriod(date('Y-m'));
+
+        $current = $this->sumVariableExpenseByGroup($user_id, $period['begin_date'], $period['end_date']);
+        $previous = $this->sumVariableExpenseByGroup($user_id, $period['previous_begin_date'], $period['previous_end_date']);
+
+        $groups = [];
+
+        foreach ($current as $activity_category_group_id => $row) {
+            $previous_amount = isset($previous[$activity_category_group_id])
+                ? $previous[$activity_category_group_id]['amount']
+                : 0;
+
+            $groups[] = [
+                'activity_category_group_id' => $activity_category_group_id,
+                'group_name' => $row['group_name'],
+                'amount' => $row['amount'],
+                'previous_amount' => $previous_amount,
+                'difference' => $row['amount'] - $previous_amount
+            ];
+        }
+
+        // 今月使った額の多い順。同額のときは科目グループの並び順で落ち着かせる
+        // (順序が実行ごとに変わると、読む人には理由のない入れ替わりに見える)。
+        usort($groups, function($a, $b) {
+            return [$b['amount'], $a['activity_category_group_id']] <=> [$a['amount'], $b['activity_category_group_id']];
+        });
+
+        $total_amount = array_sum(array_column($current, 'amount'));
+        $total_previous_amount = array_sum(array_column($previous, 'amount'));
+
+        $total = [
+            'amount' => $total_amount,
+            'previous_amount' => $total_previous_amount,
+            'difference' => $total_amount - $total_previous_amount
+        ];
+
+        return [
+            'groups' => array_slice($groups, 0, $limit),
+            'group_count' => sizeof($groups),
+            'total' => $total,
+            'period' => $period
+        ];
+    }
+
+    /**
+     * 変動支出を科目グループごとに合計する。支出は負で記録されているため
+     * 符号を反転し、使った額が多いほど大きくなるようにする。
+     *
+     * 返金が上回って純額がプラスになった科目グループは落とす。棒の長さが負に
+     * なり、支出の並びに混ぜると読めないため。
+     *
+     * @param int $user_id
+     * @param string $begin_date
+     * @param string $end_date
+     * @return array [科目グループ ID => ['group_name', 'amount']]
+     */
+    private function sumVariableExpenseByGroup($user_id, $begin_date, $end_date)
+    {
+        $rows = DB::table('activities AS a')
+            ->select(DB::raw('a.activity_category_group_id, acg.group_name, SUM(a.amount) AS amount'))
+            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
+            ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
+            ->where('a.user_id', '=', $user_id)
+            ->where('ac.cost_type', '=', Models\ActivityCategory::COST_TYPE_VARIABLE)
+            ->where('ac.balance_type', '=', Models\ActivityCategory::BALANCE_TYPE_EXPENSE)
+            ->whereBetween('a.activity_date', [$begin_date . ' 00:00:00', $end_date . ' 23:59:59'])
+            ->whereNull('a.delete_date')
+            ->whereNull('acg.delete_date')
+            ->whereNull('ac.delete_date')
+            ->groupBy('a.activity_category_group_id')
+            ->groupBy('acg.group_name')
+            ->get();
+
+        $groups = [];
+
+        foreach ($rows as $row) {
+            $amount = -1 * (int) $row->amount;
+
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $groups[$row->activity_category_group_id] = [
+                'group_name' => $row->group_name,
+                'amount' => $amount
+            ];
+        }
+
+        return $groups;
     }
 
     /**
@@ -1095,132 +1233,6 @@ class ActivityService
         $summary['footers'] = $footers;
 
         return $summary;
-    }
-
-    /**
-     * 今月の収支ステータスを取得する。
-     *
-     * @param int $user_id
-     * @return array
-     */
-    public function getBalanceOfPaymentStatus($user_id)
-    {
-        $begin_date = date('Y-m-01');
-        $end_date = date('Y-m-t');
-
-        $builder = DB::table('activities AS a')
-            ->select(DB::raw('ac.balance_type, SUM(a.amount) AS amount'))
-            ->join('activity_category_groups AS acg', 'a.activity_category_group_id', '=', 'acg.id')
-            ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
-            ->where('a.user_id', '=', $user_id)
-            ->whereBetween('a.activity_date', [$begin_date, $end_date])
-            ->whereNull('a.delete_date')
-            ->groupBy('ac.balance_type');
-
-        $result = [
-            0 => 0,
-            Models\ActivityCategory::BALANCE_TYPE_EXPENSE => 0,
-            Models\ActivityCategory::BALANCE_TYPE_INCOME => 0
-        ];
-
-        foreach ($builder->get() as $data) {
-            $result[0] += $data->amount;
-            $result[$data->balance_type] = $data->amount;
-        }
-
-        return $result;
-    }
-
-    /**
-     * ヒートマップを取得する。
-     *
-     * @param int $user_id
-     * @param int $week
-     * @return Collection
-     */
-    public function getHeats($user_id, $week)
-    {
-        $interval = 'P' . $week . 'W';
-
-        $calc_date = new DateTime();
-        $calc_date->sub(new DateInterval($interval));
-
-        // $week週前が日曜以外の場合、以前の月曜日を取得する (月曜を起点として集計を行なう)
-        while ($calc_date->format('w') != 1) {
-            $calc_date->sub(new DateInterval('P1D'));
-        }
-
-        $begin_date = $calc_date->format('Y-m-d');
-
-        // 収支レコードを取得
-        $builder = $this->activity->select(DB::raw('activity_date, SUM(amount) AS amount'))
-            ->where('user_id', '=', $user_id)
-            ->where('activity_date', '>=', $begin_date)
-            ->groupBy('activity_date')
-            ->orderBy('activity_date', 'desc');
-
-        $result = $builder->pluck('amount', 'activity_date')->all();
-
-        // $days日分の日付配列を生成
-        $day_array = [];
-        $current_date = new DateTIme();
-
-        while ($calc_date->getTimestamp() <= $current_date->getTimestamp()) {
-            $week = $calc_date->format('W');
-            $search_date = $calc_date->format('Y-m-d');
-
-            if (isset($result[$search_date])) {
-                $array = [
-                    'amount' => $result[$search_date],
-                    'heat_level' => $this->calculateHeatLevel($result[$search_date])
-                ];
-
-                $day_array[$week][$search_date] = $array;
-
-            } else {
-                $array = [
-                    'amount' => 0,
-                    'heat_level' => $this->calculateHeatLevel(0)
-                ];
-                $day_array[$week][$search_date] = $array;
-            }
-
-            $calc_date->add(new DateInterval('P1D'));
-        }
-
-        return $day_array;
-    }
-
-    /**
-     * ヒートマップのレベルを計算する。
-     *
-     * @param int $amount
-     * @return int
-     */
-    private function calculateHeatLevel($amount)
-    {
-        $level = null;
-
-        if ($amount == 0) {
-            $level = 0;
-
-        } else {
-            $levels = [50000, 10000, 5000, 3000, 1000, 0, -1000, -3000, -5000, -10000, -50000];
-            $j = sizeof($levels);
-
-            for ($i = 0; $i < $j; $i++) {
-                if ($amount > $levels[$i]) {
-                    $level = $i + 1;
-                    break;
-                }
-            }
-
-            if ($level === null) {
-                $level = $j + 1;
-            }
-        }
-
-        return $level;
     }
 
     /**

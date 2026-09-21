@@ -32,25 +32,48 @@ test.describe('ダッシュボード', () => {
   });
 
   /**
-   * 今月の収支状況は実額しか出しておらず、使いすぎかどうかが読めなかった。
-   * 増減率は ajax で取り込む断片に載るので、率そのものの正しさは PHPUnit に
-   * 任せ、ここでは画面まで届いているかだけを見る。
+   * 収入と固定支出は月のうち決まった日にまとめて記録されるため、月の途中で
+   * 前月と比べても使いすぎの目安にならない。画面には変動支出だけを出す。
+   * 額の正しさは PHPUnit に任せ、ここは ajax の断片が画面まで届いているか。
    */
-  test('今月の収支状況に前月比が並ぶ', async ({ page }) => {
-    const status = page.locator('#activity_status');
-    await expect(status.locator('.activity-status')).toBeVisible();
+  test('今月の変動支出が科目ごとの棒で並ぶ', async ({ page }) => {
+    const panel = page.locator('#variable_expense');
+    await expect(panel.locator('.variable-expense')).toBeVisible();
 
-    // 収入・支出・残高の 3 つに付く。
-    const rates = status.locator('.comparison');
-    await expect(rates).toHaveCount(3);
+    // シードの当月の変動支出は食料品と日用品。給与と家賃は混ぜない。
+    await expect(panel.getByRole('link', { name: '食料品' })).toBeVisible();
+    await expect(panel.getByRole('link', { name: '日用品' })).toBeVisible();
+    await expect(panel.getByText('給与')).toHaveCount(0);
+    await expect(panel.getByText('家賃')).toHaveCount(0);
 
-    for (const text of await rates.allInnerTexts()) {
+    // 棒は科目の数だけ並び、最も多い科目が横いっぱいになる。
+    const bars = panel.locator('.bar');
+    expect(await bars.count()).toBeGreaterThan(1);
+
+    const widths = await bars.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width));
+    expect(widths[0]).toBeGreaterThan(widths[1]);
+
+    // 差額は符号付き。増減率ではなく額で出す。
+    for (const text of await panel.locator('.difference').allInnerTexts()) {
       expect(text).toMatch(/^[+\-\u00b1][0-9]/);
     }
 
-    // 金額は今月まるごと、増減率は今日までと基準が違う。どこまでを比べたのか
-    // 書いていないと読み違える。
-    await expect(status.getByText('までとの比較です。')).toBeVisible();
+    await expect(panel.getByText('までとの比較')).toBeVisible();
+  });
+
+  /**
+   * かんたん入力の送り先は cost/variable で、作られるのは変動収支。固定収支の
+   * 科目を選べてしまうと、選んだとおりに登録されない。
+   */
+  test('かんたん入力の科目は変動収支だけ', async ({ page }) => {
+    const options = page.locator('#activity_category_group_id option');
+
+    await expect(options.filter({ hasText: '食料品' })).toHaveCount(1);
+    await expect(options.filter({ hasText: '臨時ボーナス' })).toHaveCount(1);
+
+    // 家賃と給与は固定収支。
+    await expect(options.filter({ hasText: '家賃' })).toHaveCount(0);
+    await expect(options.filter({ hasText: '給与' })).toHaveCount(0);
   });
 
   test('かんたん入力から登録できる', async ({ page }) => {

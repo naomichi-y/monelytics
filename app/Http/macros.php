@@ -270,6 +270,24 @@ Html::macro('assetVersion', function($path) {
 });
 
 /**
+ * 前月比の増減額を、符号と桁区切りを付けて返す。
+ *
+ * 科目ごとの比較は率ではなく額で出す。元が小さい科目は率が跳ね上がり
+ * (100 円から 300 円で +200%)、額の大きい科目より目立ってしまうため。
+ *
+ * 記号は Html::comparisonRate と揃える。▲▼ を使わない理由もそちらと同じ。
+ */
+Html::macro('comparisonAmount', function($difference) {
+    if ($difference == 0) {
+        return '±0';
+    }
+
+    $mark = $difference > 0 ? '+' : '-';
+
+    return $mark . number_format(abs($difference));
+});
+
+/**
  * 前月比の増減率を、符号を付けて返す。
  *
  * 支出は増えたときに正となるよう符号を揃えて渡されるため、金額そのものが

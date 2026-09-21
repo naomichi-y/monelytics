@@ -47,8 +47,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('holidays', 'HolidayController@index');
 
     Route::group(['prefix' => 'gadget'], function($route) {
-        $route->get('activity-status', 'GadgetController@activityStatus');
-        $route->get('activity-graph', 'GadgetController@activityGraph');
+        $route->get('variable-expense', 'GadgetController@variableExpense');
         $route->get('activity-history', 'GadgetController@activityHistory');
     });
 

@@ -17,14 +17,12 @@
     {!! Html::style('assets/components/bootstrap/5.3.8/sandstone/bootstrap.min.css') !!}
     {!! Html::style('assets/components/bootstrap-icons/1.13.1/bootstrap-icons.min.css') !!}
     {!! Html::style('assets/components/jquery-ui/1.13.3/jquery-ui.min.css') !!}
-    {!! Html::style('assets/components/jquery_plugins/darktooltip/css/darktooltip.min.css') !!}
     {!! Html::versionedStyle('assets/css/style.css') !!}
     {!! Html::script('assets/components/jquery/3.7.1/jquery.min.js') !!}
     {!! Html::script('assets/components/js-cookie/3.0.8/js.cookie.min.js') !!}
     {!! Html::script('assets/components/bootstrap/5.3.8/js/bootstrap.bundle.min.js') !!}
     {!! Html::script('assets/components/jquery-ui/1.13.3/jquery-ui.min.js') !!}
     {!! Html::script('assets/components/jquery_plugins/jquery.ui.datepicker-ja.js') !!}
-    {!! Html::script('assets/components/jquery_plugins/darktooltip/js/jquery.darktooltip.min.js') !!}
     {!! Html::versionedScript('assets/js/holidays.js') !!}
     {!! Html::script('assets/components/analytics.js') !!}
     {!! Html::versionedScript('assets/js/common.js') !!}
