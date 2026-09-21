@@ -21,7 +21,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * 科目の表示順序を更新する。
+     * 小項目の表示順序を更新する。
      *
      * @param int $user_id
      * @param int $id
@@ -35,7 +35,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * 科目の最終表示順序を取得する。
+     * 小項目の最終表示順序を取得する。
      *
      * @param int $user_id
      * @param int $activity_category_id
@@ -57,7 +57,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * 科目を登録する。
+     * 小項目を登録する。
      *
      * @param int $user_id
      * @param array $fields
@@ -84,7 +84,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * 科目のデータを取得する。
+     * 小項目のデータを取得する。
      *
      * @param int $user_id
      * @param int $activity_category_item_id
@@ -97,7 +97,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * ユーザに紐づく科目のIDリストを取得する。
+     * ユーザに紐づく小項目のIDリストを取得する。
      *
      * @param int $user_id
      * @return array
@@ -111,7 +111,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * ユーザに紐づく全ての科目データを取得する。
+     * ユーザに紐づく全ての小項目データを取得する。
      *
      * @param int $user_id
      * @param int $activity_cztegory_id
@@ -127,7 +127,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * 科目データを更新する。
+     * 小項目データを更新する。
      *
      * @param int $id
      * @param array $fields
@@ -153,7 +153,7 @@ class ActivityCategoryItemService
     }
 
     /**
-     * 科目データを削除する。
+     * 小項目データを削除する。
      *
      * @param int $user_id
      * @param int $activity_category_item_id

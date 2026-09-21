@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\ActivityCategory;
 
 /**
- * 科目カテゴリ。
+ * 大項目。
  *
  * 名前はテストのセレクタになるため、画面の他の文言と重ならないものにする。
  */

@@ -88,8 +88,8 @@ class MacrosTest extends TestCase {
     }
 
     /**
-     * 科目ごとの比較は率ではなく額で出す。元が小さい科目は率が跳ね上がり、
-     * 額の大きい科目より目立ってしまうため。記号は増減率と揃える。
+     * 小項目ごとの比較は率ではなく額で出す。元が小さい小項目は率が跳ね上がり、
+     * 額の大きい小項目より目立ってしまうため。記号は増減率と揃える。
      */
     public function testComparisonAmountShowsDirection()
     {

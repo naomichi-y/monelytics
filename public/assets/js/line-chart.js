@@ -1,7 +1,7 @@
 $(function () {
   /**
    * 年別集計の推移グラフ。
-   * 横軸は集計表と同じ刻み (年単位か月単位)、系列は科目。
+   * 横軸は集計表と同じ刻み (年単位か月単位)、系列は小項目。
    */
   $.fn.loadYearlyTrend = function(params) {
     var $element = $(this);
@@ -20,7 +20,7 @@ $(function () {
 
     function drawLineChart(labels, series) {
       // 支出は正に揃えてあるので通常は 0 以上しかない。軸の空いた側を
-      // 描かないよう 0 起点にするが、返金が上回って負になる科目もあるため
+      // 描かないよう 0 起点にするが、返金が上回って負になる小項目もあるため
       // その場合だけ自動範囲に戻す。
       var hasNegative = series.some(function(s) {
         return s.data.some(function(value) {
@@ -65,8 +65,8 @@ $(function () {
           pointFormatter: function() {
             var amount = Highcharts.numberFormat(this.y, 0, '.', ',') + ' 円';
 
-            // 共有ツールチップは同じ目盛りの科目を全て並べるため、指している
-            // ものが埋もれる。捉えた科目は太字にし、残りは薄く落とす。
+            // 共有ツールチップは同じ目盛りの小項目を全て並べるため、指している
+            // ものが埋もれる。捉えた小項目は太字にし、残りは薄く落とす。
             if (this === this.series.chart.hoverPoint) {
               return '<span style="color:' + this.series.color + '">●</span> '
                 + '<b>' + this.series.name + '</b>: <b>' + amount + '</b><br/>';

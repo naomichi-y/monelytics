@@ -79,7 +79,7 @@ class DailyController extends \App\Http\Controllers\Controller {
             $data['credit_flag_all'] = false;
         }
 
-        // 科目リスト
+        // 小項目リスト
         $data['activity_category_items'] = $this->activity_category->getCategoryItemList($user_id);
 
         return View::make('summary/daily/condition', $data);

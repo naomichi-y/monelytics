@@ -19,7 +19,7 @@ test.describe('変動収支', () => {
     const row = rowByMarker(page, value);
     await expect(row).toHaveCount(1);
 
-    // 支出の科目なので、入力した正の額が負で記録される。
+    // 支出の小項目なので、入力した正の額が負で記録される。
     await expect(row).toContainText('-1,234');
     await expect(row).toContainText('食料品');
   });

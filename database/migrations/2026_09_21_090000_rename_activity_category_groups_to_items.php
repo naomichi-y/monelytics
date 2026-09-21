@@ -6,10 +6,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * 科目カテゴリの子を group から item へ改名する。
+ * 大項目の子を group から item へ改名する。
  *
  * 「カテゴリのグループ」はカテゴリを束ねる側、つまり親に読める。実際は
- * activity_categories の子で、画面では「科目」と呼んでいるもの。名前だけが
+ * activity_categories の子で、画面では「小項目」と呼んでいるもの。名前だけが
  * 親子を逆に見せていた。
  *
  * 作成時の migration はそのままにして、ここで改名する。過去の migration を

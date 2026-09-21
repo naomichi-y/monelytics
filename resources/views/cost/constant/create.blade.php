@@ -50,8 +50,8 @@
                 </colgroup>
                 <thead>
                     <tr>
-                        <th class="text-center">分類</th>
-                        <th class="text-center">科目</th>
+                        <th class="text-center">大項目</th>
+                        <th class="text-center">小項目</th>
                         <th class="text-center">発生日</th>
                         <th class="text-center">金額</th>
                         <th class="text-center">用途</th>
@@ -109,6 +109,6 @@
             </div>
         {!! Form::close() !!}
     @else
-        <p>科目が未登録です。{!! link_to('/settings/activityCategoryItem', '科目ページ') !!} からデータを登録して下さい。</p>
+        <p>小項目が未登録です。{!! link_to('/settings/activityCategoryItem', '小項目ページ') !!} からデータを登録して下さい。</p>
     @endif
 @stop

@@ -56,7 +56,7 @@
         <div class="modal-content">
             {!! Form::open() !!}
                 <div class="modal-header">
-                    <h4 class="modal-title">分類の編集</h4>
+                    <h4 class="modal-title">大項目の編集</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
 
@@ -68,7 +68,7 @@
 
                     <div class="row">
                         <div class="row mb-3">
-                            {!! Form::label('category_name', '分類名', ['class' => 'col-md-3 col-form-label']) !!}
+                            {!! Form::label('category_name', '大項目名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
                                 {!! Form::text('category_name', Request::input('category_name', $activity_category->category_name), ['class' => 'form-control']) !!}
                             </div>

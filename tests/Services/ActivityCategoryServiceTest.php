@@ -49,7 +49,7 @@ class ActivityCategoryServiceTest extends TestCase {
     }
 
     /**
-     * 返金が上回って純額が逆を向いた科目カテゴリは落とす。扇にできない。
+     * 返金が上回って純額が逆を向いた大項目は落とす。扇にできない。
      */
     public function testAmountConstituentsSkipsRefundedCategory()
     {
@@ -63,14 +63,14 @@ class ActivityCategoryServiceTest extends TestCase {
     }
 
     /**
-     * 科目カテゴリ名に一意制約はない。名前をキーにすると同名が片方消えるため、
+     * 大項目名に一意制約はない。名前をキーにすると同名が片方消えるため、
      * 一覧で返して両方を残す。
      */
     public function testAmountConstituentsKeepsCategoriesWithTheSameName()
     {
         DB::table('activities')->truncate();
 
-        // シードの科目カテゴリはどれも 'test'。変動支出と固定支出の 2 つを使う。
+        // シードの大項目はどれも 'test'。変動支出と固定支出の 2 つを使う。
         $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, -1000);
         $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE, -2000);
 

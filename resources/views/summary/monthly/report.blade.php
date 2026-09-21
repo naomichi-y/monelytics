@@ -20,12 +20,12 @@
             <thead>
                 <tr>
                     <th class="text-center">収支タイプ</th>
-                    <th class="text-center">分類</th>
-                    <th class="text-center">科目</th>
+                    <th class="text-center">大項目</th>
+                    <th class="text-center">小項目</th>
                     <th class="text-center">現金収支額</th>
                     <th class="text-center">クレジット収支額</th>
                     <th class="text-center">前月比</th>
-                    <th class="text-center">科目合計</th>
+                    <th class="text-center">小項目合計</th>
                 </tr>
             </thead>
             <tbody>
