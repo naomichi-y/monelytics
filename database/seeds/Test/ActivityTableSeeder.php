@@ -14,7 +14,7 @@ class ActivityTableSeeder extends Seeder {
         DB::table('activities')->truncate();
 
         $activity_category_groups = [];
-        $activity_categoru_groups[ActivityCategoryGroup::CREDIT_FLAG_DISABLE] = [
+        $activity_category_groups[ActivityCategoryGroup::CREDIT_FLAG_DISABLE] = [
             ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
             ActivityCategoryGroupTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE,
             ActivityCategoryGroupTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE,
