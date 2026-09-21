@@ -702,12 +702,15 @@ class ActivityService
      *
      * @param int $user_id
      * @param Condition\MonthlySummaryCondition $condition
-     * @return array ['groups' => [科目グループ ID => 増減率], 'totals' => [income|expense|total => 増減率]]
-     *               増減率は整数で、正なら増加。
+     * @return array ['groups' => [科目グループ ID => 増減率], 'totals' => [income|expense|total => 増減率],
+     *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
+     *               増減率は整数で、正なら増加。period は実際に比べた 2 つの
+     *               期間。呼び出し側で日付を組み直すと、ここでの月末の丸め方
+     *               (3/31 に対する 2/28) とずれるため返す。
      */
     public function getMonthlyComparison($user_id, Condition\MonthlySummaryCondition $condition)
     {
-        $empty = ['groups' => [], 'totals' => []];
+        $empty = ['groups' => [], 'totals' => [], 'period' => []];
 
         if (strlen((string) $condition->begin_date) || strlen((string) $condition->end_date)) {
             return $empty;
@@ -763,7 +766,14 @@ class ActivityService
             $totals[$key] = $this->calculateComparisonRate($amount, $previous['totals'][$key]);
         }
 
-        return ['groups' => $groups, 'totals' => $totals];
+        $period = [
+            'begin_date' => $begin_date,
+            'end_date' => $end_date,
+            'previous_begin_date' => $previous_begin_date,
+            'previous_end_date' => $previous_end_date
+        ];
+
+        return ['groups' => $groups, 'totals' => $totals, 'period' => $period];
     }
 
     /**
