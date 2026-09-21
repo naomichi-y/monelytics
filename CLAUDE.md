@@ -8,6 +8,17 @@
 - 名前は `fix/...`、`feature/...`、`docs/...`。
 - `develop` と `master` へは直接 push しない。
 
+## ブランチを切り替えるとき
+
+`php` と `web` のコンテナはこのリポジトリを `./:/data` で直接マウントしている。
+チェックアウトした内容がそのまま本番 (https://monelytics.me) の配信物になるため、
+別のブランチへ切り替えると本番がそのブランチのコードで動く。
+
+- 本番を止めずに別のブランチを触るなら `git worktree add` を使う。
+- 切り替えたあとは Blade の再コンパイルが走る。`storage/framework/views` に
+  php-fpm の実行ユーザ (webapp) 以外が作ったファイルが混ざっていると、
+  `touch(): Utime failed` で 500 になる。`php artisan view:clear` で作り直す。
+
 ## コミット
 
 - 1 つのコミットは 1 つの話題。ついでの修正は混ぜず、別のコミットに分ける。
