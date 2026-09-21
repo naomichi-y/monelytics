@@ -213,6 +213,23 @@ test('見出し横のボタンが月の選択より小さい', async ({ page }) 
 });
 
 /**
+ * 見出し横の月の選択は、高さが整数 px であること。
+ *
+ * 文字を em で縮めると 12.6px になり、既定の line-height (1.5) では行が
+ * 18.9px、欄が 32.89px と端数を持つ。端数は行の下に溜まるので、文字だけが
+ * 上へ寄って見えた。高さそのものを見るのは、文字の位置を画素で測ると
+ * フォントの当たり方で揺れるため。
+ */
+test('見出し横の月の選択が端数のない高さを持つ', async ({ page }) => {
+  await login(page);
+  await page.goto('/summary/monthly');
+
+  const select = await page.locator('#date_month').boundingBox();
+
+  expect(select.height).toBe(Math.round(select.height));
+});
+
+/**
  * トップページの紹介文は白抜きで、parallax.js が敷く背景写真があって初めて
  * 読める。1.4.2 は $(document).on('ready', ...) で自動初期化するが、jQuery 3 で
  * この呼び出し方は削除されており、放っておくと本文が真っ白な画面に消える。
