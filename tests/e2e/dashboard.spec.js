@@ -29,6 +29,10 @@ test.describe('ダッシュボード', () => {
 
     const cellTops = await firstRow.locator('td').evaluateAll((cells) => cells.map((c) => Math.round(c.getBoundingClientRect().top)));
     expect(new Set(cellTops).size).toBe(1);
+
+    // 先の日付で登録したものを出さないことわりは、表と同じ断片で返る。
+    // どちらが欠けても、今記録したものが出ない理由が画面から読めない。
+    await expect(page.locator('#activity_history')).toContainText('発生日が本日までのもの');
   });
 
   /**

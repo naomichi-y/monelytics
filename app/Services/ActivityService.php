@@ -1238,6 +1238,11 @@ class ActivityService
     /**
      * 変動収支履歴を取得する。
      *
+     * 発生日が今日より後のものは返さない。家賃や給与を先の日付で登録すると、
+     * それが常に一覧の先頭を占め、「最近の」履歴として直近に記録したものが
+     * 押し出されていた。今月の変動支出 (@see ActivityService::buildComparisonPeriod)
+     * も今日までで区切っており、ダッシュボードの 2 つで基準が食い違わないようにする。
+     *
      * @param int $user_id
      * @param int $limit
      * @return Collection
@@ -1245,6 +1250,7 @@ class ActivityService
     public function getHistories($user_id, $limit)
     {
         $builder = $this->activity->where('user_id', '=', $user_id)
+            ->where('activity_date', '<=', date('Y-m-d'))
             ->orderBy('activity_date', 'desc')
             ->limit($limit);
 
