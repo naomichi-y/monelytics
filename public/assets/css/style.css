@@ -5,6 +5,20 @@
  */
 :root {
   color-scheme: light;
+
+  /*
+   * 和文の視覚補正。
+   *
+   * 和文は箱の中で上寄りに描かれる。行の高さは先頭の欧文フォント (sandstone
+   * は Roboto、jquery-ui は Arial) が決めるのに対し、字形は指定のない和文を
+   * OS が勝手に選んだフォントから取るため、上下のメトリクスが噛み合わない。
+   * 実測で 0.7〜0.9px ほど上に寄る。
+   *
+   * 和文フォントを指定しても直らない (先頭に置くと逆に 1.18px へ広がった)
+   * ので、字形を下へ寄せて見た目の中心に合わせる。ずれ幅は OS の選ぶ
+   * フォントで変わるため、調整できるよう 1 箇所に置く。
+   */
+  --text-optical-shift: 1px;
 }
 
 /*
@@ -268,6 +282,13 @@ hr {
   padding-right: 0;
 }
 
+/* 文字を視覚的な中心へ下げる。上下の padding の合計は変えないので、
+   タブの高さも帯の位置も動かない。 */
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+  padding-top: calc(0.5em + var(--text-optical-shift));
+  padding-bottom: calc(0.5em - var(--text-optical-shift));
+}
+
 /* タブ自身の下辺は描かない。帯の下辺と重なって二重線に見えるため。 */
 .ui-tabs .ui-tabs-nav .ui-state-default {
   border: 1px solid #dfd7ca;
@@ -400,6 +421,12 @@ td a {
 
 .note {
   font-size: 0.8em;
+}
+
+/* ボタンの文字も同じだけ下げる。padding の合計は変えないので高さは同じ。 */
+.btn {
+  padding-top: calc(var(--bs-btn-padding-y) + var(--text-optical-shift));
+  padding-bottom: calc(var(--bs-btn-padding-y) - var(--text-optical-shift));
 }
 
 /* 金額の入力欄の上下ボタン。1 円ずつ動かす用途がないうえ、focus 中だけ
