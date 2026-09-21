@@ -31,8 +31,10 @@ Application is consists of the following container.
 * monelytics_redis
 
 composer, Artisan and PHPUnit run inside `monelytics_php`. The `webapp` user is built
-with the uid/gid passed to `docker compose build`, so pass your own to keep generated
-files owned by you; `-u webapp` then writes as that user.
+from `WEBAPP_UID` / `WEBAPP_GID` in `.env`, so set them to your own to keep generated
+files owned by you; `-u webapp` then writes as that user. The E2E containers share
+this checkout, so they are built from the same values -- if they differ, each instance
+leaves files the other cannot write (see `tests/e2e/README.md`).
 
 Setup the containers.
 
@@ -47,7 +49,8 @@ cp .env.example .env
 # please change configuration
 cat .env
 
-docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+# set WEBAPP_UID / WEBAPP_GID in .env to the output of id -u / id -g first
+docker compose --profile e2e build
 docker compose up -d
 docker compose exec -u webapp php composer install
 docker compose exec -u webapp php php artisan key:generate

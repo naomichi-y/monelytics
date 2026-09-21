@@ -32,6 +32,24 @@ docker compose exec playwright npx playwright show-report tests/e2e/report
 流量制限は `RATE_LIMIT_*` を compose で緩めてある。本番と同じ値だと、
 繰り返しログインするテスト自身が 429 で弾かれるため。
 
+## 本番と共有しているもの
+
+E2E のコンテナは本番と**同じチェックアウト**を `./:/data` で見ている。分けて
+あるのはデータベース、Redis の DB 番号、コンパイル済みの Blade
+(`VIEW_COMPILED_PATH`)、ログ (`LOG_CHANNEL=stderr`) で、これらは compose の
+`php-e2e` に書いてある。書き込む先を増やすときは、本番と奪い合わないかを
+必ず確かめること。
+
+`webapp` の uid/gid も揃える。`docker compose build` は既定のプロファイルしか
+焼かないため、以前は `php-e2e` だけ Dockerfile の既定値 (1000) で焼かれていた。
+E2E が Blade をコンパイルすると本番の php-fpm (1001) がそれを touch できず、
+**E2E を走らせるたびに本番の月別集計と年別集計が 500 になった。** ビルドの
+引数は compose.yml の `x-php-build` に 1 つだけ置いてあり、値は `.env` の
+`WEBAPP_UID` / `WEBAPP_GID` から来る。
+
+この手の食い違いは E2E では捕まらない。テストは e2e 側しか叩かないので、
+壊れるのはもう一方だからである。
+
 ## セレクタの方針
 
 Bootstrap のクラス名 (`.btn`, `.col-md-4`, `.well`) を目印にしない。3 から 5 へ
