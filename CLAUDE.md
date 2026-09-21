@@ -28,6 +28,10 @@ E2E は `e2e` プロファイルで立てた別インスタンスに対して走
 別のブランチへ切り替えると本番がそのブランチのコードで動く。
 
 - 本番を止めずに別のブランチを触るなら `git worktree add` を使う。
+  **スキーマを変える作業では必ずそうする。** ブランチを切って作業しただけで、
+  新しいコードが旧スキーマの本番に配信され、ログイン後の画面が 500 になった
+  ことがある。`/` と `/user/login` は対象の表に触れないので 200 を返し続け、
+  気付きにくい。
 - 切り替えたあとは Blade の再コンパイルが走る。`storage/framework/views` に
   php-fpm の実行ユーザ (webapp) 以外が作ったファイルが混ざっていると、
   `touch(): Utime failed` で 500 になる。`php artisan view:clear` で作り直す。
@@ -230,6 +234,21 @@ E2E は `e2e` プロファイルで立てた別インスタンスに対して走
 - `ONLY_FULL_GROUP_BY` が有効。SELECT する非集約列は全て GROUP BY に入れる。
 - GROUP BY には**列の別名ではなく実際の列名**を書く（別名は受け付けられない）。
 - MariaDB に `ANY_VALUE` は無い。1 件に畳むときは `MIN()` などを使う。
+
+## スキーマ
+
+- **本番のスキーマは migration から作った DB と同じとは限らない。** 2015 年に
+  作られた本番の timestamp 列は既定値が `'0000-00-00 00:00:00'` で、
+  migration が書いた `CURRENT_TIMESTAMP` は入っていない。Laravel は
+  `'strict' => true` で `NO_ZERO_DATE` を立てて接続するため、その表へ
+  `ALTER TABLE` を投げると「Invalid default value」で落ちる。新しく作った DB
+  には正しい既定値が入るので、**PHPUnit も E2E も通って本番だけ落ちる。**
+- 列や表を改名する migration を書いたら、本番の構造を写した DB で先に試す。
+  `mariadb-dump --no-data` と `migrations` 表のデータだけを別 DB へ流し込めば、
+  本番と同じ状態を作れる。
+- migration は途中まで通った状態から再実行できるようにする
+  (`Schema::hasTable` / `hasColumn` で守る)。DDL は巻き戻らないため、
+  複数の文を持つ migration が落ちると中途半端な schema が残る。
 
 ## 設定
 
