@@ -18,7 +18,8 @@ $(function () {
     load();
 });
 </script>
-<div class="card card-body">
+{{-- .card に下余白はないため、指定しないと絞り込みがグラフに貼り付く。 --}}
+<div class="card card-body mb-3">
     <div class="row g-2 align-items-center form-group-adjust">
         <div class="col-md-4">
                 {!! Form::select(

@@ -63,8 +63,18 @@ $(function () {
         tooltip: {
           shared: true,
           pointFormatter: function() {
-            return '<span style="color:' + this.series.color + '">●</span> '
-              + this.series.name + ': <b>' + Highcharts.numberFormat(this.y, 0, '.', ',') + '</b><br/>';
+            var amount = Highcharts.numberFormat(this.y, 0, '.', ',');
+
+            // 共有ツールチップは同じ目盛りの科目を全て並べるため、指している
+            // ものが埋もれる。捉えた科目は太字にし、残りは薄く落とす。
+            if (this === this.series.chart.hoverPoint) {
+              return '<span style="color:' + this.series.color + '">●</span> '
+                + '<b>' + this.series.name + '</b>: <b>' + amount + '</b><br/>';
+            }
+
+            // 薄さは fill-opacity で出す。tspan に opacity は効かない。
+            return '<span style="color:' + this.series.color + ';fill-opacity:0.45">●</span> '
+              + '<span style="fill-opacity:0.45">' + this.series.name + ': ' + amount + '</span><br/>';
           }
         },
         plotOptions: {
