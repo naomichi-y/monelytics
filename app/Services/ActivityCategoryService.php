@@ -224,11 +224,24 @@ class ActivityCategoryService
     }
 
     /**
-     * 収支データにおける科目カテゴリ別の割合比率を取得する。
+     * 構成グラフ用に、科目カテゴリごとの金額を取得する。
+     *
+     * 支出は DB 上マイナスで記録されている。符号を反転して正で返し、使った額が
+     * 多いほど大きくなるようにする。推移グラフと向きを揃えるため
+     * (@see ActivityService::getYearlyTrend)。反転しないと円グラフが負の値を
+     * 受け取り、扇が描けない。
+     *
+     * 返金が上回って純額が逆を向いた科目カテゴリは落とす。同じ理由で扇にできない。
+     *
+     * 割合は返さない。金額から Highcharts が算出するので、両方を持つと表示と
+     * 計算がずれる余地ができる。
+     *
+     * 名前をキーにした連想配列では返さない。科目カテゴリ名に一意制約がなく、
+     * 同名が 2 つあると片方が消えるため。
      *
      * @param int $user_id
      * @param Condition\PieChartCondition $condition
-     * @return array
+     * @return array [['name' => 科目カテゴリ名, 'amount' => 金額], ...]
      */
     public function getAmountConstituents($user_id, Condition\PieChartCondition $condition)
     {
@@ -260,23 +273,17 @@ class ActivityCategoryService
             ->groupBy('ac.category_name')
             ->orderBy('category_amount', 'asc');
 
-        $array = [];
-        $total_amount = 0;
-
-        foreach ($builder->get() as $data) {
-            $array[] = [
-                'category_name' => $data->category_name,
-                'category_amount' => $data->category_amount
-            ];
-            $total_amount += $data->category_amount;
-        }
-
+        $sign = ($condition->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) ? -1 : 1;
         $result = [];
 
-        foreach ($array as $data) {
-            $label = sprintf('%s (%s)', $data['category_name'], number_format($data['category_amount']));
-            $rate = ($data['category_amount'] / $total_amount) * 100;
-            $result[$label] = round($rate, 1);
+        foreach ($builder->get() as $data) {
+            $amount = $sign * (int) $data->category_amount;
+
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $result[] = ['name' => $data->category_name, 'amount' => $amount];
         }
 
         return $result;
