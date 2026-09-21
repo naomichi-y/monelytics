@@ -30,17 +30,13 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">設定</a>
-                        <ul class="dropdown-menu" data-bs-theme="light">
-                            {{-- 大項目と小項目を別々に並べない。どちらへ行けばよいかを
-                                 選ばせる場面ではないため、入口は 1 つにする。
-                                 行き先を大項目の一覧にするのは、開いた時点で中身が
-                                 出るのがこちらだけだから。小項目の一覧は大項目を
-                                 選ぶまで空で、大項目の一覧は各行に属する小項目を
-                                 並べたうえ、そこへ移るボタンも持っている。 --}}
-                            <li>{!! link_to('settings/activityCategory', '項目の管理', ['class' => 'dropdown-item']) !!}</li>
-                        </ul>
+                    {{-- 行き先が 1 つなので、開いて 1 行だけ出るドロップダウンに
+                         せず直接たどらせる。大項目の一覧に着くのは、開いた時点で
+                         中身が出るのがこちらだけだから。小項目の一覧は大項目を
+                         選ぶまで空で、大項目の一覧は各行に属する小項目を並べた
+                         うえ、そこへ移るボタンも持っている。 --}}
+                    <li class="nav-item">
+                        {!! link_to('settings/activityCategory', '項目の管理', ['class' => 'nav-link']) !!}
                     </li>
                 @else
                     <li class="nav-item"><a href="/user/create" class="nav-link">会員登録</a></li>

@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-大項目
+項目の管理
 @stop
 
 @section('include_header')
