@@ -196,18 +196,96 @@ $(function() {
   };
 
   /**
-   * タブを表示する。
+   * 開いているタブを持たせるクエリ。
+   *
+   * 以前はクッキーに入れていた。同じ画面を 2 つ開くと後から切り替えたほうに
+   * 引きずられ、URL を人に渡しても相手には別のタブが出た。URL に持たせれば
+   * 見ているものと渡すものが一致する。
+   *
+   * 番号ではなく名前を持つ。番号はタブを並べ替えたときに黙って別のタブを
+   * 指すうえ、URL を見ても何のタブか読めない。名前は各タブの data-tab。
    */
-  $.fn.startTabs = function(cookie_name) {
-    dropLegacyCookie(cookie_name);
+  var TAB_PARAM = "tab";
 
-    $(this).tabs({
-      active: Cookies.get(cookie_name),
-      activate: function(e, ui){
-        Cookies.set(cookie_name, ui.newTab.index(), { expires: 10, path: "/" });
+  /**
+   * @returns {?string} 今開いているタブの名前。指定がなければ null
+   */
+  function currentTab() {
+    return new URLSearchParams(window.location.search).get(TAB_PARAM);
+  }
+
+  /**
+   * タブの名前を今の URL に書き戻す。
+   *
+   * 履歴は積まない。タブの切り替えは「戻る」で辿りたい操作ではないうえ、
+   * 何度か切り替えたあとに戻ろうとすると、その回数ぶん空打ちすることになる。
+   *
+   * @param {string} name
+   */
+  function rememberTab(name) {
+    var url = new URL(window.location.href);
+
+    url.searchParams.set(TAB_PARAM, name);
+    window.history.replaceState(null, "", url.toString());
+  }
+
+  /**
+   * タブを表示する。開いているタブは URL のクエリに持つ。
+   *
+   * 名前は各 li の data-tab から取る。月別集計の構成グラフのように、同じ
+   * エンドポイントを引数違いで 2 つ並べるタブがあるため、リンク先からは
+   * 一意に決められない。
+   */
+  $.fn.startTabs = function() {
+    var $tabs = $(this);
+    var names = $tabs.find("> ul > li").map(function() {
+      return $(this).data(TAB_PARAM);
+    }).get();
+
+    $tabs.tabs({
+      // 知らない名前や指定なしは先頭のタブ。
+      active: Math.max(0, names.indexOf(currentTab())),
+      activate: function(e, ui) {
+        rememberTab(names[ui.newTab.index()]);
       }
     });
   }
+
+  /**
+   * 同じ画面を開き直すフォームに、今のタブを持たせる。
+   *
+   * GET のフォームは送信時にクエリを自分の入力欄から組み直すため、URL に
+   * 乗せただけの tab は落ちる。月を変える、詳細検索を掛ける、のたびに
+   * 既定のタブへ戻ってしまう。
+   *
+   * 詳細検索のモーダルは ajax で後から差し込まれるので、描画のときではなく
+   * 送信のときに入れる。
+   *
+   * 行き先が今の画面と違うフォームは対象外。帯の検索は日別集計へ送るため、
+   * 入れても読まれずクエリに残るだけになる。
+   */
+  $(document).on("submit", "form", function() {
+    var tab = currentTab();
+
+    if (tab === null) {
+      return;
+    }
+
+    var $form = $(this);
+    var action = new URL($form.attr("action") || window.location.href, window.location.href);
+
+    if (action.pathname !== window.location.pathname) {
+      return;
+    }
+
+    var selector = "input[name='" + TAB_PARAM + "']";
+
+    if (!$form.find(selector).length) {
+      $form.append($("<input>", { type: "hidden", name: TAB_PARAM }));
+    }
+
+    $form.find(selector).val(tab);
+  });
 
   /**
    * 同じ名前でページのパスに紐付いた Cookie を消す。
@@ -224,6 +302,9 @@ $(function() {
    *
    * 古い保存先を 1 つに決め打ちできないので、今のページの上位パスを順に消す。
    * "/" は今の保存先なので対象にしない。
+   *
+   * タブはクッキーをやめて URL に持たせたため (@see $.fn.startTabs)、
+   * 今これが要るのはセレクトの保持だけ。
    */
   function dropLegacyCookie(cookie_name) {
     var segments = window.location.pathname.split("/").filter(Boolean);
@@ -236,9 +317,11 @@ $(function() {
   }
 
   /**
-   * セレクトの選択状態をクッキーへ保持する。
-   * タブと同じ持ち方 (startTabs と同一の保持期間) にして、リロードしても
-   * 直前の選択が残るようにする。
+   * セレクトの選択状態をクッキーへ保持し、リロードしても直前の選択が残る
+   * ようにする。
+   *
+   * タブと違って URL には乗せない。グラフの中の絞り込みでしかないため、
+   * 画面を指す URL にまで出すと何を指しているのか読みにくくなる。
    */
   $.fn.rememberSelect = function(cookie_name) {
     var $element = $(this);
