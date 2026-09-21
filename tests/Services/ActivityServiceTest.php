@@ -178,12 +178,48 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 比べた 2 つの期間を返す。当月は今日で切り、前月も同じ日数で切る。
+     */
+    public function testMonthlyComparisonReturnsComparedPeriod()
+    {
+        $result = $this->getMonthlyComparison(date('Y-m'));
+
+        $previous_begin_date = date('Y-m-01', strtotime(date('Y-m-01') . ' -1 month'));
+        $day = min((int) date('j'), (int) date('t', strtotime($previous_begin_date)));
+
+        $this->assertSame([
+            'begin_date' => date('Y-m-01'),
+            'end_date' => date('Y-m-d'),
+            'previous_begin_date' => $previous_begin_date,
+            'previous_end_date' => date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', $day)
+        ], $result['period']);
+    }
+
+    /**
+     * 過去の月は、比べた期間も月末まで。
+     */
+    public function testMonthlyComparisonReturnsWholePeriodForPastMonth()
+    {
+        $month = $this->monthBefore(2);
+        $previous_month = $this->monthBefore(3);
+
+        $result = $this->getMonthlyComparison($month);
+
+        $this->assertSame([
+            'begin_date' => $month . '-01',
+            'end_date' => $this->lastDayOf($month),
+            'previous_begin_date' => $previous_month . '-01',
+            'previous_end_date' => $this->lastDayOf($previous_month)
+        ], $result['period']);
+    }
+
+    /**
      * 前の期間を決められない条件では比較しない。
      */
     public function testMonthlyComparisonReturnsEmptyForUncomparableCondition()
     {
         $month = $this->monthBefore(2);
-        $empty = ['groups' => [], 'totals' => []];
+        $empty = ['groups' => [], 'totals' => [], 'period' => []];
 
         // 詳細検索で任意の日付が指定されている
         $this->assertSame($empty, $this->getMonthlyComparison($month, [

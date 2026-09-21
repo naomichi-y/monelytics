@@ -5,6 +5,7 @@ use Agent;
 use Auth;
 use View;
 
+use App\Libraries\Condition;
 use App\Services;
 
 class GadgetController extends Controller {
@@ -27,6 +28,12 @@ class GadgetController extends Controller {
     {
         $data = [];
         $data['status'] = $this->activity->getBalanceOfPaymentStatus(Auth::id());
+
+        // 実額だけでは使いすぎかどうかが読めない。月初に残高が大きいのは
+        // 当たり前で、その数字だけでは比べる先がないため。先月の同じ日まで
+        // との増減率を添える。基準は月次レポートと同じものを使う。
+        $condition = new Condition\MonthlySummaryCondition(['date_month' => date('Y-m')]);
+        $data['comparisons'] = $this->activity->getMonthlyComparison(Auth::id(), $condition);
 
         return View::make('gadget/activity_status', $data);
     }
