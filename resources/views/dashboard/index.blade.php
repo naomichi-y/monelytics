@@ -9,19 +9,11 @@
         $(function() {
             $("#activity_date").disableDatepickerFocus();
 
-            // 今月の収支状況を表示
-            $.get("/gadget/activity-status",
+            // 今月の変動支出を表示
+            $.get("/gadget/variable-expense",
                 {},
                 function(data) {
-                    $("#activity_status").html(data);
-                }
-            );
-
-            // アクティビティを表示
-            $.get("/gadget/activity-graph",
-                {},
-                function(data) {
-                    $("#activity_graph").html(data);
+                    $("#variable_expense").html(data);
                 }
             );
 
@@ -103,10 +95,8 @@
             {!! Form::close() !!}
         </div>
         <div class="col-md-8">
-            <h2>今月の収支状況</h2>
-            <div id="activity_status"></div>
-            <h2>アクティビティ</h2>
-            <div id="activity_graph"></div>
+            <h2>今月の変動支出</h2>
+            <div id="variable_expense"></div>
             <h2>最近の収支履歴</h2>
             <div id="activity_history"></div>
         </div>

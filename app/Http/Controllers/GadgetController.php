@@ -1,14 +1,18 @@
 <?php
 namespace App\Http\Controllers;
 
-use Agent;
 use Auth;
 use View;
 
-use App\Libraries\Condition;
 use App\Services;
 
 class GadgetController extends Controller {
+    /**
+     * 棒に並べる科目グループの数。科目は利用者が好きなだけ作れるため、
+     * 全部並べるとダッシュボードが際限なく伸びる。
+     */
+    const VARIABLE_EXPENSE_GROUP_LIMIT = 5;
+
     private $activity;
 
     /**
@@ -22,62 +26,14 @@ class GadgetController extends Controller {
     }
 
     /**
-     * 今月の収支状況を表示する。
+     * 今月の変動支出を、科目ごとの棒と前月同時点との差額で表示する。
      */
-    public function activityStatus()
+    public function variableExpense()
     {
         $data = [];
-        $data['status'] = $this->activity->getBalanceOfPaymentStatus(Auth::id());
+        $data['expense'] = $this->activity->getVariableExpenseComparison(Auth::id(), self::VARIABLE_EXPENSE_GROUP_LIMIT);
 
-        // 実額だけでは使いすぎかどうかが読めない。月初に残高が大きいのは
-        // 当たり前で、その数字だけでは比べる先がないため。先月の同じ日まで
-        // との増減率を添える。基準は月次レポートと同じものを使う。
-        $condition = new Condition\MonthlySummaryCondition(['date_month' => date('Y-m')]);
-        $data['comparisons'] = $this->activity->getMonthlyComparison(Auth::id(), $condition);
-
-        return View::make('gadget/activity_status', $data);
-    }
-
-    /**
-     * アクティビティグラフを表示する。
-     */
-    public function activityGraph()
-    {
-        $week_day = 7;
-        $week_size = 37;
-        $week_header_width = 23;
-        $rect_size = 18;
-        $padding_size = 1;
-        $data_start_x = $week_header_width;
-        $data_start_y = 0;
-        $adjust_x = 6;
-        $adjust_y = 6;
-
-        if (Agent::isMobile()) {
-            $week_size = 7;
-            $rect_size = 31;
-        }
-
-        $rect_total_width = ($week_size + 1) * $rect_size;
-        $padding_total_width = $week_size  * $padding_size;
-        $svg_width = $week_header_width + $rect_total_width + $padding_total_width + $adjust_x;
-
-        $rect_total_height = $week_day * $rect_size;
-        $padding_total_height = ($week_day - 1) * $padding_size;
-        $svg_height = $rect_total_height + $padding_total_height + $adjust_y;
-
-        $data = [];
-        $data['svg_width'] = $svg_width;
-        $data['svg_height'] = $svg_height;
-        $data['days'] = ['M', '', 'W', '', 'F', '', 'S'];
-        $data['week_size'] = $week_size;
-        $data['rect_size'] = $rect_size;
-        $data['padding_size'] = $padding_size;
-        $data['data_start_x'] = $data_start_x;
-        $data['data_start_y'] = $data_start_y;
-        $data['latest_activities'] = $this->activity->getHeats(Auth::id(), $week_size);
-
-        return View::make('gadget/activity_graph', $data);
+        return View::make('gadget/variable_expense', $data);
     }
 
     /**

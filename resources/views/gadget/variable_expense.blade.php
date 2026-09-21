@@ -1,0 +1,137 @@
+<style>
+.variable-expense {
+    background-color: #f8f5f0;
+    border-radius: 4px;
+    margin: 0;
+    padding: 15px 20px;
+}
+
+.variable-expense .total {
+    align-items: baseline;
+    border-bottom: 1px solid #dfd7ca;
+    display: flex;
+    gap: 12px;
+    padding-bottom: 10px;
+}
+
+.variable-expense .total .label {
+    flex: 1 1 auto;
+}
+
+.variable-expense .total .amount {
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+.variable-expense table {
+    margin: 10px 0 0;
+    /* 列幅を colgroup のとおりに固定する。科目名は利用者が 32 文字まで
+       付けられ、成り行きに任せると狭い画面で名前だけが何行にも折り返して
+       棒が潰れる。 */
+    table-layout: fixed;
+    width: 100%;
+}
+
+.variable-expense td {
+    padding: 4px 6px;
+    vertical-align: middle;
+}
+
+/* 入りきらない科目名は折り返さず省略する。全文は title と、たどった先の
+   一覧で読める。 */
+.variable-expense .group-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 科目名は本文と同じ色にする。5 行すべてがリンクなので、色まで付けると
+   並びの中でリンクだけが目立ち、肝心の棒と額から目を引く。下線は残して
+   あるので、たどれることは分かる。 */
+.variable-expense .group-name a {
+    color: inherit;
+}
+
+/* 棒は 1 系列しかないので、色は識別ではなく「支出」を示すためだけに使う。
+   アクティビティのヒートマップが支出に使っている赤に揃える。 */
+.variable-expense .bar {
+    background-color: #ec5748;
+    /* 値の側だけ丸め、目盛りの 0 側は角のままにする。 */
+    border-radius: 0 4px 4px 0;
+    display: block;
+    height: 14px;
+    min-width: 2px;
+}
+
+.variable-expense .amount,
+.variable-expense .difference {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.variable-expense .difference {
+    color: #6c757d;
+}
+
+/* 単位は数字より小さくして、桁を読むのを邪魔しないようにする。 */
+.variable-expense .unit {
+    font-size: 0.85em;
+}
+
+.variable-expense .note {
+    color: #6c757d;
+    font-size: 0.8rem;
+    margin: 10px 0 0;
+    text-align: right;
+}
+</style>
+@if (sizeof($expense['groups']))
+    <?php $largest_amount = $expense['groups'][0]['amount']; ?>
+    <div class="variable-expense">
+        <div class="total">
+            <span class="label">変動支出合計</span>
+            <span class="amount">{{number_format($expense['total']['amount'])}}<span class="unit">円</span></span>
+            <span class="difference">{{Html::comparisonAmount($expense['total']['difference'])}}<span class="unit">円</span></span>
+        </div>
+
+        <table>
+            <colgroup>
+                <col style="width: 28%" />
+                <col style="width: 20%" />
+                <col style="width: 26%" />
+                <col style="width: 26%" />
+            </colgroup>
+            <tbody>
+                @foreach ($expense['groups'] as $group)
+                    <tr>
+                        <td class="group-name">{!! Html::linkWithQueryString('/summary/daily', [
+                            'begin_date' => $expense['period']['begin_date'],
+                            'end_date' => $expense['period']['end_date'],
+                            'activity_category_group_id[]' => $group['activity_category_group_id']
+                        ], $group['group_name'], ['title' => $group['group_name']]) !!}</td>
+                        <td>
+                            {{-- 棒の長さは合計ではなく最も多い科目を基準にする。
+                                 科目どうしの多い少ないを見るための図なので。 --}}
+                            <span class="bar" style="width: {{round($group['amount'] / $largest_amount * 100)}}%"></span>
+                        </td>
+                        <td class="amount">{{number_format($group['amount'])}}<span class="unit">円</span></td>
+                        <td class="difference">{{Html::comparisonAmount($group['difference'])}}<span class="unit">円</span></td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        {{-- 合計は今月の変動支出すべてで、棒は科目を絞ったとき合計に届かない。
+             黙って並べると棒の合計が上の数字と合わないように見えるため、
+             絞ったときだけそう書く。 --}}
+        <p class="note">
+            @if ($expense['group_count'] > sizeof($expense['groups']))
+                {{$expense['group_count']}} 科目中の上位 {{sizeof($expense['groups'])}} /
+            @endif
+            増減は先月の {{Html::date($expense['period']['previous_end_date'], false)}} までとの比較
+        </p>
+    </div>
+@else
+    <p>データがありません。</p>
+@endif
