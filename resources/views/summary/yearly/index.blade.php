@@ -15,7 +15,8 @@
                     {
                         begin_year: {!! Html::encodeJsJsonValue('begin_year', date('Y')) !!},
                         end_year: {!! Html::encodeJsJsonValue('end_year', date('Y')) !!},
-                        output_type: {!! Html::encodeJsJsonValue('output_type', App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY) !!}
+                        output_type: {!! Html::encodeJsJsonValue('output_type', App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY) !!},
+                        keyword: {!! Html::encodeJsJsonValue('keyword') !!}
                     },
                     function(data) {
                         showModal(data);
@@ -38,10 +39,14 @@
 @stop
 
 @section('content')
+    {{-- タブの中身を読む URL。自前で href を組み立てるので、区切りの '&' は
+         ここで '&amp;' へ逃がす ({{ }} が行う)。値そのものは
+         buildQueryString が URL エンコード済みで、HTML エスケープでは
+         代わりにならない。 --}}
     <div id="tabs">
         <ul>
-            <li><a href="/summary/yearly/report?begin_year={{{Request::input('begin_year', date('Y'))}}}&amp;end_year={{{Request::input('end_year', date('Y'))}}}&amp;output_type={{Request::input('output_type', 1)}}">集計表</a></li>
-            <li><a href="/summary/yearly/line-chart?begin_year={{{Request::input('begin_year', date('Y'))}}}&amp;end_year={{{Request::input('end_year', date('Y'))}}}&amp;output_type={{Request::input('output_type', 1)}}">推移グラフ</a></li>
+            <li><a href="/summary/yearly/report?{{ $condition->buildQueryString() }}">集計表</a></li>
+            <li><a href="/summary/yearly/line-chart?{{ $condition->buildQueryString() }}">推移グラフ</a></li>
         </ul>
     </div>
 @stop

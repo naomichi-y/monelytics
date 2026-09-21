@@ -32,6 +32,15 @@
                             </div>
                         </div>
 
+                        {{-- 項目名は日別集計の詳細検索と揃える。同じ絞り込みを
+                             画面ごとに違う名前で呼ぶと、同じものだと分からない。 --}}
+                        <div class="row mb-3">
+                            {!! Form::label('keyword', '場所・用途', ['class' => 'col-md-2 col-form-label']) !!}
+                            <div class="col-md-8">
+                                {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'id' => 'keyword']) !!}
+                            </div>
+                        </div>
+
                         <div class="row mb-3">
                             {!! Form::label('', '出力形式', ['class' => 'col-md-2 col-form-label']) !!}
                             <div class="col-md-6">

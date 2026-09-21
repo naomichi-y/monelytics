@@ -7,6 +7,9 @@ $(function () {
             begin_year: {!! Html::encodeJsJsonValue('begin_year', date('Y')) !!},
             end_year: {!! Html::encodeJsJsonValue('end_year', date('Y')) !!},
             output_type: {!! Html::encodeJsJsonValue('output_type', App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY) !!},
+            {{-- この断片はタブの URL で読み込まれるため、そこに乗っている
+                 検索条件をそのまま読める。集計表と同じ行を対象にする。 --}}
+            keyword: {!! Html::encodeJsJsonValue('keyword') !!},
             balance_type: $("#trend_balance_type").val()
         });
     }

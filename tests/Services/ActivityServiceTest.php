@@ -544,13 +544,14 @@ class ActivityServiceTest extends TestCase {
      * @param int|null $balance_type
      * @return array
      */
-    private function getYearlyTrend($begin_year, $end_year, $output_type, $balance_type = null)
+    private function getYearlyTrend($begin_year, $end_year, $output_type, $balance_type = null, $keyword = null)
     {
         $condition = new YearlyTrendCondition([
             'begin_year' => $begin_year,
             'end_year' => $end_year,
             'output_type' => $output_type,
             'balance_type' => $balance_type,
+            'keyword' => $keyword,
         ]);
 
         return $this->activity->getYearlyTrend($this->getUser()->id, $condition);
@@ -794,6 +795,57 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 年別集計のキーワードは、帯の検索や日別集計と同じく場所と用途の両方に
+     * 当たる。集計表と推移グラフで当たり方が違うと、同じ検索条件で表とグラフに
+     * 別の小項目が並ぶ。
+     */
+    public function testYearlySummaryFiltersByKeyword()
+    {
+        $this->prepareTrendFixture();
+
+        $year = (int) date('Y');
+        $expense = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $income = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE;
+
+        // 場所で当たる行、用途で当たる行、当たらない行。
+        $this->createActivity($expense, date('Y-m-d'), -100)->update(['location' => 'PROBE 商店']);
+        $this->createActivity($income, date('Y-m-d'), 200)->update(['content' => 'PROBE の払い戻し']);
+        $this->createActivity($expense, date('Y-m-d'), -400)->update(['location' => '別の店']);
+
+        $summary = $this->getYearlySummary($year, $year, YearlySummaryCondition::OUTPUT_TYPE_YEARLY, 'PROBE');
+
+        $this->assertSame(-100, (int) $summary['footers']['yearly_total_expense_amount']);
+        $this->assertSame(200, (int) $summary['footers']['yearly_total_income_amount']);
+
+        // 推移グラフも同じ行を見ていること。支出は符号を反転して返る。
+        $trend = $this->getYearlyTrend($year, $year, YearlySummaryCondition::OUTPUT_TYPE_YEARLY, null, 'PROBE');
+        $amounts = array_merge(...array_map(fn ($series) => $series['data'], $trend['series']));
+
+        $this->assertSame([100, 200], $amounts);
+    }
+
+    /**
+     * キーワードの '%' と '_' は文字として扱う。日別集計と同じ逃がし方を
+     * 通っていないと、'%' だけで全件が対象になる。
+     */
+    public function testYearlySummaryKeywordTreatsWildcardsAsLiterals()
+    {
+        $this->prepareTrendFixture();
+
+        $year = (int) date('Y');
+        $expense = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+
+        $this->createActivity($expense, date('Y-m-d'), -100)->update(['location' => 'ABPROBE']);
+        $this->createActivity($expense, date('Y-m-d'), -200)->update(['location' => 'A_PROBE']);
+
+        $summary = $this->getYearlySummary($year, $year, YearlySummaryCondition::OUTPUT_TYPE_YEARLY, 'A_PROBE');
+        $this->assertSame(-200, (int) $summary['footers']['yearly_total_expense_amount']);
+
+        $summary = $this->getYearlySummary($year, $year, YearlySummaryCondition::OUTPUT_TYPE_YEARLY, '%');
+        $this->assertSame([], $summary['data']);
+    }
+
+    /**
      * 先の日付で登録した収支は「最近の収支履歴」に出さない。家賃や給与を
      * 翌月分まで先に入れると、それが常に先頭を占め、今記録したものが
      * 4 件の枠から押し出されていた。
@@ -854,12 +906,13 @@ class ActivityServiceTest extends TestCase {
      * @param int|null $output_type
      * @return array
      */
-    private function getYearlySummary($begin_year, $end_year, $output_type)
+    private function getYearlySummary($begin_year, $end_year, $output_type, $keyword = null)
     {
         $condition = new YearlySummaryCondition([
             'begin_year' => $begin_year,
             'end_year' => $end_year,
             'output_type' => $output_type,
+            'keyword' => $keyword,
         ]);
 
         return $this->activity->getYearlySummary($this->getUser()->id, $condition);
