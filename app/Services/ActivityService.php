@@ -836,6 +836,7 @@ class ActivityService
      * @return array ['groups' => [['activity_category_item_id', 'item_name', 'amount',
      *                             'previous_amount', 'difference'], ...],
      *                'group_count' => 今月の記録がある小項目の数,
+     *                'largest_amount' => 返した小項目の、今月と先月を通した最大額,
      *                'total' => ['amount', 'previous_amount', 'difference'],
      *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
      *               金額は支出を正で返す。difference は正なら前月より使っている。
@@ -880,12 +881,40 @@ class ActivityService
             'difference' => $total_amount - $total_previous_amount
         ];
 
+        $visible_groups = array_slice($groups, 0, $limit);
+
         return [
-            'groups' => array_slice($groups, 0, $limit),
+            'groups' => $visible_groups,
             'group_count' => sizeof($groups),
+            'largest_amount' => $this->largestVariableExpense($visible_groups),
             'total' => $total,
             'period' => $period
         ];
+    }
+
+    /**
+     * 棒の長さを決める基準。並べる小項目の、今月と先月を通した最大額。
+     *
+     * 先月の分まで見るのは、今月の最大値だけを基準にすると、先月のほうが
+     * 多かった小項目で先月の棒が枠からはみ出すため。
+     *
+     * 基準を画面側で組み立てない。並びが今月の額の降順であることに頼って
+     * 先頭を取る書き方になり、並べ方を変えた瞬間に黙って狂う。
+     *
+     * @param array $groups
+     * @return int 0 より大きい。$groups は今月の額が正の小項目だけを持つ
+     *             (@see ActivityService::sumVariableExpenseByGroup)
+     */
+    private function largestVariableExpense(array $groups)
+    {
+        $amounts = [];
+
+        foreach ($groups as $group) {
+            $amounts[] = $group['amount'];
+            $amounts[] = $group['previous_amount'];
+        }
+
+        return $amounts ? max($amounts) : 0;
     }
 
     /**

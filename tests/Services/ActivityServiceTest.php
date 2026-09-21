@@ -240,6 +240,50 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 棒の基準は、今月と先月を通した最大額。今月の最大値だけを基準にすると、
+     * 先月のほうが多かった小項目で先月の棒が枠からはみ出す。
+     */
+    public function testVariableExpenseComparisonScalesBarsAcrossBothMonths()
+    {
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $other = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE;
+        $previous_month = date('Y-m', strtotime(date('Y-m-01') . ' -1 month'));
+
+        DB::table('activities')->truncate();
+
+        // 今月の最大は 3,000 だが、先月は 5,000 使っていた小項目がある。
+        $this->createActivity($group, date('Y-m-d'), -3000);
+        $this->createActivity($other, date('Y-m-d'), -1000);
+        $this->createActivity($other, $previous_month . '-01', -5000);
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
+
+        $this->assertSame(5000, $result['largest_amount']);
+
+        // どの棒も基準を超えない。
+        foreach ($result['groups'] as $group_result) {
+            $this->assertLessThanOrEqual($result['largest_amount'], $group_result['amount']);
+            $this->assertLessThanOrEqual($result['largest_amount'], $group_result['previous_amount']);
+        }
+    }
+
+    /**
+     * 基準は画面に並べる分だけで決める。絞って落とした小項目まで含めると、
+     * 出ていない棒に合わせて残りが一斉に短くなる。
+     */
+    public function testVariableExpenseComparisonScalesBarsToTheVisibleGroups()
+    {
+        DB::table('activities')->truncate();
+
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE, date('Y-m-d'), -3000);
+        $this->createActivity(ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE, date('Y-m-d'), -1000);
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 1);
+
+        $this->assertSame(3000, $result['largest_amount']);
+    }
+
+    /**
      * 固定支出と収入は外す。どちらも月のうち決まった日にまとめて記録される
      * ため、月の途中で前月と比べても使いすぎの目安にならない。
      */

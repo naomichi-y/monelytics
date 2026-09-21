@@ -54,7 +54,7 @@ test.describe('ダッシュボード', () => {
     await expect(panel.getByText('家賃')).toHaveCount(0);
 
     // 棒は小項目の数だけ並び、最も多い小項目が横いっぱいになる。
-    const bars = panel.locator('.bar');
+    const bars = panel.locator('.bar:not(.previous)');
     expect(await bars.count()).toBeGreaterThan(1);
 
     const widths = await bars.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width));
@@ -66,6 +66,61 @@ test.describe('ダッシュボード', () => {
     }
 
     await expect(panel.getByText('までとの比較')).toBeVisible();
+  });
+
+  /**
+   * 今月の棒の下に、先月の同じ時点の棒を敷く。同じものの別の時点なので、
+   * 色は今月と同じ赤を薄めたものにして、太さと濃さだけで前後を出す。
+   *
+   * 長さの基準は今月と先月を通した最大額 (PHPUnit が見ている)。ここでは、
+   * その基準で引いた棒が枠に収まっているかと、先月の記録がない小項目で
+   * 行がでこぼこにならないかを見る。
+   */
+  test('今月の変動支出に先月の棒が重なる', async ({ page }) => {
+    const panel = page.locator('#variable_expense');
+    await expect(panel.locator('.bar').first()).toBeVisible();
+
+    const shape = await panel.evaluate((node) => {
+      const cell = node.querySelector('tbody td:nth-child(2)');
+      const width = cell.getBoundingClientRect().width;
+
+      return {
+        rows: Array.from(node.querySelectorAll('tbody tr')).map((tr) => {
+          const box = (selector) => tr.querySelector(selector).getBoundingClientRect();
+          const current = box('.bar:not(.previous)');
+          const previous = box('.bar.previous');
+
+          return {
+            currentHeight: Math.round(current.height),
+            previousHeight: Math.round(previous.height),
+            currentWidth: Math.round(current.width),
+            previousWidth: Math.round(previous.width),
+            rowHeight: Math.round(tr.getBoundingClientRect().height),
+          };
+        }),
+        cellWidth: Math.round(width),
+        currentColor: getComputedStyle(node.querySelector('.bar:not(.previous)')).backgroundColor,
+        previousColor: getComputedStyle(node.querySelector('.bar.previous')).backgroundColor,
+      };
+    });
+
+    // 先月の棒は今月より細い。
+    for (const row of shape.rows) {
+      expect(row.previousHeight).toBeLessThan(row.currentHeight);
+      expect(row.currentWidth).toBeLessThanOrEqual(shape.cellWidth);
+      expect(row.previousWidth).toBeLessThanOrEqual(shape.cellWidth);
+    }
+
+    // 先月の記録がない小項目でも行の高さは変わらない。幅 0 の棒を残して
+    // あるため。畳むとその行だけ詰まり、並びがでこぼこに見える。
+    expect(shape.rows.some((row) => row.previousWidth === 0)).toBe(true);
+    expect(new Set(shape.rows.map((row) => row.rowHeight)).size).toBe(1);
+
+    // 同じ赤を薄めた色。別の色にすると種類の違いに読める。
+    expect(shape.currentColor).toBe('rgb(236, 87, 72)');
+    expect(shape.previousColor).toBe('rgb(246, 179, 173)');
+
+    await expect(panel.getByText('薄い棒と増減は')).toBeVisible();
   });
 
   /**
