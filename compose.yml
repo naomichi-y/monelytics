@@ -3,6 +3,20 @@
 # volumes_from が廃止されたため、ソースの共有は data コンテナからバインドマウントに変更している。
 # composer / artisan / phpunit は専用サービスを持たず、php コンテナへの exec で実行する (README 参照)。
 
+# php と php-e2e のビルド定義。1 つに束ねて共有する。
+#
+# webapp の uid/gid がずれると、同じチェックアウトを見ている 2 つが互いに
+# 書けないファイルを置き合う。README の build は既定のプロファイルしか焼かず、
+# e2e プロファイルの php-e2e には --build-arg が渡らないため、こちらだけ
+# 既定の 1000 になっていた。E2E が Blade をコンパイルすると本番の php-fpm
+# (1001) がそれを touch できず、月別集計と年別集計が 500 になった。
+x-php-build: &php-build
+  context: ./etc/docker/php
+  args:
+    # チェックアウトの所有者に合わせる。値は .env に置く (.env.example 参照)。
+    UID: ${WEBAPP_UID:-1000}
+    GID: ${WEBAPP_GID:-1000}
+
 services:
   web:
     image: nginx:1.31-alpine
@@ -25,7 +39,7 @@ services:
 
   php:
     # uid/gid はホストに合わせる必要がある。ビルド手順は README を参照。
-    build: ./etc/docker/php
+    build: *php-build
     container_name: monelytics_php
     depends_on:
       - db
@@ -58,12 +72,14 @@ services:
       - redisdata:/data
     restart: unless-stopped
 
-  # E2E 用のアプリ一式。本番のデータベースへ触れないよう、専用のスキーマと
-  # Redis の別 DB を向ける。Laravel の Dotenv は既存の環境変数を上書きしない
-  # ため、ここでの environment が .env より優先される。
+  # E2E 用のアプリ一式。本番へ触れないよう、書き込む先を全て別に向ける
+  # (スキーマ、Redis の DB 番号、コンパイル済みの Blade、ログ)。同じ
+  # チェックアウトを共有するため、向け忘れたものはそのまま本番と奪い合う。
+  # Laravel の Dotenv は既存の環境変数を上書きしないため、ここでの
+  # environment が .env より優先される。
   # 起動は profile 指定で行う: docker compose --profile e2e up -d
   php-e2e:
-    build: ./etc/docker/php
+    build: *php-build
     container_name: monelytics_php_e2e
     profiles: ["e2e"]
     depends_on:
@@ -82,6 +98,15 @@ services:
       # .env は本番向けに SESSION_SECURE_COOKIE=true を持つが、ここは平文の
       # http で配信するため、そのままでは Cookie が返らず全ての POST が 419 になる。
       SESSION_SECURE_COOKIE: "false"
+      # ログは本番のファイルへ混ぜず、コンテナの標準エラーへ出す
+      # (docker compose logs php-e2e で読む)。同じチェックアウトを見るため
+      # 既定では storage/logs/laravel.log を奪い合い、本番が落ちたときに
+      # 見に行く場所が E2E の記録で埋まる。
+      LOG_CHANNEL: stderr
+      # コンパイル済みの Blade は本番と分ける。同じチェックアウトを見るため
+      # 既定では置き場所まで同じになり、片方が view:clear を掛けると相手の
+      # 分も消える。APP_ENV の違う 2 つが同じ置き場所を奪い合う形になる。
+      VIEW_COMPILED_PATH: /data/storage/framework/views-e2e
       # 同一 IP から繰り返しログインするため、本番の値では 429 になる。
       RATE_LIMIT_LOGIN: "1000,1"
       RATE_LIMIT_REGISTRATION: "1000,1"
