@@ -83,6 +83,36 @@ test.describe('集計', () => {
     await expect(page.getByRole('tab', { name: 'ランキング' })).toHaveAttribute('aria-selected', 'true');
   });
 
+  /**
+   * カレンダーの 2 段の金額は、上が変動収支で下が固定収支。以前は段の位置で
+   * しか区別できず、表の下に「※括弧内は固定収支」と書いてあったが、括弧は
+   * 2015 年の最初のコミットから一度も付いていなかった。
+   *
+   * ラベルを付けたうえで注釈を外したので、両方をここで押さえる。金額の右端が
+   * 揃うことまで見るのは、揃っていないと 2 段が別の列に見えるため。
+   */
+  test('カレンダーの金額に変動と固定のラベルが付く', async ({ page }) => {
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
+    await page.getByRole('tab', { name: 'カレンダー' }).click();
+
+    // 集計表のタブは切り替えたあとも DOM に残るため、カレンダーにしかない
+    // .amount-row を持つセルだけを対象にする。
+    const cells = page.locator('#tabs td').filter({ has: page.locator('.amount-row') });
+    await expect(cells.first().locator('.cost-type').first()).toHaveText('変動');
+
+    // 固定収支のある日はシードの給与。その日のセルで 2 段を突き合わせる。
+    const cell = cells.filter({ hasText: '固定' }).first();
+    await expect(cell.locator('.cost-type')).toHaveText(['変動', '固定']);
+
+    const rights = await cell.locator('.money').evaluateAll(
+      (nodes) => nodes.map((node) => Math.round(node.getBoundingClientRect().right))
+    );
+    expect(new Set(rights).size).toBe(1);
+
+    // 実態と食い違っていた注釈は消した。戻ってきていないこと。
+    await expect(page.locator('#tabs')).not.toContainText('括弧');
+  });
+
   test('集計表の金額から日別集計へ検索条件が引き継がれる', async ({ page }) => {
     const month = formatMonth(new Date());
 
