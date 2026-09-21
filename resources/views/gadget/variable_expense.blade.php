@@ -74,11 +74,6 @@
     color: #6c757d;
 }
 
-/* 単位は数字より小さくして、桁を読むのを邪魔しないようにする。 */
-.variable-expense .unit {
-    font-size: 0.85em;
-}
-
 .variable-expense .note {
     color: #6c757d;
     font-size: 0.8rem;
@@ -91,8 +86,8 @@
     <div class="variable-expense">
         <div class="total">
             <span class="label">変動支出合計</span>
-            <span class="amount">{{number_format($expense['total']['amount'])}}<span class="unit">円</span></span>
-            <span class="difference">{{Html::comparisonAmount($expense['total']['difference'])}}<span class="unit">円</span></span>
+            <span class="amount">{!! Html::amount($expense['total']['amount']) !!}</span>
+            <span class="difference">{!! Html::withUnit(Html::comparisonAmount($expense['total']['difference'])) !!}</span>
         </div>
 
         <table>
@@ -115,8 +110,8 @@
                                  科目どうしの多い少ないを見るための図なので。 --}}
                             <span class="bar" style="width: {{round($group['amount'] / $largest_amount * 100)}}%"></span>
                         </td>
-                        <td class="amount">{{number_format($group['amount'])}}<span class="unit">円</span></td>
-                        <td class="difference">{{Html::comparisonAmount($group['difference'])}}<span class="unit">円</span></td>
+                        <td class="amount">{!! Html::amount($group['amount']) !!}</td>
+                        <td class="difference">{!! Html::withUnit(Html::comparisonAmount($group['difference'])) !!}</td>
                     </tr>
                 @endforeach
             </tbody>

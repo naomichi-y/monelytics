@@ -36,12 +36,15 @@
     @if (sizeof($constant_costs))
         {!! Form::open(['url' => 'cost/constant']) !!}
             <table class="table table-striped table-hover">
+                {{-- 金額は単位の分だけ入力欄が狭くなる。元の 10% では 250,000 が
+                     見切れる。広げすぎると空きすぎるので、7 桁がちょうど
+                     収まるところで止める。 --}}
                 <colgroup>
                     <col style="width: 15%" />
-                    <col style="width: 20%" />
+                    <col style="width: 18%" />
                     <col style="width: 15%" />
-                    <col style="width: 10%" />
-                    <col style="width: 25%" />
+                    <col style="width: 13%" />
+                    <col style="width: 24%" />
                     <col style="width: 5%" />
                     <col style="width: 10%" />
                 </colgroup>
@@ -74,7 +77,12 @@
                                         {!! Form::date("activity_date[$selected_date_month][$activity_category_group->id]", Request::old("activity_date[$selected_date_month][$activity_category_group->id'", str_replace('/', '-', $activity_category_group->activity_date)), ['class' => 'form-control']) !!}
                                     @endif
                                 </td>
-                                <td>{!! Form::number("amount[$selected_date_month][$activity_category_group->id]", Request::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}</td>
+                                <td>
+                                    <div class="input-group">
+                                        {!! Form::number("amount[$selected_date_month][$activity_category_group->id]", Request::old("constant[$selected_date_month][$activity_category_group->id]", $activity_category_group->amount), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                                        <span class="input-group-text">円</span>
+                                    </div>
+                                </td>
                                 <td>{!! Form::text("content[$selected_date_month][$activity_category_group->id]", Request::old("content[$selected_date_month][$activity_category_group->id]", $activity_category_group->content), ['class' => 'form-control']) !!}</td>
                                 <td>
                                     <div class="text-center">

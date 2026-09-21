@@ -402,6 +402,31 @@ td a {
   font-size: 0.8em;
 }
 
+/* 金額の入力欄の上下ボタン。1 円ずつ動かす用途がないうえ、focus 中だけ
+   現れて数字の表示幅を奪い、7 桁の頭が隠れる。欄を広げると常用する
+   4、5 桁に対して空きすぎるので、ボタンのほうを落とす。 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* 金額の単位。数字と単位を離すと「円」だけが次の行に落ちるため、
+   ひとかたまりにして折り返させない。単位は数字より小さくして、
+   桁を読むのを邪魔しないようにする。 */
+.money {
+  white-space: nowrap;
+}
+
+.money .unit {
+  font-size: 0.85em;
+}
+
 /* 下書きの文字。sandstone は本文と同じ暖色で、入力済みの文字と紛れる。 */
 .form-control::placeholder {
   color: #aaaaaa;

@@ -18,12 +18,15 @@
     @if (sizeof($activity_category_groups) > 1)
         {!! Form::open(['url' => 'cost/variable']) !!}
             <table class="table table-striped table-hover">
+                {{-- 金額は単位の分だけ入力欄が狭くなる。元の 11% では 7 桁が
+                     見切れる。広げすぎると常用する 4、5 桁に対して空きすぎる
+                     ので、7 桁がちょうど収まるところで止める。 --}}
                 <colgroup>
                     <col style="width: 15%" />
                     <col style="width: 15%" />
-                    <col style="width: 11%" />
-                    <col style="width: 27%" />
-                    <col style="width: 27%" />
+                    <col style="width: 13%" />
+                    <col style="width: 26%" />
+                    <col style="width: 26%" />
                     <col style="width: 5%" />
                 </colgroup>
                 <thead>
@@ -54,7 +57,10 @@
                             {!! Form::select("activity_category_group_id[$i]", $activity_category_groups, Request::old("activity_category_group_id[$i]"), ['class' => 'form-select']) !!}
                         </td>
                         <td>
-                            {!! Form::number("amount[$i]", Request::old("amount[$i]"), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                            <div class="input-group">
+                                {!! Form::number("amount[$i]", Request::old("amount[$i]"), ['class' => 'form-control text-end', 'autocomplete' => 'off', 'pattern' => '[\-0-9]*']) !!}
+                                <span class="input-group-text">円</span>
+                            </div>
                         </td>
                         <td>
                             {!! Form::text("location[$i]", Request::old("location[$i]"), ['class' => 'form-control']) !!}

@@ -55,15 +55,15 @@ $(function () {
           },
           labels: {
             formatter: function() {
-              // 既定の桁区切りは空白なので明示する。
-              return Highcharts.numberFormat(this.value, 0, '.', ',');
+              // 既定の桁区切りは空白なので明示する。単位は画面の他の金額と揃える。
+              return Highcharts.numberFormat(this.value, 0, '.', ',') + ' 円';
             }
           }
         },
         tooltip: {
           shared: true,
           pointFormatter: function() {
-            var amount = Highcharts.numberFormat(this.y, 0, '.', ',');
+            var amount = Highcharts.numberFormat(this.y, 0, '.', ',') + ' 円';
 
             // 共有ツールチップは同じ目盛りの科目を全て並べるため、指している
             // ものが埋もれる。捉えた科目は太字にし、残りは薄く落とす。

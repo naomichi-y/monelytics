@@ -115,7 +115,7 @@
                     <td>{{{$activity->activityCategoryGroup->group_name}}}</td>
                     <td>{{{$activity->location}}}</td>
                     <td>{{{$activity->content}}}</td>
-                    <td class="text-end">{{number_format($activity->amount)}}</td>
+                    <td class="text-end">{!! Html::amount($activity->amount) !!}</td>
                     <td class="text-center">
                         @if ($activity->credit_flag)
                             <span class="bi bi-check-lg"></span>
@@ -131,7 +131,7 @@
             </tbody>
         </table>
         <div class="text-end">
-            合計金額: {{number_format($activities->total_amount)}}
+            合計金額: {!! Html::amount($activities->total_amount) !!}
         </div>
         {{-- 番号は出さず「前へ / 次へ」だけ。ページ数が多く、番号を並べても
              行が埋まるだけで選べないため。 --}}
