@@ -606,3 +606,15 @@ footer li {
     padding-right: 0;
   }
 }
+
+/* タブの中身を読み込んでいる間の表示 (@see assets/js/common.js の startTabs)。
+   高さの確保はパネル側の min-height が持つので、ここは中身を真ん中に置くだけ。
+   色は Bootstrap の変数から取る。テーマを替えたときに置いていかれない。 */
+.tab-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 0;
+  color: var(--bs-secondary-color);
+}

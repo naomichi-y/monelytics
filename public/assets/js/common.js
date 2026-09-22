@@ -236,17 +236,65 @@ $(function() {
    * エンドポイントを引数違いで 2 つ並べるタブがあるため、リンク先からは
    * 一意に決められない。
    */
+  /**
+   * 最初の読み込みで確保する高さ。切り替えなら直前のパネルに合わせられるが、
+   * 画面を開いた 1 回目には比べる相手がいない。集計表が収まる高さより低く、
+   * 見出しだけの高さ (67px) よりは十分高いところ。
+   */
+  var TAB_LOADING_MIN_HEIGHT = 240;
+
+  /**
+   * 読み込み中に見せる中身。
+   *
+   * @returns {string}
+   */
+  function tabLoading() {
+    return '<div class="tab-loading" role="status">'
+      + '<span class="spinner-border" aria-hidden="true"></span>'
+      + '<span>読み込んでいます…</span>'
+      + '</div>';
+  }
+
   $.fn.startTabs = function() {
     var $tabs = $(this);
     var names = $tabs.find("> ul > li").map(function() {
       return $(this).data(TAB_PARAM);
     }).get();
 
+    // 切り替える直前のパネルの高さ。読み込み中に確保する分として使う。
+    var reserved = null;
+
     $tabs.tabs({
       // 知らない名前や指定なしは先頭のタブ。
       active: Math.max(0, names.indexOf(currentTab())),
       activate: function(e, ui) {
         rememberTab(names[ui.newTab.index()]);
+      },
+      beforeActivate: function(e, ui) {
+        reserved = ui.oldPanel.length ? ui.oldPanel.outerHeight() : null;
+      },
+
+      /**
+       * 中身はどのタブも ajax で取りに行く。jQuery UI は切り替えた瞬間に
+       * 空のパネルを見せて応答を待つため、集計表のように重いものだと、
+       * その間だけタブの枠が見出しの高さまで縮む。届くと元の高さへ戻るので、
+       * 下にあるものが上下に飛ぶうえ、待っているのか壊れたのか分からない。
+       *
+       * 直前と同じ高さを確保したうえで、待っていることを出す。中身は
+       * jQuery UI が応答で上書きするので、消す手当ては要らない。
+       */
+      beforeLoad: function(e, ui) {
+        ui.panel
+          .css("min-height", (reserved || TAB_LOADING_MIN_HEIGHT) + "px")
+          .html(tabLoading());
+
+        // 失敗したときは load が起きない。確保した高さが残り続ける。
+        ui.jqXHR.fail(function() {
+          ui.panel.css("min-height", "");
+        });
+      },
+      load: function(e, ui) {
+        ui.panel.css("min-height", "");
       }
     });
   }
