@@ -8,6 +8,22 @@ class BaseDateCondition extends BaseCondition {
     public $end_date;
 
     /**
+     * 日付範囲が直接指定されているか。
+     *
+     * getDateRange() は月指定から組み立てた範囲も同じ形で返すため、戻り値からは
+     * どちらで絞ったのかが読めない。画面は「月を選んだ」と「範囲を入れた」で
+     * 出し分ける必要がある (範囲が入っているときは月のセレクトを操作させない)
+     * ので、判定はここに置く。View で begin_date の有無を見て回ると、
+     * 同じ規則が画面の数だけ増える。
+     *
+     * @return bool
+     */
+    public function hasDateRange()
+    {
+        return strlen((string) $this->begin_date) > 0 || strlen((string) $this->end_date) > 0;
+    }
+
+    /**
      * @return stdClass
      */
     public function getDateRange()

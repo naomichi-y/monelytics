@@ -13,13 +13,17 @@
                 $("#search_form").submit();
             });
 
+            {{-- モーダルへ渡すのは Condition が決めた値。リクエストを読み直して
+                 date('Y-m') を既定にしていたころは、日付範囲で絞っている画面
+                 (URL に date_month が無い) から開いても月指定が当月になり、
+                 範囲で見ているのに月を選んでいるように見えていた。 --}}
             // 詳細検索押下
             $("#open_condition").click(function() {
                 $.get("/summary/monthly/condition",
                     {
-                        date_month: {!! Html::encodeJsJsonValue('date_month', date('Y-m')) !!},
-                        begin_date: {!! Html::encodeJsJsonValue('begin_date') !!},
-                        end_date: {!! Html::encodeJsJsonValue('end_date') !!}
+                        date_month: {!! Html::encodeJsValue($condition->date_month) !!},
+                        begin_date: {!! Html::encodeJsValue($condition->begin_date) !!},
+                        end_date: {!! Html::encodeJsValue($condition->end_date) !!}
                     },
                     function(data) {
                         showModal(data);
@@ -49,7 +53,15 @@
         {!! Form::open(['url' => 'summary/monthly', 'id' => 'search_form', 'method' => 'get']) !!}
             <div class="row g-2 align-items-center form-group-adjust">
                 <div class="col">
-                    {!! Form::select('date_month', $month_list, Html::requestValue('date_month', date('Y-m')), ['class' => 'form-select', 'id' => 'date_month']) !!}
+                    @if ($condition->hasDateRange())
+                        {{-- 日付範囲で絞っている間は月のセレクトを出さず、効いて
+                             いる期間を出す。日別集計と同じ扱い。範囲と月の両方が
+                             送られると getDateRange は範囲を優先するので、月を
+                             選べても結果は変わらず、選択と表示が食い違う。 --}}
+                        <span class="text-nowrap">{{Html::dateRange($date_range)}}</span>
+                    @else
+                        {!! Form::select('date_month', $month_list, Html::requestValue('date_month', date('Y-m')), ['class' => 'form-select', 'id' => 'date_month']) !!}
+                    @endif
                 </div>
                 <div class="col-auto">
                     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
@@ -60,18 +72,22 @@
             <div class="row g-2 mt-1">
                 <div class="col-6 d-grid">
                     {{-- 押せるかどうかは、その向きに記録があるかで決まる
-                         (@see MonthlyController::index)。 --}}
+                         (@see MonthlyController::index)。
+
+                         日付範囲で絞っている間はどちらも押せない。押すと
+                         セレクトへ月を入れて送る作りだが、そのセレクトが
+                         出ていない。月へ戻るのは詳細検索のクリアから。 --}}
                     {!! Form::button('<span class="bi bi-chevron-left"></span> 前月', [
                         'class' => 'btn btn-secondary btn-sm month_step',
                         'data-month' => $adjacent_months['previous'],
-                        'disabled' => $adjacent_months['previous'] === null,
+                        'disabled' => $condition->hasDateRange() || $adjacent_months['previous'] === null,
                     ]) !!}
                 </div>
                 <div class="col-6 d-grid">
                     {!! Form::button('翌月 <span class="bi bi-chevron-right"></span>', [
                         'class' => 'btn btn-secondary btn-sm month_step',
                         'data-month' => $adjacent_months['next'],
-                        'disabled' => $adjacent_months['next'] === null,
+                        'disabled' => $condition->hasDateRange() || $adjacent_months['next'] === null,
                     ]) !!}
                 </div>
             </div>

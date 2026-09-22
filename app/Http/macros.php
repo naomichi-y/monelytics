@@ -42,6 +42,29 @@ Html::macro('date', function($date, $append_week = true) {
 
 
 /**
+ * 効いている日付範囲の表記。
+ *
+ * 日付範囲で絞っている画面は、月のセレクトの代わりにこれを出す。月別と日別の
+ * 両方が同じものを出すので、書き方はここに 1 つだけ置く。
+ *
+ * 曜日も添える。一覧の発生日やカレンダーが曜日付きなので、期間だけ無いと
+ * 同じ日付が 1 画面に違う書き方で並ぶ。
+ *
+ * 片側だけの指定も通る (「この日以降」)。空いている側は日付を出さず、記号
+ * だけを残して向きを示す。
+ *
+ * @param stdClass $date_range BaseDateCondition::getDateRange() の戻り値
+ * @return string
+ */
+Html::macro('dateRange', function($date_range) {
+    return trim(sprintf(
+        '%s 〜 %s',
+        $date_range->begin_date ? Html::date($date_range->begin_date) : '',
+        $date_range->end_date ? Html::date($date_range->end_date) : ''
+    ));
+});
+
+/**
  * @param string $date
  * @param bool $append_week
  */
@@ -99,8 +122,22 @@ Html::macro('formatDate', function($date, $format, $append_week) {
  * @return string
  */
 Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = 'string') {
-    $value = Request::input($field, $alternative);
+    return Html::encodeJsValue(Request::input($field, $alternative), $type);
+});
 
+/**
+ * 手元の値を JS のリテラルとして書き出す。
+ *
+ * 逃がし方と型の倒し方は Html::encodeJsJsonValue と同じで、値をリクエストから
+ * 読むかどうかだけが違う。Condition が決めた値を書き出すために分けてある。
+ * リクエストを読み直すと、指定が無いときに Condition が埋める既定値 (日別集計の
+ * 当月など) を View 側でも書くことになり、片方だけ直って食い違う。
+ *
+ * @param mixed $value
+ * @param string $type string|numeric|bool|array
+ * @return string
+ */
+Html::macro('encodeJsValue', function($value, $type = 'string') {
     if ($value === null) {
         return 'null';
     }

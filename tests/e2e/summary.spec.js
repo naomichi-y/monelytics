@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { login, formatMonth, reportTable } = require('./helpers');
+const { login, formatDate, formatDateWithWeek, formatMonth, reportTable } = require('./helpers');
 
 /**
  * 集計画面はどれも、サーバが組んだ HTML の断片を $.get で差し込む作りになって
@@ -390,6 +390,284 @@ test.describe('集計', () => {
     // 引き継いだ条件で絞り込まれた結果が出ていること。
     const rows = page.locator('tr[data-id]');
     await expect(rows.first()).toContainText('食料品');
+  });
+
+  /**
+   * 期間を付けずに開いたときは当月だけを出す。
+   *
+   * 以前は期間が一切効かず、全期間が発生日の降順で並んでいた。1 ページ目は
+   * 最近の行で埋まるので当月に見えるが、先頭に来るのは未来日の行で、当月の
+   * つもりの画面に翌年の収支が混ざっていた。帯のセレクトは当月を出している
+   * ため、一覧だけが別の期間を見ていることに気付けない。
+   */
+  test('期間を指定せずに開くと当月だけが出る', async ({ page }) => {
+    await page.goto('/summary/daily');
+
+    // セレクトと一覧が同じ月を指していること。ここが割れると画面が嘘をつく。
+    await expect(page.locator('#date_month')).toHaveValue(formatMonth(new Date()));
+
+    // 件数では見ない。登録系のスペックが当月に行を足していくため。
+    const listRows = page.locator('tr[data-id]');
+
+    await expect(listRows.filter({ hasText: '当月の食料品' })).toHaveCount(1);
+    await expect(listRows.filter({ hasText: '前々月の食料品' })).toHaveCount(0);
+    await expect(listRows.filter({ hasText: '昨年の食料品' })).toHaveCount(0);
+
+    // 「未指定」を選べば従来どおり全期間を見られる。既定を当月にしたことで
+    // そちらが塞がっていないこと。
+    await page.locator('#date_month').selectOption('all');
+
+    await expect(page).toHaveURL(/date_month=all/);
+    await expect(page.locator('tr[data-id]').filter({ hasText: '前々月の食料品' })).toHaveCount(1);
+  });
+
+  /**
+   * 日付範囲で絞っている間は、帯から月セレクトを消して期間だけを出す。
+   *
+   * 範囲と月の両方が送られると getDateRange は範囲を優先するので、月を選べても
+   * 結果は変わらず、選択と表示が食い違う。無効にして残す形も試したが、
+   * form-select は幅 100% で、横に期間を並べると場所を取り合って縮み、
+   * ドロップダウンの矢印が月の末尾に重なった。
+   *
+   * 期間は曜日付きで出す。一覧の発生日が曜日付きなので、ここだけ無いと
+   * 同じ日付が違う書き方で並ぶ。
+   */
+  test('日付範囲で絞ると月セレクトが消え、効いている期間が出る', async ({ page }) => {
+    const today = new Date();
+    const target = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+    const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0);
+    const begin = formatDate(target);
+    const end = formatDate(lastDay);
+
+    await page.goto('/summary/daily');
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+
+    await modal.locator('#begin_date').fill(begin);
+    await modal.locator('#end_date').fill(end);
+    await modal.getByRole('button', { name: '検索' }).click();
+
+    // 一覧が範囲どおりに絞られていること。
+    const listRows = page.locator('tr[data-id]');
+    await expect(listRows.filter({ hasText: '前々月の食料品' })).toHaveCount(1);
+    await expect(listRows.filter({ hasText: '当月の食料品' })).toHaveCount(0);
+
+    // 月セレクトは消え、効いている期間が曜日付きで読めること。
+    await expect(page.locator('#date_month')).toHaveCount(0);
+    await expect(page.locator("[id='search_form']")).toContainText(
+      `${formatDateWithWeek(target)} 〜 ${formatDateWithWeek(lastDay)}`
+    );
+  });
+
+  /**
+   * モーダルの中の月指定も、日付範囲が入っている間は操作させない。
+   *
+   * 併せて、モーダルの操作が裏の画面に漏れないこと。月指定のセレクトは本体と
+   * id が重なっており、モーダルは document.body へ差し込まれるため、
+   * $("#date_month") が本体側に当たっていた。日付範囲を入れると、モーダル
+   * ではなく裏の画面のセレクトが「未指定」に書き換わっていた。
+   */
+  test('モーダルで日付範囲を入れると月指定が無効になり、裏の画面は触られない', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto(`/summary/daily?date_month=${month}`);
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    const modalMonth = modal.locator('#search_date_month');
+
+    await expect(modal).toBeVisible();
+    await expect(modalMonth).toBeEnabled();
+
+    await modal.locator('#begin_date').fill(formatDate(new Date()));
+
+    await expect(modalMonth).toBeDisabled();
+
+    // 裏の画面のセレクトは選んだ月のまま。
+    await expect(page.locator('#date_month')).toHaveValue(month);
+
+    // クリアで戻せること。戻せないと、範囲を一度入れたら月へ帰れなくなる。
+    await modal.getByRole('button', { name: 'クリア' }).click();
+
+    await expect(modalMonth).toBeEnabled();
+    await expect(modal.locator('#begin_date')).toHaveValue('');
+  });
+
+  /**
+   * 詳細検索は、今その画面に効いている条件のまま開く。
+   *
+   * モーダルへ渡す値をリクエストから読み直し、月指定だけ date('Y-m') を既定に
+   * していたころは、日付範囲で絞っている画面 (URL に date_month が無い) から
+   * 開いても月指定が当月になっていた。範囲で見ているのに月を選んでいるように
+   * 見え、そのまま検索すると当月へ戻る。
+   *
+   * 場所で絞っているときはキーワード欄にその場所を出す。モーダルに location の
+   * 欄は無いため、空のまま開くと何で絞られているのかが画面から分からない。
+   */
+  test('日付範囲と場所で絞った画面の詳細検索が、その条件のまま開く', async ({ page }) => {
+    const today = new Date();
+    const begin = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+    const end = formatDate(today);
+
+    await page.goto(`/summary/daily?location=${encodeURIComponent('E2E スーパー')}&begin_date=${begin}&end_date=${end}`);
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+
+    // 月は選んでいない。当月が入っていると、検索し直しただけで範囲が消える。
+    await expect(modal.locator('#search_date_month')).toHaveValue('all');
+    await expect(modal.locator('#search_date_month')).toBeDisabled();
+
+    await expect(modal.locator('#begin_date')).toHaveValue(begin);
+    await expect(modal.locator('#end_date')).toHaveValue(end);
+
+    // 絞り込んでいる場所が読めること。
+    await expect(modal.locator("[name='keyword']")).toHaveValue('E2E スーパー');
+  });
+
+  /**
+   * 月別集計も日付範囲で絞っている間は日別と同じ扱いにする。月のセレクトは
+   * 出さずに効いている期間を出し、前月・翌月は押せない。
+   *
+   * 前月・翌月はセレクトへ月を入れてフォームを送る作りなので、セレクトが
+   * 出ていない状態で押せると、月の入らないまま送られる。
+   *
+   * カレンダーだけは月を必要とする (範囲を受け取らない) ので、タブの URL には
+   * 月を渡したまま残してある。範囲指定のままでも開けること。
+   */
+  test('月別集計も日付範囲で絞ると月セレクトが消え、前月・翌月が押せなくなる', async ({ page }) => {
+    const today = new Date();
+    const first = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const begin = formatDate(first);
+    const end = formatDate(today);
+
+    await page.goto(`/summary/monthly?begin_date=${begin}&end_date=${end}`);
+
+    await expect(page.locator('#date_month')).toHaveCount(0);
+    await expect(page.locator("[id='search_form']")).toContainText(
+      `${formatDateWithWeek(first)} 〜 ${formatDateWithWeek(today)}`
+    );
+
+    const steps = page.locator('.month_step');
+    await expect(steps).toHaveCount(2);
+    await expect(steps.nth(0)).toBeDisabled();
+    await expect(steps.nth(1)).toBeDisabled();
+
+    // 詳細検索は未指定で開く。当月が入っていると、検索し直しただけで範囲が消える。
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('#search_date_month')).toHaveValue('all');
+    await expect(modal.locator('#search_date_month')).toBeDisabled();
+
+    await page.locator('#search_modal').getByRole('button', { name: '閉じる' }).click();
+    await expect(modal).toBeHidden();
+
+    // カレンダーは月で描くタブ。範囲のままでも開けること。
+    await page.getByRole('tab', { name: 'カレンダー' }).click();
+    await expect(page.locator('#tabs')).toContainText('日');
+  });
+
+  /**
+   * 月別集計の詳細検索も同じ作りで、同じ取り違えを持っていた。日別だけ直すと
+   * 片方に残る。
+   */
+  test('月別集計でもモーダルの日付範囲が裏の画面を触らない', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto(`/summary/monthly?date_month=${month}`);
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    const modalMonth = modal.locator('#search_date_month');
+
+    await expect(modal).toBeVisible();
+    await expect(modalMonth).toBeEnabled();
+
+    await modal.locator('#begin_date').fill(formatDate(new Date()));
+
+    await expect(modalMonth).toBeDisabled();
+    await expect(page.locator('#date_month')).toHaveValue(month);
+
+    await modal.getByRole('button', { name: 'クリア' }).click();
+
+    await expect(modalMonth).toBeEnabled();
+  });
+
+  /**
+   * 日別集計の場所は、その場所だけに絞った日別集計へのリンクになっている。
+   * 月別集計の利用頻度ランキングが以前から同じ遷移を持っており、一覧側だけが
+   * ただの文字列で、同じ場所を見たいときに詳細検索を開き直す必要があった。
+   *
+   * 引き継ぐのは表示中の絞り込みそのもの。View で Request から組み直すと、
+   * Condition が既定値で埋めている sort_field や limit が抜け、踏んだ先で
+   * 並び順や件数が変わる。
+   *
+   * 場所が空の行はリンクにしない。Service 側が strlen で空の条件を捨てるため、
+   * 押しても絞り込みは効かず、同じ一覧が出るだけになる。
+   */
+  test('日別集計の場所からその場所だけに絞り込める', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto(`/summary/daily?date_month=${month}`);
+
+    const listRows = page.locator('tr[data-id]');
+
+    // 場所の空いている行 (シードの給与) はリンクを持たない。金額も日付も
+    // リンクではないので、行ごと数えれば足りる。
+    await expect(listRows.filter({ hasText: '当月の給与' }).getByRole('link')).toHaveCount(0);
+
+    await listRows
+      .filter({ hasText: '当月の食料品' })
+      .getByRole('link', { name: 'E2E スーパー' })
+      .click();
+
+    // 場所と、元の画面が見ていた期間の両方が URL に乗ること。期間が落ちると
+    // 絞り込んだつもりで全期間の一覧が出る。
+    //
+    // 期間は元の画面が持っている形のまま。月を見ているなら date_month で、
+    // 解決済みの実日付は足さない。足していたころは、月を見ているだけの人が
+    // 踏んだ先まで「日付範囲指定」の画面になり、月のセレクトが操作不可に
+    // なっていた。
+    const target = new URL(page.url());
+
+    expect(target.pathname).toBe('/summary/daily');
+    expect(target.searchParams.get('location')).toBe('E2E スーパー');
+    expect(target.searchParams.get('date_month')).toBe(month);
+    expect(target.searchParams.get('begin_date')).toBeNull();
+    expect(target.searchParams.get('end_date')).toBeNull();
+
+    // 踏んだ先でも月を選び直せること。
+    await expect(page.locator('#date_month')).toBeEnabled();
+    await expect(page.locator('#date_month')).toHaveValue(month);
+
+    // 当月の「E2E スーパー」はシードの食料品だけ。
+    await expect(listRows).toHaveCount(1);
+    await expect(listRows).toContainText('当月の食料品');
+  });
+
+  /**
+   * リンクの既定色は黒。sandstone の #93c54b は黄緑で、一覧に何十個も並ぶと
+   * 読みたい数字より色のほうが目立っていた。押せることは下線が伝える。
+   *
+   * 色はテーマの CSS 変数を上書きして決めているので、Bootstrap を上げ直すと
+   * 黙って元の黄緑に戻る。効いているかどうかは計算後の値でしか分からない。
+   */
+  test('リンクの既定色が黒になっている', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto(`/summary/daily?date_month=${month}`);
+
+    const link = page.locator('tr[data-id]').getByRole('link', { name: 'E2E スーパー' }).first();
+
+    await expect(link).toHaveCSS('color', 'rgb(0, 0, 0)');
+
+    // 下線は残す。色を落とした分、押せる手掛かりはこれだけになる。
+    await expect(link).toHaveCSS('text-decoration-line', 'underline');
   });
 
   /**

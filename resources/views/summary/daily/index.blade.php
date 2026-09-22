@@ -15,16 +15,31 @@
 
             $("table").responsiveTable();
 
+            {{-- モーダルへ渡すのは Condition が決めた値。リクエストを読み直して
+                 date('Y-m') を既定にしていたころは、日付範囲で絞っている画面
+                 (URL に date_month が無い) から開いても月指定が当月になり、
+                 範囲で見ているのに月を選んでいるように見えていた。
+
+                 場所で絞り込んでいるときは、その場所をキーワード欄に出す。
+                 モーダルに location の欄は無いので、空のまま開くと何で絞られて
+                 いるのかが画面から分からない。キーワードは場所と用途の部分一致
+                 なので、そのまま検索すれば同じ場所は残る。 --}}
+            @php
+                $modal_keyword = strlen((string) $condition->keyword)
+                    ? $condition->keyword
+                    : $condition->location;
+            @endphp
+
             // 詳細検索押下
             $("#open_condition").click(function() {
                 $.get("/summary/daily/condition",
                     {
-                        date_month: {!! Html::encodeJsJsonValue('date_month', date('Y-m')) !!},
-                        begin_date: {!! Html::encodeJsJsonValue('begin_date') !!},
-                        end_date: {!! Html::encodeJsJsonValue('end_date') !!},
-                        activity_category_item_id: {!! Html::encodeJsJsonValue('activity_category_item_id', null, 'array') !!},
-                        keyword: {!! Html::encodeJsJsonValue('keyword') !!},
-                        credit_flag: {!! Html::encodeJsJsonValue('credit_flag') !!},
+                        date_month: {!! Html::encodeJsValue($condition->date_month) !!},
+                        begin_date: {!! Html::encodeJsValue($condition->begin_date) !!},
+                        end_date: {!! Html::encodeJsValue($condition->end_date) !!},
+                        activity_category_item_id: {!! Html::encodeJsValue($condition->activity_category_item_id, 'array') !!},
+                        keyword: {!! Html::encodeJsValue($modal_keyword) !!},
+                        credit_flag: {!! Html::encodeJsValue($condition->credit_flag) !!},
                     },
                     function(data) {
                         showModal(data);
@@ -53,7 +68,27 @@
         {!! Form::open(['url' => 'summary/daily', 'id' => 'search_form', 'method' => 'get']) !!}
             <div class="row g-2 align-items-center form-group-adjust">
                 <div class="col-md-8">
-                    {!! Form::select('date_month', $month_list, Request::get('date_month', date('Y-m')), ['class' => 'form-select', 'id' => 'date_month']) !!}
+                    @if ($condition->hasDateRange())
+                        {{-- 日付範囲で絞っている間は月のセレクトを出さない。
+                             範囲と月の両方が送られると getDateRange は範囲を優先する
+                             ので、月を選べても結果は変わらず、選択と表示が食い違う。
+
+                             無効にして残す形も試したが、form-select は幅 100% で、
+                             横に期間を並べると場所を取り合って縮む。縮んだ分は
+                             ドロップダウンの矢印が月の末尾に重なって出た。
+                             操作できない上に読めないものを置く意味がない。
+
+                             代わりに効いている期間を出す。何も出さないと、
+                             何で絞られているのかが画面から読めない。
+
+                             表記は月別集計と揃える (Html::dateRange)。 --}}
+                        <span class="text-nowrap">{{Html::dateRange($date_range)}}</span>
+                    @else
+                        {{-- 選択は Condition が決めた値を出す。ここで Request から
+                             組み直していたころは、指定が無いときだけセレクトが当月を
+                             出し、一覧は全期間を並べていた。 --}}
+                        {!! Form::select('date_month', $month_list, $condition->date_month, ['class' => 'form-select', 'id' => 'date_month']) !!}
+                    @endif
                 </div>
                 <div class="col-md-4">
                     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>
@@ -113,7 +148,28 @@
                         {{Html::date($activity->activity_date)}}
                     </td>
                     <td>{{{$activity->activityCategoryItem->item_name}}}</td>
-                    <td>{{{$activity->location}}}</td>
+                    {{-- 場所は、今の絞り込みに location を足した日別集計へのリンクにする。
+                         月別集計の利用頻度ランキングが同じ遷移をしており、そちらと揃える。
+
+                         期間は Condition が持っている形のまま渡す。月を見ているなら
+                         date_month、日付範囲で絞っているなら begin_date / end_date が
+                         載る。ここで解決済みの実日付を足すと、月を見ているだけの人が
+                         踏んだ先まで「日付範囲指定」の画面になり、月のセレクトが
+                         操作不可になっていた。期間が必ず入っているのは、指定の無い
+                         ときに Condition が当月を埋めるため。
+
+                         空欄はリンクにしない。押しても絞り込みが効かず (Service 側が
+                         strlen で捨てる)、同じ一覧が出るだけのため。 --}}
+                    <td>
+                        @if (strlen($activity->location ?? ''))
+                            @php
+                                $location_queries = array_merge($condition->toArray(), [
+                                    'location' => $activity->location,
+                                ]);
+                            @endphp
+                            {!! Html::linkWithQueryString('/summary/daily', $location_queries, $activity->location) !!}
+                        @endif
+                    </td>
                     <td>{{{$activity->content}}}</td>
                     <td class="text-end">{!! Html::amount($activity->amount) !!}</td>
                     <td class="text-center">
