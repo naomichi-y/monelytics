@@ -101,6 +101,37 @@ test.describe('集計', () => {
     await page.locator('#search_modal').getByRole('button', { name: '検索' }).click();
 
     await expect(page.getByRole('tab', { name: 'カレンダー' })).toHaveAttribute('aria-selected', 'true');
+
+    // 前月・翌月も同じ。リンクで飛ばさずフォームで送っているのはこのため。
+    await page.getByRole('button', { name: '前月' }).click();
+
+    await expect(page.getByRole('tab', { name: 'カレンダー' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  /**
+   * 月を送るボタンは、記録のある月の間だけを動く。セレクトは記録のある月しか
+   * 選択肢に持たないため、暦の上での隣へ送ると選択が「未指定」へ落ちる。
+   *
+   * その向きに記録がなければ押せない。シードの最も新しい月は当月なので、
+   * 開いた時点で翌月は押せず、前月へ送ると押せるようになる。
+   */
+  test('前月・翌月で記録のある月を行き来できる', async ({ page }) => {
+    const current = formatMonth(new Date());
+    const previous = formatMonth(new Date(new Date().setDate(0)));
+
+    await page.goto(`/summary/monthly?date_month=${current}`);
+
+    await expect(page.getByRole('button', { name: '翌月' })).toBeDisabled();
+
+    await page.getByRole('button', { name: '前月' }).click();
+
+    await expect(page).toHaveURL(new RegExp(`date_month=${previous}`));
+    await expect(page.locator('#date_month')).toHaveValue(previous);
+    await expect(page.getByRole('button', { name: '翌月' })).toBeEnabled();
+
+    await page.getByRole('button', { name: '翌月' }).click();
+
+    await expect(page.locator('#date_month')).toHaveValue(current);
   });
 
   /**
