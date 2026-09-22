@@ -60,7 +60,14 @@
                         {{-- 右端に出るため、既定の左揃えではメニューが画面外へはみ出す。 --}}
                         <ul class="dropdown-menu dropdown-menu-end" data-bs-theme="light">
                             <li>{!! link_to('/user', 'プロフィール', ['class' => 'dropdown-item']) !!}</li>
-                            <li>{!! link_to('/user/logout', 'ログアウト', ['class' => 'dropdown-item']) !!}</li>
+                            {{-- ログアウトは POST。リンクのままだと画像の読み込みだけで
+                                 飛ばせてしまう。Bootstrap の dropdown-item は button でも
+                                 同じ見た目になる。 --}}
+                            <li>
+                                {!! Form::open(['url' => 'user/logout']) !!}
+                                    {!! Form::button('ログアウト', ['type' => 'submit', 'class' => 'dropdown-item']) !!}
+                                {!! Form::close() !!}
+                            </li>
                         </ul>
                     </li>
                 </ul>

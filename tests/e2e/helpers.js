@@ -28,6 +28,21 @@ async function login(page) {
 }
 
 /**
+ * ログアウトする。
+ *
+ * ログアウトは POST なので、URL を開くだけでは出られない。アカウントの
+ * ドロップダウンを開いてボタンを押す、画面と同じ経路を通す。
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+async function logout(page) {
+  await page.getByRole('button', { name: 'アカウント' }).click();
+  await page.getByRole('button', { name: 'ログアウト' }).click();
+
+  await expect(page).toHaveURL(/\/$/);
+}
+
+/**
  * 画面の日付入力が受け取る形式 (yyyy/mm/dd)。
  *
  * デスクトップ扱いのときは jQuery UI の datepicker が付いたテキスト入力に
@@ -112,6 +127,7 @@ function reportTable(page) {
 module.exports = {
   USER,
   login,
+  logout,
   formatDate,
   formatMonth,
   marker,
