@@ -59,6 +59,16 @@ function formatDate(date) {
 }
 
 /**
+ * 画面に出る日付の書き方。Html::date() が付ける曜日まで含める。
+ *
+ * @param {Date} date
+ * @returns {string}
+ */
+function formatDateWithWeek(date) {
+  return `${formatDate(date)} (${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]})`;
+}
+
+/**
  * @param {Date} date
  * @returns {string} yyyy-mm 形式。検索条件のクエリに使う。
  */
@@ -129,6 +139,7 @@ module.exports = {
   login,
   logout,
   formatDate,
+  formatDateWithWeek,
   formatMonth,
   marker,
   createVariableCost,

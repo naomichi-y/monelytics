@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { login, formatDate, formatMonth, reportTable } = require('./helpers');
+const { login, formatDate, formatDateWithWeek, formatMonth, reportTable } = require('./helpers');
 
 /**
  * 集計画面はどれも、サーバが組んだ HTML の断片を $.get で差し込む作りになって
@@ -422,18 +422,22 @@ test.describe('集計', () => {
   });
 
   /**
-   * 日付範囲で絞っている間は、帯の月セレクトを操作させない。
+   * 日付範囲で絞っている間は、帯から月セレクトを消して期間だけを出す。
    *
-   * 範囲と月の両方が送られると getDateRange は範囲を優先する。月を選べるまま
-   * にすると、セレクトが指している月と実際に出ている期間が食い違う。
-   * 代わりに効いている期間を出す。セレクトが「未指定」で止まっているだけでは、
-   * 何で絞られているのかが画面から読めない。
+   * 範囲と月の両方が送られると getDateRange は範囲を優先するので、月を選べても
+   * 結果は変わらず、選択と表示が食い違う。無効にして残す形も試したが、
+   * form-select は幅 100% で、横に期間を並べると場所を取り合って縮み、
+   * ドロップダウンの矢印が月の末尾に重なった。
+   *
+   * 期間は曜日付きで出す。一覧の発生日が曜日付きなので、ここだけ無いと
+   * 同じ日付が違う書き方で並ぶ。
    */
-  test('日付範囲で絞ると月セレクトが操作不可になり、効いている期間が出る', async ({ page }) => {
+  test('日付範囲で絞ると月セレクトが消え、効いている期間が出る', async ({ page }) => {
     const today = new Date();
     const target = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+    const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0);
     const begin = formatDate(target);
-    const end = formatDate(new Date(target.getFullYear(), target.getMonth() + 1, 0));
+    const end = formatDate(lastDay);
 
     await page.goto('/summary/daily');
     await page.getByText('詳細検索').click();
@@ -450,36 +454,11 @@ test.describe('集計', () => {
     await expect(listRows.filter({ hasText: '前々月の食料品' })).toHaveCount(1);
     await expect(listRows.filter({ hasText: '当月の食料品' })).toHaveCount(0);
 
-    // 月セレクトは触れず、効いている期間が読めること。
-    await expect(page.locator('#date_month')).toBeDisabled();
-    await expect(page.locator("[id='search_form']")).toContainText(`${begin} 〜 ${end}`);
-
-    // セレクトが中身より狭くなっていないこと。期間を横に並べた当初は
-    // form-select の幅 100% と場所を取り合って潰れ、「2026/09」の頭だけが
-    // 見えていた。見た目の印象ではなく、選択中の文字が収まるかで測る。
-    const fit = await page.locator('#date_month').evaluate((select) => {
-      const style = getComputedStyle(select);
-      const probe = document.createElement('span');
-
-      probe.style.font = style.font;
-      probe.style.position = 'absolute';
-      probe.style.whiteSpace = 'pre';
-      probe.style.visibility = 'hidden';
-      probe.textContent = select.options[select.selectedIndex].text;
-      document.body.appendChild(probe);
-
-      const text = probe.getBoundingClientRect().width;
-      probe.remove();
-
-      return {
-        text,
-        inner: select.clientWidth
-          - parseFloat(style.paddingLeft)
-          - parseFloat(style.paddingRight),
-      };
-    });
-
-    expect(fit.inner).toBeGreaterThanOrEqual(fit.text);
+    // 月セレクトは消え、効いている期間が曜日付きで読めること。
+    await expect(page.locator('#date_month')).toHaveCount(0);
+    await expect(page.locator("[id='search_form']")).toContainText(
+      `${formatDateWithWeek(target)} 〜 ${formatDateWithWeek(lastDay)}`
+    );
   });
 
   /**
