@@ -162,15 +162,16 @@ class ActivityCategoryItemService
     /**
      * 小項目データを削除する。
      *
+     * @see ActivityCategoryService::delete と同じ理由で findOrFail を使い、
+     * モデル経由で消す。
+     *
      * @param int $user_id
      * @param int $activity_category_item_id
      */
     public function delete($user_id, $activity_category_item_id)
     {
-        $activity_category_item = $this->activity_category_item->where('id', '=', $activity_category_item_id)
-            ->where('user_id', '=', $user_id)
-            ->get()
-            ->first();
-        $activity_category_item->delete();
+        $this->activity_category_item->where('user_id', '=', $user_id)
+            ->findOrFail($activity_category_item_id)
+            ->delete();
     }
 }
