@@ -37,6 +37,56 @@
     vertical-align: middle;
 }
 
+/*
+ * 列の配分。
+ *
+ * 既定は狭いほうに合わせる。額と増減は右揃えなので左が空いて見えるが、
+ * 7 桁 (-9,999,999 円) には padding 込みで 89px 要る。表が 314px しかない
+ * 画面でこれを削ると、桁の頭がセルからはみ出す。
+ */
+.variable-expense .col-name {
+    width: 28%;
+}
+
+.variable-expense .col-bar {
+    width: 20%;
+}
+
+.variable-expense .col-amount,
+.variable-expense .col-difference {
+    width: 26%;
+}
+
+/*
+ * 収まるだけの幅があるときは、空いている分を棒へ回す。読みたいのは小項目
+ * どうしの多い少ないで、そこが一番狭い列だった。
+ *
+ * 画面幅ではなくこの部品自身の幅で切り替える。ダッシュボードは画面が広がる
+ * と多段組みになるため、両者は一致しない (700px の画面で表は 639px、768px の
+ * 画面では 439px)。画面幅で分けると、広い画面のほうが狭い配分になる。
+ *
+ * 境目は 19% が 89px を上回る幅。container query を解さないブラウザでは
+ * 上の既定のまま、つまり今までの配分になる。
+ */
+.variable-expense {
+    container-type: inline-size;
+}
+
+@container (min-width: 500px) {
+    .variable-expense .col-name {
+        width: 22%;
+    }
+
+    .variable-expense .col-bar {
+        width: 40%;
+    }
+
+    .variable-expense .col-amount,
+    .variable-expense .col-difference {
+        width: 19%;
+    }
+}
+
 /* 入りきらない小項目名は折り返さず省略する。全文は title と、たどった先の
    一覧で読める。 */
 .variable-expense .group-name {
@@ -108,11 +158,13 @@
         </div>
 
         <table>
+            {{-- 幅は style 側で持つ。自分の幅で配分を変えるため、インラインで
+                 書くと上書きできない。 --}}
             <colgroup>
-                <col style="width: 28%" />
-                <col style="width: 20%" />
-                <col style="width: 26%" />
-                <col style="width: 26%" />
+                <col class="col-name" />
+                <col class="col-bar" />
+                <col class="col-amount" />
+                <col class="col-difference" />
             </colgroup>
             <tbody>
                 @foreach ($expense['groups'] as $group)
