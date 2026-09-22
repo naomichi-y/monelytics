@@ -42,14 +42,14 @@
                 <div class="row mb-3">
                     {!! Form::label('nickname', '名前', ['class' => 'col-md-5 col-form-label']) !!}
                     <div class="col-md-7">
-                        {!! Form::text('nickname', Request::input('nickname', Auth::user()->nickname), ['class' => 'form-control']) !!}
+                        {!! Form::text('nickname', Html::requestValue('nickname', Auth::user()->nickname), ['class' => 'form-control']) !!}
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-5 col-form-label']) !!}
                     <div class="col-md-7">
-                        {!! Form::text('email', Request::input('email', Auth::user()->email), ['class' => 'form-control']) !!}
+                        {!! Form::text('email', Html::requestValue('email', Auth::user()->email), ['class' => 'form-control']) !!}
                     </div>
                 </div>
 

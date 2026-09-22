@@ -268,11 +268,19 @@ class ActivityService
     /**
      * 'Y-m' 形式の月かどうかを判定する。
      *
-     * @param string $value
+     * 文字列に倒せない値は月ではないものとして扱う。?date_month[]=x のように
+     * 配列が来ると (string) の時点で「Array to string conversion」が例外になり、
+     * 月別集計が開けなくなる。
+     *
+     * @param mixed $value
      * @return bool
      */
     private function isMonth($value)
     {
+        if (!is_scalar($value)) {
+            return false;
+        }
+
         return preg_match('/\A\d{4}-\d{2}\z/', (string) $value) === 1;
     }
 

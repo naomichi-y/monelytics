@@ -28,7 +28,13 @@ class ConstantController extends \App\Http\Controllers\Controller {
     public function create()
     {
         $user_id = Auth::id();
+        // 配列も送れる。そのまま渡すと getConstantCosts の strtotime が
+        // TypeError になり、この画面が開けなくなる。
         $target_month = Request::input('date_month');
+
+        if (is_array($target_month)) {
+            $target_month = null;
+        }
 
         $data = [];
         $data['date_months'] = $this->activity->getConstantCostMonthlyList($user_id);

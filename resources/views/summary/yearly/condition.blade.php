@@ -24,11 +24,11 @@
                         <div class="row mb-3">
                             {!! Form::label('begin_year', '検索範囲', ['class' => 'col-md-2 col-form-label']) !!}
                             <div class="col-md-3">
-                                {!! Form::select('begin_year', $date_list, Request::input('begin_year'), ['class' => 'form-select']) !!}
+                                {!! Form::select('begin_year', $date_list, Html::requestValue('begin_year'), ['class' => 'form-select']) !!}
                             </div>
                             {!! Form::label('end_year', '〜', ['class' => 'col-md-2 col-form-label label-range-text']) !!}
                             <div class="col-md-3">
-                                {!! Form::select('end_year', $date_list, Request::input('end_year'), ['class' => 'form-select']) !!}
+                                {!! Form::select('end_year', $date_list, Html::requestValue('end_year'), ['class' => 'form-select']) !!}
                             </div>
                         </div>
 
@@ -37,7 +37,7 @@
                         <div class="row mb-3">
                             {!! Form::label('keyword', '場所・用途', ['class' => 'col-md-2 col-form-label']) !!}
                             <div class="col-md-8">
-                                {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'id' => 'keyword']) !!}
+                                {!! Form::text('keyword', Html::requestValue('keyword'), ['class' => 'form-control', 'id' => 'keyword']) !!}
                             </div>
                         </div>
 

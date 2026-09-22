@@ -55,21 +55,21 @@
                         <div class="row mb-3">
                             {!! Form::label('activity_category_id', '大項目', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-4">
-                                {!! Form::select('activity_category_id', $category_list,  Request::input('activity_category_id', $activity_category_item->activity_category_id), ['class' => 'form-select']) !!}
+                                {!! Form::select('activity_category_id', $category_list,  Html::requestValue('activity_category_id', $activity_category_item->activity_category_id), ['class' => 'form-select']) !!}
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             {!! Form::label('item_name', '小項目名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::text('item_name', Request::input('item_name', $activity_category_item->item_name), ['class' => 'form-control']) !!}
+                                {!! Form::text('item_name', Html::requestValue('item_name', $activity_category_item->item_name), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             {!! Form::label('content', '用途', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::textarea('content', Request::input('content', $activity_category_item->content), ['class' => 'form-control']) !!}
+                                {!! Form::textarea('content', Html::requestValue('content', $activity_category_item->content), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 

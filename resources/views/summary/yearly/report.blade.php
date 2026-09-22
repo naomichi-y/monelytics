@@ -59,7 +59,7 @@
                                 @foreach ($activity_categories['activity_category_items'] as $activity_category_item_id => $activity_category_items)
                                     <td class="text-end">
                                     @if (isset($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_item_id]))
-                                        @if (Request::input('output_type') == App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY)
+                                        @if (Html::requestValue('output_type') == App\Libraries\Condition\YearlySummaryCondition::OUTPUT_TYPE_MONTHLY)
                                           {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_item_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_month' => str_replace('/', '-', $summary_date), 'activity_category_item_id[]' => $activity_category_item_id], $text)) !!}
                                         @else
                                           {!! Html::amountLink($data['amount'][$cost_type][$activity_categories['activity_category_id']][$activity_category_item_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['date_year' => str_replace('/', '-', $summary_date), 'activity_category_item_id[]' => $activity_category_item_id], $text)) !!}

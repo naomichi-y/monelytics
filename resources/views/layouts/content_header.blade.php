@@ -47,7 +47,7 @@
             @if (Auth::check())
                 {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'd-flex']) !!}
                     <div class="navbar-search">
-                        {!! Form::text('keyword', Request::input('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
+                        {!! Form::text('keyword', Html::requestValue('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
                         <button type="submit" class="navbar-search-button" aria-label="検索">
                             <i class="bi bi-search"></i>
                         </button>

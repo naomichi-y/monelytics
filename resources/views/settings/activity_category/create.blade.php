@@ -70,14 +70,14 @@
                         <div class="row mb-3">
                             {!! Form::label('category_name', '大項目名', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::text('category_name', Request::input('category_name'), ['class' => 'form-control']) !!}
+                                {!! Form::text('category_name', Html::requestValue('category_name'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             {!! Form::label('content', '用途', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-6">
-                                {!! Form::textarea('content', Request::input('content'), ['class' => 'form-control']) !!}
+                                {!! Form::textarea('content', Html::requestValue('content'), ['class' => 'form-control']) !!}
                             </div>
                         </div>
 
