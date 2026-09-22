@@ -18,6 +18,32 @@ $(function () {
       "json"
     );
 
+    /**
+     * 横軸のラベルを何個おきに出すかを、実際の描画幅から決める。
+     *
+     * 以前は ceil(n / 24) で「24 個に収める」としていたが、24 個入るかどうかは
+     * 幅の側の話で、入らないときは黙って重なっていた。'2006/07' は 41px、
+     * プロット幅は既定の画面で 996px なので、24 個では 1 つあたり 41.5px しか
+     * 取れない。両端のラベルは目盛りを中心に左右へ伸びるぶんさらに食い込み、
+     * 20 年分では右端の 2 つが 14px 重なっていた。
+     *
+     * Highcharts 任せ (step を外す) にはしない。自動の間引きは回転を前提に
+     * していて、同じ 20 年分で 13px、5 年分では 39px 重なる。
+     *
+     * @param {number} plotWidth 目盛りが並ぶ幅
+     * @param {number} count ラベルの総数
+     * @return {number}
+     */
+    function labelStep(plotWidth, count) {
+      // '2006/07' の実測値と、隣と地続きに見えない最小のすき間。
+      var LABEL_WIDTH = 41;
+      var LABEL_GAP = 12;
+
+      var fits = Math.max(2, Math.floor(plotWidth / (LABEL_WIDTH + LABEL_GAP)));
+
+      return (count > fits) ? Math.ceil(count / fits) : 1;
+    }
+
     function drawLineChart(labels, series) {
       // 支出は正に揃えてあるので通常は 0 以上しかない。軸の空いた側を
       // 描かないよう 0 起点にするが、返金が上回って負になる小項目もあるため
@@ -36,6 +62,26 @@ $(function () {
           // zoomType は 11 で chart.zooming.type へ移動した。
           zooming: {
             type: 'x'
+          },
+          events: {
+            // 間引き幅は描画幅が決まってからでないと出せない。画面幅が
+            // 変わったときも引き直されるので、拡大縮小にも追従する。
+            // 求めた値と同じなら何もしないため、再描画は繰り返さない。
+            render: function() {
+              var axis = this.xAxis[0];
+              var step = labelStep(this.plotWidth, labels.length);
+
+              // 末尾のラベルは間引きの並びから外れた位置にも出る。間引いて
+              // いる間はそこだけ隣と 1px まで詰まるので出さない。全部出して
+              // いるとき (step が 1) は詰まりようがないため、最後の月まで
+              // 名前を付ける。
+              var showLast = (step === 1);
+
+              if (axis.options.labels.step !== step || axis.options.showLastLabel !== showLast) {
+                axis.update({ showLastLabel: showLast, labels: { step: step } }, false);
+                this.redraw(false);
+              }
+            }
           }
         },
         title: {
@@ -43,9 +89,10 @@ $(function () {
         },
         xAxis: {
           categories: labels,
-          // 月単位で年をまたぐと目盛りが詰まるため間引かせる。
+          // 実際の幅が決まってから chart.events.render が入れ直す。ここでは
+          // 1 つ目の描画で全部並べてしまわないよう、控えめな値から始める。
           labels: {
-            step: (labels.length > 24) ? Math.ceil(labels.length / 24) : 1
+            step: labelStep(600, labels.length)
           }
         },
         yAxis: {
