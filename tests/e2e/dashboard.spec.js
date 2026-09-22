@@ -77,6 +77,73 @@ test.describe('ダッシュボード', () => {
   });
 
   /**
+   * 以前は場所と用途を両方 d-none で隠しており、スマホでは発生日・小項目・金額
+   * しか出なかった。どこで何に使ったのかが分からないうえ、隠した列のぶん右が
+   * 空いていたので、幅が足りなかったわけでもなかった。
+   *
+   * とはいえ 5 列をそのまま並べると 1 列あたり 4、5 文字しか残らないので、
+   * 用途は列ごと畳んで場所の列へ入れる。
+   *
+   * 幅の取り合いは端末の幅で変わる。割合で配り直した版は 320px で金額が隣へ
+   * はみ出して重なり、日付を 1 行に伸ばした版は表そのものが入れ物からはみ出て
+   * 右端が切れた。どちらも 390px では起きない。狭いほうも一緒に測る。
+   */
+  test('スマホ幅でも場所と用途が読める', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+
+    const table = page.locator('#activity_history table');
+    await expect(table).toBeVisible();
+
+    // 見えている列は 4 つ。用途は場所の列へ畳まれる。
+    const visible = table.locator('thead th:visible');
+    // 見え方で確かめる。畳んだ側は display で消しているだけなので、
+    // textContent で見ると隠れている文字まで拾ってしまう。
+    await expect(visible).toHaveCount(4);
+    await expect(visible.nth(3)).toHaveText('場所・用途', { useInnerText: true });
+
+    // その 1 つのセルに場所と用途が両方入ること。シードの当月の食料品は
+    // どちらも埋まっている。
+    const merged = table.locator('tbody tr').filter({ hasText: '当月の食料品' }).locator('td').nth(3);
+    await expect(merged).toHaveText('E2E スーパー / 当月の食料品', { useInnerText: true });
+
+    // 表が入れ物に収まること。はみ出すと右端の列が読めない。
+    for (const width of [320, 360, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.reload();
+      await table.waitFor();
+
+      const fit = await page.locator('#activity_history').evaluate((box) => ({
+        container: Math.round(box.getBoundingClientRect().width),
+        table: Math.round(box.querySelector('table').getBoundingClientRect().width),
+      }));
+
+      expect(fit.table, `${width}px`).toBeLessThanOrEqual(fit.container);
+    }
+  });
+
+  /**
+   * 広い画面では場所と用途を別々の列に戻す。畳んだままだと、幅があるのに
+   * 1 つのセルへ詰めることになる。
+   */
+  test('広い画面では場所と用途が別の列に戻る', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.reload();
+
+    const table = page.locator('#activity_history table');
+    const visible = table.locator('thead th:visible');
+
+    await expect(visible).toHaveCount(5);
+    await expect(visible.nth(3)).toHaveText('場所', { useInnerText: true });
+    await expect(visible.nth(4)).toHaveText('用途', { useInnerText: true });
+
+    const row = table.locator('tbody tr').filter({ hasText: '当月の食料品' });
+
+    await expect(row.locator('td').nth(3)).toHaveText('E2E スーパー', { useInnerText: true });
+    await expect(row.locator('td').nth(4)).toHaveText('当月の食料品', { useInnerText: true });
+  });
+
+  /**
    * 収入と固定支出は月のうち決まった日にまとめて記録されるため、月の途中で
    * 前月と比べても使いすぎの目安にならない。画面には変動支出だけを出す。
    * 額の正しさは PHPUnit に任せ、ここは ajax の断片が画面まで届いているか。
