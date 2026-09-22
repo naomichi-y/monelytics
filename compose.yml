@@ -35,6 +35,8 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       # ACME の HTTP-01 チャレンジ応答ファイル置き場。
       - /var/www/certbot:/var/www/certbot:ro
+    networks:
+      - frontend
     restart: unless-stopped
 
   php:
@@ -46,6 +48,9 @@ services:
       - redis
     volumes:
       - ./:/data
+    networks:
+      - frontend
+      - backend
     restart: unless-stopped
 
   db:
@@ -61,6 +66,9 @@ services:
       - dbdata:/var/lib/mysql
       - ./etc/docker/db/my.cnf:/etc/mysql/conf.d/my.cnf:ro
       - ./etc/docker/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+    networks:
+      - backend
+      - e2e-backend
     restart: unless-stopped
 
   redis:
@@ -79,6 +87,9 @@ services:
     # SESSION_DRIVER=redis のため、コンテナ再作成でログアウトしないよう永続化する。
     volumes:
       - redisdata:/data
+    networks:
+      - backend
+      - e2e-backend
     restart: unless-stopped
 
   # E2E 用のアプリ一式。本番へ触れないよう、書き込む先を全て別に向ける
@@ -120,6 +131,9 @@ services:
       RATE_LIMIT_LOGIN: "1000,1"
       RATE_LIMIT_REGISTRATION: "1000,1"
       RATE_LIMIT_CONTACT: "1000,1"
+    networks:
+      - e2e-frontend
+      - e2e-backend
     restart: unless-stopped
 
   web-e2e:
@@ -143,6 +157,8 @@ services:
     volumes:
       - ./public:/data/public:ro
       - ./etc/docker/web/e2e.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - e2e-frontend
     restart: unless-stopped
 
   # ブラウザ同梱の公式イメージ。ホストに node を入れずに実行する。
@@ -153,13 +169,46 @@ services:
     depends_on:
       - web-e2e
     working_dir: /data
+    # root で動かさない。このコンテナはホストのチェックアウトを /data へ
+    # 読み書きでマウントしているため、root のままだと npm ci やレポートの
+    # 出力がホスト側に root 所有で残る。README の手順はこのコンテナの中で
+    # npm と実ブラウザを動かすので、そこが踏まれると相手はホストの
+    # ファイルを root で置けることになる。uid を合わせておけば、生成物の
+    # 持ち主はチェックアウトの持ち主と同じになる。
+    user: "${WEBAPP_UID:-1000}:${WEBAPP_GID:-1000}"
     volumes:
       - ./:/data
     environment:
       E2E_BASE_URL: http://web-e2e
       CI: "1"
+      # イメージの既定は /root で、非 root では書けない。npm と playwright は
+      # キャッシュの置き場所をここから決めるため、書ける場所へ移す。
+      HOME: /tmp
+    networks:
+      - e2e-frontend
     # 実行するまで待機させる。
     entrypoint: ["sleep", "infinity"]
+
+# 本番と E2E を別のネットワークに置く。以前は 7 つのコンテナが 1 つの既定
+# ネットワークに同居しており、playwright から本番の php-fpm (9000)、本番の
+# nginx、db、redis の全てへ直接届いた。php-fpm は呼び出し側が
+# SCRIPT_FILENAME を指定する仕組みなので、そこへ話せること自体が本番 PHP を
+# 動かす手段になる。
+#
+# php-fpm の listen.allowed_clients で絞る手もあるが、受け付けるのは IP だけで
+# コンテナの IP は起動ごとに変わる。固定するほうが壊れやすいので、届く範囲を
+# 分ける。
+#
+# db と redis だけは両方に属する。E2E が同じインスタンスをスキーマと DB 番号で
+# 分けて使っているため。ここまで分けるなら E2E 専用の db と redis を立てる
+# ことになる。
+networks:
+  # 本番の nginx から php-fpm へ。db と redis はここに要らない。
+  frontend:
+  # 本番の php からデータストアへ。nginx はここに要らない。
+  backend:
+  e2e-frontend:
+  e2e-backend:
 
 volumes:
   dbdata:
