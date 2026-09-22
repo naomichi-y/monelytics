@@ -21,7 +21,10 @@ Route::group(['namespace' => 'User', 'prefix' => 'user'], function($route) {
     $route->get('login', 'SessionController@getLogin');
     // 総当たりを抑える。失敗も成功も同じ IP で数える。
     $route->post('login', 'SessionController@postLogin')->middleware('throttle:' . config('app.rate_limits.login'));
-    $route->get('logout', 'SessionController@logout');
+    // POST にしてあるのは、GET だと <img src="/user/logout"> を踏ませるだけで
+    // 他人をログアウトさせられるため。副作用のある操作は CSRF の検証が
+    // 走る側へ置く。
+    $route->post('logout', 'SessionController@logout');
 
     $route->get('done', 'RegistrationController@done');
     $route->put('update', 'RegistrationController@update');

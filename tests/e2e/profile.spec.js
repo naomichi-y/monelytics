@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { USER, login } = require('./helpers');
+const { USER, login, logout } = require('./helpers');
 
 test.describe('プロフィール', () => {
   test('パスワードを変えるには現在のパスワードが要る', async ({ page }) => {
@@ -17,7 +17,7 @@ test.describe('プロフィール', () => {
     // 画面に理由が出ただけで、実際には変わっていないことまで見る。
     // 検証を通したあとに弾いているため、通す側の順番を間違えると
     // 先にパスワードだけが書き換わる。
-    await page.goto('/user/logout');
+    await logout(page);
     await login(page);
   });
 
@@ -64,7 +64,7 @@ test.describe('プロフィール', () => {
     await page.getByRole('button', { name: '更新' }).click();
     await expect(page.getByText('更新が完了しました。')).toBeVisible();
 
-    await page.goto('/user/logout');
+    await logout(page);
     await page.goto('/user/login');
     await page.getByLabel('メールアドレス').fill(USER.email);
     await page.getByLabel('パスワード').fill(changed);
@@ -80,7 +80,7 @@ test.describe('プロフィール', () => {
     await page.getByRole('button', { name: '更新' }).click();
     await expect(page.getByText('更新が完了しました。')).toBeVisible();
 
-    await page.goto('/user/logout');
+    await logout(page);
     await login(page);
   });
 });

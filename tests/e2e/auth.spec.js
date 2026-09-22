@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { USER, login } = require('./helpers');
+const { USER, login, logout } = require('./helpers');
 
 test.describe('認証', () => {
   test('正しい資格情報でログインでき、ダッシュボードに入れる', async ({ page }) => {
@@ -8,8 +8,9 @@ test.describe('認証', () => {
 
     // ログアウトはアカウントのドロップダウンの中にある。BS5 の開閉トグルは
     // <a> のままだが role="button" を持つため、リンクとしては引けない。
+    // ログアウト自体も POST の送信ボタンなのでリンクではない。
     await page.getByRole('button', { name: 'アカウント' }).click();
-    await expect(page.getByRole('link', { name: 'ログアウト' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'ログアウト' })).toBeVisible();
   });
 
   test('誤ったパスワードはログイン画面に戻され、理由が表示される', async ({ page }) => {
@@ -64,8 +65,7 @@ test.describe('認証', () => {
   test('ログアウトすると保護された画面に入れなくなる', async ({ page }) => {
     await login(page);
 
-    await page.getByRole('button', { name: 'アカウント' }).click();
-    await page.getByRole('link', { name: 'ログアウト' }).click();
+    await logout(page);
 
     await page.goto('/summary/daily');
     await expect(page).toHaveURL(/\/user\/login$/);
