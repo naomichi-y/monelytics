@@ -68,7 +68,9 @@ class ActivityCategoryItemService
     {
         $result = false;
 
-        if ($this->activity_category_item->validate($fields)) {
+        // 付け替え先は必ず所有者で絞る。id は利用者が自由に送れるため
+        // (@see ActivityCategoryItem::rulesForUser)。
+        if ($this->activity_category_item->validate($fields, $this->activity_category_item->rulesForUser($user_id))) {
             $fields['user_id'] = $user_id;
             $fields['sort_order'] = $this->getLastSortOrder($user_id, $fields['activity_category_id']) + 1;
 
@@ -129,16 +131,21 @@ class ActivityCategoryItemService
     /**
      * 小項目データを更新する。
      *
+     * 対象の小項目は where で所有者に絞ってあったが、付け替え先の大項目は
+     * 絞っていなかった。本体を絞っても移す先を絞らなければ、他人の大項目へ
+     * 移せる (@see ActivityCategoryItem::rulesForUser)。
+     *
      * @param int $id
-     * @param array $fields
+     * @param array $fields user_id を含む
      * @param array &$errors
      * @return bool
      */
     public function update($id, $fields, array &$errors = [])
     {
         $result = false;
+        $rules = $this->activity_category_item->rulesForUser($fields['user_id'] ?? null);
 
-        if ($this->activity_category_item->validate($fields)) {
+        if ($this->activity_category_item->validate($fields, $rules)) {
             $this->activity_category_item->where('id', '=', $id)
             ->where('user_id', '=', $fields['user_id'])
             ->update($fields);

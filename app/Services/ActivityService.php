@@ -406,15 +406,22 @@ class ActivityService
 
         $builder = DB::table('activities AS a')
             ->select(DB::raw('a.id AS activity_id, ac.id AS activity_category_id, ac.category_name, acg.id, DATE_FORMAT(a.activity_date, \'%Y/%m/%d\') AS activity_date, acg.item_name, a.content, acg.credit_flag as default_credit_flag, a.amount, a.credit_flag'))
-            ->rightJoin('activity_category_items AS acg', function($join) use($begin_date, $end_date)
+            ->rightJoin('activity_category_items AS acg', function($join) use($user_id, $begin_date, $end_date)
             {
                 // $join(JoinClause)はwhereBetween()をサポートしていないので日付はwhere()で検索
                 $join->on('a.activity_category_item_id', '=', 'acg.id')
                     ->where('a.activity_date', '>=', $begin_date)
                     ->where('a.activity_date', '<=', $end_date)
+                    // 所有者の条件は ON 側に置く。WHERE へ移すと収支のない行が
+                    // 落ちて右外部結合が内部結合になり、まだ入力していない
+                    // 小項目が画面から消える。
+                    ->where('a.user_id', '=', $user_id)
                     ->whereNull('a.delete_date');
             })
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
+            // 結合した表は全て所有者で絞る。大項目だけを絞っていたため、他人の
+            // 大項目へぶら下げられた小項目と収支がこの画面に出ていた。
+            ->where('acg.user_id', '=', $user_id)
             ->where('ac.user_id', '=', $user_id)
             ->where('ac.cost_type', '=', Models\ActivityCategory::COST_TYPE_CONSTANT)
             ->where('acg.delete_date')
@@ -545,10 +552,11 @@ class ActivityService
 
         $builder = DB::table('activities AS a')
             ->select(DB::raw('ac.cost_type, ac.id AS activity_category_id, ac.category_name, acg.id, acg.item_name, a.credit_flag, IFNULL(SUM(a.amount), 0) AS amount'))
-            ->rightJoin('activity_category_items AS acg', function($join) use($date_range)
+            ->rightJoin('activity_category_items AS acg', function($join) use($user_id, $date_range)
             {
                 // @see Activity::getConstantCosts()
                 $join->on('a.activity_category_item_id', '=', 'acg.id')
+                    ->where('a.user_id', '=', $user_id)
                     ->whereNull('a.delete_date');
 
                 if (strlen($date_range->begin_date)) {
@@ -560,6 +568,10 @@ class ActivityService
                 }
             })
             ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
+            // @see Activity::getConstantCosts() と同じ理由で、結合した表を全て
+            // 所有者で絞る。大項目だけでは、他人の大項目へぶら下げられた小項目の
+            // 名前と金額がこの集計表に混ざる。
+            ->where('acg.user_id', '=', $user_id)
             ->where('ac.user_id', '=', $user_id)
             ->whereNull('acg.delete_date')
             // ONLY_FULL_GROUP_BY 対策。acg.id は主キーで、以下の列はいずれも

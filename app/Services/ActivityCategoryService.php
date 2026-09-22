@@ -29,7 +29,11 @@ class ActivityCategoryService
      */
     public function findAll($user_id, $cost_type)
     {
-        $builder = $this->activity_category->with('activityCategoryItems')
+        // 小項目の側も所有者で絞る。リレーションは activity_category_id しか
+        // 見ないため、他人の大項目へぶら下げられた小項目がこの一覧に出ていた。
+        $builder = $this->activity_category->with(['activityCategoryItems' => function($builder) use ($user_id) {
+                $builder->where('user_id', '=', $user_id);
+            }])
             ->where('user_id', '=', $user_id)
             ->where('cost_type', '=', $cost_type)
             ->orderBy('sort_order', 'asc');
