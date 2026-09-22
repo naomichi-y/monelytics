@@ -45,8 +45,10 @@ jobs:
 
       - name: 依存を入れる
         run: |
-          docker compose exec -T -u webapp php composer install --no-interaction --no-progress
-          docker compose exec -T -u webapp php php artisan key:generate
+          # php は /data を読み取り専用で見ているため、チェックアウトへ書く
+          # 作業は tools から行う (compose.yml 参照)。
+          docker compose run --rm -u webapp tools composer install --no-interaction --no-progress
+          docker compose run --rm -u webapp tools php artisan key:generate
 
       - name: テストを流す
         run: docker compose exec -T -u webapp php php artisan test
@@ -78,8 +80,9 @@ jobs:
 
       - name: 依存を入れる
         run: |
-          docker compose exec -T -u webapp php-e2e composer install --no-interaction --no-progress
-          docker compose exec -T -u webapp php-e2e php artisan key:generate
+          # @see PHPUnit ジョブ。php-e2e も /data は読み取り専用。
+          docker compose run --rm -u webapp tools composer install --no-interaction --no-progress
+          docker compose run --rm -u webapp tools php artisan key:generate
           docker compose exec -T playwright npm ci
 
       # php-fpm も webapp で動く。root で流すと storage の中身が root 所有になり、

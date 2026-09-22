@@ -61,10 +61,21 @@ cat .env
 # set WEBAPP_UID / WEBAPP_GID in .env to the output of id -u / id -g first
 docker compose --profile e2e build
 docker compose up -d
-docker compose exec -u webapp php composer install
-docker compose exec -u webapp php php artisan key:generate
+
+# php は /data を読み取り専用で見るため、チェックアウトへ書くものは tools から
+docker compose run --rm -u webapp tools composer install
+docker compose run --rm -u webapp tools php artisan key:generate
+
 docker compose exec -u webapp php php artisan migrate
 ```
+
+The `php` container mounts the checkout read-only, with `storage` and
+`bootstrap/cache` writable on top -- those are the only paths written while
+serving. Its fpm workers run as the uid that owns the checkout, so a writable
+mount would let anything that gets code running in PHP leave a file where the
+next `git`, `composer` or `npm` on the host picks it up. Anything that has to
+change the tree (`composer install`, `key:generate`, `npm`) goes through `tools`,
+which is not running the rest of the time.
 
 Open the [http://localhost/](http://localhost/) in your browser.
 
