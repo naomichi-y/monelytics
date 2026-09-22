@@ -60,7 +60,9 @@
                              選べても結果は変わらず、選択と表示が食い違う。 --}}
                         <span class="text-nowrap">{{Html::dateRange($date_range)}}</span>
                     @else
-                        {!! Form::select('date_month', $month_list, Html::requestValue('date_month', date('Y-m')), ['class' => 'form-select', 'id' => 'date_month']) !!}
+                        {{-- 選択は Condition が決めた値を出す。ここで date('Y-m') を
+                             もう一度書くと、詳細検索との既定がずれる。 --}}
+                        {!! Form::select('date_month', $month_list, $condition->date_month, ['class' => 'form-select', 'id' => 'date_month']) !!}
                     @endif
                 </div>
                 <div class="col-auto">

@@ -29,14 +29,6 @@ class MonthlyController extends \App\Http\Controllers\Controller {
     public function index()
     {
         $month_list = $this->activity->getMonthList(Auth::id(), true);
-        $date_month = Request::input('date_month', date('Y-m'));
-
-        $data = [];
-        $data['month_list'] = $month_list;
-
-        // 前月・翌月のボタンが指す先。押せるかどうかも画面ではなくここで
-        // 決まる (記録のない向きへは進めない)。
-        $data['adjacent_months'] = $this->activity->getAdjacentMonths($month_list, $date_month);
 
         // 日付範囲で絞っているかどうかで帯の出し方が変わる。範囲で見ている
         // ときは月を選んでいないので、セレクトも前月・翌月も出す先が無い。
@@ -44,8 +36,25 @@ class MonthlyController extends \App\Http\Controllers\Controller {
             Request::only('date_month', 'begin_date', 'end_date')
         );
 
+        // 期間の指定が無いときは当月。帯のセレクトと詳細検索が同じ値を出すよう、
+        // 既定はここで 1 度だけ決める。以前は画面ごとに date('Y-m') を書いており、
+        // 詳細検索だけ Condition の値 (指定なし) を見て「未指定」で開いていた。
+        if (!$condition->hasDateRange() && !strlen((string) $condition->date_month)) {
+            $condition->date_month = date('Y-m');
+        }
+
+        $data = [];
+        $data['month_list'] = $month_list;
         $data['condition'] = $condition;
         $data['date_range'] = $condition->getDateRange();
+
+        // 前月・翌月のボタンが指す先。押せるかどうかも画面ではなくここで
+        // 決まる (記録のない向きへは進めない)。日付範囲で絞っている間は
+        // どちらも押せないので、そのときの基準は使われない。
+        $data['adjacent_months'] = $this->activity->getAdjacentMonths(
+            $month_list,
+            strlen((string) $condition->date_month) ? $condition->date_month : date('Y-m')
+        );
 
         return View::make('summary/monthly/index', $data);
     }
