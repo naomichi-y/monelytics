@@ -5,6 +5,8 @@ use Config;
 use Mail;
 use Validator;
 
+use Illuminate\Validation\Rule;
+
 class ContactService
 {
     /**
@@ -35,10 +37,19 @@ class ContactService
      */
     public function send($fields, $user_id = null, &$errors = [])
     {
+        $contact_type_list = $this->getContactTypeList();
+
+        // 先頭の '' は「種別の指定」という見出しで、選べる値ではない。
+        $contact_types = array_values(array_filter(array_keys($contact_type_list), 'strlen'));
+
         $rules = [
             'contact_name' => 'required',
             'email' => 'required|email',
-            'contact_type' => 'required',
+            // required だけでは一覧に無い値が素通りし、下の
+            // $contact_type_list[...] が未定義キーになる。PHP 8 では警告が
+            // 例外化するため 500 になり、この画面は未認証で開けるので誰でも
+            // 踏めた。受け付ける値は一覧そのものから引いて、二重に持たない。
+            'contact_type' => ['required', Rule::in($contact_types)],
             'contact_message' => 'required'
         ];
 
@@ -49,8 +60,6 @@ class ContactService
             $errors = $validator->messages()->toArray();
 
         } else {
-            $contact_type_list = $this->getContactTypeList();
-
             $data = $fields;
             $data['user_id'] = $user_id;
             $data['contact_type'] = $contact_type_list[$data['contact_type']];
