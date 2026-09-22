@@ -30,7 +30,14 @@ class ActivityCategory extends BaseModel {
         parent::boot();
 
         static::deleting(function($activity_category) {
-            $activity_category_items = $activity_category->activityCategoryItems()->get();
+            // 所有者で絞る。リレーションが見るのは activity_category_id だけで、
+            // 大項目を消した人と小項目の持ち主が同じとは限らない。持ち主の
+            // 違う行まで巻き込むと、他人のデータを消せることになる。
+            // 付け替え先は検証で絞ってあるが (@see ActivityCategoryItem::
+            // rulesForUser)、消す側も自分で確かめる。
+            $activity_category_items = $activity_category->activityCategoryItems()
+                ->where('user_id', '=', $activity_category->user_id)
+                ->get();
 
             foreach ($activity_category_items as $activity_category_item) {
                 $activity_category_item->delete();
