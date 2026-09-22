@@ -26,10 +26,12 @@ jobs:
           cp .env.example .env
           cp etc/docker/db/db.env.example etc/docker/db/db.env
 
-          # アプリが使う webapp 利用者は docker-entrypoint-initdb.d が作る。
-          # パスワードを二重に書かないよう、その SQL から取り出して .env へ移す。
-          password="$(sed -n "s/.*IDENTIFIED BY '\([^']*\)'.*/\1/p" etc/docker/db/docker-entrypoint-initdb.d/00-create_user.sql)"
+          # webapp のパスワードは使い捨て。以前は 00-create_user.sql へ直書きした
+          # 値を読み出していたが、その直書きが本番のパスワードを git の履歴へ残す
+          # 原因だった。毎回その場で作り、.env と db.env の双方へ同じ値を入れる。
+          password="$(openssl rand -hex 16)"
           sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$password/" .env
+          sed -i "s/^WEBAPP_PASSWORD=.*/WEBAPP_PASSWORD=$password/" etc/docker/db/db.env
 
       - name: コンテナを立てる
         run: |
@@ -62,8 +64,9 @@ jobs:
           cp .env.example .env
           cp etc/docker/db/db.env.example etc/docker/db/db.env
 
-          password="$(sed -n "s/.*IDENTIFIED BY '\([^']*\)'.*/\1/p" etc/docker/db/docker-entrypoint-initdb.d/00-create_user.sql)"
+          password="$(openssl rand -hex 16)"
           sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$password/" .env
+          sed -i "s/^WEBAPP_PASSWORD=.*/WEBAPP_PASSWORD=$password/" etc/docker/db/db.env
 
       - name: コンテナを立てる
         run: |
