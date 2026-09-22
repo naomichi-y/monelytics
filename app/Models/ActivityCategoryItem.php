@@ -65,7 +65,10 @@ class ActivityCategoryItem extends BaseModel {
         parent::boot();
 
         static::deleting(function($activity_category_item) {
-            $activity_category_item->activity()->delete();
+            // @see ActivityCategory::boot と同じ理由で所有者を確かめる。
+            $activity_category_item->activity()
+                ->where('user_id', '=', $activity_category_item->user_id)
+                ->delete();
         });
     }
 }
