@@ -36,6 +36,15 @@ files owned by you; `-u webapp` then writes as that user. The E2E containers sha
 this checkout, so they are built from the same values -- if they differ, each instance
 leaves files the other cannot write (see `tests/e2e/README.md`).
 
+Matching those ids is what makes `storage` and `bootstrap/cache` writable, so they do
+not need to be world writable. They had been left at 0777, which lets any account on
+the host drop a compiled Blade template into `storage/framework/views` for PHP to run.
+Reach for the ids before reaching for the mode:
+
+```
+chmod -R u=rwX,g=rwX,o=rX storage bootstrap/cache
+```
+
 Setup the containers.
 
 ```
