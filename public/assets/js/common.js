@@ -260,6 +260,27 @@ $(function() {
   var TAB_LOADING_MIN_HEIGHT = 240;
 
   /**
+   * 待っているあいだ、パネルに被せていることを表す印。
+   * 高さの切り方と重ね方は style.css が持つ。
+   */
+  var TAB_WAITING_CLASS = "tab-waiting";
+
+  /**
+   * 読み込み中であることを示す中身。
+   *
+   * 中身ごと入れ替える使い方と、上へ重ねる使い方の両方があるため、
+   * 組み立てだけを分けておく。
+   *
+   * @returns {string}
+   */
+  function loadingMarkup() {
+    return '<div class="tab-loading" role="status">'
+      + '<span class="spinner-border" aria-hidden="true"></span>'
+      + '<span>読み込んでいます…</span>'
+      + '</div>';
+  }
+
+  /**
    * 読み込み中であることを、その要素の中に出す。
    *
    * タブの中身と、届いたあとに自分でもう一度取りに行くグラフとで、同じ
@@ -268,10 +289,7 @@ $(function() {
    * @returns {jQuery}
    */
   $.fn.showLoading = function() {
-    return $(this).html('<div class="tab-loading" role="status">'
-      + '<span class="spinner-border" aria-hidden="true"></span>'
-      + '<span>読み込んでいます…</span>'
-      + '</div>');
+    return $(this).html(loadingMarkup());
   };
 
   $.fn.startTabs = function() {
@@ -335,9 +353,24 @@ $(function() {
 
         $container.css("visibility", "hidden");
 
+        // jQuery UI はここへ来るまでに中身を差し替えており、読み込み中の
+        // 表示はもう残っていない。しかも組み直しは次の task なので、その前に
+        // 一度描画が入る。ここで置き直さないと、組み直しに掛かる時間ぶん
+        // (年別集計で 1 秒以上) タブが真っ白になる。
+        var $waiting = $(loadingMarkup()).appendTo(ui.panel.addClass(TAB_WAITING_CLASS));
+
+        // 隠した表は場所を取ったままなので、確保した高さで頭を止める。
+        // 止めないとパネルが表の高さまで伸び、被せた表示が画面の外へ行く。
+        //
+        // 表の側を絶対配置にして流れから外す手もあるが、そうすると幅が
+        // パネルの内側ではなく padding を含む側で決まり、tablefix へ渡す幅が
+        // 20px ほど広くなる。組み上がった表がタブの枠から出る。
+        ui.panel.css("max-height", ui.panel.css("min-height"));
+
         setTimeout(function() {
+          $waiting.remove();
+          ui.panel.removeClass(TAB_WAITING_CLASS).css({ "min-height": "", "max-height": "" });
           $container.css("visibility", "");
-          ui.panel.css("min-height", "");
         }, 0);
       }
     });
