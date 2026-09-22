@@ -529,6 +529,34 @@ test.describe('集計', () => {
   });
 
   /**
+   * 帯のセレクトと詳細検索の月指定は同じ値で開く。
+   *
+   * 既定の当月を画面ごとに date('Y-m') と書いていたころ、詳細検索だけが
+   * Condition の値 (指定なし) を見て「未指定」で開いていた。帯は当月を
+   * 指しているのに、詳細検索をそのまま押すと全期間の集計になる。
+   */
+  test('月別集計の詳細検索は帯と同じ月で開く', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto('/summary/monthly');
+    await expect(page.locator('#date_month')).toHaveValue(month);
+
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('#search_date_month')).toHaveValue(month);
+
+    // 月を選んでいるときも同じ値で開くこと。
+    await page.goto('/summary/monthly?date_month=2026-08');
+    await expect(page.locator('#date_month')).toHaveValue('2026-08');
+
+    await page.getByText('詳細検索').click();
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('#search_date_month')).toHaveValue('2026-08');
+  });
+
+  /**
    * 月別集計も日付範囲で絞っている間は日別と同じ扱いにする。月のセレクトは
    * 出さずに効いている期間を出し、前月・翌月は押せない。
    *
