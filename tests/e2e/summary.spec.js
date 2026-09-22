@@ -169,6 +169,42 @@ test.describe('集計', () => {
   });
 
   /**
+   * タブの中身はどれも ajax。jQuery UI は切り替えた瞬間に空のパネルを見せて
+   * 応答を待つため、集計表のように重いものだと、その間タブの枠が見出しだけの
+   * 高さまで縮んでいた (564px から 67px)。届くとまた伸びるので下にあるものが
+   * 上下に飛び、待っているのか壊れたのかも分からなかった。
+   */
+  test('タブの読み込み中は待っていることが出て、枠が縮まない', async ({ page }) => {
+    // 応答を遅らせて、読み込んでいる最中を掴めるようにする。
+    await page.route('**/summary/monthly/report*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      return route.continue();
+    });
+
+    await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}&tab=calendar`);
+
+    const tabs = page.locator('#tabs');
+    await expect(tabs).toBeVisible();
+
+    const before = (await tabs.boundingBox()).height;
+
+    await page.getByRole('tab', { name: '集計表' }).click();
+
+    const loading = page.getByRole('status');
+    await expect(loading).toBeVisible();
+    await expect(loading).toContainText('読み込んでいます');
+
+    // 待っている間も、切り替える前と同じ高さを保つ。
+    const during = (await tabs.boundingBox()).height;
+    expect(during).toBeGreaterThanOrEqual(before - 1);
+
+    // 届いたら消える。確保した高さも外す。
+    await expect(loading).toBeHidden();
+    await expect(tabs).toContainText('小項目合計');
+  });
+
+  /**
    * 帯の検索は日別集計へ送る。そちらにタブはないので、意味のない値を
    * クエリに残さないこと。
    */
