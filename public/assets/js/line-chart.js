@@ -6,6 +6,15 @@ $(function () {
   $.fn.loadYearlyTrend = function(params) {
     var $element = $(this);
 
+    // タブの中身が届いた時点では、グラフはまだ取りに行っていない。ここを
+    // 空のままにすると、その間タブが絞り込みだけの帯になって中身が消える。
+    //
+    // 既に描いてあるとき (絞り込みの切り替え) は残す。差し替わるまでの
+    // 一瞬だけ消えるほうが目に付く。
+    if (!$element.children().length) {
+      $element.showLoading();
+    }
+
     $.get("/summary/yearly/line-chart-data",
       params,
       function(data) {
