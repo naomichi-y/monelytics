@@ -144,11 +144,14 @@ docker compose stop
 
 ### How to use composer
 
+Composer writes to `vendor`, which the `php` container cannot reach, so it runs
+in `tools`.
+
 ```
-docker compose exec -u webapp php composer [COMMAND]
+docker compose run --rm -u webapp tools composer [COMMAND]
 
 # e.g. Run install of package
-docker compose exec -u webapp php composer install
+docker compose run --rm -u webapp tools composer install
 ```
 
 ### How to use Artisan
@@ -159,6 +162,40 @@ docker compose exec -u webapp php php artisan [COMMAND]
 # e.g. Run migration of DB
 docker compose exec -u webapp php php artisan migrate
 ```
+
+Commands that write into the checkout rather than the database -- `key:generate`
+and anything that edits `.env` -- go through `tools` for the same reason as
+composer.
+
+## Host firewall
+
+Docker publishes a port by DNAT in `nat/PREROUTING`, so those packets are
+forwarded rather than delivered locally and never reach the `INPUT` chain. The
+host's own `INPUT` rules, which accept 22/80/443 and reject the rest, therefore
+say nothing about container ports: adding one line of `ports:` to `compose.yml`
+exposes it regardless of them. `DOCKER-USER` is the chain Docker always consults
+first in `FORWARD`, and it starts out empty.
+
+`etc/host/` holds the rule set and a unit that applies it after Docker starts.
+Install it to a root-owned path rather than running it out of the checkout --
+the containers can write there, and a script they can edit being run as root at
+boot would hand them the host.
+
+```
+sudo install -o root -g root -m 0755 etc/host/docker-user-firewall.sh /usr/local/sbin/
+sudo install -o root -g root -m 0644 etc/host/docker-user-firewall.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now docker-user-firewall.service
+```
+
+Edits to either file need installing again. `netfilter-persistent save` is the
+wrong tool here: it writes out Docker's own generated rules along with these, and
+restores them at boot before Docker has started.
+
+The external interface defaults to `enp0s6`; `ip route get 1.1.1.1` names the one
+in use. What passes is matched on the port after DNAT, which is the container's
+port and not the published one, so a second container serving on 80 would also
+be reachable if it were published.
 
 ## TLS certificate
 
