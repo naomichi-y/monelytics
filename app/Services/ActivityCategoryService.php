@@ -323,16 +323,22 @@ class ActivityCategoryService
     /**
      * 大項目データを削除する。
      *
+     * 見つからないときは findOrFail で 404 にする。以前は first() の戻り値を
+     * そのまま使っており、他人の id や存在しない id を送ると null に対する
+     * delete() で 500 になっていた。削除自体は起きないが、無い物を消そうと
+     * したことがエラー画面として出ていた。
+     *
+     * 一括削除 (where(...)->delete()) には置き換えない。クエリビルダ経由では
+     * モデルの deleting が発火せず、ぶら下がっている小項目が消えないため
+     * (@see ActivityCategory::boot)。
+     *
      * @param int $user_id
-     * @param int $activity_category_item_cateogyr_id
+     * @param int $activity_category_id
      */
     public function delete($user_id, $activity_category_id)
     {
-        $activity_category = $this->activity_category->where('id', '=', $activity_category_id)
-            ->where('user_id', '=', $user_id)
-            ->get()
-            ->first();
-
-        $activity_category->delete();
+        $this->activity_category->where('user_id', '=', $user_id)
+            ->findOrFail($activity_category_id)
+            ->delete();
     }
 }
