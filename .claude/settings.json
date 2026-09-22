@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose *)",
+      "Bash(docker manifest *)",
+      "Bash(set -eux)",
+      "Bash(git rm *)",
+      "Bash(mv etc/docker-arm64/web etc/docker/web)",
+      "Bash(mv etc/docker-arm64/php etc/docker/php)",
+      "Bash(mv etc/docker-arm64/db/my.cnf etc/docker/db/my.cnf)",
+      "Bash(docker system *)",
+      "Bash(sudo iptables -L INPUT -n -v --line-numbers)"
+    ]
+  }
+}

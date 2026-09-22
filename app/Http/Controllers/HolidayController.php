@@ -20,7 +20,9 @@ class HolidayController extends Controller {
     {
         $year = Request::input('year');
 
-        if (!preg_match('/\A\d{4}\z/', (string) $year)) {
+        // 配列も送れる。文字列へ倒す時点で「Array to string conversion」が
+        // 例外になり、日付入力を持つ画面の色付けごと落ちる。
+        if (!is_scalar($year) || !preg_match('/\A\d{4}\z/', (string) $year)) {
             $year = date('Y');
         }
 

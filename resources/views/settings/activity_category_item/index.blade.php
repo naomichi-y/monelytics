@@ -67,7 +67,7 @@
         <div class="row g-2 align-items-center form-group-adjust">
             <div class="col-md-8">
                 {!! Form::open(['url' => 'settings/activityCategoryItem', 'method' => 'get', 'id' => 'search-form']) !!}
-                    {!! Form::select('activity_category_id', $activity_category_list, Request::input('activity_category_id'), ['class' => 'form-select', 'id' => 'search_activity_category_id']) !!}
+                    {!! Form::select('activity_category_id', $activity_category_list, Html::requestValue('activity_category_id'), ['class' => 'form-select', 'id' => 'search_activity_category_id']) !!}
              {!! Form::close() !!}
             </div>
             <div class="col-md-4">

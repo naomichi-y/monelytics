@@ -150,13 +150,35 @@ Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = '
 });
 
 /**
+ * フォームの初期値としてリクエストから読む。
+ *
+ * クエリ文字列の形は送る側が決められるので、?keyword[]=x のように配列も来る。
+ * Form::text はその値を e() に通すため、配列だと「Array to string conversion」が
+ * 例外になり、その欄を持つ画面が丸ごと 500 になる。帯の検索はどの画面にもある
+ * ので、URL 1 つで全画面を落とせた。
+ *
+ * 配列は指定なしとして扱う。絞り込みが 1 つ落ちるだけで、画面は開く。
+ * 複数選択のように配列を待つ欄では使わない (Request::input のまま)。
+ *
+ * @param string $field
+ * @param mixed $default
+ * @return mixed
+ */
+Html::macro('requestValue', function($field, $default = null) {
+    $value = Request::input($field, $default);
+
+    return is_array($value) ? $default : $value;
+});
+
+/**
  * @param string $field
  * @param string $label
  * @param bool $default_sort
  * @return string
  */
 Html::macro('sortLabel', function($field, $label, $default_sort = false) {
-    $sort_type = Request::input('sort_type');
+    // 配列で来ると下の strlen が TypeError になり、見出しを持つ一覧が落ちる。
+    $sort_type = Html::requestValue('sort_type');
 
     // Bootstrap 4 で glyphicon が外れたため、Bootstrap Icons の名前を使う。
     if ($sort_type === 'asc') {

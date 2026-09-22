@@ -43,7 +43,10 @@ class DailyPaginateCondition extends BaseDateCondition {
 
         // 並び順は利用者入力から来る。Laravel 13 は asc/desc 以外を拒否するため、
         // 旧来の「asc 以外は降順」という挙動を保ったまま値を確定させる。
-        $fields['sort_type'] = strtolower($fields['sort_type'] ?? '') === 'asc' ? 'asc' : 'desc';
+        // 配列でも送れるので、文字列に倒せる値だけを見る。strtolower へ
+        // そのまま渡すと TypeError になり、一覧が開けない。
+        $sort_type = $fields['sort_type'] ?? '';
+        $fields['sort_type'] = is_string($sort_type) && strtolower($sort_type) === 'asc' ? 'asc' : 'desc';
 
         if (empty($fields['limit'])) {
             $fields['limit'] = \Agent::isMobile() ? self::MOBILE_LIMIT : self::DEFAULT_LIMIT;
