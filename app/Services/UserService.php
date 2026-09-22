@@ -5,6 +5,7 @@ use Auth;
 use File;
 use Hash;
 use Lang;
+use Session;
 
 use App\Models;
 
@@ -199,10 +200,22 @@ class UserService
 
     /**
      * ログアウト処理を行う。
+     *
+     * Auth::logout() が捨てるのは、セッションの中の認証キーと記憶用の
+     * トークンだけ。セッションそのものは同じ ID のまま残り、中身も残る。
+     * ログアウト前に Cookie を抜き取られていた場合、ログアウトしても
+     * その Cookie で同じセッションを指し続けられる。
+     *
+     * ID を振り直して古い Cookie を無効にし、直前まで入っていた値も捨てる。
+     * CSRF トークンはセッションと対になっているため、一緒に作り直さないと
+     * 次の画面のフォームが持つトークンと食い違う。
      */
     public function logout()
     {
         Auth::logout();
+
+        Session::invalidate();
+        Session::regenerateToken();
     }
 
     /**
