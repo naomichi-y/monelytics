@@ -441,6 +441,26 @@ test.describe('集計', () => {
   });
 
   /**
+   * リンクの既定色は黒。sandstone の #93c54b は黄緑で、一覧に何十個も並ぶと
+   * 読みたい数字より色のほうが目立っていた。押せることは下線が伝える。
+   *
+   * 色はテーマの CSS 変数を上書きして決めているので、Bootstrap を上げ直すと
+   * 黙って元の黄緑に戻る。効いているかどうかは計算後の値でしか分からない。
+   */
+  test('リンクの既定色が黒になっている', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto(`/summary/daily?date_month=${month}`);
+
+    const link = page.locator('tr[data-id]').getByRole('link', { name: 'E2E スーパー' }).first();
+
+    await expect(link).toHaveCSS('color', 'rgb(0, 0, 0)');
+
+    // 下線は残す。色を落とした分、押せる手掛かりはこれだけになる。
+    await expect(link).toHaveCSS('text-decoration-line', 'underline');
+  });
+
+  /**
    * jquery.tablefix は呼ばれた時点の幅をピクセルで書き込む。以前は
    * それきりで、読み込み後にウィンドウを広げると表だけが元の幅のまま
    * 残り、右側が大きく空いていた。
