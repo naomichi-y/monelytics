@@ -47,7 +47,18 @@ services:
       - db
       - redis
     volumes:
-      - ./:/data
+      # 配信するコードは読み取り専用で渡す。php-fpm の実行ユーザはホストの
+      # チェックアウト所有者と同じ uid なので、書ける状態だと PHP で任意の
+      # コードが動いた時点で .git/hooks や composer.json をホスト側に置ける。
+      # そこは人が git や composer を叩くディレクトリで、次に叩いた人の権限で
+      # 実行される。
+      #
+      # 実行中に書く必要があるのは下の 2 つだけ (ログ、コンパイル済み Blade、
+      # キャッシュ、パッケージの検出結果)。composer install や key:generate の
+      # ように中身を書き換える作業は tools サービスから行う (README 参照)。
+      - ./:/data:ro
+      - ./storage:/data/storage
+      - ./bootstrap/cache:/data/bootstrap/cache
     networks:
       - frontend
       - backend
@@ -106,7 +117,10 @@ services:
       - db
       - redis
     volumes:
-      - ./:/data
+      # @see php。E2E 側も配信するコードは読み取り専用にする。
+      - ./:/data:ro
+      - ./storage:/data/storage
+      - ./bootstrap/cache:/data/bootstrap/cache
     environment:
       APP_ENV: testing
       APP_DEBUG: "false"
@@ -160,6 +174,25 @@ services:
     networks:
       - e2e-frontend
     restart: unless-stopped
+
+  # チェックアウトを書き換える作業用。php は /data を読み取り専用で見るため、
+  # composer install や key:generate のように中身を変えるものはここから行う。
+  # 常駐させない (profile を付けたときだけ立つ)。
+  #
+  # 例: docker compose run --rm -u webapp tools composer install
+  tools:
+    build: *php-build
+    container_name: monelytics_tools
+    profiles: ["tools"]
+    working_dir: /data
+    volumes:
+      - ./:/data
+    networks:
+      - backend
+    # entrypoint ではなく command にする。entrypoint を置き換えると
+    # docker compose run に渡したコマンドが sleep の引数になってしまう。
+    # うっかり up したときに 2 つ目の php-fpm が立たないよう、待機させておく。
+    command: ["sleep", "infinity"]
 
   # ブラウザ同梱の公式イメージ。ホストに node を入れずに実行する。
   playwright:
