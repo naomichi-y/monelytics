@@ -37,18 +37,24 @@
     </div>
 
     <div class="row">
-        <div class="col-md-5">
+        {{-- この画面だけ枠が col-md-6、項目名が col-md-5。他の画面と同じ
+             col-md-5 + col-md-4 では項目名に 162px しか取れず、1 行に
+             167px 要る「新しいパスワード (再入力)」の「入力)」だけが
+             次の行へ落ちていた。枠ごと広げたのは、項目名の列だけを
+             広げると入力欄が 304px から 263px へ縮み、項目名の余りが
+             12px しか残らないため。今の組み合わせなら 53px 余る。 --}}
+        <div class="col-md-6">
             {!! Form::open(['url' => 'user/update', 'method' => 'put']) !!}
                 <div class="row mb-3">
-                    {!! Form::label('nickname', '名前', ['class' => 'col-md-4 col-form-label']) !!}
-                    <div class="col-md-8">
+                    {!! Form::label('nickname', '名前', ['class' => 'col-md-5 col-form-label']) !!}
+                    <div class="col-md-7">
                         {!! Form::text('nickname', Request::input('nickname', Auth::user()->nickname), ['class' => 'form-control']) !!}
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-4 col-form-label']) !!}
-                    <div class="col-md-8">
+                    {!! Form::label('email', 'メールアドレス', ['class' => 'col-md-5 col-form-label']) !!}
+                    <div class="col-md-7">
                         {!! Form::text('email', Request::input('email', Auth::user()->email), ['class' => 'form-control']) !!}
                     </div>
                 </div>
@@ -59,8 +65,8 @@
                          ものを求めることになるため、持っている人にだけ見せる。
                          検証側も同じ条件で判断する (User::updateValidate)。 --}}
                     <div class="row mb-3">
-                        {!! Form::label('current_password', '現在のパスワード', ['class' => 'col-md-4 col-form-label']) !!}
-                        <div class="col-md-8">
+                        {!! Form::label('current_password', '現在のパスワード', ['class' => 'col-md-5 col-form-label']) !!}
+                        <div class="col-md-7">
                             {!! Form::password('current_password', ['class' => 'form-control', 'autocomplete' => 'current-password']) !!}
                             <span class="note">(パスワードを変更する場合のみ入力)</span>
                         </div>
@@ -68,22 +74,22 @@
                 @endif
 
                 <div class="row mb-3">
-                    {!! Form::label('password', '新しいパスワード', ['class' => 'col-md-4 col-form-label']) !!}
-                    <div class="col-md-8">
+                    {!! Form::label('password', '新しいパスワード', ['class' => 'col-md-5 col-form-label']) !!}
+                    <div class="col-md-7">
                         {!! Form::password('password', ['class' => 'form-control', 'autocomplete' => 'new-password']) !!}
                         <span class="note">(変更する場合のみ入力)</span>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    {!! Form::label('password_confirmation', '新しいパスワード (再入力)', ['class' => 'col-md-4 col-form-label']) !!}
-                    <div class="col-md-8">
+                    {!! Form::label('password_confirmation', '新しいパスワード (再入力)', ['class' => 'col-md-5 col-form-label']) !!}
+                    <div class="col-md-7">
                         {!! Form::password('password_confirmation', ['class' => 'form-control', 'autocomplete' => 'new-password']) !!}
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-8 offset-md-4">
+                    <div class="col-md-7 offset-md-5">
                         {!! Form::submit('更新', ['class' => 'btn btn-primary']) !!}
                     </div>
                 </div>
