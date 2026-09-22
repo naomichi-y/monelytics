@@ -25,7 +25,7 @@ docker compose exec playwright npx playwright show-report tests/e2e/report
 
 | | |
 |---|---|
-| `web-e2e` / `php-e2e` | ポート 8081。`monelytics_e2e` スキーマを見る |
+| `web-e2e` / `php-e2e` | `127.0.0.1:8081`。`monelytics_e2e` スキーマを見る |
 | `playwright` | ブラウザ同梱の公式イメージ。ホストに node を入れずに動かす |
 | `Seeds\E2eSeeder` | 当月・前月・前々月と過去 2 年分のデータを作る |
 
