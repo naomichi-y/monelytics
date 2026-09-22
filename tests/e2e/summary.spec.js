@@ -393,6 +393,54 @@ test.describe('集計', () => {
   });
 
   /**
+   * 日別集計の場所は、その場所だけに絞った日別集計へのリンクになっている。
+   * 月別集計の利用頻度ランキングが以前から同じ遷移を持っており、一覧側だけが
+   * ただの文字列で、同じ場所を見たいときに詳細検索を開き直す必要があった。
+   *
+   * 引き継ぐのは表示中の絞り込みそのもの。View で Request から組み直すと、
+   * Condition が既定値で埋めている sort_field や limit が抜け、踏んだ先で
+   * 並び順や件数が変わる。
+   *
+   * 場所が空の行はリンクにしない。Service 側が strlen で空の条件を捨てるため、
+   * 押しても絞り込みは効かず、同じ一覧が出るだけになる。
+   */
+  test('日別集計の場所からその場所だけに絞り込める', async ({ page }) => {
+    const today = new Date();
+    const month = formatMonth(today);
+
+    await page.goto(`/summary/daily?date_month=${month}`);
+
+    const listRows = page.locator('tr[data-id]');
+
+    // 場所の空いている行 (シードの給与) はリンクを持たない。金額も日付も
+    // リンクではないので、行ごと数えれば足りる。
+    await expect(listRows.filter({ hasText: '当月の給与' }).getByRole('link')).toHaveCount(0);
+
+    await listRows
+      .filter({ hasText: '当月の食料品' })
+      .getByRole('link', { name: 'E2E スーパー' })
+      .click();
+
+    // 場所と、元の画面が見ていた期間の両方が URL に乗ること。期間が落ちると
+    // 絞り込んだつもりで全期間の一覧が出る。
+    //
+    // 期間は実日付で載る。月末は月ごとに違うので、date_month だけを渡して
+    // 踏んだ先で組み直すと 2 月やうるう年でずれる。
+    const target = new URL(page.url());
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
+    expect(target.pathname).toBe('/summary/daily');
+    expect(target.searchParams.get('location')).toBe('E2E スーパー');
+    expect(target.searchParams.get('date_month')).toBe(month);
+    expect(target.searchParams.get('begin_date')).toBe(`${month}-01`);
+    expect(target.searchParams.get('end_date')).toBe(`${month}-${String(lastDay).padStart(2, '0')}`);
+
+    // 当月の「E2E スーパー」はシードの食料品だけ。
+    await expect(listRows).toHaveCount(1);
+    await expect(listRows).toContainText('当月の食料品');
+  });
+
+  /**
    * jquery.tablefix は呼ばれた時点の幅をピクセルで書き込む。以前は
    * それきりで、読み込み後にウィンドウを広げると表だけが元の幅のまま
    * 残り、右側が大きく空いていた。

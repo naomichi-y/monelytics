@@ -49,6 +49,17 @@ class DailyController extends \App\Http\Controllers\Controller {
         $data['month_list'] = $this->activity->getMonthList($user_id, true);
         $data['activities'] = $this->activity->getDailyPaginate($user_id, $condition);
 
+        // 一覧の場所リンクが、今表示している絞り込みをそのまま引き継ぐために渡す。
+        // View で Request から組み直すと、Condition が既定値を埋めている
+        // sort_field や limit が抜け、リンクを踏んだ先で並び順が変わる。
+        $data['condition'] = $condition;
+
+        // 対象期間はリンクに実日付で載せる。date_month だけを渡すと、
+        // 期間の解釈 (月末が 28 日か 31 日か、date_month が無いときは全期間)
+        // を踏んだ先で組み直すことになる。月別集計の利用頻度ランキングも
+        // 同じ形で日別集計へ送っている。
+        $data['date_range'] = $condition->getDateRange();
+
         return View::make('summary/daily/index', $data);
     }
 

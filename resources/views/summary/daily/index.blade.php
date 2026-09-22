@@ -113,7 +113,27 @@
                         {{Html::date($activity->activity_date)}}
                     </td>
                     <td>{{{$activity->activityCategoryItem->item_name}}}</td>
-                    <td>{{{$activity->location}}}</td>
+                    {{-- 場所は、今の絞り込みに location を足した日別集計へのリンクにする。
+                         月別集計の利用頻度ランキングが同じ遷移をしており、そちらと揃える。
+
+                         期間は Condition が解決した実日付を載せる。date_month だけだと
+                         月末が何日かを踏んだ先で組み直すことになり、date_month の無い
+                         状態 (全期間) との区別も URL から読めない。
+
+                         空欄はリンクにしない。押しても絞り込みが効かず (Service 側が
+                         strlen で捨てる)、同じ一覧が出るだけのため。 --}}
+                    <td>
+                        @if (strlen($activity->location ?? ''))
+                            @php
+                                $location_queries = array_merge($condition->toArray(), [
+                                    'location' => $activity->location,
+                                    'begin_date' => $date_range->begin_date,
+                                    'end_date' => $date_range->end_date,
+                                ]);
+                            @endphp
+                            {!! Html::linkWithQueryString('/summary/daily', $location_queries, $activity->location) !!}
+                        @endif
+                    </td>
                     <td>{{{$activity->content}}}</td>
                     <td class="text-end">{!! Html::amount($activity->amount) !!}</td>
                     <td class="text-center">
