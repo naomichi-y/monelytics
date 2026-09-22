@@ -4,22 +4,16 @@
 プロフィール
 @stop
 
-@section('include_header')
-<script>
-    $(function() {
-        // 確認モーダルの表示
-        $("#confirm").click(function() {
-            $("form").submit();
-        });
-    });
-</script>
-@stop
-
 @section('content')
     <div id="confirm-modal" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::open(['url' => 'user/withdrawal', 'id' => 'confirm-form', 'method' => 'put']) !!}
+                {{-- 退会はこのフォームだけが送る。以前は開くための外側のフォームと
+                     この 2 つがあり、JS が $("form").submit() で画面中の全てを
+                     送っていた。プロフィールの更新フォームまで一緒に飛ぶうえ、
+                     どれが先に着くかは決まらない。method も put だったが
+                     routes/web.php にあるのは post で、当たっていなかった。 --}}
+                {!! Form::open(['url' => 'user/withdrawal', 'id' => 'confirm-form']) !!}
                     <div class="modal-header">
                         <h4 class="modal-title">退会の確認</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
@@ -28,7 +22,7 @@
                         <p>サービスから退会します。本当によろしいですか?</p>
                     </div>
                     <div class="modal-footer">
-                        {!! Form::button('退会する', ['class' => 'btn btn-primary', 'id' => 'confirm']) !!}
+                        {!! Form::submit('退会する', ['class' => 'btn btn-primary', 'id' => 'confirm']) !!}
                         {!! Form::button('キャンセル', ['class' => 'btn btn-secondary', 'data-bs-dismiss' => 'modal', 'aria-hidden' => 'true']) !!}
                     </div>
                 {!! Form::close() !!}
@@ -99,8 +93,7 @@
 
     <hr />
     <div class="text-end">
-        {!! Form::open(['url' => 'user/withdrawal']) !!}
-            {!! Form::button('サービスの退会', ['class' => 'btn btn-danger', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#confirm-modal']) !!}
-        {!! Form::close() !!}
+        {{-- モーダルを開くだけのボタン。送信先を持たないのでフォームに入れない。 --}}
+        {!! Form::button('サービスの退会', ['class' => 'btn btn-danger', 'data-bs-toggle' => 'modal', 'data-bs-target' => '#confirm-modal']) !!}
     </div>
 @stop
