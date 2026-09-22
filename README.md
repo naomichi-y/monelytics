@@ -99,6 +99,23 @@ Two keys also have to be added, since they had no equivalent before:
 | `DB_CONNECTION` | `mysql` | there was no such key before |
 | `REDIS_CLIENT` | `predis` | the phpredis extension is not in the image |
 
+`REDIS_PASSWORD` needs a real value. Compose passes it to the server as
+`--requirepass`, so `null` makes the server demand the literal string `null`
+while Laravel reads the same word as "no password" and sends no AUTH at all --
+the two stop matching and nothing connects. Leaving it empty stops
+`docker compose up` instead of starting an open server.
+
+Change `.env` before recreating the container, in this order:
+
+```
+# 1. put a real value in REDIS_PASSWORD
+# 2. then recreate, so the server and the app agree from the first connection
+docker compose up -d --force-recreate redis php
+```
+
+Sessions live in Redis, so they survive the restart; the app reconnects with the
+password on the next request.
+
 ### Stop containers
 
 ```
