@@ -21,6 +21,25 @@ test.describe('プロフィール', () => {
     await login(page);
   });
 
+  test('項目名が折り返さない', async ({ page }) => {
+    await login(page);
+    await page.goto('/user');
+
+    // 「新しいパスワード (再入力)」は 1 行に 167px 要る。項目名の列が
+    // 他の画面と同じ col-md-4 だと 162px しかなく、「入力)」だけが次の行に
+    // 落ちていた。幅は画面ごとに変わるため、px ではなく行数で見る。
+    for (const name of ['名前', 'メールアドレス', '現在のパスワード', '新しいパスワード', '新しいパスワード (再入力)']) {
+      const lines = await page.getByText(name, { exact: true }).evaluate((label) => {
+        const range = document.createRange();
+        range.selectNodeContents(label);
+
+        return range.getClientRects().length;
+      });
+
+      expect(lines, `${name} が折り返している`).toBe(1);
+    }
+  });
+
   test('パスワードを変えないなら現在のパスワードは聞かれない', async ({ page }) => {
     await login(page);
     await page.goto('/user');
