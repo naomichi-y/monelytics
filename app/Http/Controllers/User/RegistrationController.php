@@ -99,6 +99,7 @@ class RegistrationController extends \App\Http\Controllers\Controller {
         $fields = Request::only(
             'nickname',
             'email',
+            'current_password',
             'password',
             'password_confirmation'
         );
@@ -106,9 +107,16 @@ class RegistrationController extends \App\Http\Controllers\Controller {
         $errors = [];
 
         if (!$this->user->update(Auth::id(), $fields, $errors)) {
+            // 入力の引き継ぎからパスワードを外す。withInput() は受け取った
+            // 入力をそのままセッションへ書き、パスワードが平文で残る。
+            // 画面はどの欄も password 入力なので戻す先もない。
             return Redirect::to('/user')
                 ->withErrors($errors)
-                ->withInput();
+                ->withInput(Request::except(
+                    'current_password',
+                    'password',
+                    'password_confirmation'
+                ));
         }
 
         return Redirect::to('/user')

@@ -83,8 +83,20 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
             $rules['email'] = 'required|email|not_exists:users,email';
         }
 
-        if (strlen($fields['password'])) {
+        if (strlen($fields['password'] ?? '')) {
             $rules['password'] = 'required|min:8|confirmed';
+
+            // 現在のパスワードを問うのは、置き去りのセッションや盗まれた
+            // Cookie だけでパスワードを差し替えられないようにするため。
+            // 廃止した Facebook ログインだけで作られた利用者は password が
+            // 空で、入力できる現在のパスワードを持たない。その人にまで
+            // 求めるとパスワードを設定する手段がなくなるため、既に持って
+            // いる人だけに課す (edit.blade.php も同じ条件で欄を出す)。
+            // 一致するかどうかは保存済みのハッシュと突き合わせる
+            // UserService::update が見る。
+            if (strlen($user->password ?? '')) {
+                $rules['current_password'] = 'required';
+            }
         }
 
         return $this->validate($fields, $rules);
