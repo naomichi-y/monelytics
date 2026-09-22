@@ -1,32 +1,61 @@
 <script>
     $(function() {
-        $(document).on("change", "#date_month", function() {
-            $("#begin_date").val('');
-            $("#end_date").val('');
-        });
+        /*
+         * セレクタはモーダルの中へ閉じる。モーダルは document.body へ差し込まれ、
+         * 月指定のセレクトは本体画面のものと id が重なっていたため、
+         * $("#date_month") が本体側に当たっていた。日付範囲を入れると、
+         * モーダルではなく裏の画面のセレクトが「未指定」に書き換わっていた。
+         *
+         * 束ねる先も document ではなくモーダル自身にする。モーダルは閉じると
+         * 取り除かれて開くたびに取り直すので、document に積むと開いた回数だけ
+         * ハンドラが溜まり、リセットが何度も走る。
+         */
+        var $modal = $("#search_modal");
+        var $month = $modal.find("#search_date_month");
+        var $begin = $modal.find("#begin_date");
+        var $end = $modal.find("#end_date");
 
-        $(document).on("change", "#begin_date, #end_date", function() {
-            if ($(this).val()) {
-                $("#date_month").prop("selectedIndex", 0);
+        /*
+         * 日付範囲と月指定は同時には効かない。両方送られると getDateRange は
+         * 範囲を優先するため、月を選べるままにすると、選んだ月と出てくる期間が
+         * 食い違う。範囲が入っている間は月を触らせない。
+         */
+        function syncMonthState() {
+            var has_range = Boolean($begin.val() || $end.val());
+
+            $month.prop("disabled", has_range);
+
+            if (has_range) {
+                $month.prop("selectedIndex", 0);
             }
+        }
+
+        $month.on("change", function() {
+            $begin.val('');
+            $end.val('');
+            syncMonthState();
         });
 
-        $(document).on("click", "#clear_date_range", function() {
-            $("#begin_date").val("");
-            $("#end_date").val("");
-            $("#date_month").prop("disabled", false);
+        $begin.add($end).on("change input", syncMonthState);
+
+        $modal.find("#clear_date_range").on("click", function() {
+            $begin.val('');
+            $end.val('');
+            syncMonthState();
         });
 
         // 詳細検索モーダル (リセット押下)
-        $(document).on("click", "#reset", function() {
-            $("input[type='text'], select")
+        $modal.find("#reset").on("click", function() {
+            $modal.find("input[type='text'], input[type='date'], select")
                 .val("")
                 .removeAttr("selected");
-            $("#date_month").prop("selectedIndex", 0);
+
+            $month.prop("selectedIndex", 0);
+            syncMonthState();
         });
 
-        $("#begin_date").dateFormat("#begin_date");
-        $("#end_date").dateFormat("#end_date");
+        $begin.dateFormat("#begin_date");
+        $end.dateFormat("#end_date");
     });
 </script>
 
@@ -41,9 +70,19 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="row mb-3">
-                            {!! Form::label('date_month', '月指定', ['class' => 'col-md-3 col-form-label']) !!}
+                            {{-- id は本体画面のセレクトと分ける。同じ id が 2 つ並ぶと
+                                 ラベルの for も jQuery のセレクタも先に現れる本体側へ
+                                 当たる。name は送信する項目名なので date_month のまま。 --}}
+                            {!! Form::label('search_date_month', '月指定', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-4">
-                                {!! Form::select('date_month', $month_list, Html::requestValue('date_month'), ['class' => 'form-select']) !!}
+                                @php
+                                    $month_attributes = ['class' => 'form-select', 'id' => 'search_date_month'];
+
+                                    if ($condition->hasDateRange()) {
+                                        $month_attributes['disabled'] = 'disabled';
+                                    }
+                                @endphp
+                                {!! Form::select('date_month', $month_list, Html::requestValue('date_month'), $month_attributes) !!}
                             </div>
                         </div>
 

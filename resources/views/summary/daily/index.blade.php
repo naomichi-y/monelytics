@@ -55,8 +55,43 @@
                 <div class="col-md-8">
                     {{-- 選択は Condition が決めた値を出す。ここで Request から
                          組み直していたころは、指定が無いときだけセレクトが当月を
-                         出し、一覧は全期間を並べていた。 --}}
-                    {!! Form::select('date_month', $month_list, $condition->date_month, ['class' => 'form-select', 'id' => 'date_month']) !!}
+                         出し、一覧は全期間を並べていた。
+
+                         詳細検索で日付範囲を入れている間は操作させない。範囲と月の
+                         両方が送られると getDateRange は範囲を優先するため、ここで
+                         月を選べると、選んだ月と出てくる期間が食い違う。
+
+                         代わりに効いている期間を横に出す。セレクトが「未指定」で
+                         止まっているだけだと、何で絞られているのかが画面から読めない。 --}}
+                    @php
+                        $month_attributes = ['class' => 'form-select', 'id' => 'date_month'];
+
+                        if ($condition->hasDateRange()) {
+                            // 幅は中身に合わせる。form-select は幅 100% なので、
+                            // 横に期間を並べると場所を取り合い、セレクトの文字が
+                            // 押し潰されて月の頭だけが見えていた。
+                            $month_attributes['class'] .= ' w-auto';
+                            $month_attributes['disabled'] = 'disabled';
+                        }
+
+                        $month_select = Form::select('date_month', $month_list, $condition->date_month, $month_attributes);
+
+                        // 片側だけの指定も通る (「この日以降」)。空いている側は
+                        // 日付を出さず、記号だけを残して向きを示す。
+                        $date_range_label = sprintf(
+                            '%s 〜 %s',
+                            $date_range->begin_date ? Html::date($date_range->begin_date, false) : '',
+                            $date_range->end_date ? Html::date($date_range->end_date, false) : ''
+                        );
+                    @endphp
+                    @if ($condition->hasDateRange())
+                        <div class="d-flex align-items-center gap-2">
+                            {!! $month_select !!}
+                            <span class="text-nowrap">{{trim($date_range_label)}}</span>
+                        </div>
+                    @else
+                        {!! $month_select !!}
+                    @endif
                 </div>
                 <div class="col-md-4">
                     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>

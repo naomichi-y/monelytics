@@ -49,6 +49,14 @@ class MonthlyController extends \App\Http\Controllers\Controller {
         $data = [];
         $data['month_list'] = $this->activity->getMonthList(Auth::id(), true);
 
+        // 日付範囲が入っているかの判定は Condition に持たせてある。範囲と月指定は
+        // 同時に効かない (getDateRange が範囲を優先する) ので、範囲があるときは
+        // 月のセレクトを最初から操作不可にして開く。JS だけで無効化すると、
+        // 範囲を入れた状態で開き直した 1 瞬だけ操作できてしまう。
+        $data['condition'] = new Condition\BaseDateCondition(
+            Request::only('date_month', 'begin_date', 'end_date')
+        );
+
         return View::make('summary/monthly/condition', $data);
     }
 

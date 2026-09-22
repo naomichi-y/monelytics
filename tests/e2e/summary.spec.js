@@ -422,6 +422,127 @@ test.describe('集計', () => {
   });
 
   /**
+   * 日付範囲で絞っている間は、帯の月セレクトを操作させない。
+   *
+   * 範囲と月の両方が送られると getDateRange は範囲を優先する。月を選べるまま
+   * にすると、セレクトが指している月と実際に出ている期間が食い違う。
+   * 代わりに効いている期間を出す。セレクトが「未指定」で止まっているだけでは、
+   * 何で絞られているのかが画面から読めない。
+   */
+  test('日付範囲で絞ると月セレクトが操作不可になり、効いている期間が出る', async ({ page }) => {
+    const today = new Date();
+    const target = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+    const begin = formatDate(target);
+    const end = formatDate(new Date(target.getFullYear(), target.getMonth() + 1, 0));
+
+    await page.goto('/summary/daily');
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+
+    await modal.locator('#begin_date').fill(begin);
+    await modal.locator('#end_date').fill(end);
+    await modal.getByRole('button', { name: '検索' }).click();
+
+    // 一覧が範囲どおりに絞られていること。
+    const listRows = page.locator('tr[data-id]');
+    await expect(listRows.filter({ hasText: '前々月の食料品' })).toHaveCount(1);
+    await expect(listRows.filter({ hasText: '当月の食料品' })).toHaveCount(0);
+
+    // 月セレクトは触れず、効いている期間が読めること。
+    await expect(page.locator('#date_month')).toBeDisabled();
+    await expect(page.locator("[id='search_form']")).toContainText(`${begin} 〜 ${end}`);
+
+    // セレクトが中身より狭くなっていないこと。期間を横に並べた当初は
+    // form-select の幅 100% と場所を取り合って潰れ、「2026/09」の頭だけが
+    // 見えていた。見た目の印象ではなく、選択中の文字が収まるかで測る。
+    const fit = await page.locator('#date_month').evaluate((select) => {
+      const style = getComputedStyle(select);
+      const probe = document.createElement('span');
+
+      probe.style.font = style.font;
+      probe.style.position = 'absolute';
+      probe.style.whiteSpace = 'pre';
+      probe.style.visibility = 'hidden';
+      probe.textContent = select.options[select.selectedIndex].text;
+      document.body.appendChild(probe);
+
+      const text = probe.getBoundingClientRect().width;
+      probe.remove();
+
+      return {
+        text,
+        inner: select.clientWidth
+          - parseFloat(style.paddingLeft)
+          - parseFloat(style.paddingRight),
+      };
+    });
+
+    expect(fit.inner).toBeGreaterThanOrEqual(fit.text);
+  });
+
+  /**
+   * モーダルの中の月指定も、日付範囲が入っている間は操作させない。
+   *
+   * 併せて、モーダルの操作が裏の画面に漏れないこと。月指定のセレクトは本体と
+   * id が重なっており、モーダルは document.body へ差し込まれるため、
+   * $("#date_month") が本体側に当たっていた。日付範囲を入れると、モーダル
+   * ではなく裏の画面のセレクトが「未指定」に書き換わっていた。
+   */
+  test('モーダルで日付範囲を入れると月指定が無効になり、裏の画面は触られない', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto(`/summary/daily?date_month=${month}`);
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    const modalMonth = modal.locator('#search_date_month');
+
+    await expect(modal).toBeVisible();
+    await expect(modalMonth).toBeEnabled();
+
+    await modal.locator('#begin_date').fill(formatDate(new Date()));
+
+    await expect(modalMonth).toBeDisabled();
+
+    // 裏の画面のセレクトは選んだ月のまま。
+    await expect(page.locator('#date_month')).toHaveValue(month);
+
+    // クリアで戻せること。戻せないと、範囲を一度入れたら月へ帰れなくなる。
+    await modal.getByRole('button', { name: 'クリア' }).click();
+
+    await expect(modalMonth).toBeEnabled();
+    await expect(modal.locator('#begin_date')).toHaveValue('');
+  });
+
+  /**
+   * 月別集計の詳細検索も同じ作りで、同じ取り違えを持っていた。日別だけ直すと
+   * 片方に残る。
+   */
+  test('月別集計でもモーダルの日付範囲が裏の画面を触らない', async ({ page }) => {
+    const month = formatMonth(new Date());
+
+    await page.goto(`/summary/monthly?date_month=${month}`);
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    const modalMonth = modal.locator('#search_date_month');
+
+    await expect(modal).toBeVisible();
+    await expect(modalMonth).toBeEnabled();
+
+    await modal.locator('#begin_date').fill(formatDate(new Date()));
+
+    await expect(modalMonth).toBeDisabled();
+    await expect(page.locator('#date_month')).toHaveValue(month);
+
+    await modal.getByRole('button', { name: 'クリア' }).click();
+
+    await expect(modalMonth).toBeEnabled();
+  });
+
+  /**
    * 日別集計の場所は、その場所だけに絞った日別集計へのリンクになっている。
    * 月別集計の利用頻度ランキングが以前から同じ遷移を持っており、一覧側だけが
    * ただの文字列で、同じ場所を見たいときに詳細検索を開き直す必要があった。
