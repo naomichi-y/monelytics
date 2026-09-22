@@ -33,6 +33,11 @@ jobs:
           sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$password/" .env
           sed -i "s/^WEBAPP_PASSWORD=.*/WEBAPP_PASSWORD=$password/" etc/docker/db/db.env
 
+          # Redis も認証を要求する。compose は REDIS_PASSWORD を :? で受け取る
+          # ため、.env.example のまま (空) だとコンテナを立てる前に止まる。
+          # 空でも動いていたころの名残で、ここだけ埋め忘れていた。
+          sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=$(openssl rand -hex 16)/" .env
+
       - name: コンテナを立てる
         run: |
           # webapp の uid/gid は実行者に合わせる。ずれると composer install も
@@ -69,6 +74,11 @@ jobs:
           password="$(openssl rand -hex 16)"
           sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$password/" .env
           sed -i "s/^WEBAPP_PASSWORD=.*/WEBAPP_PASSWORD=$password/" etc/docker/db/db.env
+
+          # Redis も認証を要求する。compose は REDIS_PASSWORD を :? で受け取る
+          # ため、.env.example のまま (空) だとコンテナを立てる前に止まる。
+          # 空でも動いていたころの名残で、ここだけ埋め忘れていた。
+          sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=$(openssl rand -hex 16)/" .env
 
       - name: コンテナを立てる
         run: |
