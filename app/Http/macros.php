@@ -42,6 +42,29 @@ Html::macro('date', function($date, $append_week = true) {
 
 
 /**
+ * 効いている日付範囲の表記。
+ *
+ * 日付範囲で絞っている画面は、月のセレクトの代わりにこれを出す。月別と日別の
+ * 両方が同じものを出すので、書き方はここに 1 つだけ置く。
+ *
+ * 曜日も添える。一覧の発生日やカレンダーが曜日付きなので、期間だけ無いと
+ * 同じ日付が 1 画面に違う書き方で並ぶ。
+ *
+ * 片側だけの指定も通る (「この日以降」)。空いている側は日付を出さず、記号
+ * だけを残して向きを示す。
+ *
+ * @param stdClass $date_range BaseDateCondition::getDateRange() の戻り値
+ * @return string
+ */
+Html::macro('dateRange', function($date_range) {
+    return trim(sprintf(
+        '%s 〜 %s',
+        $date_range->begin_date ? Html::date($date_range->begin_date) : '',
+        $date_range->end_date ? Html::date($date_range->end_date) : ''
+    ));
+});
+
+/**
  * @param string $date
  * @param bool $append_week
  */

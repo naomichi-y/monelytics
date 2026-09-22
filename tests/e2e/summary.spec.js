@@ -529,6 +529,50 @@ test.describe('集計', () => {
   });
 
   /**
+   * 月別集計も日付範囲で絞っている間は日別と同じ扱いにする。月のセレクトは
+   * 出さずに効いている期間を出し、前月・翌月は押せない。
+   *
+   * 前月・翌月はセレクトへ月を入れてフォームを送る作りなので、セレクトが
+   * 出ていない状態で押せると、月の入らないまま送られる。
+   *
+   * カレンダーだけは月を必要とする (範囲を受け取らない) ので、タブの URL には
+   * 月を渡したまま残してある。範囲指定のままでも開けること。
+   */
+  test('月別集計も日付範囲で絞ると月セレクトが消え、前月・翌月が押せなくなる', async ({ page }) => {
+    const today = new Date();
+    const first = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const begin = formatDate(first);
+    const end = formatDate(today);
+
+    await page.goto(`/summary/monthly?begin_date=${begin}&end_date=${end}`);
+
+    await expect(page.locator('#date_month')).toHaveCount(0);
+    await expect(page.locator("[id='search_form']")).toContainText(
+      `${formatDateWithWeek(first)} 〜 ${formatDateWithWeek(today)}`
+    );
+
+    const steps = page.locator('.month_step');
+    await expect(steps).toHaveCount(2);
+    await expect(steps.nth(0)).toBeDisabled();
+    await expect(steps.nth(1)).toBeDisabled();
+
+    // 詳細検索は未指定で開く。当月が入っていると、検索し直しただけで範囲が消える。
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+    await expect(modal.locator('#search_date_month')).toHaveValue('all');
+    await expect(modal.locator('#search_date_month')).toBeDisabled();
+
+    await page.locator('#search_modal').getByRole('button', { name: '閉じる' }).click();
+    await expect(modal).toBeHidden();
+
+    // カレンダーは月で描くタブ。範囲のままでも開けること。
+    await page.getByRole('tab', { name: 'カレンダー' }).click();
+    await expect(page.locator('#tabs')).toContainText('日');
+  });
+
+  /**
    * 月別集計の詳細検索も同じ作りで、同じ取り違えを持っていた。日別だけ直すと
    * 片方に残る。
    */

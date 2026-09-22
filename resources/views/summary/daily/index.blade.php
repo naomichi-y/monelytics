@@ -81,19 +81,8 @@
                              代わりに効いている期間を出す。何も出さないと、
                              何で絞られているのかが画面から読めない。
 
-                             曜日も添える。一覧の発生日が曜日付きなので、期間だけ
-                             無いと同じ日付が違う書き方で並ぶ。範囲の端が週のどこな
-                             のかは、家計の見方 (週末に寄っているか) に直に効く。
-
-                             片側だけの指定も通る (「この日以降」)。空いている側は
-                             日付を出さず、記号だけを残して向きを示す。 --}}
-                        <span class="text-nowrap">
-                            {{trim(sprintf(
-                                '%s 〜 %s',
-                                $date_range->begin_date ? Html::date($date_range->begin_date) : '',
-                                $date_range->end_date ? Html::date($date_range->end_date) : ''
-                            ))}}
-                        </span>
+                             表記は月別集計と揃える (Html::dateRange)。 --}}
+                        <span class="text-nowrap">{{Html::dateRange($date_range)}}</span>
                     @else
                         {{-- 選択は Condition が決めた値を出す。ここで Request から
                              組み直していたころは、指定が無いときだけセレクトが当月を
