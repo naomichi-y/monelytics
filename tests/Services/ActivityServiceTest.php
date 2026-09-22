@@ -911,6 +911,77 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 前月・翌月のボタンは記録のある月の間だけを動く。画面のセレクトは記録の
+     * ある月しか選択肢に持たないため、暦の上での隣を返すと、選択が「未指定」
+     * へ落ちたまま別の月の集計が出る。
+     *
+     * 端では null。ここで「未指定」の行 ('all') を数に入れると、当月から
+     * 翌月へ進めてしまう ('all' は文字列として年月より大きい)。
+     */
+    public function testAdjacentMonthsSkipMonthsWithoutRecord()
+    {
+        DB::table('activities')->truncate();
+
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+
+        $this->createActivity($group, $this->monthBefore(1) . '-05', -100);
+        $this->createActivity($group, $this->monthBefore(4) . '-05', -100);
+
+        $month_list = $this->activity->getMonthList($this->getUser()->id, true);
+
+        $this->assertSame(
+            ['previous' => $this->monthBefore(4), 'next' => null],
+            $this->activity->getAdjacentMonths($month_list, $this->monthBefore(1))
+        );
+
+        $this->assertSame(
+            ['previous' => null, 'next' => $this->monthBefore(1)],
+            $this->activity->getAdjacentMonths($month_list, $this->monthBefore(4))
+        );
+    }
+
+    /**
+     * 画面の既定は当月で、そこにまだ記録がないことがある。その月からでも
+     * 前後の最も近い月へ動けること。
+     */
+    public function testAdjacentMonthsWorkFromMonthWithoutRecord()
+    {
+        DB::table('activities')->truncate();
+
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+
+        $this->createActivity($group, $this->monthBefore(1) . '-05', -100);
+        $this->createActivity($group, $this->monthBefore(4) . '-05', -100);
+
+        $month_list = $this->activity->getMonthList($this->getUser()->id, true);
+
+        $this->assertSame(
+            ['previous' => $this->monthBefore(4), 'next' => $this->monthBefore(1)],
+            $this->activity->getAdjacentMonths($month_list, $this->monthBefore(2))
+        );
+    }
+
+    /**
+     * 「未指定」や日付範囲での絞り込みは特定の月を指さないため、前後もない。
+     */
+    public function testAdjacentMonthsHaveNoDirectionWithoutMonth()
+    {
+        DB::table('activities')->truncate();
+
+        $this->createActivity(
+            ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE,
+            $this->monthBefore(1) . '-05',
+            -100
+        );
+
+        $month_list = $this->activity->getMonthList($this->getUser()->id, true);
+        $expected = ['previous' => null, 'next' => null];
+
+        $this->assertSame($expected, $this->activity->getAdjacentMonths($month_list, 'all'));
+        $this->assertSame($expected, $this->activity->getAdjacentMonths($month_list, ''));
+    }
+
+    /**
      * @param string $amount
      * @return array
      */

@@ -223,6 +223,60 @@ class ActivityService
     }
 
     /**
+     * 指定した月の前後にある、収支が発生した月を返す。
+     *
+     * 返すのは getMonthList() の並びにある月に限る。画面のセレクトはその並び
+     * しか選択肢に持たないため、暦の上での前月をそのまま返すと、記録のない月
+     * ではセレクトが「未指定」へ落ちたまま別の月の集計が出る。記録のない月を
+     * 挟んでいるときは、その先にある最も近い月まで飛ぶ。
+     *
+     * 一覧は呼び出し側から受け取る。画面はセレクトを描くために既に取得して
+     * いるため、ここで引き直すと同じ問い合わせを 2 度投げることになる。
+     *
+     * @param array $month_list getMonthList() の戻り値
+     * @param string $date_month 'Y-m' 形式。'all' のように月を指さない値には
+     *                           前後がないため、どちらも null を返す
+     * @return array ['previous' => 'Y-m'|null, 'next' => 'Y-m'|null]
+     */
+    public function getAdjacentMonths(array $month_list, $date_month)
+    {
+        $adjacent = ['previous' => null, 'next' => null];
+
+        if (!$this->isMonth($date_month)) {
+            return $adjacent;
+        }
+
+        foreach (array_keys($month_list) as $month) {
+            // 先頭に付く「未指定」は月を指さない。
+            if (!$this->isMonth($month)) {
+                continue;
+            }
+
+            if ($month > $date_month) {
+                // 降順で並んでいるため、最後に残るものが最も近い月になる。
+                $adjacent['next'] = $month;
+            } else if ($month < $date_month) {
+                // 同じく、最初に見つかったものが最も近い月になる。
+                $adjacent['previous'] = $month;
+                break;
+            }
+        }
+
+        return $adjacent;
+    }
+
+    /**
+     * 'Y-m' 形式の月かどうかを判定する。
+     *
+     * @param string $value
+     * @return bool
+     */
+    private function isMonth($value)
+    {
+        return preg_match('/\A\d{4}-\d{2}\z/', (string) $value) === 1;
+    }
+
+    /**
      * 変動収支データを取得する。
      *
      * @param $user_id

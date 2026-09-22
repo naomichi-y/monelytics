@@ -28,8 +28,15 @@ class MonthlyController extends \App\Http\Controllers\Controller {
      */
     public function index()
     {
+        $month_list = $this->activity->getMonthList(Auth::id(), true);
+        $date_month = Request::input('date_month', date('Y-m'));
+
         $data = [];
-        $data['month_list'] = $this->activity->getMonthList(Auth::id(), true);
+        $data['month_list'] = $month_list;
+
+        // 前月・翌月のボタンが指す先。押せるかどうかも画面ではなくここで
+        // 決まる (記録のない向きへは進めない)。
+        $data['adjacent_months'] = $this->activity->getAdjacentMonths($month_list, $date_month);
 
         return View::make('summary/monthly/index', $data);
     }
