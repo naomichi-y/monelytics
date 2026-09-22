@@ -311,6 +311,17 @@ test.describe('集計', () => {
 
     // 組み直しを持たない画面でも隠したままにならないこと。
     await expect(page.locator('#tab-container')).toHaveCSS('visibility', 'visible');
+
+    // 組み上がったあとは枠の内側に収まること。待たせる間に表を流れから
+    // 外して幅を測らせると、padding のぶん広く組まれて枠から出る。
+    const box = await page.evaluate(() => {
+      const tabs = document.querySelector('#tabs').getBoundingClientRect();
+      const container = document.querySelector('#tab-container').getBoundingClientRect();
+
+      return { tabs: tabs.right, container: container.right };
+    });
+
+    expect(box.container).toBeLessThanOrEqual(box.tabs);
   });
 
   /**

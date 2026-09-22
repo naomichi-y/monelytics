@@ -607,6 +607,23 @@ footer li {
   }
 }
 
+/* 組み直しを待つ間、パネルに被せる (@see assets/js/common.js の startTabs)。
+   素の表は visibility で消してあるが場所は取ったままなので、確保した高さで
+   切る。切らないと、隠れている表の高さまでパネルが伸びる。 */
+.tab-waiting {
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-waiting .tab-loading {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding: 0;
+}
+
 /* タブの中身を読み込んでいる間の表示 (@see assets/js/common.js の startTabs)。
    高さの確保はパネル側の min-height が持つので、ここは中身を真ん中に置くだけ。
    色は Bootstrap の変数から取る。テーマを替えたときに置いていかれない。 */
