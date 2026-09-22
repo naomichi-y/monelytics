@@ -119,9 +119,12 @@
                     {{-- 場所は、今の絞り込みに location を足した日別集計へのリンクにする。
                          月別集計の利用頻度ランキングが同じ遷移をしており、そちらと揃える。
 
-                         期間は Condition が解決した実日付を載せる。date_month だけだと
-                         月末が何日かを踏んだ先で組み直すことになり、date_month の無い
-                         状態 (全期間) との区別も URL から読めない。
+                         期間は Condition が持っている形のまま渡す。月を見ているなら
+                         date_month、日付範囲で絞っているなら begin_date / end_date が
+                         載る。ここで解決済みの実日付を足すと、月を見ているだけの人が
+                         踏んだ先まで「日付範囲指定」の画面になり、月のセレクトが
+                         操作不可になっていた。期間が必ず入っているのは、指定の無い
+                         ときに Condition が当月を埋めるため。
 
                          空欄はリンクにしない。押しても絞り込みが効かず (Service 側が
                          strlen で捨てる)、同じ一覧が出るだけのため。 --}}
@@ -130,8 +133,6 @@
                             @php
                                 $location_queries = array_merge($condition->toArray(), [
                                     'location' => $activity->location,
-                                    'begin_date' => $date_range->begin_date,
-                                    'end_date' => $date_range->end_date,
                                 ]);
                             @endphp
                             {!! Html::linkWithQueryString('/summary/daily', $location_queries, $activity->location) !!}

@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { login, formatMonth, reportTable } = require('./helpers');
+const { login, formatDate, formatMonth, reportTable } = require('./helpers');
 
 /**
  * 集計画面はどれも、サーバが組んだ HTML の断片を $.get で差し込む作りになって
@@ -434,8 +434,7 @@ test.describe('集計', () => {
    * 押しても絞り込みは効かず、同じ一覧が出るだけになる。
    */
   test('日別集計の場所からその場所だけに絞り込める', async ({ page }) => {
-    const today = new Date();
-    const month = formatMonth(today);
+    const month = formatMonth(new Date());
 
     await page.goto(`/summary/daily?date_month=${month}`);
 
@@ -453,16 +452,21 @@ test.describe('集計', () => {
     // 場所と、元の画面が見ていた期間の両方が URL に乗ること。期間が落ちると
     // 絞り込んだつもりで全期間の一覧が出る。
     //
-    // 期間は実日付で載る。月末は月ごとに違うので、date_month だけを渡して
-    // 踏んだ先で組み直すと 2 月やうるう年でずれる。
+    // 期間は元の画面が持っている形のまま。月を見ているなら date_month で、
+    // 解決済みの実日付は足さない。足していたころは、月を見ているだけの人が
+    // 踏んだ先まで「日付範囲指定」の画面になり、月のセレクトが操作不可に
+    // なっていた。
     const target = new URL(page.url());
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
 
     expect(target.pathname).toBe('/summary/daily');
     expect(target.searchParams.get('location')).toBe('E2E スーパー');
     expect(target.searchParams.get('date_month')).toBe(month);
-    expect(target.searchParams.get('begin_date')).toBe(`${month}-01`);
-    expect(target.searchParams.get('end_date')).toBe(`${month}-${String(lastDay).padStart(2, '0')}`);
+    expect(target.searchParams.get('begin_date')).toBeNull();
+    expect(target.searchParams.get('end_date')).toBeNull();
+
+    // 踏んだ先でも月を選び直せること。
+    await expect(page.locator('#date_month')).toBeEnabled();
+    await expect(page.locator('#date_month')).toHaveValue(month);
 
     // 当月の「E2E スーパー」はシードの食料品だけ。
     await expect(listRows).toHaveCount(1);
