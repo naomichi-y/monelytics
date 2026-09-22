@@ -205,6 +205,87 @@ test.describe('集計', () => {
   });
 
   /**
+   * 集計表は届いた時点では素の幅のまま置かれ、断片の script が
+   * fixTableHeader を呼ぶまで組み直されない。年別集計の表は本来の幅が
+   * 5000px を超えるため、その一瞬だけタブの枠を突き抜けて画面の外まで
+   * 伸びていた。
+   *
+   * 組み直しは重く、その間ブラウザの他の処理が止まるので、画面の絵を
+   * 連続で撮っても掴めない。差し込まれた瞬間の状態を見る。
+   */
+  test('組み直す前の集計表は描かれない', async ({ page }) => {
+    // 本来の幅が箱に収まらない表を返す。シードの表は狭くて再現しない。
+    await page.route('**/summary/yearly/report*', (route) => {
+      const columns = Array.from({ length: 40 }, (_, i) => `<th>項目${i + 1}</th>`).join('');
+      const rows = Array.from({ length: 20 }, () =>
+        '<tr>' + Array.from({ length: 41 }, () => '<td>1,234,567 円</td>').join('') + '</tr>').join('');
+
+      return route.fulfill({
+        contentType: 'text/html; charset=utf-8',
+        body: `<script>
+            $(function() {
+              $('#tab-container').fixTableHeader({ table: '#table-selector', fixRows: 1, fixCols: 1 });
+            });
+          </script>
+          <div id="tab-container">
+            <table class="table" id="table-selector">
+              <thead><tr><th>年月</th>${columns}</tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`,
+      });
+    });
+
+    const year = new Date().getFullYear();
+    await page.goto(`/summary/yearly?begin_year=${year - 2}&end_year=${year}&output_type=1&tab=line-chart`);
+    await expect(page.locator('#tabs')).toBeVisible();
+
+    // 差し込みは script の実行と同じ task で終わるため、後から見に行っても
+    // 間に合わない。変化した時点で控える。
+    await page.evaluate(() => {
+      window.__states = [];
+      const tabs = document.querySelector('#tabs');
+
+      new MutationObserver(() => {
+        const container = document.querySelector('#tab-container');
+
+        if (!container) {
+          return;
+        }
+
+        const table = container.querySelector('table');
+
+        window.__states.push({
+          visibility: getComputedStyle(container).visibility,
+          containerWidth: container.getBoundingClientRect().width,
+          tableWidth: table ? table.getBoundingClientRect().width : 0,
+          // 組み直すと表は tablefix の作る div の中へ入る。箱の直下に表が
+          // 居るのは、まだ素のままということ。
+          raw: container.firstElementChild ? container.firstElementChild.tagName === 'TABLE' : false,
+        });
+      }).observe(tabs, { childList: true, subtree: true });
+    });
+
+    await page.getByRole('tab', { name: '集計表' }).click();
+    await expect(page.locator('#tab-container')).toBeVisible();
+
+    const states = await page.evaluate(() => window.__states);
+    expect(states.length).toBeGreaterThan(0);
+
+    // 素のまま、かつ箱に収まらない幅で置かれている間は一度も見えていないこと。
+    // 組み直したあとは div の中でスクロールするので、幅が超えていてよい。
+    const raw = states.filter((state) => state.raw && state.tableWidth > state.containerWidth + 1);
+    expect(raw.length).toBeGreaterThan(0);
+
+    for (const state of raw) {
+      expect(state.visibility).toBe('hidden');
+    }
+
+    // 組み直しを持たない画面でも隠したままにならないこと。
+    await expect(page.locator('#tab-container')).toHaveCSS('visibility', 'visible');
+  });
+
+  /**
    * 帯の検索は日別集計へ送る。そちらにタブはないので、意味のない値を
    * クエリに残さないこと。
    */

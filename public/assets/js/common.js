@@ -143,6 +143,12 @@ $(function() {
   var SCROLLBAR_SLACK = 20;
 
   /**
+   * 集計表を入れる箱。月別集計と年別集計の report.blade.php が持つ。
+   * 隠す側と戻す側で同じものを指すため 1 箇所に置く。
+   */
+  var TABLE_CONTAINER = "#tab-container";
+
+  /**
    * ヘッダを固定した表を組み立て、ウィンドウ幅が変わったら組み直す。
    *
    * jquery.tablefix は呼ばれた時点の幅をピクセルで書き込み、その後は
@@ -156,6 +162,14 @@ $(function() {
     var original = $container.html();
 
     var build = function() {
+      // 組み直している間は描かせない。下で素の HTML に戻すため、そのまま
+      // だと表が本来の幅で一度置かれ、タブの枠を突き抜ける。ここは全て
+      // 同期なので、隠してから戻すまでに描画は挟まらない。
+      //
+      // display ではなく visibility にする。display: none では箱の幅が 0 に
+      // なり、tablefix へ渡す幅が取れない。
+      $container.css("visibility", "hidden");
+
       // tablefix は表を複製して重ねる。二重に掛けないよう毎回もとに戻す。
       $container.html(original);
 
@@ -180,6 +194,8 @@ $(function() {
 
         this.style.overflowX = (overflow > 0 && overflow <= SCROLLBAR_SLACK) ? "hidden" : "auto";
       });
+
+      $container.css("visibility", "");
     };
 
     build();
@@ -293,8 +309,33 @@ $(function() {
           ui.panel.css("min-height", "");
         });
       },
+      /**
+       * 届いた中身は、断片の script が組み直すまで素のままで置かれる。
+       * 年別集計の集計表は本来の幅が 2900px を超えるため、そのあいだ
+       * タブの枠を突き抜けて画面の外まで伸びていた。
+       *
+       * この load は jQuery UI が中身を入れた直後に、まだ同じ task の中で
+       * 起きる。ここで隠せば素のままの表は一度も描かれない。
+       *
+       * 戻すのは次の task。断片の $(function(){}) は ready の解決を待つので
+       * この task の後、次の task の前に動く。組み直しを持たない画面でも
+       * 必ず戻るため、隠したままになることはない。
+       */
       load: function(e, ui) {
-        ui.panel.css("min-height", "");
+        var $container = ui.panel.find(TABLE_CONTAINER);
+
+        if (!$container.length) {
+          ui.panel.css("min-height", "");
+
+          return;
+        }
+
+        $container.css("visibility", "hidden");
+
+        setTimeout(function() {
+          $container.css("visibility", "");
+          ui.panel.css("min-height", "");
+        }, 0);
       }
     });
   }
