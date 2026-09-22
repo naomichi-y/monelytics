@@ -43,7 +43,10 @@ Route::group(['prefix' => 'contact'], function($route) {
 Route::resource('contact', 'ContactController', ['only' => ['index']]);
 
 Route::group(['middleware' => 'auth'], function() {
-    Route::resource('dashboard', 'DashboardController');
+    // index しか実装がない。既定の resource は create / store / show / edit /
+    // update / destroy まで登録してしまい、開くと BadMethodCallException で
+    // 500 になる (@see Cost の resource)。
+    Route::resource('dashboard', 'DashboardController', ['only' => ['index']]);
 
     // 日付入力のカレンダーが祝日の色付けに読む。外へ取りに行く処理を抱える
     // ため、画面と同じく認証済みにだけ開ける。
@@ -95,11 +98,17 @@ Route::group(['middleware' => 'auth'], function() {
         $route->group(['prefix' => 'activityCategory'], function($route) {
             $route->post('sort', 'ActivityCategoryController@sort');
         });
-        $route->resource('activityCategory', 'ActivityCategoryController');
+        // 単体表示 (show) の画面を持たない。載せたままだと直接開いて 500 になる。
+        $route->resource('activityCategory', 'ActivityCategoryController', [
+            'only' => ['index', 'create', 'store', 'edit', 'update', 'destroy']
+        ]);
 
         $route->group(['prefix' => 'activityCategoryItem'], function($route) {
             $route->post('sort', 'ActivityCategoryItemController@sort');
         });
-        $route->resource('activityCategoryItem', 'ActivityCategoryItemController');
+        // @see activityCategory。こちらも show を持たない。
+        $route->resource('activityCategoryItem', 'ActivityCategoryItemController', [
+            'only' => ['index', 'create', 'store', 'edit', 'update', 'destroy']
+        ]);
     });
 });
