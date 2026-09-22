@@ -1,0 +1,22 @@
+# etc/host/docker-user-firewall.sh を docker の起動後に流す。
+#
+# netfilter-persistent で保存しないのは、保存時点の docker が作った規則まで
+# 一緒に書き出され、起動時に docker より先に古い規則が戻るため。
+# DOCKER-USER は docker が用意するチェーンなので、docker のあとに入れる。
+#
+# 実行するのは /usr/local/sbin へ置いた複製で、このリポジトリの中の物ではない。
+# チェックアウトは playwright や tools のコンテナから書ける場所なので、そこを
+# root で実行させると、コンテナを踏まれた側からホストの root を取れてしまう。
+# 置き方は README を参照。中身を直したら置き直すこと。
+[Unit]
+Description=Restrict forwarded traffic into Docker containers
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/docker-user-firewall.sh
+
+[Install]
+WantedBy=multi-user.target
