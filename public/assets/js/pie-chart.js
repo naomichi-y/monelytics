@@ -2,6 +2,12 @@ $(function () {
   $.fn.loadPieChart = function(params) {
     var $element = $(this);
 
+    // @see assets/js/line-chart.js の loadYearlyTrend。こちらはタブの中身が
+    // 空の div だけなので、待っている間タブが何も無い状態になる。
+    if (!$element.children().length) {
+      $element.showLoading();
+    }
+
     $.get("/summary/monthly/pie-chart-data",
       params,
       function(data) {

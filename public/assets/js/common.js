@@ -260,16 +260,19 @@ $(function() {
   var TAB_LOADING_MIN_HEIGHT = 240;
 
   /**
-   * 読み込み中に見せる中身。
+   * 読み込み中であることを、その要素の中に出す。
    *
-   * @returns {string}
+   * タブの中身と、届いたあとに自分でもう一度取りに行くグラフとで、同じ
+   * 見た目にしたいので 1 箇所に置く。
+   *
+   * @returns {jQuery}
    */
-  function tabLoading() {
-    return '<div class="tab-loading" role="status">'
+  $.fn.showLoading = function() {
+    return $(this).html('<div class="tab-loading" role="status">'
       + '<span class="spinner-border" aria-hidden="true"></span>'
       + '<span>読み込んでいます…</span>'
-      + '</div>';
-  }
+      + '</div>');
+  };
 
   $.fn.startTabs = function() {
     var $tabs = $(this);
@@ -302,7 +305,7 @@ $(function() {
       beforeLoad: function(e, ui) {
         ui.panel
           .css("min-height", (reserved || TAB_LOADING_MIN_HEIGHT) + "px")
-          .html(tabLoading());
+          .showLoading();
 
         // 失敗したときは load が起きない。確保した高さが残り続ける。
         ui.jqXHR.fail(function() {

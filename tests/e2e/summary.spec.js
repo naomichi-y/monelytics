@@ -205,6 +205,34 @@ test.describe('集計', () => {
   });
 
   /**
+   * グラフのタブは、届いた断片が空の div を置くだけで、中身はそこから
+   * もう一度取りに行く。タブの読み込みはその時点で終わっているので、
+   * 待っている間タブが絞り込みだけの帯になり、中が空になっていた。
+   */
+  test('グラフを取りに行っている間もタブは空にならない', async ({ page }) => {
+    await page.route('**/summary/yearly/line-chart-data*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      return route.continue();
+    });
+
+    const year = new Date().getFullYear();
+    await page.goto(`/summary/yearly?begin_year=${year - 2}&end_year=${year}&output_type=2&tab=report`);
+    await expect(page.locator('#tabs')).toBeVisible();
+
+    await page.getByRole('tab', { name: '推移グラフ' }).click();
+
+    // グラフを描く場所そのものに出ていること。タブ側の表示は断片が届いた
+    // 時点で消えるため、ここが空だと帯だけが残る。
+    const chart = page.locator('#yearly_trend_chart');
+    await expect(chart.getByRole('status')).toBeVisible();
+    await expect(chart.getByRole('status')).toContainText('読み込んでいます');
+
+    await expect(chart.locator('svg')).toBeVisible();
+    await expect(chart.getByRole('status')).toHaveCount(0);
+  });
+
+  /**
    * 集計表は届いた時点では素の幅のまま置かれ、断片の script が
    * fixTableHeader を呼ぶまで組み直されない。年別集計の表は本来の幅が
    * 5000px を超えるため、その一瞬だけタブの枠を突き抜けて画面の外まで
