@@ -81,6 +81,9 @@ return [
             'login' => [
                 'authentication' => 'ログインに失敗しました。'
             ],
+            'update' => [
+                'current_password' => '現在のパスワードが正しくありません。'
+            ],
         ],
         'create_record_none' => '登録対象データがありません。',
         'create_success' => '登録が完了しました。',
@@ -104,6 +107,7 @@ return [
         'nickname' => '名前',
         'email' => 'メールアドレス',
         'password' => 'パスワード',
+        'current_password' => '現在のパスワード',
         'activity_date' => '発生日',
         'activity_category_id' => '科目カテゴリ名',
         'category_name' => '科目カテゴリ名',

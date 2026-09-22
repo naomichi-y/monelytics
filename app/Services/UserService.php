@@ -158,10 +158,22 @@ class UserService
 
         if ($this->user->updateValidate($fields)) {
             $user = $this->user->find($user_id);
+
+            // 現在のパスワードが合っているかは、検証ルールでは分からない。
+            // 入力があるかどうかだけを User::updateValidate が見て、
+            // 保存済みのハッシュとの突き合わせはここで行う。
+            if (strlen($fields['password'] ?? '') && strlen($user->password ?? '')) {
+                if (!Hash::check($fields['current_password'] ?? '', $user->password)) {
+                    $errors[] = Lang::get('validation.custom.user.update.current_password');
+
+                    return false;
+                }
+            }
+
             $user->email = $fields['email'];
             $user->nickname = $fields['nickname'];
 
-            if (strlen($fields['password'])) {
+            if (strlen($fields['password'] ?? '')) {
                 $user->password = Hash::make($fields['password']);
                 $count = $user->userCredential()
                     ->where('credential_type', '=', Models\UserCredential::CREDENTIAL_TYPE_GENERAL)

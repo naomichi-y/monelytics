@@ -53,18 +53,32 @@
                     </div>
                 </div>
 
+                @if (strlen(Auth::user()->password))
+                    {{-- 廃止した Facebook ログインだけで作られた利用者は password が空で、
+                         入力できる現在のパスワードを持たない。欄を出すと入れようのない
+                         ものを求めることになるため、持っている人にだけ見せる。
+                         検証側も同じ条件で判断する (User::updateValidate)。 --}}
+                    <div class="row mb-3">
+                        {!! Form::label('current_password', '現在のパスワード', ['class' => 'col-md-4 col-form-label']) !!}
+                        <div class="col-md-8">
+                            {!! Form::password('current_password', ['class' => 'form-control', 'autocomplete' => 'current-password']) !!}
+                            <span class="note">(パスワードを変更する場合のみ入力)</span>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="row mb-3">
-                    {!! Form::label('password', 'パスワード', ['class' => 'col-md-4 col-form-label']) !!}
+                    {!! Form::label('password', '新しいパスワード', ['class' => 'col-md-4 col-form-label']) !!}
                     <div class="col-md-8">
-                        {!! Form::password('password', ['class' => 'form-control']) !!}
+                        {!! Form::password('password', ['class' => 'form-control', 'autocomplete' => 'new-password']) !!}
                         <span class="note">(変更する場合のみ入力)</span>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    {!! Form::label('password_confirmation', 'パスワード (再入力)', ['class' => 'col-md-4 col-form-label']) !!}
+                    {!! Form::label('password_confirmation', '新しいパスワード (再入力)', ['class' => 'col-md-4 col-form-label']) !!}
                     <div class="col-md-8">
-                        {!! Form::password('password_confirmation', ['class' => 'form-control']) !!}
+                        {!! Form::password('password_confirmation', ['class' => 'form-control', 'autocomplete' => 'new-password']) !!}
                     </div>
                 </div>
 
