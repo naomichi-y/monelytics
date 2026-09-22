@@ -99,20 +99,6 @@ class ActivityCategoryItemService
     }
 
     /**
-     * ユーザに紐づく小項目のIDリストを取得する。
-     *
-     * @param int $user_id
-     * @return array
-     */
-    public function findIds($user_id)
-    {
-        $builder = $this->activity_category_item->where('user_id', '=', $user_id)
-            ->orderBy('sort_order', 'asc');
-
-        return $builder->list('id', 'id');
-    }
-
-    /**
      * ユーザに紐づく全ての小項目データを取得する。
      *
      * @param int $user_id

@@ -1,25 +1,4 @@
 <?php
-Form::macro('date', function($name, $default = NULL, $attributes = [])
-{
-    $tag = '<input type="date" name="'. $name .'" ';
-
-    if ($default) {
-        $tag .= 'value="'. $default .'" ';
-    }
-
-    if (empty($attributes['id'])) {
-        $attributes['id'] = $name;
-    }
-
-    foreach ($attributes as $key => $value) {
-        $tag .= $key .'="'. $value .'" ';
-    }
-
-    $tag .= '>';
-
-    return $tag;
-});
-
 /**
  * @param collection $collection
  * @param string $target
