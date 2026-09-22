@@ -53,5 +53,28 @@ class DailyPaginateCondition extends BaseDateCondition {
         }
 
         parent::__construct($fields);
+
+        // 期間の指定が 1 つも無いときは当月にする。
+        //
+        // 何も付けずに /summary/daily を開くと期間が効かず、全期間が発生日の
+        // 降順で並んでいた。1 ページ目が最近の行で埋まるので当月に見えるが、
+        // 先頭に来るのは未来日の行で、当月を出しているつもりの画面に翌年の
+        // 収支が混ざる。帯の月セレクトが当月を表示しているぶん、一覧だけが
+        // 別の期間を見ていることに気付けない。
+        //
+        // 全期間は月セレクトの「未指定」(date_month = 'all') で選べる。
+        // 既定を当月にしてもそちらは塞がらない。
+        //
+        // 既定値は親の正規化を通したあとで入れる。?date_month[]=x のように
+        // 配列で送られると正規化が null へ倒すため、生の $fields を見ると
+        // 「指定あり」と読んでしまい、期間の無い状態が残る。
+        $has_period = strlen((string) $this->date_year)
+            || strlen((string) $this->date_month)
+            || strlen((string) $this->begin_date)
+            || strlen((string) $this->end_date);
+
+        if (!$has_period) {
+            $this->date_month = date('Y-m');
+        }
     }
 }

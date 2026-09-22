@@ -53,7 +53,10 @@
         {!! Form::open(['url' => 'summary/daily', 'id' => 'search_form', 'method' => 'get']) !!}
             <div class="row g-2 align-items-center form-group-adjust">
                 <div class="col-md-8">
-                    {!! Form::select('date_month', $month_list, Request::get('date_month', date('Y-m')), ['class' => 'form-select', 'id' => 'date_month']) !!}
+                    {{-- 選択は Condition が決めた値を出す。ここで Request から
+                         組み直していたころは、指定が無いときだけセレクトが当月を
+                         出し、一覧は全期間を並べていた。 --}}
+                    {!! Form::select('date_month', $month_list, $condition->date_month, ['class' => 'form-select', 'id' => 'date_month']) !!}
                 </div>
                 <div class="col-md-4">
                     <a class="btn btn-info btn-sm" id="open_condition">詳細検索</a>

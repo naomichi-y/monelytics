@@ -393,6 +393,35 @@ test.describe('集計', () => {
   });
 
   /**
+   * 期間を付けずに開いたときは当月だけを出す。
+   *
+   * 以前は期間が一切効かず、全期間が発生日の降順で並んでいた。1 ページ目は
+   * 最近の行で埋まるので当月に見えるが、先頭に来るのは未来日の行で、当月の
+   * つもりの画面に翌年の収支が混ざっていた。帯のセレクトは当月を出している
+   * ため、一覧だけが別の期間を見ていることに気付けない。
+   */
+  test('期間を指定せずに開くと当月だけが出る', async ({ page }) => {
+    await page.goto('/summary/daily');
+
+    // セレクトと一覧が同じ月を指していること。ここが割れると画面が嘘をつく。
+    await expect(page.locator('#date_month')).toHaveValue(formatMonth(new Date()));
+
+    // 件数では見ない。登録系のスペックが当月に行を足していくため。
+    const listRows = page.locator('tr[data-id]');
+
+    await expect(listRows.filter({ hasText: '当月の食料品' })).toHaveCount(1);
+    await expect(listRows.filter({ hasText: '前々月の食料品' })).toHaveCount(0);
+    await expect(listRows.filter({ hasText: '昨年の食料品' })).toHaveCount(0);
+
+    // 「未指定」を選べば従来どおり全期間を見られる。既定を当月にしたことで
+    // そちらが塞がっていないこと。
+    await page.locator('#date_month').selectOption('all');
+
+    await expect(page).toHaveURL(/date_month=all/);
+    await expect(page.locator('tr[data-id]').filter({ hasText: '前々月の食料品' })).toHaveCount(1);
+  });
+
+  /**
    * 日別集計の場所は、その場所だけに絞った日別集計へのリンクになっている。
    * 月別集計の利用頻度ランキングが以前から同じ遷移を持っており、一覧側だけが
    * ただの文字列で、同じ場所を見たいときに詳細検索を開き直す必要があった。
