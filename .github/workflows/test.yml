@@ -38,11 +38,16 @@ jobs:
           # 空でも動いていたころの名残で、ここだけ埋め忘れていた。
           sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=$(openssl rand -hex 16)/" .env
 
+          # webapp の uid/gid は実行者に合わせる。チェックアウトは実行者の持ち物
+          # なので、ずれると composer install も storage への書き込みも
+          # Permission denied になる。値は compose の x-php-build が .env から
+          # 読むため、ここへ入れる (compose.yml 参照)。
+          sed -i "s/^WEBAPP_UID=.*/WEBAPP_UID=$(id -u)/" .env
+          sed -i "s/^WEBAPP_GID=.*/WEBAPP_GID=$(id -g)/" .env
+
       - name: コンテナを立てる
         run: |
-          # webapp の uid/gid は実行者に合わせる。ずれると composer install も
-          # storage への書き込みも Permission denied になる。
-          docker compose build --build-arg UID=$(id -u) --build-arg GID=$(id -g) php
+          docker compose build php
           docker compose up -d db redis php
 
       - name: データベースの用意を待つ
@@ -80,9 +85,16 @@ jobs:
           # 空でも動いていたころの名残で、ここだけ埋め忘れていた。
           sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=$(openssl rand -hex 16)/" .env
 
+          # webapp の uid/gid は実行者に合わせる。チェックアウトは実行者の持ち物
+          # なので、ずれると composer install も storage への書き込みも
+          # Permission denied になる。値は compose の x-php-build が .env から
+          # 読むため、ここへ入れる (compose.yml 参照)。
+          sed -i "s/^WEBAPP_UID=.*/WEBAPP_UID=$(id -u)/" .env
+          sed -i "s/^WEBAPP_GID=.*/WEBAPP_GID=$(id -g)/" .env
+
       - name: コンテナを立てる
         run: |
-          docker compose --profile e2e build --build-arg UID=$(id -u) --build-arg GID=$(id -g)
+          docker compose --profile e2e build
           docker compose --profile e2e up -d
 
       - name: データベースの用意を待つ
