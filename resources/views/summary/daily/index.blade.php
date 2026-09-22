@@ -15,16 +15,31 @@
 
             $("table").responsiveTable();
 
+            {{-- モーダルへ渡すのは Condition が決めた値。リクエストを読み直して
+                 date('Y-m') を既定にしていたころは、日付範囲で絞っている画面
+                 (URL に date_month が無い) から開いても月指定が当月になり、
+                 範囲で見ているのに月を選んでいるように見えていた。
+
+                 場所で絞り込んでいるときは、その場所をキーワード欄に出す。
+                 モーダルに location の欄は無いので、空のまま開くと何で絞られて
+                 いるのかが画面から分からない。キーワードは場所と用途の部分一致
+                 なので、そのまま検索すれば同じ場所は残る。 --}}
+            @php
+                $modal_keyword = strlen((string) $condition->keyword)
+                    ? $condition->keyword
+                    : $condition->location;
+            @endphp
+
             // 詳細検索押下
             $("#open_condition").click(function() {
                 $.get("/summary/daily/condition",
                     {
-                        date_month: {!! Html::encodeJsJsonValue('date_month', date('Y-m')) !!},
-                        begin_date: {!! Html::encodeJsJsonValue('begin_date') !!},
-                        end_date: {!! Html::encodeJsJsonValue('end_date') !!},
-                        activity_category_item_id: {!! Html::encodeJsJsonValue('activity_category_item_id', null, 'array') !!},
-                        keyword: {!! Html::encodeJsJsonValue('keyword') !!},
-                        credit_flag: {!! Html::encodeJsJsonValue('credit_flag') !!},
+                        date_month: {!! Html::encodeJsValue($condition->date_month) !!},
+                        begin_date: {!! Html::encodeJsValue($condition->begin_date) !!},
+                        end_date: {!! Html::encodeJsValue($condition->end_date) !!},
+                        activity_category_item_id: {!! Html::encodeJsValue($condition->activity_category_item_id, 'array') !!},
+                        keyword: {!! Html::encodeJsValue($modal_keyword) !!},
+                        credit_flag: {!! Html::encodeJsValue($condition->credit_flag) !!},
                     },
                     function(data) {
                         showModal(data);

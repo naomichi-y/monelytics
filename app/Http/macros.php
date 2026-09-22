@@ -99,8 +99,22 @@ Html::macro('formatDate', function($date, $format, $append_week) {
  * @return string
  */
 Html::macro('encodeJsJsonValue', function($field, $alternative = null, $type = 'string') {
-    $value = Request::input($field, $alternative);
+    return Html::encodeJsValue(Request::input($field, $alternative), $type);
+});
 
+/**
+ * 手元の値を JS のリテラルとして書き出す。
+ *
+ * 逃がし方と型の倒し方は Html::encodeJsJsonValue と同じで、値をリクエストから
+ * 読むかどうかだけが違う。Condition が決めた値を書き出すために分けてある。
+ * リクエストを読み直すと、指定が無いときに Condition が埋める既定値 (日別集計の
+ * 当月など) を View 側でも書くことになり、片方だけ直って食い違う。
+ *
+ * @param mixed $value
+ * @param string $type string|numeric|bool|array
+ * @return string
+ */
+Html::macro('encodeJsValue', function($value, $type = 'string') {
     if ($value === null) {
         return 'null';
     }

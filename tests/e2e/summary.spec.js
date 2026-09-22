@@ -496,6 +496,39 @@ test.describe('集計', () => {
   });
 
   /**
+   * 詳細検索は、今その画面に効いている条件のまま開く。
+   *
+   * モーダルへ渡す値をリクエストから読み直し、月指定だけ date('Y-m') を既定に
+   * していたころは、日付範囲で絞っている画面 (URL に date_month が無い) から
+   * 開いても月指定が当月になっていた。範囲で見ているのに月を選んでいるように
+   * 見え、そのまま検索すると当月へ戻る。
+   *
+   * 場所で絞っているときはキーワード欄にその場所を出す。モーダルに location の
+   * 欄は無いため、空のまま開くと何で絞られているのかが画面から分からない。
+   */
+  test('日付範囲と場所で絞った画面の詳細検索が、その条件のまま開く', async ({ page }) => {
+    const today = new Date();
+    const begin = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+    const end = formatDate(today);
+
+    await page.goto(`/summary/daily?location=${encodeURIComponent('E2E スーパー')}&begin_date=${begin}&end_date=${end}`);
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+
+    // 月は選んでいない。当月が入っていると、検索し直しただけで範囲が消える。
+    await expect(modal.locator('#search_date_month')).toHaveValue('all');
+    await expect(modal.locator('#search_date_month')).toBeDisabled();
+
+    await expect(modal.locator('#begin_date')).toHaveValue(begin);
+    await expect(modal.locator('#end_date')).toHaveValue(end);
+
+    // 絞り込んでいる場所が読めること。
+    await expect(modal.locator("[name='keyword']")).toHaveValue('E2E スーパー');
+  });
+
+  /**
    * 月別集計の詳細検索も同じ作りで、同じ取り違えを持っていた。日別だけ直すと
    * 片方に残る。
    */
