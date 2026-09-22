@@ -331,6 +331,66 @@ test.describe('集計', () => {
    * ツールチップは同じ目盛りの小項目を全て並べる。どれを指しているのか
    * 分かるよう、カーソルが捉えた小項目だけ濃い太字にし、残りは薄くしている。
    */
+  /**
+   * 横軸のラベルは、収まる数ではなく「24 個」という決め打ちで間引いていた。
+   * 24 個入るかどうかは幅の側の話で、入らないときは黙って重なる。20 年分では
+   * 右端の 2 つが 14px 食い込み、1280px 幅では 23 個すべてが地続きに見えていた。
+   *
+   * 端末ごとに幅が違うので、個数ではなく実際のすき間を測る。
+   */
+  test('推移グラフの横軸ラベルが重ならない', async ({ page }) => {
+    // 20 年分を作る。シードは 2 年分しか持たないため応答を差し替える。
+    await page.route('**/summary/yearly/line-chart-data*', (route) => {
+      const labels = [];
+      const data = [];
+      let y = 2006;
+      let m = 7;
+
+      for (let i = 0; i < 243; i++) {
+        labels.push(`${y}/${String(m).padStart(2, '0')}`);
+        data.push(100000 + i * 100);
+
+        if (++m > 12) {
+          m = 1;
+          y += 1;
+        }
+      }
+
+      return route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({ labels, series: [{ name: '交際費', data }] }),
+      });
+    });
+
+    await page.goto('/summary/yearly?begin_year=2006&end_year=2026&output_type=2');
+    await page.getByRole('tab', { name: '推移グラフ' }).click();
+    await expect(page.locator('#yearly_trend_chart svg')).toBeVisible();
+
+    const gap = await page.locator('#yearly_trend_chart').evaluate((node) => {
+      // 間引かれたラベルも要素としては残るので、見えているものだけを測る。
+      const boxes = [...node.querySelectorAll('.highcharts-xaxis-labels text')]
+        .filter((text) => {
+          const style = getComputedStyle(text);
+
+          return style.visibility !== 'hidden' && parseFloat(style.opacity) > 0.01;
+        })
+        .map((text) => text.getBoundingClientRect())
+        .sort((a, b) => a.left - b.left);
+
+      let worst = Infinity;
+
+      for (let i = 1; i < boxes.length; i++) {
+        worst = Math.min(worst, boxes[i].left - boxes[i - 1].right);
+      }
+
+      return { count: boxes.length, worst };
+    });
+
+    expect(gap.count).toBeGreaterThan(2);
+    // 直したあとの実測は 14.3px。隣と地続きに見えない幅として 8px を下限にする。
+    expect(gap.worst).toBeGreaterThan(8);
+  });
+
   test('推移グラフは指している小項目だけを立たせる', async ({ page }) => {
     const year = new Date().getFullYear();
 
