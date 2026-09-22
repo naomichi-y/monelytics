@@ -64,9 +64,18 @@ services:
     restart: unless-stopped
 
   redis:
-    # 元の redis.conf は 3.2 向けで slave-* 系の記述が残るため、既定設定で起動する。
+    # 元の redis.conf は 3.2 向けで slave-* 系の記述が残るため、設定ファイルは
+    # 持たせず、必要なものだけ引数で渡す。
     image: redis:8-alpine
     container_name: monelytics_redis
+    # 認証を必須にする。既定の redis は無認証で起動するため、同じネットワークに
+    # いるものは誰でも db0 を読めた。そこに入っているのはセッションそのもので
+    # (SESSION_DRIVER=redis)、読めればログイン中の利用者になりすませる。
+    #
+    # .env の REDIS_PASSWORD は Laravel 側がどう接続するかを決めるだけで、
+    # サーバに requirepass を渡さない限り何も要求されない。値が入っているのに
+    # 効いていない状態になりやすいので、両方が同じ変数を見るようにしておく。
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?.env に REDIS_PASSWORD を設定すること}"]
     # SESSION_DRIVER=redis のため、コンテナ再作成でログアウトしないよう永続化する。
     volumes:
       - redisdata:/data
