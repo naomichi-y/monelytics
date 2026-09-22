@@ -2,6 +2,44 @@
 const { test, expect } = require('@playwright/test');
 const { login } = require('./helpers');
 
+/**
+ * 変動支出の並びの、列ごとの実寸。
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+function columns(page) {
+  return page.locator('.variable-expense').evaluate((root) => {
+    const cells = [...root.querySelector('tbody tr').children];
+
+    return {
+      table: root.querySelector('table').getBoundingClientRect().width,
+      name: cells[0].getBoundingClientRect().width,
+      bar: cells[1].getBoundingClientRect().width,
+      amount: cells[2].getBoundingClientRect().width,
+      difference: cells[3].getBoundingClientRect().width,
+    };
+  });
+}
+
+/**
+ * 7 桁の額を入れたときに、各セルから何 px はみ出すか。
+ *
+ * シードの額は 4 桁で、そのままでは狭すぎる列でも収まってしまう。
+ *
+ * @param {import('@playwright/test').Page} page
+ */
+function overflowWithSevenDigits(page) {
+  return page.locator('.variable-expense').evaluate((root) => {
+    const unit = (value) => `<span class="money">${value} <span class="unit">円</span></span>`;
+    const cells = [...root.querySelector('tbody tr').children];
+
+    cells[2].innerHTML = unit('9,999,999');
+    cells[3].innerHTML = unit('-9,999,999');
+
+    return cells.map((cell) => Math.max(0, cell.scrollWidth - cell.clientWidth));
+  });
+}
+
 test.describe('ダッシュボード', () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
@@ -127,6 +165,44 @@ test.describe('ダッシュボード', () => {
    * かんたん入力の送り先は cost/variable で、作られるのは変動収支。固定収支の
    * 小項目を選べてしまうと、選んだとおりに登録されない。
    */
+  /**
+   * 額と増減は右揃えで、7 桁でも padding 込み 89px あれば足りる。26% ずつ
+   * では 187px を取って左が空くだけだったので、余りは棒へ回した。
+   *
+   * 切り替えは画面幅ではなくこの部品自身の幅で行う。ダッシュボードは画面が
+   * 広がると多段組みになり、両者が一致しない (700px の画面で表は 639px、
+   * 768px の画面では 439px)。画面幅で分けると広い画面のほうが狭くなる。
+   */
+  test('広く取れるときは棒を長くする', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/dashboard');
+    await expect(page.locator('.variable-expense')).toBeVisible();
+
+    const wide = await columns(page);
+
+    // 棒が一番広い列であること。ここが読みたいものなので。
+    expect(wide.bar).toBeGreaterThan(wide.name);
+    expect(wide.bar).toBeGreaterThan(wide.amount + wide.difference);
+
+    // 7 桁を入れてもセルから出ないこと。
+    expect(await overflowWithSevenDigits(page)).toEqual([0, 0, 0, 0]);
+  });
+
+  /**
+   * 狭いところでは配分を変えない。20% では 7 桁が入らず、桁の頭がセルから
+   * はみ出す。
+   */
+  test('狭いときは額の幅を削らない', async ({ page }) => {
+    await page.setViewportSize({ width: 414, height: 900 });
+    await page.goto('/dashboard');
+    await expect(page.locator('.variable-expense')).toBeVisible();
+
+    const narrow = await columns(page);
+
+    expect(narrow.amount / narrow.table).toBeGreaterThan(0.24);
+    expect(await overflowWithSevenDigits(page)).toEqual([0, 0, 0, 0]);
+  });
+
   test('かんたん入力の小項目は変動収支だけ', async ({ page }) => {
     const options = page.locator('#activity_category_item_id option');
 
