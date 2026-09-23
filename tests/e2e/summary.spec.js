@@ -422,6 +422,38 @@ test.describe('集計', () => {
   });
 
   /**
+   * 帯の検索窓は期間で絞らない。どの画面からでも押せる入口なので、探して
+   * いるものが今いる月にあるとは限らない。
+   *
+   * 期間を付けずに /summary/daily へ送ると DailyPaginateCondition が当月を
+   * 既定にするため (@see 「期間を指定せずに開くと当月だけが出る」)、当月の
+   * 1 件しか出ず、過去の分は無いように見えていた。
+   */
+  test('帯の検索窓は期間で絞らずに探す', async ({ page }) => {
+    // 当月以外の画面から押しても同じであること。
+    await page.goto(`/summary/daily?date_month=${formatMonth(new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1))}`);
+
+    await page.getByPlaceholder('キーワード').fill('E2E スーパー');
+    await page.getByPlaceholder('キーワード').press('Enter');
+
+    // 全期間を指す値が URL に乗り、月セレクトも「未指定」になること。
+    // ここが割れると、何で絞っているのかが画面と食い違う。
+    await expect(page).toHaveURL(/date_month=all/);
+    await expect(page.locator('#date_month')).toHaveValue('all');
+
+    // 件数では見ない。登録系のスペックが当月に行を足していくため。
+    //
+    // 行ではなくセルの完全一致で数える。行に対する部分一致だと「一昨年の
+    // 食料品」が「昨年の食料品」にも当たり、2 件に見える。
+    for (const content of ['当月の食料品', '前月の食料品', '前々月の食料品', '昨年の食料品', '一昨年の食料品']) {
+      await expect(page.getByRole('cell', { name: content, exact: true })).toHaveCount(1);
+    }
+
+    // キーワードは効いていること。全期間にしただけで素通しになっていない。
+    await expect(page.getByRole('cell', { name: '当月の給与', exact: true })).toHaveCount(0);
+  });
+
+  /**
    * 日付範囲で絞っている間は、帯から月セレクトを消して期間だけを出す。
    *
    * 範囲と月の両方が送られると getDateRange は範囲を優先するので、月を選べても
