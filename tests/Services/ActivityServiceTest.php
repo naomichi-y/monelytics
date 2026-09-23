@@ -802,6 +802,54 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 金額の範囲は符号を外した額で比べる。支出は DB 上マイナスなので、符号の
+     * まま比べると「1,000 〜 2,000 円」で支出が 1 件も当たらない。境界の額は
+     * 両端とも含む。
+     */
+    public function testDailyPaginateFiltersByAbsoluteAmountRange()
+    {
+        $expense = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $income = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_INCOME_CREDIT_DISABLE;
+        $date = $this->monthBefore(3) . '-01';
+
+        foreach ([-999, -1000, -2000, -2001] as $amount) {
+            $this->createActivity($expense, $date, $amount)->update(['location' => 'AMOUNT' . $amount]);
+        }
+
+        $this->createActivity($income, $date, 1500)->update(['location' => 'AMOUNT1500']);
+
+        $search = function(array $fields) use ($date) {
+            $condition = new DailyPaginateCondition($fields + ['date_month' => substr($date, 0, 7)]);
+            $locations = [];
+
+            foreach ($this->activity->getDailyPaginate($this->getUser()->id, $condition) as $activity) {
+                $locations[] = $activity->location;
+            }
+
+            sort($locations);
+
+            return $locations;
+        };
+
+        $this->assertSame(
+            ['AMOUNT-1000', 'AMOUNT-2000', 'AMOUNT1500'],
+            $search(['min_amount' => '1000', 'max_amount' => '2000'])
+        );
+
+        // 片側だけの指定も効く。
+        $this->assertSame(['AMOUNT-2000', 'AMOUNT-2001'], $search(['min_amount' => '2000']));
+        $this->assertSame(['AMOUNT-1000', 'AMOUNT-999'], $search(['max_amount' => '1000']));
+
+        // 合計も絞った行だけで出す。一覧と合計が別の範囲を見ていると数字が合わない。
+        $condition = new DailyPaginateCondition([
+            'date_month' => substr($date, 0, 7),
+            'min_amount' => '1000',
+            'max_amount' => '2000',
+        ]);
+        $this->assertEquals(-1500, $this->activity->getDailyPaginate($this->getUser()->id, $condition)->total_amount);
+    }
+
+    /**
      * output_type を渡さないときの刻みは、推移グラフと同じ月単位にする。
      * 片方だけ年単位だと、同じ検索条件で表とグラフの目盛りがずれる。
      */

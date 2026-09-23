@@ -39,6 +39,8 @@
                         end_date: {!! Html::encodeJsValue($condition->end_date) !!},
                         activity_category_item_id: {!! Html::encodeJsValue($condition->activity_category_item_id, 'array') !!},
                         keyword: {!! Html::encodeJsValue($modal_keyword) !!},
+                        min_amount: {!! Html::encodeJsValue($condition->min_amount) !!},
+                        max_amount: {!! Html::encodeJsValue($condition->max_amount) !!},
                         credit_flag: {!! Html::encodeJsValue($condition->credit_flag) !!},
                     },
                     function(data) {

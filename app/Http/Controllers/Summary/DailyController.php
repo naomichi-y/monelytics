@@ -38,6 +38,8 @@ class DailyController extends \App\Http\Controllers\Controller {
             'location',
             'credit_flag',
             'cost_type',
+            'min_amount',
+            'max_amount',
             'sort_field',
             'sort_type'
         );

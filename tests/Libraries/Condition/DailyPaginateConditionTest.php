@@ -6,6 +6,30 @@ use Tests\TestCase;
 
 class DailyPaginateConditionTest extends TestCase {
     /**
+     * 金額はクエリ文字列から来る。'1.5' や '1e5' を numeric で受けると、int 列と
+     * 食い違う額で絞ることになる (変動費の登録で同じ形の値が別の額で保存されて
+     * いた)。整数に読めないものは指定なしへ倒し、検索全体は止めない。
+     */
+    public function testAmountAcceptsOnlyNonNegativeIntegers()
+    {
+        $this->assertAmountRange(['1000', '2000'], [1000, 2000]);
+        $this->assertAmountRange([' 1000 ', '02000'], [1000, 2000]);
+
+        foreach (['', '1.5', '1e5', '-1000', 'abc', ['1000'], null] as $value) {
+            $this->assertAmountRange([$value, $value], [null, null]);
+        }
+    }
+
+    /**
+     * 上下を逆に入れたら入れ替える。そのまま比べると必ず 0 件になり、
+     * どこが悪いのかが画面から読めない。
+     */
+    public function testReversedAmountRangeIsSwapped()
+    {
+        $this->assertAmountRange(['5000', '1000'], [1000, 5000]);
+    }
+
+    /**
      * 期間の指定が無いまま /summary/daily を開くと、以前は期間が一切効かず
      * 全期間が並んでいた。並びは発生日の降順なので 1 ページ目は最近の行で
      * 埋まり当月に見えるが、先頭に来るのは未来日の行で、当月のつもりの画面に
@@ -62,5 +86,19 @@ class DailyPaginateConditionTest extends TestCase {
         $date_range = $condition->getDateRange();
 
         $this->assertSame(date('Y-m-01'), $date_range->begin_date);
+    }
+
+    /**
+     * @param array $input [min_amount, max_amount]
+     * @param array $expected [min_amount, max_amount]
+     */
+    private function assertAmountRange(array $input, array $expected)
+    {
+        $condition = new DailyPaginateCondition([
+            'min_amount' => $input[0],
+            'max_amount' => $input[1],
+        ]);
+
+        $this->assertSame($expected, [$condition->min_amount, $condition->max_amount], var_export($input, true));
     }
 }

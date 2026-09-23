@@ -561,6 +561,68 @@ test.describe('集計', () => {
   });
 
   /**
+   * 金額の範囲は符号を外した額で比べる。支出は DB 上マイナスだが、画面で
+   * 「1000 〜 2000」と入れた人が探しているのは 1,000 〜 2,000 円の支出。
+   *
+   * 指定した範囲は詳細検索を開き直しても残ること。モーダルへ渡す値は
+   * index 側の $.get が並べているので、そこに足し忘れると検索は効くのに
+   * 開き直すと空欄になり、何で絞っているのかが画面から読めなくなる。
+   */
+  test('詳細検索で金額の範囲を指定すると、その額の支出だけが並ぶ', async ({ page }) => {
+    await page.goto('/summary/daily?date_month=all');
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+
+    await modal.getByLabel('金額').fill('1000');
+    await modal.locator("[name='max_amount']").fill('2000');
+    await modal.getByRole('button', { name: '検索' }).click();
+
+    await expect(page).toHaveURL(/min_amount=1000/);
+
+    for (const content of ['前月の食料品', '前々月の食料品']) {
+      await expect(page.getByRole('cell', { name: content, exact: true })).toHaveCount(1);
+    }
+
+    for (const content of ['当月の食料品', '昨年の食料品', '当月の給与']) {
+      await expect(page.getByRole('cell', { name: content, exact: true })).toHaveCount(0);
+    }
+
+    await page.getByText('詳細検索').click();
+    await expect(modal).toBeVisible();
+    await expect(modal.locator("[name='min_amount']")).toHaveValue('1000');
+    await expect(modal.locator("[name='max_amount']")).toHaveValue('2000');
+  });
+
+  /**
+   * 金額欄は日付範囲と同じ幅の列に「円」を接尾辞で置いている。狭い列に
+   * 単位を足すと、単位だけが次の行へ落ちたり、桁の多い値の頭が欄に隠れたり
+   * する。常用する桁より多い 7 桁で、欄に収まり単位が横に並ぶことを測る。
+   */
+  test('詳細検索の金額欄に 7 桁が収まり、単位が横に並ぶ', async ({ page }) => {
+    await page.goto('/summary/daily');
+    await page.getByText('詳細検索').click();
+
+    const modal = page.locator('#search_modal');
+    await expect(modal).toBeVisible();
+
+    for (const name of ['min_amount', 'max_amount']) {
+      const input = modal.locator(`[name='${name}']`);
+      await input.fill('1234567');
+      await input.focus();
+
+      const overflow = await input.evaluate((node) => node.scrollWidth - node.clientWidth);
+      expect(overflow).toBe(0);
+
+      const inputBox = await input.boundingBox();
+      const unitBox = await input.locator('xpath=following-sibling::*[1]').boundingBox();
+      expect(unitBox.y).toBe(inputBox.y);
+      expect(unitBox.x).toBeGreaterThanOrEqual(inputBox.x + inputBox.width - 1);
+    }
+  });
+
+  /**
    * 帯のセレクトと詳細検索の月指定は同じ値で開く。
    *
    * 既定の当月を画面ごとに date('Y-m') と書いていたころ、詳細検索だけが

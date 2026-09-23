@@ -31,6 +31,8 @@ class DailyPaginateCondition extends BaseDateCondition {
     public $location;
     public $credit_flag;
     public $cost_type;
+    public $min_amount;
+    public $max_amount;
     public $sort_field;
     public $sort_type;
     public $limit;
@@ -54,6 +56,15 @@ class DailyPaginateCondition extends BaseDateCondition {
 
         parent::__construct($fields);
 
+        $this->min_amount = self::normalizeAmount($this->min_amount);
+        $this->max_amount = self::normalizeAmount($this->max_amount);
+
+        // 上下を逆に入れたときは入れ替える。そのまま検索すると必ず 0 件になり、
+        // 条件のどこが悪いのかが画面から読めない。
+        if ($this->min_amount !== null && $this->max_amount !== null && $this->min_amount > $this->max_amount) {
+            [$this->min_amount, $this->max_amount] = [$this->max_amount, $this->min_amount];
+        }
+
         // 期間の指定が 1 つも無いときは当月にする。
         //
         // 何も付けずに /summary/daily を開くと期間が効かず、全期間が発生日の
@@ -76,5 +87,30 @@ class DailyPaginateCondition extends BaseDateCondition {
         if (!$has_period) {
             $this->date_month = date('Y-m');
         }
+    }
+
+    /**
+     * 金額の範囲指定を 0 以上の整数へ倒す。倒せないものは指定なし (null) にする。
+     *
+     * 値はクエリ文字列からそのまま来る。is_numeric で受けると '1.5' や '1e5' が
+     * 通り、比べる列 (int) と食い違う額で絞ることになる。変動費の登録が
+     * numeric で受けていたころに、同じ形の値が別の額で保存されていた。
+     *
+     * 負の数を受けないのは、範囲を符号を外した額で比べるため
+     * (ActivityService::getDailyPaginate)。桁の多すぎる値は (int) が
+     * PHP_INT_MAX に張り付くので、上限としては「どの行も超えない」のまま効く。
+     *
+     * @param mixed $value
+     * @return int|null
+     */
+    private static function normalizeAmount($value)
+    {
+        if (!is_string($value) && !is_int($value)) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        return preg_match('/\A[0-9]+\z/', $value) ? (int) $value : null;
     }
 }
