@@ -46,7 +46,7 @@
 
         // 詳細検索モーダル (リセット押下)
         $modal.find("#reset").on("click", function() {
-            $modal.find("input[type='text'], input[type='date'], input[type='radio'], input[type='checkbox'], select")
+            $modal.find("input[type='text'], input[type='date'], input[type='number'], input[type='radio'], input[type='checkbox'], select")
                 .val("")
                 .removeAttr("checked")
                 .removeAttr("selected");
@@ -121,6 +121,25 @@
                             {!! Form::label('keyword', '場所・用途', ['class' => 'col-md-3 col-form-label']) !!}
                             <div class="col-md-8">
                                 {!! Form::text('keyword', Html::requestValue('keyword'), ['class' => 'form-control']) !!}
+                            </div>
+                        </div>
+
+                        {{-- 額は符号を外して比べる (ActivityService::getDailyPaginate)。
+                             支出も「1000」と入れれば 1,000 円の支出に当たる。 --}}
+                        <div class="row mb-3">
+                            {!! Form::label('min_amount', '金額', ['class' => 'col-md-3 col-form-label']) !!}
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    {!! Form::number('min_amount', Html::requestValue('min_amount'), ['class' => 'form-control text-end amount-range-input', 'min' => 0, 'autocomplete' => 'off']) !!}
+                                    <span class="input-group-text">円</span>
+                                </div>
+                            </div>
+                            {!! Form::label('max_amount', '〜', ['class' => 'col-md-1 col-form-label label-range-text']) !!}
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    {!! Form::number('max_amount', Html::requestValue('max_amount'), ['class' => 'form-control text-end amount-range-input', 'min' => 0, 'autocomplete' => 'off']) !!}
+                                    <span class="input-group-text">円</span>
+                                </div>
                             </div>
                         </div>
 

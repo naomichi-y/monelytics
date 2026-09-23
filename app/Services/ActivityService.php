@@ -176,6 +176,19 @@ class ActivityService
             $builder->where('location', '=', $condition->location);
         }
 
+        // 金額の範囲は符号を外した額で比べる。支出は DB 上マイナスだが、一覧は
+        // それを「-1,000円」と出すだけで、利用者が思い浮かべるのは「1,000 円の
+        // 買い物」のほう。符号のまま比べると、支出を絞るのに「-5000 〜 -1000」と
+        // 下限と上限を裏返して入れさせることになる。収入と支出の区別は収支
+        // タイプ (cost_type) と小項目が既に持っている。
+        if ($condition->min_amount !== null) {
+            $builder->whereRaw('ABS(amount) >= ?', [$condition->min_amount]);
+        }
+
+        if ($condition->max_amount !== null) {
+            $builder->whereRaw('ABS(amount) <= ?', [$condition->max_amount]);
+        }
+
         // クレジットカード
         if (strlen($condition->credit_flag)) {
             $builder->where('credit_flag', '=', $condition->credit_flag);

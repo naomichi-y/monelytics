@@ -478,6 +478,17 @@ input[type="number"] {
   font-size: 0.85em;
 }
 
+/* 日別集計の詳細検索の金額範囲。日付範囲と縦を揃えるために同じ幅の列へ
+   置いており、「円」の接尾辞を足すと欄の中は 84px しか残らない。7 桁には
+   88px 要り、食っているのは左右 16px ずつの余白だった。列を広げると日付範囲
+   と「〜」の位置がずれるので、右の余白だけを詰める。数字は右寄せで、すぐ右に
+   単位の枠が来るため、ここに余白を持たせる意味が薄い。
+   詳細度は上の .form-control:not(.form-control-sm) (0,2,0) に揃える。
+   クラス 1 つでは負けて、指定が黙って無視される。 */
+.form-control.amount-range-input {
+  padding-right: 0.5rem;
+}
+
 /* 下書きの文字。sandstone は本文と同じ暖色で、入力済みの文字と紛れる。 */
 .form-control::placeholder {
   color: #aaaaaa;
