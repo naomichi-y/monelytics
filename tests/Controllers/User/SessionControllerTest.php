@@ -36,11 +36,14 @@ class SessionControllerTest extends TestCase {
     /**
      * GET では受け付けない。受け付けると <img src="/user/logout"> を踏ませる
      * だけで他人をログアウトさせられる。
+     *
+     * 応答は 404。POST にしか載っていない URI なので以前は 405 だったが、
+     * routes/web.php の fallback が GET を拾うようになった。
      */
     public function testLogoutRejectsGet()
     {
         $this->login();
-        $this->call('GET', '/user/logout')->assertMethodNotAllowed();
+        $this->call('GET', '/user/logout')->assertNotFound();
         $this->assertTrue(Auth::check(), 'GET でログアウトできてしまった');
         $this->logout();
     }

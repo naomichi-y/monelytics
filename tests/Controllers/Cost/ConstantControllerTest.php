@@ -25,14 +25,15 @@ class ConstantControllerTest extends TestCase {
     /**
      * 一覧・単体表示・編集の画面は持たない。@see VariableControllerTest
      *
-     * 編集だけはどの動詞でも使わないため 404 になる。
+     * どれも 404。一覧と単体表示は別の動詞で使う URI なので以前は 405 だったが、
+     * routes/web.php の fallback が GET を拾うようになった。
      */
     public function testHasNoIndexOrShowRoute()
     {
         $this->login();
 
-        $this->call('GET', '/cost/constant')->assertMethodNotAllowed();
-        $this->call('GET', '/cost/constant/1')->assertMethodNotAllowed();
+        $this->call('GET', '/cost/constant')->assertNotFound();
+        $this->call('GET', '/cost/constant/1')->assertNotFound();
         $this->call('GET', '/cost/constant/1/edit')->assertNotFound();
 
         $this->logout();
