@@ -109,13 +109,18 @@ return [
         'password' => 'パスワード',
         'current_password' => '現在のパスワード',
         'activity_date' => '発生日',
-        'activity_category_id' => '科目カテゴリ名',
-        'category_name' => '科目カテゴリ名',
-        'group_name' => '科目名',
+        // 画面のラベルと同じ言葉にする。エラーは入力欄の近くに出るため、
+        // ここだけ別の呼び方をすると、どの欄を指しているのか読めない。
+        // 対応は settings/activity_category と settings/activity_category_item
+        // のフォームを参照 (大項目 / 大項目名 / 小項目 / 小項目名)。
+        'activity_category_id' => '大項目',
+        'category_name' => '大項目名',
+        'activity_category_item_id' => '小項目',
+        'item_name' => '小項目名',
         'amount' => '金額',
         'location' => '場所',
         'content' => '用途',
-        'cost_type' => '科目タイプ',
+        'cost_type' => '変動・固定',
         'balance_type' => '収支タイプ',
         'contact_name' => 'お名前',
         'contact_type' => 'お問い合わせ種別',
