@@ -71,13 +71,36 @@ class User extends BaseModel implements AuthenticatableContract, AuthorizableCon
         ]);
     }
 
-    public function updateValidate(array $fields)
+    /**
+     * 会員データの更新を検証する。
+     *
+     * 対象の利用者は入力ではなく、UserService が Auth::id() から渡す
+     * (@see UserService::update)。以前は $fields['id'] に混ぜて受け取り、
+     * 'id' => 'required' を規則に並べていたが、規則を評価する前に
+     * $fields['id'] を読んでいたため一度も効いていなかった。無ければ
+     * PHP 8 では警告が例外化し、検証に入る前に落ちる。
+     *
+     * 入力でないものを入力の検証規則に並べない。次の人がそれを利用者から
+     * 来る値だと読み、他人の会員データを指せる経路があるように見える。
+     *
+     * @param int $user_id
+     * @param array $fields
+     * @return bool
+     */
+    public function updateValidate($user_id, array $fields)
     {
+        // 登録と同じ規則を当てる。更新の規則は email と password しか
+        // 組み立てておらず、nickname はどこでも検証されていなかった。空でも
+        // 通り、列 (32 文字) に入らない値は QueryException のまま画面へ出て
+        // 500 になっていた。
+        //
+        // 規則はここに書き直さず $rules から取る。同じ項目を画面ごとに
+        // 書くと、片方だけ直って食い違う。
         $rules = [
-            'id' => 'required'
+            'nickname' => $this->rules['nickname']
         ];
 
-        $user = $this->find($fields['id']);
+        $user = $this->find($user_id);
 
         if ($user->email != $fields['email']) {
             $rules['email'] = 'required|email|not_exists:users,email';
