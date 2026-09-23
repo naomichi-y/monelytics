@@ -292,6 +292,40 @@ $(function() {
     return $(this).html(loadingMarkup());
   };
 
+  /**
+   * 中身を ajax で取りに行き、届くまで読み込み中であることを出す。
+   *
+   * タブ (@see $.fn.startTabs) と同じ待ち方へ揃える。素の $.get は応答が
+   * 届くまで枠を空のままにするため、待っているのか、失敗したのか、そもそも
+   * 出るものが無いのかが画面から区別できない。
+   *
+   * 高さはタブのように min-height では確保せず、読み込み中の表示そのもの
+   * (.tab-loading の padding で 140px) に持たせる。この部品は中身で高さが
+   * 変わり (変動支出は 2 行 169px / 5 行 259px、収支履歴は 239px、狭い画面の
+   * 折り返しで 339px)、1 つの値を決めるとどれかが必ずずれる。140px は
+   * その範囲の下端より低いので、届いたときの動きは必ず下へ伸びる側になる。
+   * 上へ縮むと、下にあるものが一度下がってから戻る。
+   *
+   * 失敗したときに空へ戻さない。戻すと読み込む前と同じ見た目になり、
+   * 何も無いのと区別が付かなくなる。
+   *
+   * @param {string} url
+   * @returns {jQuery}
+   */
+  $.fn.loadPanel = function(url) {
+    var $panel = $(this).showLoading();
+
+    $.get(url)
+      .done(function(html) {
+        $panel.html(html);
+      })
+      .fail(function() {
+        $panel.html('<p class="panel-error" role="status">読み込めませんでした。</p>');
+      });
+
+    return $panel;
+  };
+
   $.fn.startTabs = function() {
     var $tabs = $(this);
     var names = $tabs.find("> ul > li").map(function() {

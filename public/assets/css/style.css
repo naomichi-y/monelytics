@@ -648,3 +648,12 @@ footer li {
   padding: 4rem 0;
   color: var(--bs-secondary-color);
 }
+
+/* ajax で読み込む部品が取れなかったときの表示
+   (@see assets/js/common.js の loadPanel)。読み込み中と同じ色・同じ高さに
+   して、待っている状態からそのまま置き換わって見えるようにする。 */
+.panel-error {
+  color: var(--bs-secondary-color);
+  padding: 4rem 0;
+  text-align: center;
+}
