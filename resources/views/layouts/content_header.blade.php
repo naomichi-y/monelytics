@@ -46,6 +46,12 @@
 
             @if (Auth::check())
                 {!! Form::open(['url' => 'summary/daily', 'method' => 'get', 'class' => 'd-flex']) !!}
+                    {{-- 期間で絞らない。どの画面からでも押せる入口なので、探して
+                         いるものが今いる月にあるとは限らない。期間を付けずに
+                         送ると DailyPaginateCondition が当月を既定にするため、
+                         全期間を指す 'all' を明示する。月セレクトもこの値で
+                         「未指定」になり、何で絞っているのかが画面と一致する。 --}}
+                    {!! Form::hidden('date_month', 'all') !!}
                     <div class="navbar-search">
                         {!! Form::text('keyword', Html::requestValue('keyword'), ['class' => 'form-control', 'placeholder' => 'キーワード']) !!}
                         <button type="submit" class="navbar-search-button" aria-label="検索">
