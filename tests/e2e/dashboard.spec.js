@@ -281,6 +281,46 @@ test.describe('ダッシュボード', () => {
     await expect(options.filter({ hasText: '給与' })).toHaveCount(0);
   });
 
+  /**
+   * 2 つの部品はどちらも ajax で取りに行く。以前は素の $.get で、応答が
+   * 届くまで枠が空のままだった。読み込んでいるのか、失敗したのか、そもそも
+   * 出るものが無いのかが画面から区別できない。集計のタブは同じ理由で
+   * 待っていることを出しており (@see summary.spec.js の「グラフを取りに
+   * 行っている間もタブは空にならない」)、そちらへ揃えた。
+   */
+  test('部品を取りに行っている間も枠は空にならない', async ({ page }) => {
+    // 応答を遅らせないと、届いたあとの状態しか観測できない。
+    await page.route('**/gadget/**', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      await route.continue();
+    });
+
+    await page.goto('/dashboard');
+
+    for (const id of ['#variable_expense', '#activity_history']) {
+      await expect(page.locator(`${id} .tab-loading`)).toHaveText('読み込んでいます…');
+    }
+
+    // 届いたら読み込み中の表示は残らない。
+    await expect(page.locator('#variable_expense .variable-expense')).toBeVisible();
+    await expect(page.locator('#activity_history table')).toBeVisible();
+    await expect(page.locator('.tab-loading')).toHaveCount(0);
+  });
+
+  /**
+   * 失敗したときに空へ戻さない。戻すと読み込む前と同じ見た目になり、
+   * 記録が無いのと区別が付かない。片方が落ちても、もう片方は出る。
+   */
+  test('部品が取れなかったときは読み込めなかったと出る', async ({ page }) => {
+    await page.route('**/gadget/variable-expense', (route) => route.fulfill({ status: 500, body: '' }));
+
+    await page.goto('/dashboard');
+
+    await expect(page.locator('#variable_expense .panel-error')).toHaveText('読み込めませんでした。');
+    await expect(page.locator('#activity_history table')).toBeVisible();
+  });
+
   test('かんたん入力から登録できる', async ({ page }) => {
     await page.locator('#activity_category_item_id').selectOption({ label: '食料品' });
     await page.locator('#amount').fill('4321');

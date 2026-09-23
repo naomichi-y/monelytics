@@ -9,21 +9,11 @@
         $(function() {
             $("#activity_date").disableDatepickerFocus();
 
-            // 今月の変動支出を表示
-            $.get("/gadget/variable-expense",
-                {},
-                function(data) {
-                    $("#variable_expense").html(data);
-                }
-            );
-
-            // 最近の収支履歴を表示
-            $.get("/gadget/activity-history",
-                {},
-                function(data) {
-                    $("#activity_history").html(data);
-                }
-            );
+            // どちらも ajax で取りに行く。届くまでのあいだ読み込み中である
+            // ことを出すため、$.get を直に書かず loadPanel へ通す
+            // (@see assets/js/common.js)。集計のタブと同じ待ち方になる。
+            $("#variable_expense").loadPanel("/gadget/variable-expense");
+            $("#activity_history").loadPanel("/gadget/activity-history");
         });
     </script>
 @stop
