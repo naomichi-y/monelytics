@@ -106,7 +106,7 @@ class ActivityCategoryService
      * ユーザに紐づく大項目のリストを取得する。
      *
      * @param int $user_id
-     * @param bool $header:w
+     * @param bool $header true のとき、選択を促す空の項目を先頭へ足す
      * @return array
      */
     public function getCategoryList($user_id, $header = false)
