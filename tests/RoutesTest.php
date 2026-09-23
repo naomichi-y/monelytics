@@ -35,4 +35,25 @@ class RoutesTest extends TestCase {
 
         $this->logout();
     }
+
+    /**
+     * どのルートにも当たらない URL の 404 は、以前はミドルウェアを通る前に
+     * 描かれていた。セッションが始まっていないため、ログイン済みでも
+     * ナビバーに「ログイン」が出て、ログアウトされたように見えた。
+     */
+    public function testNotFoundPageKeepsTheLoggedInNavbar()
+    {
+        $this->login();
+
+        $response = $this->get('/no-such-page');
+
+        $response->assertNotFound();
+        $response->assertSee('アカウント');
+        $response->assertDontSee('/user/login', false);
+
+        $this->logout();
+
+        // 未ログインでは従来どおりログインへの入口を出す。
+        $this->get('/no-such-page')->assertNotFound()->assertSee('/user/login', false);
+    }
 }

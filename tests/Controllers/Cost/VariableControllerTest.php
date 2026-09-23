@@ -24,15 +24,16 @@ class VariableControllerTest extends TestCase {
      * 一覧と単体表示の画面は持たない。resource が既定でルートに載せていた頃は
      * 直接開くと BadMethodCallException で 500 になっていた。
      *
-     * どちらの URI も別の動詞 (store / update / destroy) では使うため、
-     * 応答は 404 ではなく 405 になる。
+     * どちらの URI も別の動詞 (store / update / destroy) では使うため、以前は
+     * 405 だった。今は routes/web.php の fallback が GET を拾うので 404 になる。
+     * 見たいのは 500 にならないこと。
      */
     public function testHasNoIndexOrShowRoute()
     {
         $this->login();
 
-        $this->call('GET', '/cost/variable')->assertMethodNotAllowed();
-        $this->call('GET', '/cost/variable/1')->assertMethodNotAllowed();
+        $this->call('GET', '/cost/variable')->assertNotFound();
+        $this->call('GET', '/cost/variable/1')->assertNotFound();
 
         $this->logout();
     }
