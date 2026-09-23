@@ -154,10 +154,9 @@ class UserService
      */
     public function update($user_id, array $fields, &$errors = [])
     {
-        $fields['id'] = $user_id;
         $result = false;
 
-        if ($this->user->updateValidate($fields)) {
+        if ($this->user->updateValidate($user_id, $fields)) {
             $user = $this->user->find($user_id);
 
             // 現在のパスワードが合っているかは、検証ルールでは分からない。
