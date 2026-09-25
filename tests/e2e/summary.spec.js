@@ -773,6 +773,32 @@ test.describe('集計', () => {
   });
 
   /**
+   * 場所のリンクは小項目の絞り込みを引き継がない。場所を押すのは「この店で
+   * 何に使ったか」を見たいときで、同じ店でも小項目は分かれる (食費と外食費
+   * など)。引き継いでいたころは、小項目で絞った一覧から場所を押すと、別の
+   * 小項目で付けた同じ店の記録が無いように見えていた。
+   *
+   * 他の絞り込み (期間やキーワード) は引き継いだまま。
+   */
+  test('日別集計の場所のリンクは小項目の絞り込みを外す', async ({ page }) => {
+    await page.goto('/summary/daily?date_month=all&activity_category_item_id[]=1&keyword=' + encodeURIComponent('食料品'));
+
+    await page.locator('tr[data-id]')
+      .filter({ hasText: '前月の食料品' })
+      .getByRole('link', { name: 'E2E スーパー' })
+      .click();
+
+    const target = new URL(page.url());
+
+    expect(target.searchParams.get('location')).toBe('E2E スーパー');
+    // http_build_query は配列を activity_category_item_id[0] の形で出す。
+    // 名前を決め打ちで探すと、載っていても空に見える。
+    expect([...target.searchParams.keys()].filter((key) => key.startsWith('activity_category_item_id'))).toEqual([]);
+    expect(target.searchParams.get('date_month')).toBe('all');
+    expect(target.searchParams.get('keyword')).toBe('食料品');
+  });
+
+  /**
    * リンクの既定色は黒。sandstone の #93c54b は黄緑で、一覧に何十個も並ぶと
    * 読みたい数字より色のほうが目立っていた。押せることは下線が伝える。
    *
