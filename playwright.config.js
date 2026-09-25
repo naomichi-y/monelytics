@@ -19,9 +19,14 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
 
+  // GitHub Actions では、落ちたテストを注釈にも書き出す。注釈はコミットの
+  // 画面に出て、認証なしでも API から読める。ログと記録ファイルは読むのに
+  // 権限が要り、以前は「exit code 1」の注釈しか残らず、どのテストが落ちた
+  // のかを外から追えなかった。
   reporter: [
     ['list'],
     ['html', { outputFolder: './tests/e2e/report', open: 'never' }],
+    ...(process.env.GITHUB_ACTIONS ? [['github']] : []),
   ],
 
   use: {
