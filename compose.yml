@@ -217,6 +217,13 @@ services:
       # イメージの既定は /root で、非 root では書けない。npm と playwright は
       # キャッシュの置き場所をここから決めるため、書ける場所へ移す。
       HOME: /tmp
+      # テストの「今日」をアプリの「今日」と揃える。イメージの既定は UTC で、
+      # アプリ (config('app.timezone')) は Asia/Tokyo。テストは new Date() から
+      # 当月や締めの日を組み立てるため、日本時間の 0 時から 9 時までは 1 日前を
+      # 今日と読み、「25日まで」を待つところへ画面は「26日まで」を出していた。
+      # 月初なら当月そのものが食い違う。ブラウザ側は playwright.config.js の
+      # timezoneId で揃えてあるが、テストのコード自身は Node の時刻で動く。
+      TZ: ${APP_TIMEZONE:-Asia/Tokyo}
     networks:
       - e2e-frontend
     # 実行するまで待機させる。
