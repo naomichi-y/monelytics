@@ -795,30 +795,38 @@ class ActivityService
     }
 
     /**
-     * 月別集計の小項目合計を、ひとつ前の同じ長さの期間と比べた増減率を返す。
+     * 月別集計の横に並べる、前月の小項目合計と収入・支出・合計を返す。
      *
-     * 対象は変動収支と固定収支の全小項目。小項目ごとに加えて、収入合計・支出合計・
-     * 合計も比較する。
+     * 以前は増減率を返していた。元が小さい小項目は率が跳ね上がり (100 円から
+     * 300 円で +200%)、額の大きい小項目より目立つ。合計のほうは逆に 1% 未満の
+     * 増減が多く、いくら動いたのかが読めない。差額も試したが、支出は画面上
+     * 負の額なので、差の符号をどちらへ向けても読み違えが起きる。前月の額
+     * そのものを並べれば、向きを決める必要がない。
      *
-     * 次の場合は比較しない (その項目を返さない)。
-     *  - 詳細検索で任意の日付が指定されている (前の期間を定義できない)
-     *  - 未来の月が指定されている
-     *  - 前の期間の金額が 0 (比率を出せない)
+     * 額は集計表と同じ向き (支出は負) で、getMonthlySummary に前月の期間を
+     * 渡して出す。ここで集計を書き直すと、前月の月別集計に出ている数字と
+     * 食い違う余地ができる。
      *
-     * 当月を見ているときは今日までで区切り、前月も同じ日数で切る。月末まで
-     * 経っていない額を丸ごと前月と比べると必ず減ったように見えるため。
+     * 当月を見ているときは、前月も今日と同じ日で切る。月末まで経っていない
+     * 額を前月の丸ごとと並べると、必ず前月のほうが多く見えるため。
+     *
+     * 次の場合は前月を決められないので空で返す。
+     *  - 詳細検索で任意の日付が指定されている
+     *  - 未来の月、または「未指定」(全期間) が指定されている
      *
      * @param int $user_id
      * @param Condition\MonthlySummaryCondition $condition
-     * @return array ['groups' => [小項目 ID => 増減率], 'totals' => [income|expense|total => 増減率],
-     *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
-     *               増減率は整数で、正なら増加。period は実際に比べた 2 つの
-     *               期間。呼び出し側で日付を組み直すと、ここでの月末の丸め方
-     *               (3/31 に対する 2/28) とずれるため返す。
+     * @return array ['groups' => [小項目 ID => 金額], 'totals' => [income|expense|total => 金額],
+     *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date],
+     *                'cut_day' => 前月を末日より前で切った日 (丸ごとなら null)]
+     *               金額は集計表の小項目合計・収入合計・支出合計・合計と同じ値の
+     *               取り方。period は今月側と前月側の期間。呼び出し側で日付を
+     *               組み直すと、ここでの月末の丸め方 (3/31 に対する 2/28) と
+     *               ずれるため返す。
      */
-    public function getMonthlyComparison($user_id, Condition\MonthlySummaryCondition $condition)
+    public function getPreviousMonthSummary($user_id, Condition\MonthlySummaryCondition $condition)
     {
-        $empty = ['groups' => [], 'totals' => [], 'period' => []];
+        $empty = ['groups' => [], 'totals' => [], 'period' => [], 'cut_day' => null];
 
         if (strlen((string) $condition->begin_date) || strlen((string) $condition->end_date)) {
             return $empty;
@@ -830,43 +838,46 @@ class ActivityService
             return $empty;
         }
 
-        $current_month = date('Y-m');
-
-        if ($date_month > $current_month) {
+        if ($date_month > date('Y-m')) {
             return $empty;
         }
 
         $period = $this->buildComparisonPeriod($date_month);
 
-        $begin_date = $period['begin_date'];
-        $end_date = $period['end_date'];
-        $previous_begin_date = $period['previous_begin_date'];
-        $previous_end_date = $period['previous_end_date'];
+        // 前月を末日より前で切ったときは、その日を返す。画面の見出しに出さないと、
+        // 前月の月別集計と数字が合わずに間違って見える。3/31 に対する 2/28 の
+        // ように、切った日が末日と重なるときは丸ごとなので返さない。
+        $cut_day = null;
 
-        $current = $this->sumCostByGroup($user_id, $begin_date, $end_date);
-        $previous = $this->sumCostByGroup($user_id, $previous_begin_date, $previous_end_date);
+        if ($period['previous_end_date'] !== date('Y-m-t', strtotime($period['previous_begin_date']))) {
+            $cut_day = (int) date('j', strtotime($period['previous_end_date']));
+        }
+
+        $summary = $this->getMonthlySummary($user_id, new Condition\MonthlySummaryCondition([
+            'begin_date' => $period['previous_begin_date'],
+            'end_date' => $period['previous_end_date'],
+        ]));
 
         $groups = [];
 
-        foreach ($current['groups'] as $activity_category_item_id => $amount) {
-            if (empty($previous['groups'][$activity_category_item_id])) {
-                continue;
+        foreach ($summary['category_summary'] as $cost_summary) {
+            foreach ($cost_summary as $activity_category_summary) {
+                foreach ($activity_category_summary['data'] as $activity_category_item_id => $item_summary) {
+                    $groups[$activity_category_item_id] = $item_summary['group_amount'];
+                }
             }
-
-            $groups[$activity_category_item_id] = $this->calculateComparisonRate($amount, $previous['groups'][$activity_category_item_id]);
         }
 
-        $totals = [];
-
-        foreach ($current['totals'] as $key => $amount) {
-            if (empty($previous['totals'][$key])) {
-                continue;
-            }
-
-            $totals[$key] = $this->calculateComparisonRate($amount, $previous['totals'][$key]);
-        }
-
-        return ['groups' => $groups, 'totals' => $totals, 'period' => $period];
+        return [
+            'groups' => $groups,
+            'totals' => [
+                'income' => $summary['income_summary']['income_amount'],
+                'expense' => $summary['expense_summary']['expense_amount'],
+                'total' => $summary['total_amount'],
+            ],
+            'period' => $period,
+            'cut_day' => $cut_day
+        ];
     }
 
     /**
@@ -1049,82 +1060,6 @@ class ActivityService
         }
 
         return $groups;
-    }
-
-    /**
-     * 前の期間を基準とした増減率を百分率で返す。
-     *
-     * 整数に丸めない。合計のように元の額が大きいと、0.5% 未満の増減が 0 に
-     * なって「増減なし」と見分けが付かなくなる (収入 1,127,668 円と
-     * 1,130,364 円の比較が 0% になる)。表示の丸めは Html::comparisonRate
-     * に任せる。
-     *
-     * @param int $current
-     * @param int $previous 0 以外であること
-     * @return float
-     */
-    private function calculateComparisonRate($current, $previous)
-    {
-        return round((($current - $previous) / abs($previous)) * 100, 1);
-    }
-
-    /**
-     * 収支の金額を、小項目ごとと全体の合計で集計する。
-     *
-     * 小項目の金額は、支出が負で記録されているため符号を反転し、
-     * 増えたら正になるよう揃える。
-     *
-     * 収入合計と支出合計は、集計表の表示と同じ振り分けにする。つまり小項目の
-     * 収支タイプではなく、現金・クレジットごとの小計の符号で分ける
-     * (@see ActivityService::calculateMonthlySummary)。支出合計も小項目と同じく
-     * 正の値で返し、使った額が増えたら正になるようにする。
-     *
-     * @param int $user_id
-     * @param string $begin_date
-     * @param string $end_date
-     * @return array ['groups' => [小項目 ID => 金額], 'totals' => [income|expense|total => 金額]]
-     */
-    private function sumCostByGroup($user_id, $begin_date, $end_date)
-    {
-        $rows = DB::table('activities AS a')
-            ->select(DB::raw('a.activity_category_item_id, ac.balance_type, a.credit_flag, SUM(a.amount) AS amount'))
-            ->join('activity_category_items AS acg', 'a.activity_category_item_id', '=', 'acg.id')
-            ->join('activity_categories AS ac', 'acg.activity_category_id', '=', 'ac.id')
-            ->where('a.user_id', '=', $user_id)
-            ->whereBetween('a.activity_date', [$begin_date . ' 00:00:00', $end_date . ' 23:59:59'])
-            ->whereNull('a.delete_date')
-            ->whereNull('acg.delete_date')
-            ->whereNull('ac.delete_date')
-            ->groupBy('a.activity_category_item_id')
-            ->groupBy('ac.balance_type')
-            ->groupBy('a.credit_flag')
-            ->get();
-
-        $groups = [];
-        $totals = ['income' => 0, 'expense' => 0, 'total' => 0];
-
-        foreach ($rows as $row) {
-            $amount = (int) $row->amount;
-
-            if ($amount > 0) {
-                $totals['income'] += $amount;
-            } else {
-                $totals['expense'] -= $amount;
-            }
-
-            $totals['total'] += $amount;
-
-            $sign = ($row->balance_type == Models\ActivityCategory::BALANCE_TYPE_EXPENSE) ? -1 : 1;
-
-            if (!isset($groups[$row->activity_category_item_id])) {
-                $groups[$row->activity_category_item_id] = 0;
-            }
-
-            // 現金とクレジットで行が分かれるため、小項目ごとに足し合わせる。
-            $groups[$row->activity_category_item_id] += $sign * $amount;
-        }
-
-        return ['groups' => $groups, 'totals' => $totals];
     }
 
     /**

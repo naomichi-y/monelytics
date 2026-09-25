@@ -57,9 +57,14 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 変動収支だけでなく固定収支の小項目も比較する。
+     * 前月の欄は、前月の月別集計に出ている数字と同じでなければならない。
+     * 横に並べて見比べるための欄なので、集計の仕方が違うと数字が合わず、
+     * どちらかが間違っているように見える。変動収支も固定収支も並べる。
+     *
+     * 向きも集計表に揃える (支出は負)。差額で出していたころは、差の符号を
+     * どちらへ向けても負の額の隣で読み違えが起きた。
      */
-    public function testMonthlyComparisonCoversVariableAndConstantCost()
+    public function testPreviousMonthSummaryMatchesPreviousMonthReport()
     {
         $variable_expense = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
         $constant_expense = ActivityCategoryItemTableSeeder::TYPE_CONSTANT_EXPENSE_CREDIT_DISABLE;
@@ -67,124 +72,92 @@ class ActivityServiceTest extends TestCase {
 
         $result = $this->createComparisonFixture();
 
-        // 支出は負で記録されている。使った額が増えたら正になるよう符号を揃える。
-        $this->assertSame(200.0, $result['groups'][$variable_expense]);
+        $this->assertSame(-1000, $result['groups'][$variable_expense]);
+        $this->assertSame(-1000, $result['groups'][$constant_expense]);
+        $this->assertSame(1000, $result['groups'][$variable_income]);
 
-        // 固定収支も対象にする (以前は変動収支だけを比較していた)。
-        $this->assertSame(-50.0, $result['groups'][$constant_expense]);
+        $this->assertSame(['income' => 1000, 'expense' => -2000, 'total' => -1000], $result['totals']);
 
-        $this->assertSame(100.0, $result['groups'][$variable_income]);
+        // 前月そのものを月別集計で開いたときと同じ数字であること。
+        $report = $this->activity->getMonthlySummary(
+            $this->getUser()->id,
+            new MonthlySummaryCondition(['date_month' => $this->monthBefore(3)])
+        );
+
+        foreach ($report['category_summary'] as $cost_summary) {
+            foreach ($cost_summary as $activity_category_summary) {
+                foreach ($activity_category_summary['data'] as $activity_category_item_id => $item_summary) {
+                    $this->assertSame($item_summary['group_amount'], $result['groups'][$activity_category_item_id]);
+                }
+            }
+        }
+
+        $this->assertSame($report['total_amount'], $result['totals']['total']);
     }
 
     /**
-     * 小項目ごとに加えて、収入合計・支出合計・合計も比較する。
+     * 集計表は記録のない小項目も行に並べる。前月に記録が無ければ、空欄では
+     * なく 0 を返す。隣の欄と同じく「0 円」と出るので、使わなかったのか
+     * 比べられなかったのかを取り違えない。
      */
-    public function testMonthlyComparisonReturnsTotals()
-    {
-        $result = $this->createComparisonFixture();
-
-        // 収入 1,000 -> 2,000
-        $this->assertSame(100.0, $result['totals']['income']);
-
-        // 支出 2,000 -> 3,500。小項目と同じく、使った額が増えたら正にする。
-        $this->assertSame(75.0, $result['totals']['expense']);
-
-        // 合計 -1,000 -> -1,500
-        $this->assertSame(-50.0, $result['totals']['total']);
-    }
-
-    /**
-     * 現金とクレジットに分かれた記録は、小項目ごとに合算してから比べる。
-     */
-    public function testMonthlyComparisonSumsCashAndCredit()
-    {
-        $month = $this->monthBefore(2);
-        $previous_month = $this->monthBefore(3);
-        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE;
-
-        $this->createActivity($group, $previous_month . '-05', -1000, Activity::CREDIT_FLAG_UNUSE);
-        $this->createActivity($group, $previous_month . '-05', -1000, Activity::CREDIT_FLAG_USE);
-        $this->createActivity($group, $month . '-05', -2000, Activity::CREDIT_FLAG_UNUSE);
-        $this->createActivity($group, $month . '-05', -1000, Activity::CREDIT_FLAG_USE);
-
-        $result = $this->getMonthlyComparison($month);
-
-        // 2,000 -> 3,000
-        $this->assertSame(50.0, $result['groups'][$group]);
-    }
-
-    /**
-     * 収入と支出の振り分けは小項目の収支タイプではなく、集計表の表示と同じく
-     * 現金・クレジットごとの小計の符号で決める。
-     */
-    public function testMonthlyComparisonSplitsTotalsBySubtotalSign()
-    {
-        $month = $this->monthBefore(2);
-        $previous_month = $this->monthBefore(3);
-        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_ENABLE;
-
-        $this->createActivity($group, $previous_month . '-05', -1000, Activity::CREDIT_FLAG_USE);
-        $this->createActivity($group, $previous_month . '-05', 1000, Activity::CREDIT_FLAG_UNUSE);
-
-        // 支出の小項目でも、現金の小計が返金で正になったら収入として数える。
-        $this->createActivity($group, $month . '-05', -2000, Activity::CREDIT_FLAG_USE);
-        $this->createActivity($group, $month . '-05', 3000, Activity::CREDIT_FLAG_UNUSE);
-
-        $result = $this->getMonthlyComparison($month);
-
-        // 収入 1,000 -> 3,000
-        $this->assertSame(200.0, $result['totals']['income']);
-
-        // 支出 1,000 -> 2,000
-        $this->assertSame(100.0, $result['totals']['expense']);
-    }
-
-    /**
-     * 前の期間に金額がなければ比率を出せないため、その項目は返さない。
-     */
-    public function testMonthlyComparisonSkipsItemWithoutPreviousAmount()
+    public function testPreviousMonthSummaryReturnsZeroForItemWithoutRecord()
     {
         $month = $this->monthBefore(2);
         $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         $this->createActivity($group, $month . '-05', -1000);
 
-        $result = $this->getMonthlyComparison($month);
+        $result = $this->getPreviousMonthSummary($month);
 
-        $this->assertArrayNotHasKey($group, $result['groups']);
-        $this->assertSame([], $result['totals']);
+        $this->assertSame(0, $result['groups'][$group]);
+        $this->assertSame(['income' => 0, 'expense' => 0, 'total' => 0], $result['totals']);
     }
 
     /**
-     * 過去の月は月末までを対象にし、前後の月の記録は混ぜない。
+     * 過去の月を見ているときは、前月も月末まで丸ごと出す。前後の月は混ぜない。
      */
-    public function testMonthlyComparisonUsesWholeMonthForPastMonth()
+    public function testPreviousMonthSummaryUsesWholePreviousMonth()
     {
         $month = $this->monthBefore(2);
         $previous_month = $this->monthBefore(3);
-        $next_month = $this->monthBefore(1);
         $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
 
         $this->createActivity($group, $previous_month . '-01', -500);
         $this->createActivity($group, $this->lastDayOf($previous_month), -500);
-        $this->createActivity($group, $month . '-01', -1000);
-        $this->createActivity($group, $this->lastDayOf($month), -1000);
 
-        // 翌月の記録が混ざると比率が変わる。
-        $this->createActivity($group, $next_month . '-01', -9999);
+        // 見ている月と、前月のさらに前の月は入らない。
+        $this->createActivity($group, $month . '-01', -9999);
+        $this->createActivity($group, $this->lastDayOf($this->monthBefore(4)), -9999);
 
-        $result = $this->getMonthlyComparison($month);
+        $result = $this->getPreviousMonthSummary($month);
 
-        // 1,000 -> 2,000
-        $this->assertSame(100.0, $result['groups'][$group]);
+        $this->assertSame(-1000, $result['groups'][$group]);
+        $this->assertNull($result['cut_day']);
+    }
+
+    /**
+     * 当月を見ているときは、前月も今日と同じ日で切る。月末まで経っていない
+     * 額を前月の丸ごとと並べると、必ず前月のほうが多く見える。
+     *
+     * 切った日は返して見出しに出す。出さないと、前月の月別集計と数字が
+     * 合わずに間違って見える。
+     */
+    public function testPreviousMonthSummaryCutsCurrentMonthAtToday()
+    {
+        $result = $this->getPreviousMonthSummary(date('Y-m'));
+
+        $previous_end_date = $result['period']['previous_end_date'];
+        $is_whole_month = $previous_end_date === date('Y-m-t', strtotime($result['period']['previous_begin_date']));
+
+        $this->assertSame($is_whole_month ? null : (int) date('j', strtotime($previous_end_date)), $result['cut_day']);
     }
 
     /**
      * 比べた 2 つの期間を返す。当月は今日で切り、前月も同じ日数で切る。
      */
-    public function testMonthlyComparisonReturnsComparedPeriod()
+    public function testPreviousMonthSummaryReturnsComparedPeriod()
     {
-        $result = $this->getMonthlyComparison(date('Y-m'));
+        $result = $this->getPreviousMonthSummary(date('Y-m'));
 
         $previous_begin_date = date('Y-m-01', strtotime(date('Y-m-01') . ' -1 month'));
         $day = min((int) date('j'), (int) date('t', strtotime($previous_begin_date)));
@@ -200,12 +173,12 @@ class ActivityServiceTest extends TestCase {
     /**
      * 過去の月は、比べた期間も月末まで。
      */
-    public function testMonthlyComparisonReturnsWholePeriodForPastMonth()
+    public function testPreviousMonthSummaryReturnsWholePeriodForPastMonth()
     {
         $month = $this->monthBefore(2);
         $previous_month = $this->monthBefore(3);
 
-        $result = $this->getMonthlyComparison($month);
+        $result = $this->getPreviousMonthSummary($month);
 
         $this->assertSame([
             'begin_date' => $month . '-01',
@@ -387,25 +360,25 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 前の期間を決められない条件では比較しない。
+     * 前月を決められない条件では空で返す。
      */
-    public function testMonthlyComparisonReturnsEmptyForUncomparableCondition()
+    public function testPreviousMonthSummaryReturnsEmptyForUncomparableCondition()
     {
         $month = $this->monthBefore(2);
-        $empty = ['groups' => [], 'totals' => [], 'period' => []];
+        $empty = ['groups' => [], 'totals' => [], 'period' => [], 'cut_day' => null];
 
         // 詳細検索で任意の日付が指定されている
-        $this->assertSame($empty, $this->getMonthlyComparison($month, [
+        $this->assertSame($empty, $this->getPreviousMonthSummary($month, [
             'begin_date' => $month . '-01',
             'end_date' => $month . '-10',
         ]));
 
         // 未来の月
         $next_month = date('Y-m', strtotime(date('Y-m-01') . ' +1 month'));
-        $this->assertSame($empty, $this->getMonthlyComparison($next_month));
+        $this->assertSame($empty, $this->getPreviousMonthSummary($next_month));
 
         // 年月の形式ではない (「すべて」を選んだ場合)
-        $this->assertSame($empty, $this->getMonthlyComparison('all'));
+        $this->assertSame($empty, $this->getPreviousMonthSummary('all'));
     }
 
     /**
@@ -529,7 +502,7 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 比較の基準となる 2 つの期間に記録を作り、比較結果を返す。
+     * 前月と見ている月に記録を作り、前月の額を返す。
      *
      * 前の期間: 変動支出 -1,000 / 固定支出 -1,000 / 変動収入 1,000
      * 対象の期間: 変動支出 -3,000 / 固定支出 -500 / 変動収入 2,000
@@ -553,7 +526,7 @@ class ActivityServiceTest extends TestCase {
         $this->createActivity($constant_expense, $month . '-05', -500);
         $this->createActivity($variable_income, $month . '-05', 2000);
 
-        return $this->getMonthlyComparison($month);
+        return $this->getPreviousMonthSummary($month);
     }
 
     /**
@@ -575,11 +548,11 @@ class ActivityServiceTest extends TestCase {
      * @param array $fields 詳細検索の指定
      * @return array
      */
-    private function getMonthlyComparison($date_month, array $fields = [])
+    private function getPreviousMonthSummary($date_month, array $fields = [])
     {
         $condition = new MonthlySummaryCondition(['date_month' => $date_month] + $fields);
 
-        return $this->activity->getMonthlyComparison($this->getUser()->id, $condition);
+        return $this->activity->getPreviousMonthSummary($this->getUser()->id, $condition);
     }
 
     /**
@@ -639,24 +612,6 @@ class ActivityServiceTest extends TestCase {
     private function lastDayOf($date_month)
     {
         return date('Y-m-t', strtotime($date_month . '-01'));
-    }
-
-    /**
-     * 合計のように元の額が大きいと 1% 未満の増減になりやすい。整数に丸めると
-     * 0 になり、増減がないのと見分けが付かなくなる。
-     */
-    public function testMonthlyComparisonKeepsChangeUnderOnePercent()
-    {
-        $month = $this->monthBefore(2);
-        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
-
-        // 前月 -100,000 に対し当月 -100,200。増減は 0.2%。
-        $this->createActivity($group, $this->monthBefore(3) . '-05', -100000);
-        $this->createActivity($group, $month . '-05', -100200);
-
-        $result = $this->getMonthlyComparison($month);
-
-        $this->assertSame(0.2, $result['groups'][$group]);
     }
 
     /**

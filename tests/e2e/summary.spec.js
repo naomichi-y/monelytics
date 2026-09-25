@@ -850,14 +850,78 @@ test.describe('集計', () => {
     await expect.poll(async () => (await scrollers())[0]?.overflowX).toBe('auto');
   });
 
-  test('前月比の欄に増減が出る', async ({ page }) => {
+  /**
+   * 前月の欄には前月の額そのものを、集計表と同じ向き (支出は負) で出す。
+   * 率では元が小さい小項目が跳ね上がり、差額では負の額の隣で差の符号が
+   * 読み違えられた。
+   *
+   * 当月は前月も今日と同じ日で切るので、見出しにその日を書く。書かないと、
+   * 前月の月別集計と数字が合わずに間違って見える。
+   *
+   * 額は他の金額欄と同じく、前月の期間で絞った日別集計へのリンクにする。
+   */
+  test('前月の欄に前月の額が出て、その明細へ飛べる', async ({ page }) => {
+    const today = new Date();
+    const previousBegin = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const previousLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    const cutDay = Math.min(today.getDate(), previousLastDay);
+
+    await page.goto(`/summary/monthly?date_month=${formatMonth(today)}`);
+
+    const table = reportTable(page);
+    // 見出しは固定ヘッダが複製した表の側にある (reportTable は本体を指す)。
+    const heading = page.locator('#tab-container th').filter({ hasText: '前月' }).first();
+
+    if (cutDay < previousLastDay) {
+      await expect(heading).toContainText(`${cutDay}日まで`);
+    } else {
+      await expect(heading).not.toContainText('日まで');
+    }
+
+    // シードの前月の食料品は 1 日の 2,000 円だけ。どの日に走らせても切った範囲に入る。
+    const cell = table.getByRole('row').filter({ hasText: '食料品' }).locator('td').nth(2);
+    await expect(cell).toHaveText('-2,000 円');
+    await expect(table).not.toContainText('%');
+
+    await cell.getByRole('link').click();
+
+    // 期間は実日付で渡っている (date_month ではない)。
+    const previousMonth = String(previousBegin.getMonth() + 1).padStart(2, '0');
+    await expect(page).toHaveURL(new RegExp(`begin_date=${previousBegin.getFullYear()}-${previousMonth}-01`));
+    await expect(page.getByRole('cell', { name: '前月の食料品', exact: true })).toHaveCount(1);
+    await expect(page.getByRole('cell', { name: '当月の食料品', exact: true })).toHaveCount(0);
+  });
+
+  /**
+   * 率 (+15%) から額 (-1,234,567 円) に変わって欄の文字が長くなった。
+   * 金額は折り返さない (.money) ので、入りきらないと列が押し広げられ、
+   * 隣の列が縮む。シードの額は小さいので、7 桁の額を欄へ入れて測る。
+   *
+   * セルの scrollWidth は見ない。表のセルははみ出さずに自分が広がるため、
+   * 入りきらなくても差は 0 のまま出る。
+   */
+  test('前月の欄に 7 桁の額が収まる', async ({ page }) => {
     await page.goto(`/summary/monthly?date_month=${formatMonth(new Date())}`);
 
-    const foodRow = reportTable(page).getByRole('row').filter({ hasText: '食料品' });
+    const cell = reportTable(page).getByRole('row').filter({ hasText: '食料品' }).locator('td').nth(2);
+    await expect(cell).toContainText('円');
 
-    // 値そのものは他のテストが登録した行で動くため、書式だけを見る。
-    // 欄が空になる、記号が出ない、といった壊れ方を捕まえるのが目的。
-    await expect(foodRow).toContainText(/[+\-±][\d.]+%/);
+    const columnWidths = () => cell.evaluate((node) => Array.from(node.parentNode.children)
+      .map((child) => Math.round(child.getBoundingClientRect().width)));
+    const before = await columnWidths();
+
+    const fits = await cell.evaluate((node) => {
+      const money = node.querySelector('.money');
+      money.replaceChildren('-1,234,567 ', money.querySelector('.unit'));
+
+      const style = getComputedStyle(node);
+      const content = node.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+
+      return money.getBoundingClientRect().width <= content;
+    });
+
+    expect(fits).toBe(true);
+    expect(await columnWidths()).toEqual(before);
   });
 
   test('月別集計の構成グラフが描画される', async ({ page }) => {

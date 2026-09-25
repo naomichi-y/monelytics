@@ -88,42 +88,19 @@ class MacrosTest extends TestCase {
     }
 
     /**
-     * 小項目ごとの比較は率ではなく額で出す。元が小さい小項目は率が跳ね上がり、
-     * 額の大きい小項目より目立ってしまうため。記号は増減率と揃える。
+     * 前月比は率ではなく額で出す。元が小さい小項目は率が跳ね上がり、
+     * 額の大きい小項目より目立ってしまうため。
+     *
+     * 支出は増えたときに正となるよう符号を揃えて渡されるため、+ は
+     * 金額が負の行でも「増えた」を意味する。▲▼ を使わないのは、日本の
+     * 会計表記で ▲ が負の数を指すためで、支出欄で意味が逆に読まれるのを
+     * 避ける。
      */
     public function testComparisonAmountShowsDirection()
     {
         $this->assertSame('+1,600', Html::comparisonAmount(1600));
         $this->assertSame('-900', Html::comparisonAmount(-900));
         $this->assertSame('±0', Html::comparisonAmount(0));
-    }
-
-    /**
-     * 支出は増えたときに正となるよう符号を揃えて渡されるため、+ は
-     * 金額が負の行でも「増えた」を意味する。
-     *
-     * ▲▼ を使わないのは、日本の会計表記で ▲ が負の数を指すためで、
-     * 支出欄で意味が逆に読まれるのを避ける。
-     */
-    public function testComparisonRateShowsDirection()
-    {
-        $this->assertSame('+15%', Html::comparisonRate(15));
-        $this->assertSame('-21%', Html::comparisonRate(-21));
-        $this->assertSame('±0%', Html::comparisonRate(0));
-    }
-
-    /**
-     * ± は増減がちょうど 0 のときだけに使う。合計のように元の額が大きいと
-     * 1% 未満の増減が起こりやすく、整数に丸めると「増減なし」と区別が
-     * 付かなくなる。
-     */
-    public function testComparisonRateKeepsChangeUnderOnePercent()
-    {
-        $this->assertSame('-0.2%', Html::comparisonRate(-0.2));
-        $this->assertSame('+0.1%', Html::comparisonRate(0.1));
-
-        // 1% 以上は従来どおり整数で出す。
-        $this->assertSame('-7%', Html::comparisonRate(-6.8));
     }
 
     /**
