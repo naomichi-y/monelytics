@@ -160,6 +160,12 @@
                          操作不可になっていた。期間が必ず入っているのは、指定の無い
                          ときに Condition が当月を埋めるため。
 
+                         小項目の絞り込みだけは外す。場所を押すのは「この店で何に
+                         使ったか」を見たいときで、同じ店でも小項目は分かれる
+                         (食費と外食費など)。引き継いでいたころは、小項目で絞った
+                         一覧から場所を押すと、その小項目の記録しか出ず、別の小項目で
+                         付けた同じ店の記録が無いように見えていた。
+
                          空欄はリンクにしない。押しても絞り込みが効かず (Service 側が
                          strlen で捨てる)、同じ一覧が出るだけのため。 --}}
                     <td>
@@ -167,6 +173,7 @@
                             @php
                                 $location_queries = array_merge($condition->toArray(), [
                                     'location' => $activity->location,
+                                    'activity_category_item_id' => [],
                                 ]);
                             @endphp
                             {!! Html::linkWithQueryString('/summary/daily', $location_queries, $activity->location) !!}
