@@ -348,7 +348,13 @@ Html::macro('withUnit', function($markup) {
  * 小項目ごとの比較は率ではなく額で出す。元が小さい小項目は率が跳ね上がり
  * (100 円から 300 円で +200%)、額の大きい小項目より目立ってしまうため。
  *
- * 記号は Html::comparisonRate と揃える。▲▼ を使わない理由もそちらと同じ。
+ * 支出は使った額が増えたときに正となるよう符号を揃えて渡されるため、金額
+ * そのものが負で表示される行でも + は「増えた」を意味する。
+ *
+ * 記号に ▲▼ は使わない。日本の会計表記では ▲ が負の数を指すのが通例で、
+ * 「増えた」を ▲ で表すと支出欄で意味が逆に読まれる。+ / - なら取り違えない。
+ *
+ * 単位は付けない。呼び出し側で Html::withUnit を通す。
  */
 Html::macro('comparisonAmount', function($difference) {
     if ($difference == 0) {
@@ -358,27 +364,4 @@ Html::macro('comparisonAmount', function($difference) {
     $mark = $difference > 0 ? '+' : '-';
 
     return $mark . number_format(abs($difference));
-});
-
-/**
- * 前月比の増減率を、符号を付けて返す。
- *
- * 支出は増えたときに正となるよう符号を揃えて渡されるため、金額そのものが
- * 負で表示される行でも正の値は「増えた」を意味する。
- *
- * 記号に ▲▼ は使わない。日本の会計表記では ▲ が負の数を指すのが通例で、
- * 「増えた」を ▲ で表すと支出欄で意味が逆に読まれる。+ / - なら取り違えない。
- */
-Html::macro('comparisonRate', function($rate) {
-    // ± は増減がちょうど 0 のときだけ。1% 未満の増減を整数に丸めると
-    // 「増減なし」と区別が付かなくなるため、その範囲は小数第 1 位まで出す。
-    if ($rate == 0) {
-        return '±0%';
-    }
-
-    $mark = $rate > 0 ? '+' : '-';
-    $absolute = abs($rate);
-    $value = $absolute < 1 ? number_format($absolute, 1) : (string) round($absolute);
-
-    return $mark . $value . '%';
 });

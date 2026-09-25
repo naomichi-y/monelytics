@@ -93,7 +93,7 @@ class MonthlyController extends \App\Http\Controllers\Controller {
 
         $data = [];
         $data['summary'] = $this->activity->getMonthlySummary(Auth::id(), $condition);
-        $data['comparisons'] = $this->activity->getMonthlyComparison(Auth::id(), $condition);
+        $data['previous'] = $this->activity->getPreviousMonthSummary(Auth::id(), $condition);
         $data['base_link'] = '/summary/daily?' . $condition->buildQueryString();
 
         return View::make('summary/monthly/report', $data);

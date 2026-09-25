@@ -24,7 +24,15 @@
                     <th class="text-center">小項目</th>
                     <th class="text-center">現金収支額</th>
                     <th class="text-center">クレジット収支額</th>
-                    <th class="text-center">前月比</th>
+                    {{-- 当月は前月も今日と同じ日で切っている (getPreviousMonthSummary)。
+                         見出しに書かないと、前月の月別集計と数字が合わず、
+                         間違っているように見える。 --}}
+                    <th class="text-center">
+                        前月
+                        @if ($previous['cut_day'])
+                            <span class="note d-block">{{$previous['cut_day']}}日まで</span>
+                        @endif
+                    </th>
                     <th class="text-center">小項目合計</th>
                 </tr>
             </thead>
@@ -54,9 +62,11 @@
                                         <th>{{{$activity_category_item_summary['item_name']}}}</th>
                                         <td class="text-end">{!! Html::amountLink($activity_category_item_summary['cash_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_item_id[]' => $activity_category_item_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_UNUSE], $text)) !!}</td>
                                         <td class="text-end">{!! Html::amountLink($activity_category_item_summary['credit_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_item_id[]' => $activity_category_item_id, 'credit_flag' => App\Models\Activity::CREDIT_FLAG_USE], $text)) !!}</td>
+                                        {{-- 他の金額欄と同じく、その額を作った収支の一覧へ飛べるように
+                                             する。期間は前月側の実日付で渡す。 --}}
                                         <td class="text-end">
-                                            @if (isset($comparisons['groups'][$activity_category_item_id]))
-                                                {{Html::comparisonRate($comparisons['groups'][$activity_category_item_id])}}
+                                            @if (isset($previous['groups'][$activity_category_item_id]))
+                                                {!! Html::amountLink($previous['groups'][$activity_category_item_id], fn($text) => Html::linkWithQueryString('/summary/daily', ['begin_date' => $previous['period']['previous_begin_date'], 'end_date' => $previous['period']['previous_end_date'], 'activity_category_item_id[]' => $activity_category_item_id], $text)) !!}
                                             @endif
                                         </td>
                                         <td class="text-end">{!! Html::amountLink($activity_category_item_summary['group_amount'], fn($text) => Html::linkWithQueryString($base_link, ['activity_category_item_id[]' => $activity_category_item_id], $text)) !!}</td>
@@ -81,8 +91,8 @@
                     <td class="text-end">{!! Html::amount($summary['income_summary']['cash_amount']) !!}</td>
                     <td class="text-end">{!! Html::amount($summary['income_summary']['credit_amount']) !!}</td>
                     <td class="text-end">
-                        @if (isset($comparisons['totals']['income']))
-                            {{Html::comparisonRate($comparisons['totals']['income'])}}
+                        @if (isset($previous['totals']['income']))
+                            {!! Html::amount($previous['totals']['income']) !!}
                         @endif
                     </td>
                     <td class="text-end">{!! Html::amount($summary['income_summary']['income_amount']) !!}</td>
@@ -92,8 +102,8 @@
                     <td class="text-end">{!! Html::amount($summary['expense_summary']['cash_amount']) !!}</td>
                     <td class="text-end">{!! Html::amount($summary['expense_summary']['credit_amount']) !!}</td>
                     <td class="text-end">
-                        @if (isset($comparisons['totals']['expense']))
-                            {{Html::comparisonRate($comparisons['totals']['expense'])}}
+                        @if (isset($previous['totals']['expense']))
+                            {!! Html::amount($previous['totals']['expense']) !!}
                         @endif
                     </td>
                     <td class="text-end">{!! Html::amount($summary['expense_summary']['expense_amount']) !!}</td>
@@ -101,8 +111,8 @@
                 <tr>
                     <th colspan="5">合計</th>
                     <td class="text-end">
-                        @if (isset($comparisons['totals']['total']))
-                            {{Html::comparisonRate($comparisons['totals']['total'])}}
+                        @if (isset($previous['totals']['total']))
+                            {!! Html::amount($previous['totals']['total']) !!}
                         @endif
                     </td>
                     <td class="text-end">{!! Html::amount($summary['total_amount']) !!}</td>
