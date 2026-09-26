@@ -112,8 +112,10 @@ jobs:
       - name: 画面のデータを作る
         run: docker compose exec -T -u webapp php-e2e php artisan migrate:fresh --seed --seeder='Seeds\E2eSeeder' --force
 
+      # GITHUB_ACTIONS はコンテナへ自動では渡らない。渡すと playwright.config.js
+      # が落ちたテストを注釈に書き出す。
       - name: テストを流す
-        run: docker compose exec -T playwright npx playwright test
+        run: docker compose exec -T -e GITHUB_ACTIONS playwright npx playwright test
 
       - name: 失敗したときの記録を残す
         if: failure()
