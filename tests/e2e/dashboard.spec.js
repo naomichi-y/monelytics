@@ -308,31 +308,31 @@ test.describe('ダッシュボード', () => {
   });
 
   /**
-   * 名前の列は名前の幅だけ取る。表幅の 30% に固定していたときは、短い名前
-   * でも名前と棒の間が 150px 以上空いた。逆に余白を取らないと棒が名前に
-   * 接して見えた。
+   * 名前の列の幅。表幅の 30% に固定していたときは、短い名前でも名前と棒の間が
+   * 150px 以上空いた。名前の幅だけにすると今度は列が 80px になって左に寄り
+   * すぎ、余白を取らないと棒が名前に接して見えた。短い名前のときに 120px
+   * 前後になるよう、最低幅と右の余白を持たせている。
    */
   test('小項目名と棒の間は空きすぎず詰まりすぎない', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/dashboard');
     await expect(page.locator('.variable-expense')).toBeVisible();
 
+    // シードの小項目名はどれも 3 文字。
+    const { name } = await columns(page);
+    expect(name).toBeGreaterThanOrEqual(110);
+    expect(name).toBeLessThanOrEqual(130);
+
     const gaps = await page.locator('.variable-expense tbody tr').evaluateAll((rows) => rows.map((tr) => {
-      const name = tr.querySelector('.group-name a').getBoundingClientRect();
+      const text = tr.querySelector('.group-name a').getBoundingClientRect();
       const bar = tr.querySelector('.bar').getBoundingClientRect();
 
-      return Math.round(bar.left - name.right);
+      return Math.round(bar.left - text.right);
     }));
 
-    // 列の幅は最も長い名前で決まるため、最も近い行で測る。
     expect(Math.min(...gaps)).toBeGreaterThanOrEqual(24);
-    expect(Math.min(...gaps)).toBeLessThanOrEqual(48);
   });
 
-  /**
-   * かんたん入力の送り先は cost/variable で、作られるのは変動収支。固定収支の
-   * 小項目を選べてしまうと、選んだとおりに登録されない。
-   */
   /**
    * 棒の列は名前と数字の残りを全て受け取る。広い画面では 360px を超え、
    * 最も多い小項目の棒が数字のすぐ手前まで届いて長すぎた。棒の長さには
@@ -346,8 +346,8 @@ test.describe('ダッシュボード', () => {
     const widths = await page.locator('.variable-expense .bar:not(.previous)').evaluateAll((bars) => bars.map((bar) => bar.getBoundingClientRect().width));
 
     // 最も多い小項目が上限いっぱいまで伸び、それを超えない。
-    expect(Math.max(...widths)).toBe(200);
-    expect((await columns(page)).bar).toBeGreaterThan(200);
+    expect(Math.max(...widths)).toBe(260);
+    expect((await columns(page)).bar).toBeGreaterThan(260);
 
     expect(await overflowWithSevenDigits(page)).toEqual({ cells: [], table: 0 });
   });
