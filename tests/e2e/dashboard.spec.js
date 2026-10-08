@@ -10,33 +10,46 @@ const { login } = require('./helpers');
 function columns(page) {
   return page.locator('.variable-expense').evaluate((root) => {
     const cells = [...root.querySelector('tbody tr').children];
+    const width = (cell) => cell.getBoundingClientRect().width;
 
     return {
-      table: root.querySelector('table').getBoundingClientRect().width,
-      name: cells[0].getBoundingClientRect().width,
-      bar: cells[1].getBoundingClientRect().width,
-      amount: cells[2].getBoundingClientRect().width,
-      difference: cells[3].getBoundingClientRect().width,
+      table: width(root.querySelector('table')),
+      name: width(cells[0]),
+      bar: width(cells[1]),
+      current: width(cells[2]),
+      previous: width(cells[3]),
+      difference: width(cells[4]),
     };
   });
 }
 
 /**
- * 7 桁の額を入れたときに、各セルから何 px はみ出すか。
+ * 合計と小項目の数字を全て 7 桁にしたときに、各セルと表が何 px はみ出すか。
  *
- * シードの額は 4 桁で、そのままでは狭すぎる列でも収まってしまう。
+ * シードの額は 4、5 桁で、そのままでは狭すぎる列でも収まってしまう。
+ * 数字の列は中身の幅で決まるため、1 行だけ書き換えても列の幅は測れない。
  *
  * @param {import('@playwright/test').Page} page
  */
 function overflowWithSevenDigits(page) {
   return page.locator('.variable-expense').evaluate((root) => {
     const unit = (value) => `<span class="money">${value} <span class="unit">円</span></span>`;
-    const cells = [...root.querySelector('tbody tr').children];
 
-    cells[2].innerHTML = unit('9,999,999');
-    cells[3].innerHTML = unit('-9,999,999');
+    for (const row of root.querySelectorAll('.total, tbody tr')) {
+      const numbers = row.querySelectorAll('.number');
 
-    return cells.map((cell) => Math.max(0, cell.scrollWidth - cell.clientWidth));
+      numbers[0].innerHTML = unit('9,999,999');
+      numbers[1].innerHTML = unit('9,999,999');
+      numbers[2].innerHTML = unit('-9,999,999');
+    }
+
+    const table = root.querySelector('table');
+    const content = root.getBoundingClientRect().right - parseFloat(getComputedStyle(root).paddingRight);
+
+    return {
+      cells: [...root.querySelectorAll('td, th')].map((cell) => Math.max(0, cell.scrollWidth - cell.clientWidth)).filter((px) => px > 0),
+      table: Math.max(0, Math.round(table.getBoundingClientRect().right - content)),
+    };
   });
 }
 
@@ -170,7 +183,7 @@ test.describe('ダッシュボード', () => {
       expect(text).toMatch(/^[+\-\u00b1][0-9]/);
     }
 
-    await expect(panel.getByText('までとの比較')).toBeVisible();
+    await expect(panel.getByText('までの額')).toBeVisible();
   });
 
   /**
@@ -200,7 +213,14 @@ test.describe('ダッシュボード', () => {
             previousHeight: Math.round(previous.height),
             currentWidth: Math.round(current.width),
             previousWidth: Math.round(previous.width),
-            rowHeight: Math.round(tr.getBoundingClientRect().height),
+            // 行ではなく棒のセルの中身で測る。1 行目だけは合計の線との間を
+            // 空けてあり、行の高さで比べるとそこが違って見える。
+            rowHeight: (() => {
+              const td = tr.children[1];
+              const style = getComputedStyle(td);
+
+              return td.getBoundingClientRect().height - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+            })(),
           };
         }),
         cellWidth: Math.round(width),
@@ -219,13 +239,94 @@ test.describe('ダッシュボード', () => {
     // 先月の記録がない小項目でも行の高さは変わらない。幅 0 の棒を残して
     // あるため。畳むとその行だけ詰まり、並びがでこぼこに見える。
     expect(shape.rows.some((row) => row.previousWidth === 0)).toBe(true);
-    expect(new Set(shape.rows.map((row) => row.rowHeight)).size).toBe(1);
+    // 端数 (22.5px と 22px) は丸めで 1 ずれるので、1px までは同じとみなす。
+    const heights = shape.rows.map((row) => row.rowHeight);
+    expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(1);
 
     // 同じ赤を薄めた色。別の色にすると種類の違いに読める。
     expect(shape.currentColor).toBe('rgb(236, 87, 72)');
     expect(shape.previousColor).toBe('rgb(246, 179, 173)');
 
-    await expect(panel.getByText('薄い棒と増減は')).toBeVisible();
+    await expect(panel.getByText('(薄い棒も同じ)')).toBeVisible();
+  });
+
+  /**
+   * 数字の列が並ぶのに見出しが無く、どれが今月でどれが差なのかが読めなかった。
+   * 見出しは合計の上の 1 行だけに置き、合計と小項目の数字をその下に揃える。
+   * 小項目にも見出しを付けたときは、同じ見出しが 2 度並んで被って見えた。
+   *
+   * 列の右端を揃える。数字は右寄せなので、ずれると隣の列の見出しに見える。
+   */
+  test('今月の変動支出の見出しは 1 行で、合計と小項目の数字がその下に揃う', async ({ page }) => {
+    const panel = page.locator('#variable_expense');
+    await expect(panel.locator('.variable-expense')).toBeVisible();
+
+    await expect(panel.locator('th[scope="col"]')).toHaveText(['今月', '先月', '先月との差']);
+
+    const edges = await panel.evaluate((node) => {
+      // セルではなく文字の右端で比べる。セルは padding の分だけ外にある。
+      const right = (el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+
+        return Math.round(range.getBoundingClientRect().right);
+      };
+      const rows = [node.querySelector('.total'), ...node.querySelectorAll('tbody tr')];
+
+      return Array.from(node.querySelectorAll('th[scope="col"]')).map((th, i) => [
+        right(th),
+        ...rows.map((tr) => right(tr.querySelectorAll('.number')[i].querySelector('.money'))),
+      ]);
+    });
+
+    for (const column of edges) {
+      expect(new Set(column).size).toBe(1);
+    }
+
+    // 小項目の行にも先月の額が円付きで出る。
+    for (const row of await panel.locator('tbody tr').all()) {
+      await expect(row.locator('.number')).toHaveText([/円$/, /円$/, /円$/]);
+    }
+  });
+
+  /**
+   * 合計は今月だけ字が大きい。上で揃えると先月と差が今月の上側に、下で
+   * 揃えると下側に寄り、同じ行の値に見えにくかった。縦の中央で揃える。
+   */
+  test('変動支出の合計は縦の中央で揃う', async ({ page }) => {
+    const total = page.locator('#variable_expense .total');
+    await expect(total).toBeVisible();
+
+    const middles = await total.locator('.money').evaluateAll((els) => els.map((el) => {
+      const box = el.getBoundingClientRect();
+
+      return Math.round(box.top + box.height / 2);
+    }));
+
+    expect(middles).toHaveLength(3);
+    expect(Math.max(...middles) - Math.min(...middles)).toBeLessThanOrEqual(1);
+  });
+
+  /**
+   * 名前の列は名前の幅だけ取る。表幅の 30% に固定していたときは、短い名前
+   * でも名前と棒の間が 150px 以上空いた。逆に余白を取らないと棒が名前に
+   * 接して見えた。
+   */
+  test('小項目名と棒の間は空きすぎず詰まりすぎない', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/dashboard');
+    await expect(page.locator('.variable-expense')).toBeVisible();
+
+    const gaps = await page.locator('.variable-expense tbody tr').evaluateAll((rows) => rows.map((tr) => {
+      const name = tr.querySelector('.group-name a').getBoundingClientRect();
+      const bar = tr.querySelector('.bar').getBoundingClientRect();
+
+      return Math.round(bar.left - name.right);
+    }));
+
+    // 列の幅は最も長い名前で決まるため、最も近い行で測る。
+    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(24);
+    expect(Math.min(...gaps)).toBeLessThanOrEqual(48);
   });
 
   /**
@@ -233,12 +334,8 @@ test.describe('ダッシュボード', () => {
    * 小項目を選べてしまうと、選んだとおりに登録されない。
    */
   /**
-   * 額と増減は右揃えで、7 桁でも padding 込み 89px あれば足りる。26% ずつ
-   * では 187px を取って左が空くだけだったので、余りは棒へ回した。
-   *
-   * 切り替えは画面幅ではなくこの部品自身の幅で行う。ダッシュボードは画面が
-   * 広がると多段組みになり、両者が一致しない (700px の画面で表は 639px、
-   * 768px の画面では 439px)。画面幅で分けると広い画面のほうが狭くなる。
+   * 数字の列は中身の幅だけ取り、余りは棒へ回す。読みたいのは小項目どうしの
+   * 多い少ないで、そこが一番狭い列だった。
    */
   test('広く取れるときは棒を長くする', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -248,27 +345,35 @@ test.describe('ダッシュボード', () => {
     const wide = await columns(page);
 
     // 棒が一番広い列であること。ここが読みたいものなので。
-    expect(wide.bar).toBeGreaterThan(wide.name);
-    expect(wide.bar).toBeGreaterThan(wide.amount + wide.difference);
+    for (const other of [wide.name, wide.current, wide.previous, wide.difference]) {
+      expect(wide.bar).toBeGreaterThan(other);
+    }
 
-    // 7 桁を入れてもセルから出ないこと。
-    expect(await overflowWithSevenDigits(page)).toEqual([0, 0, 0, 0]);
+    expect(await overflowWithSevenDigits(page)).toEqual({ cells: [], table: 0 });
   });
 
   /**
-   * 狭いところでは配分を変えない。20% では 7 桁が入らず、桁の頭がセルから
-   * はみ出す。
+   * 狭いところでは、数字が 3 列並んでも 7 桁が枠に収まること。以前は数字の
+   * 列を 26% ずつ固定していて、3 列にすると名前と棒に 22% しか残らなかった。
+   * 長い小項目名は省略して、数字を押し出さない。
+   *
+   * 部品の幅で切り替えるため、700px の画面 (多段組みにならず部品が広い) でも
+   * 見る (@see 「広く取れるときは棒を長くする」)。
    */
-  test('狭いときは額の幅を削らない', async ({ page }) => {
-    await page.setViewportSize({ width: 414, height: 900 });
-    await page.goto('/dashboard');
-    await expect(page.locator('.variable-expense')).toBeVisible();
+  for (const width of [414, 700]) {
+    test(`狭くても 7 桁と長い小項目名が枠に収まる (${width}px)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/dashboard');
+      await expect(page.locator('.variable-expense')).toBeVisible();
 
-    const narrow = await columns(page);
+      await page.locator('.variable-expense tbody .group-name a').first().evaluate((a) => {
+        a.textContent = '小項目名は三十二文字まで付けられるのでとても長い名前を付けた場合';
+      });
 
-    expect(narrow.amount / narrow.table).toBeGreaterThan(0.24);
-    expect(await overflowWithSevenDigits(page)).toEqual([0, 0, 0, 0]);
-  });
+      expect(await overflowWithSevenDigits(page)).toEqual({ cells: [], table: 0 });
+      expect((await columns(page)).bar).toBeGreaterThan(0);
+    });
+  }
 
   test('かんたん入力の小項目は変動収支だけ', async ({ page }) => {
     const options = page.locator('#activity_category_item_id option');
