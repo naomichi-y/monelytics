@@ -153,6 +153,15 @@
     color: inherit;
 }
 
+/*
+ * 棒の伸びる長さには上限を付ける。棒の列は数字と名前の残りを全て受け取る
+ * ので、広い画面では 360px を超え、最も多い小項目の棒が数字のすぐ手前まで
+ * 届いて長すぎた。余った幅は棒と数字の間の空きになる。
+ */
+.variable-expense .bars {
+    max-width: 200px;
+}
+
 /* 色は識別ではなく「支出」を示すためだけに使う。アクティビティの
    ヒートマップが支出に使っている赤に揃える。 */
 .variable-expense .bar {
@@ -225,8 +234,10 @@
                             {{-- 棒の長さは合計ではなく最も多い小項目を基準にする。
                                  小項目どうしの多い少ないを見るための図なので。
                                  基準は今月と先月を通した最大額で、Service が返す。 --}}
-                            <span class="bar" style="width: {{round($group['amount'] / $expense['largest_amount'] * 100)}}%"></span>
-                            <span class="bar previous" style="width: {{round($group['previous_amount'] / $expense['largest_amount'] * 100)}}%"></span>
+                            <div class="bars">
+                                <span class="bar" style="width: {{round($group['amount'] / $expense['largest_amount'] * 100)}}%"></span>
+                                <span class="bar previous" style="width: {{round($group['previous_amount'] / $expense['largest_amount'] * 100)}}%"></span>
+                            </div>
                         </td>
                         <td class="number">{!! Html::amount($group['amount']) !!}</td>
                         <td class="number">{!! Html::amount($group['previous_amount']) !!}</td>
