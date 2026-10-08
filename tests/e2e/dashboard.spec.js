@@ -334,20 +334,20 @@ test.describe('ダッシュボード', () => {
    * 小項目を選べてしまうと、選んだとおりに登録されない。
    */
   /**
-   * 数字の列は中身の幅だけ取り、余りは棒へ回す。読みたいのは小項目どうしの
-   * 多い少ないで、そこが一番狭い列だった。
+   * 棒の列は名前と数字の残りを全て受け取る。広い画面では 360px を超え、
+   * 最も多い小項目の棒が数字のすぐ手前まで届いて長すぎた。棒の長さには
+   * 上限を付け、余りは棒と数字の間の空きにする。
    */
-  test('広く取れるときは棒を長くする', async ({ page }) => {
+  test('広い画面でも棒は伸びすぎない', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/dashboard');
     await expect(page.locator('.variable-expense')).toBeVisible();
 
-    const wide = await columns(page);
+    const widths = await page.locator('.variable-expense .bar:not(.previous)').evaluateAll((bars) => bars.map((bar) => bar.getBoundingClientRect().width));
 
-    // 棒が一番広い列であること。ここが読みたいものなので。
-    for (const other of [wide.name, wide.current, wide.previous, wide.difference]) {
-      expect(wide.bar).toBeGreaterThan(other);
-    }
+    // 最も多い小項目が上限いっぱいまで伸び、それを超えない。
+    expect(Math.max(...widths)).toBe(200);
+    expect((await columns(page)).bar).toBeGreaterThan(200);
 
     expect(await overflowWithSevenDigits(page)).toEqual({ cells: [], table: 0 });
   });
@@ -358,7 +358,7 @@ test.describe('ダッシュボード', () => {
    * 長い小項目名は省略して、数字を押し出さない。
    *
    * 部品の幅で切り替えるため、700px の画面 (多段組みにならず部品が広い) でも
-   * 見る (@see 「広く取れるときは棒を長くする」)。
+   * 見る (@see 「広い画面でも棒は伸びすぎない」)。
    */
   for (const width of [414, 700]) {
     test(`狭くても 7 桁と長い小項目名が枠に収まる (${width}px)`, async ({ page }) => {
