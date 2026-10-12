@@ -434,7 +434,7 @@ test.describe('ダッシュボード', () => {
     const panel = page.locator('#variable_expense');
     const previous = panel.getByRole('button', { name: '前日' });
     const next = panel.getByRole('button', { name: '翌日' });
-    const date = panel.locator('.variable-expense-days .date');
+    const date = panel.locator('.variable-expense-days .period');
 
     await page.goto('/dashboard');
     await expect(date).toBeVisible();
@@ -466,7 +466,7 @@ test.describe('ダッシュボード', () => {
     // 1 日には前日が押せない。
     const previous = panel.getByRole('button', { name: '前日' });
     const button = await previous.isDisabled() ? panel.getByRole('button', { name: '翌日' }) : previous;
-    const date = panel.locator('.variable-expense-days .date');
+    const date = panel.locator('.variable-expense-days .period');
     const today = await date.textContent();
     const before = await panel.boundingBox();
     const position = await button.boundingBox();

@@ -91,11 +91,12 @@ class GadgetControllerTest extends TestCase {
         $this->logout();
 
         $response->assertOk();
-        $response->assertSee(Html::date(date('Y-m-01')) . ' まで', false);
+        // 期間は 1 日から 1 日まで。
+        $response->assertSeeInOrder(['class="period"', Html::formatDate(date('Y-m-01'), 'n/j', true), '〜', Html::formatDate(date('Y-m-01'), 'n/j', true)], false);
 
         // 1 日より前へは動かせない。翌日は 2 日。
-        $this->assertMatchesRegularExpression('/<button[^>]*aria-label="前日"[^>]*\sdisabled[\s>]/u', $response->getContent());
-        $this->assertDoesNotMatchRegularExpression('/<button[^>]*aria-label="翌日"[^>]*\sdisabled[\s>]/u', $response->getContent());
+        $this->assertMatchesRegularExpression('/<button[^>]*\sdisabled[^>]*>‹ <span>前日<\/span></u', $response->getContent());
+        $this->assertDoesNotMatchRegularExpression('/<button[^>]*\sdisabled[^>]*><span>翌日<\/span> ›</u', $response->getContent());
         $response->assertSee('data-day="2"', false);
     }
 

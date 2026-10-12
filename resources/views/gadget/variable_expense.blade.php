@@ -211,8 +211,9 @@
 }
 
 /*
- * 締め日を動かす帯。表の上、右端に寄せる。表の数字が右揃えなので、どこまでの
- * 額かを見る目の動きが短い。
+ * 比べている期間と、締め日を動かすリンクの帯。期間は左、動かすリンクは右に
+ * 分ける。日付を矢印で挟む形 (‹ 10/12 (月) まで ›) にしたときは、記号と文字が
+ * 1 か所に詰まり、何がどこまでなのかが読みにくかった。
  *
  * 帯は表の外に置く。データの無い日 (1 日など) へ動いたときも、帯が残らないと
  * 戻れなくなる。
@@ -220,68 +221,77 @@
 .variable-expense-days {
     align-items: center;
     display: flex;
-    gap: 6px;
-    justify-content: flex-end;
+    font-size: 0.875rem;
+    gap: 16px;
+    justify-content: space-between;
     margin-bottom: 8px;
 }
 
-.variable-expense-days .date {
-    font-size: 0.875rem;
+.variable-expense-days .period {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
 }
 
+.variable-expense-days .steps {
+    display: flex;
+    gap: 16px;
+}
+
 /*
- * 前日・翌日は矢印だけの小さな枠にする。Bootstrap の btn-sm に「前日」
- * 「翌日」を書くと 1 つが 48px の高さになり、見出しより目立って重かった。
- * 主役は下の表で、ここは日をずらす補助でしかない。何をするボタンかは
- * 日付を挟む位置と title で足りる。読み上げには aria-label で名前を渡す。
+ * 前日・翌日はリンクの見た目にする。ボタンの形 (Bootstrap の btn-sm で 48px、
+ * 枠だけの 26px 角も) は、日をずらす補助にしては目立って重かった。
  *
- * 枠と地の色は下の表の囲みと罫線に揃える。
+ * 要素は <a> にせず <button> のまま。押してもページは移らず、部品をその場で
+ * 取り直すだけなので、<a href> にすると中クリックや「新しいタブで開く」で
+ * 部品の断片だけが開く。
+ *
+ * 下線は文字だけに引き、矢印には引かない。矢印まで引くと線が記号の下で
+ * 途切れたように見えた。押せない側は下線を外して薄くし、場所は残す
+ * (消すともう一方が左右に動く)。
  */
 .variable-expense-days .day_step {
-    align-items: center;
-    background-color: transparent;
-    border: 1px solid #dfd7ca;
-    border-radius: 4px;
-    color: #6c757d;
-    display: inline-flex;
-    font-size: 0.75rem;
-    height: 26px;
-    justify-content: center;
-    padding: 0;
-    width: 26px;
-}
-
-.variable-expense-days .day_step:hover:not(:disabled) {
-    background-color: #f8f5f0;
+    background: none;
+    border: 0;
     color: inherit;
+    padding: 0;
+    white-space: nowrap;
 }
 
-/* 押せない側も場所は残す。消すと日付の位置が左右に動く。 */
+.variable-expense-days .day_step span {
+    text-decoration: underline;
+}
+
 .variable-expense-days .day_step:disabled {
-    opacity: 0.35;
+    color: #6c757d;
+    opacity: 0.5;
+}
+
+.variable-expense-days .day_step:disabled span {
+    text-decoration: none;
 }
 </style>
 {{-- 締め日は保持しない (クッキーにも URL にも持たない)。日は毎日進むため、
      持っておいた「13 日」は翌々日には過去になり、開いたときに今日ではない
      日で区切られた額が、今日の額のような顔をして出る。 --}}
 <div class="variable-expense-days">
-    {!! Form::button('<span class="bi bi-chevron-left" aria-hidden="true"></span>', [
-        'class' => 'day_step',
-        'aria-label' => '前日',
-        'title' => '前日',
-        'data-day' => $expense['adjacent_days']['previous'],
-        'disabled' => $expense['adjacent_days']['previous'] === null,
-    ]) !!}
-    <span class="date">{{Html::date($expense['period']['end_date'])}} まで</span>
-    {!! Form::button('<span class="bi bi-chevron-right" aria-hidden="true"></span>', [
-        'class' => 'day_step',
-        'aria-label' => '翌日',
-        'title' => '翌日',
-        'data-day' => $expense['adjacent_days']['next'],
-        'disabled' => $expense['adjacent_days']['next'] === null,
-    ]) !!}
+    {{-- 年は書かない。動かせるのは今月の中だけで、年が変わることはない。
+         下の注記の先月の日付も同じ書き方に揃える。 --}}
+    <span class="period">
+        {{Html::formatDate($expense['period']['begin_date'], 'n/j', true)}} 〜
+        {{Html::formatDate($expense['period']['end_date'], 'n/j', true)}}
+    </span>
+    <span class="steps">
+        {!! Form::button('‹ <span>前日</span>', [
+            'class' => 'day_step',
+            'data-day' => $expense['adjacent_days']['previous'],
+            'disabled' => $expense['adjacent_days']['previous'] === null,
+        ]) !!}
+        {!! Form::button('<span>翌日</span> ›', [
+            'class' => 'day_step',
+            'data-day' => $expense['adjacent_days']['next'],
+            'disabled' => $expense['adjacent_days']['next'] === null,
+        ]) !!}
+    </span>
 </div>
 @if (sizeof($expense['groups']))
     <div class="variable-expense">
@@ -335,7 +345,7 @@
             @if ($expense['group_count'] > sizeof($expense['groups']))
                 {{$expense['group_count']}} 小項目中の上位 {{sizeof($expense['groups'])}} /
             @endif
-            先月は {{Html::date($expense['period']['previous_end_date'], false)}} までの額 (薄い棒も同じ)
+            先月は {{Html::formatDate($expense['period']['previous_end_date'], 'n/j', false)}} までの額 (薄い棒も同じ)
         </p>
     </div>
 @else
