@@ -410,30 +410,20 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
-     * 前日・翌日は今月の中だけ。前月へまたぐと比べる相手が前々月になり、
-     * 末日の先は来月で記録の付けようがない。押せる先は Service が返し、
-     * 画面で日付を組み直さない (月の長さの扱いがずれる)。
+     * 締め日に選べるのは今月の中だけ。前月へまたぐと比べる相手が前々月になり、
+     * 末日の先は来月で記録の付けようがない。範囲は Service が返し、画面で
+     * 日付を組み直さない (月の長さの扱いがずれる)。締め日を動かしても変わらない。
      */
-    public function testVariableExpenseComparisonStaysWithinCurrentMonth()
+    public function testVariableExpenseComparisonSelectsWithinCurrentMonth()
     {
-        $last_day = (int) date('t');
+        $expected = ['min' => date('Y-m-01'), 'max' => date('Y-m-t')];
 
-        $first = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, 1);
-        $this->assertSame(['previous' => null, 'next' => 2], $first['adjacent_days']);
-
-        $last = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, $last_day);
-        $this->assertSame(['previous' => $last_day - 1, 'next' => null], $last['adjacent_days']);
-
-        // 省略したときは今日の前後。
         $today = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
         $this->assertSame(date('Y-m-d'), $today['period']['end_date']);
-        $this->assertSame(
-            [
-                'previous' => (int) date('j') > 1 ? (int) date('j') - 1 : null,
-                'next' => (int) date('j') < $last_day ? (int) date('j') + 1 : null
-            ],
-            $today['adjacent_days']
-        );
+        $this->assertSame($expected, $today['selectable_dates']);
+
+        $first = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, 1);
+        $this->assertSame($expected, $first['selectable_dates']);
     }
 
     /**

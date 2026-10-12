@@ -211,86 +211,81 @@
 }
 
 /*
- * 比べている期間と、締め日を動かすリンクの帯。期間は左、動かすリンクは右に
- * 分ける。日付を矢印で挟む形 (‹ 10/12 (月) まで ›) にしたときは、記号と文字が
- * 1 か所に詰まり、何がどこまでなのかが読みにくかった。
+ * 比べている期間の帯。締め日 (期間の終わり) を押すとカレンダーが開き、
+ * 今月の中で日を選び直せる。
+ *
+ * 以前は前日・翌日のボタンで 1 日ずつ動かしていた。月末と月初の間を
+ * 行き来するには何度も押す必要があり、見たい日へ直接行けなかった。
  *
  * 帯は表の外に置く。データの無い日 (1 日など) へ動いたときも、帯が残らないと
- * 戻れなくなる。
+ * 選び直せなくなる。
  */
 .variable-expense-days {
-    align-items: center;
-    display: flex;
     font-size: 0.875rem;
-    gap: 16px;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-
-.variable-expense-days .period {
     font-variant-numeric: tabular-nums;
+    margin-bottom: 8px;
     white-space: nowrap;
-}
-
-.variable-expense-days .steps {
-    display: flex;
-    gap: 16px;
 }
 
 /*
- * 前日・翌日はリンクの見た目にする。ボタンの形 (Bootstrap の btn-sm で 48px、
- * 枠だけの 26px 角も) は、日をずらす補助にしては目立って重かった。
+ * 締め日は下線付きの文字にする。押せることは下線で分かり、前の日付や「〜」と
+ * 同じ大きさで期間の一部として読める。
  *
- * 要素は <a> にせず <button> のまま。押してもページは移らず、部品をその場で
- * 取り直すだけなので、<a href> にすると中クリックや「新しいタブで開く」で
- * 部品の断片だけが開く。
- *
- * 下線は文字だけに引き、矢印には引かない。矢印まで引くと線が記号の下で
- * 途切れたように見えた。押せない側は下線を外して薄くし、場所は残す
- * (消すともう一方が左右に動く)。
+ * 要素は入力欄ではなくボタン。入力欄にすると、スマホでは拡大を防ぐための
+ * 16px (@see style.css) で日付だけ一回り大きくなり、押したあとはフォーカスの
+ * 枠も残った。打ち込ませる必要もない (「10/32」のような今月の外の日や、
+ * 形の崩れた値を扱うことになる)。
  */
-.variable-expense-days .day_step {
+.variable-expense-days .cut_off {
+    display: inline-block;
+    position: relative;
+}
+
+.variable-expense-days .cut_off_date {
     background: none;
     border: 0;
     color: inherit;
+    font: inherit;
     padding: 0;
-    white-space: nowrap;
-}
-
-.variable-expense-days .day_step span {
     text-decoration: underline;
 }
 
-.variable-expense-days .day_step:disabled {
-    color: #6c757d;
-    opacity: 0.5;
-}
-
-.variable-expense-days .day_step:disabled span {
-    text-decoration: none;
+/*
+ * カレンダーを結び付ける欄。jQuery UI の datepicker は入力欄にしか付かず、
+ * 欄の位置に開くので、締め日の足元に見えない形で置く。
+ *
+ * 0 にはしない。jQuery は幅と高さが 0 の要素を隠れているものとみなし、
+ * datepicker が位置を取れずに画面の左上へ開く。
+ *
+ * 日付の下に常に出しておく形 (inline) にはしない。祝日の色はカレンダーを
+ * 開くとき (beforeShow) に取りに行く作りで (@see holidays.js)、inline では
+ * それが呼ばれない。
+ */
+.variable-expense-days .cut_off_picker {
+    border: 0;
+    bottom: 0;
+    height: 1px;
+    left: 0;
+    opacity: 0;
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    width: 1px;
 }
 </style>
 {{-- 締め日は保持しない (クッキーにも URL にも持たない)。日は毎日進むため、
      持っておいた「13 日」は翌々日には過去になり、開いたときに今日ではない
      日で区切られた額が、今日の額のような顔をして出る。 --}}
 <div class="variable-expense-days">
-    {{-- 年は書かない。動かせるのは今月の中だけで、年が変わることはない。
+    {{-- 年は書かない。選べるのは今月の中だけで、年が変わることはない。
          下の注記の先月の日付も同じ書き方に揃える。 --}}
-    <span class="period">
-        {{Html::formatDate($expense['period']['begin_date'], 'n/j', true)}} 〜
-        {{Html::formatDate($expense['period']['end_date'], 'n/j', true)}}
-    </span>
-    <span class="steps">
-        {!! Form::button('‹ <span>前日</span>', [
-            'class' => 'day_step',
-            'data-day' => $expense['adjacent_days']['previous'],
-            'disabled' => $expense['adjacent_days']['previous'] === null,
-        ]) !!}
-        {!! Form::button('<span>翌日</span> ›', [
-            'class' => 'day_step',
-            'data-day' => $expense['adjacent_days']['next'],
-            'disabled' => $expense['adjacent_days']['next'] === null,
-        ]) !!}
+    {{Html::formatDate($expense['period']['begin_date'], 'n/j', true)}} 〜
+    <span class="cut_off">
+        <button type="button" class="cut_off_date" title="締め日を選ぶ"
+            data-date="{{$expense['period']['end_date']}}"
+            data-min="{{$expense['selectable_dates']['min']}}"
+            data-max="{{$expense['selectable_dates']['max']}}">{{Html::formatDate($expense['period']['end_date'], 'n/j', true)}}</button>
+        <input type="text" class="cut_off_picker" readonly tabindex="-1" aria-hidden="true">
     </span>
 </div>
 @if (sizeof($expense['groups']))

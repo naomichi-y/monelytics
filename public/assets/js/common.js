@@ -335,12 +335,13 @@ $(function() {
   /**
    * 表示中の部品を、中身を残したまま取り直す。
    *
-   * 部品の中のボタンで条件を変えるとき用 (変動支出の前日・翌日)。loadPanel
+   * 部品の中の入力で条件を変えるとき用 (変動支出の締め日)。loadPanel
    * のように読み込み中の表示へ置き換えると、部品の高さが 140px に縮んでから
-   * 戻るため、押したボタンが上下に飛んで続けて押せない。
+   * 戻るため、下にあるものが上下に飛ぶ。
    *
-   * 待っている間は中身を薄くし、中のボタンを止める。止めないと連打した分の
-   * 応答が届いた順に上書きし、最後に押した日ではない表が残ることがある。
+   * 待っている間は中身を薄くし、中のボタンと入力を止める。止めないと続けて
+   * 選び直した分の応答が届いた順に上書きし、最後に選んだ条件ではない表が
+   * 残ることがある。
    *
    * @param {string} url
    * @returns {jQuery}
@@ -348,7 +349,7 @@ $(function() {
   $.fn.reloadPanel = function(url) {
     var $panel = $(this).attr("aria-busy", "true");
 
-    $panel.find("button").prop("disabled", true);
+    $panel.find("button, input").prop("disabled", true);
 
     $.get(url)
       .done(function(html) {
