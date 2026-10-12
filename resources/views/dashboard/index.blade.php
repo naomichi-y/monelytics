@@ -15,11 +15,51 @@
             $("#variable_expense").loadPanel("/gadget/variable-expense");
             $("#activity_history").loadPanel("/gadget/activity-history");
 
-            // 前日・翌日のボタンは部品の中にあり、取り直すたびに作り直される
-            // ので、外側の枠で受ける。
-            $("#variable_expense").on("click", ".day_step", function() {
-                $("#variable_expense").reloadPanel("/gadget/variable-expense?day=" + $(this).data("day"));
-            });
+            // 締め日のボタンは部品の中にあり、取り直すたびに作り直されるので、
+            // 外側の枠で受けてその場でカレンダーを付ける (結び付ける欄については
+            // @see gadget/variable_expense.blade.php)。
+            //
+            // 開いているときに押すと、datepicker は外側を押したとみなして
+            // mousedown で閉じる。続く click でまた開くと閉じられないので、
+            // mousedown の時点で開いていたかを覚えておく。
+            var pickerWasOpen = false;
+
+            $("#variable_expense")
+                .on("mousedown", ".cut_off_date", function() {
+                    pickerWasOpen = $("#ui-datepicker-div").is(":visible");
+                })
+                .on("click", ".cut_off_date", function() {
+                    var $button = $(this);
+                    var $picker = $button.siblings(".cut_off_picker");
+                    var parse = function(value) {
+                        return $.datepicker.parseDate("yy-mm-dd", value);
+                    };
+
+                    if (pickerWasOpen) {
+                        pickerWasOpen = false;
+
+                        return;
+                    }
+
+                    if (!$picker.hasClass("hasDatepicker")) {
+                        $picker.datepicker({
+                            // ボタンの表記 (10/12 (月)) と同じ形。選んだ日を
+                            // 取り直しを待つ間にもボタンへ書いておけるように。
+                            dateFormat: "m/d (D)",
+                            defaultDate: parse($button.data("date")),
+                            minDate: parse($button.data("min")),
+                            maxDate: parse($button.data("max")),
+                            // 選べるのは今月だけなので、月を送る矢印は要らない。
+                            hideIfNoPrevNext: true,
+                            onSelect: function(text, inst) {
+                                $button.text(text);
+                                $("#variable_expense").reloadPanel("/gadget/variable-expense?day=" + inst.selectedDay);
+                            }
+                        });
+                    }
+
+                    $picker.datepicker("show");
+                });
         });
     </script>
 @stop

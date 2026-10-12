@@ -947,12 +947,11 @@ class ActivityService
      *                'largest_amount' => 返した小項目の、今月と先月を通した最大額,
      *                'total' => ['amount', 'previous_amount', 'difference'],
      *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date],
-     *                'adjacent_days' => ['previous' => int|null, 'next' => int|null]]
+     *                'selectable_dates' => ['min' => 'Y-m-d', 'max' => 'Y-m-d']]
      *               金額は支出を正で返す。difference は正なら前月より使っている。
      *               group_count は $limit で切る前の数。棒が全部かどうかを
      *               画面が言えるように返す。
-     *               adjacent_days は締め日を 1 日ずらした先。今月の外へは出ない
-     *               ので、1 日と末日では片方が null になる。
+     *               selectable_dates は締め日に選べる範囲で、今月の 1 日から末日。
      */
     public function getVariableExpenseComparison($user_id, $limit, $day = null)
     {
@@ -1000,27 +999,12 @@ class ActivityService
             'largest_amount' => $this->largestVariableExpense($visible_groups),
             'total' => $total,
             'period' => $period,
-            'adjacent_days' => $this->adjacentDays($period['end_date'])
-        ];
-    }
-
-    /**
-     * 締め日の前後の日。今月の外へは出さない。
-     *
-     * 前月へまたぐと比べる相手が前々月になり、「今月の変動支出」ではなくなる。
-     * 末日より先は来月で、まだ記録の付けようがない。
-     *
-     * @param string $end_date 今月の締め日 'Y-m-d'
-     * @return array ['previous' => int|null, 'next' => int|null]
-     */
-    private function adjacentDays($end_date)
-    {
-        $day = (int) date('j', strtotime($end_date));
-        $last_day = (int) date('t', strtotime($end_date));
-
-        return [
-            'previous' => $day > 1 ? $day - 1 : null,
-            'next' => $day < $last_day ? $day + 1 : null
+            // 締め日は今月の中だけで選ばせる。前月へまたぐと比べる相手が
+            // 前々月になり「今月の変動支出」ではなくなる。末日より先は来月。
+            'selectable_dates' => [
+                'min' => $period['begin_date'],
+                'max' => date('Y-m-t', strtotime($period['begin_date']))
+            ]
         ];
     }
 

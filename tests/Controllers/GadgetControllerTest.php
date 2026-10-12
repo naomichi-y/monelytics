@@ -81,8 +81,8 @@ class GadgetControllerTest extends TestCase {
     }
 
     /**
-     * ?day= で締め日を動かす。帯にその日と前後のボタンが出て、先月の額も
-     * 同じ日で切られる。
+     * ?day= で締め日を動かす。帯の期間がその日までになり、締め日のボタンが
+     * カレンダーに渡す範囲 (今月の 1 日から末日) を持つ。
      */
     public function testVariableExpenseMovesCutOffDay()
     {
@@ -91,20 +91,23 @@ class GadgetControllerTest extends TestCase {
         $this->logout();
 
         $response->assertOk();
-        // 期間は 1 日から 1 日まで。
-        $response->assertSeeInOrder(['class="period"', Html::formatDate(date('Y-m-01'), 'n/j', true), '〜', Html::formatDate(date('Y-m-01'), 'n/j', true)], false);
 
-        // 1 日より前へは動かせない。翌日は 2 日。
-        $this->assertMatchesRegularExpression('/<button[^>]*\sdisabled[^>]*>‹ <span>前日<\/span></u', $response->getContent());
-        $this->assertDoesNotMatchRegularExpression('/<button[^>]*\sdisabled[^>]*><span>翌日<\/span> ›</u', $response->getContent());
-        $response->assertSee('data-day="2"', false);
+        // 期間は 1 日から 1 日まで。
+        $response->assertSeeInOrder([
+            Html::formatDate(date('Y-m-01'), 'n/j', true) . ' 〜',
+            'class="cut_off_date"',
+            'data-date="' . date('Y-m-01') . '"',
+            'data-min="' . date('Y-m-01') . '"',
+            'data-max="' . date('Y-m-t') . '"',
+            '>' . Html::formatDate(date('Y-m-01'), 'n/j', true) . '</button>'
+        ], false);
     }
 
     /**
-     * 記録の無い日へ動いても、前日・翌日の帯は残す。帯ごと消えると、
-     * 「データがありません」から戻る手段が無くなる。
+     * 記録の無い日へ動いても、締め日のボタンは残す。帯ごと消えると、
+     * 「データがありません」から選び直す手段が無くなる。
      */
-    public function testVariableExpenseKeepsDayStepWithoutRecord()
+    public function testVariableExpenseKeepsCutOffDateWithoutRecord()
     {
         Activity::where('user_id', $this->getUser()->id)->delete();
 
@@ -114,7 +117,7 @@ class GadgetControllerTest extends TestCase {
 
         $response->assertOk();
         $response->assertSee('データがありません。');
-        $response->assertSee('翌日');
+        $response->assertSee('class="cut_off_date"', false);
     }
 
     /**
