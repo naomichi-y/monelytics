@@ -14,6 +14,12 @@
             // (@see assets/js/common.js)。集計のタブと同じ待ち方になる。
             $("#variable_expense").loadPanel("/gadget/variable-expense");
             $("#activity_history").loadPanel("/gadget/activity-history");
+
+            // 前日・翌日のボタンは部品の中にあり、取り直すたびに作り直される
+            // ので、外側の枠で受ける。
+            $("#variable_expense").on("click", ".day_step", function() {
+                $("#variable_expense").reloadPanel("/gadget/variable-expense?day=" + $(this).data("day"));
+            });
         });
     </script>
 @stop

@@ -426,6 +426,74 @@ test.describe('ダッシュボード', () => {
     await expect(page.locator('#activity_history table')).toBeVisible();
   });
 
+  /**
+   * 比べられるのが今日まででは、先月その先の 1 日で大きく使っていたかどうかが
+   * 見えなかった。締め日を前後へ動かして、同じ日で切った先月と比べる。
+   */
+  test('今月の変動支出は前日・翌日で締め日を動かせる', async ({ page }) => {
+    const panel = page.locator('#variable_expense');
+    const previous = panel.getByRole('button', { name: '前日' });
+    const next = panel.getByRole('button', { name: '翌日' });
+    const date = panel.locator('.variable-expense-days .date');
+
+    await page.goto('/dashboard');
+    await expect(date).toBeVisible();
+
+    const today = await date.textContent();
+
+    // 月末なら翌日は押せない。どちらへ動いても、戻せば今日に戻る。
+    const [away, back] = await next.isDisabled() ? [previous, next] : [next, previous];
+
+    await away.click();
+    await expect(date).not.toHaveText(today ?? '');
+    await expect(panel.locator('.note')).toContainText('までの額');
+
+    await back.click();
+    await expect(date).toHaveText(today ?? '');
+  });
+
+  /**
+   * 部品を読み込み中の表示 (140px) へ置き換えて取り直すと、押したボタンが
+   * 上下に飛んで続けて押せない。中身を残したまま取り直し、待っている間は
+   * ボタンを止める (連打した分の応答が届いた順に上書きしないように)。
+   */
+  test('締め日を動かしている間も変動支出の部品は縮まない', async ({ page }) => {
+    const panel = page.locator('#variable_expense');
+
+    await page.goto('/dashboard');
+    await expect(panel.locator('.variable-expense-days')).toBeVisible();
+
+    // 1 日には前日が押せない。
+    const previous = panel.getByRole('button', { name: '前日' });
+    const button = await previous.isDisabled() ? panel.getByRole('button', { name: '翌日' }) : previous;
+    const date = panel.locator('.variable-expense-days .date');
+    const today = await date.textContent();
+    const before = await panel.boundingBox();
+    const position = await button.boundingBox();
+
+    let release = () => {};
+    const held = new Promise((resolve) => { release = resolve; });
+
+    await page.route('**/gadget/variable-expense?day=*', async (route) => {
+      await held;
+      await route.continue();
+    });
+
+    await button.click();
+
+    // 待っている間は中身が残り、高さもボタンの位置も変わらない。
+    await expect(panel).toHaveAttribute('aria-busy', 'true');
+    await expect(panel.locator('.tab-loading')).toHaveCount(0);
+    await expect(button).toBeDisabled();
+    expect((await panel.boundingBox())?.height).toBe(before?.height);
+    expect((await button.boundingBox())?.y).toBe(position?.y);
+
+    release();
+
+    await expect(panel).not.toHaveAttribute('aria-busy', 'true');
+    await expect(date).not.toHaveText(today ?? '');
+  });
+
   test('かんたん入力から登録できる', async ({ page }) => {
     await page.locator('#activity_category_item_id').selectOption({ label: '食料品' });
     await page.locator('#amount').fill('4321');

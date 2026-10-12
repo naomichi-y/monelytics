@@ -660,6 +660,13 @@ footer li {
   color: var(--bs-secondary-color);
 }
 
+/* 部品を中身を残したまま取り直している間 (@see assets/js/common.js の
+   reloadPanel)。古い数字のまま読まれないよう薄くする。 */
+[aria-busy="true"] > * {
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
 /* ajax で読み込む部品が取れなかったときの表示
    (@see assets/js/common.js の loadPanel)。読み込み中と同じ色・同じ高さに
    して、待っている状態からそのまま置き換わって見えるようにする。 */

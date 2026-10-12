@@ -888,19 +888,22 @@ class ActivityService
      * 月末まで。
      *
      * @param string $date_month 'YYYY-MM' 形式で、当月かそれ以前であること
+     * @param int|null $day 当月をこの日で区切る。省略すると今日。当月の日の
+     *                      範囲 (1 から末日) にあること。過ぎた月には効かない
      * @return array [begin_date|end_date|previous_begin_date|previous_end_date]
      */
-    private function buildComparisonPeriod($date_month)
+    private function buildComparisonPeriod($date_month, $day = null)
     {
         $begin_date = $date_month . '-01';
         $previous_begin_date = date('Y-m-01', strtotime($begin_date . ' -1 month'));
 
         if ($date_month === date('Y-m')) {
-            $end_date = date('Y-m-d');
+            $day = $day ?? (int) date('j');
+            $end_date = $date_month . '-' . sprintf('%02d', $day);
 
             // 前月に同じ日がない場合 (3/31 に対する 2 月) は前月の末日まで。
-            $day = min((int) date('j'), (int) date('t', strtotime($previous_begin_date)));
-            $previous_end_date = date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', $day);
+            $previous_day = min($day, (int) date('t', strtotime($previous_begin_date)));
+            $previous_end_date = date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', $previous_day);
 
         } else {
             $end_date = date('Y-m-t', strtotime($begin_date));
@@ -929,21 +932,31 @@ class ActivityService
      * 利用者が好きなだけ作れるので、使っていない分まで並べると画面が伸びる。
      * 落とした分は合計には含める。
      *
+     * 締め日は今日から動かせる。今日まででは、先月のその先の何日かで大きく
+     * 使っていたかどうかが見えない (先月は 12 日の 1 日で 3 万円使っており、
+     * 11 日まででは今月が下回って見えても、12 日まででは上回っていた)。
+     * 先の日まで進めると、日付を先にして登録した予定の支出も入る。
+     *
      * @param int $user_id
      * @param int $limit 返す小項目の数。今月の金額が多い順。
+     * @param int|null $day 今月をこの日で区切る。省略すると今日。今月の
+     *                      1 から末日までであること (呼び出し側で検証する)
      * @return array ['groups' => [['activity_category_item_id', 'item_name', 'amount',
      *                             'previous_amount', 'difference'], ...],
      *                'group_count' => 今月の記録がある小項目の数,
      *                'largest_amount' => 返した小項目の、今月と先月を通した最大額,
      *                'total' => ['amount', 'previous_amount', 'difference'],
-     *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date]]
+     *                'period' => [begin_date|end_date|previous_begin_date|previous_end_date],
+     *                'adjacent_days' => ['previous' => int|null, 'next' => int|null]]
      *               金額は支出を正で返す。difference は正なら前月より使っている。
      *               group_count は $limit で切る前の数。棒が全部かどうかを
      *               画面が言えるように返す。
+     *               adjacent_days は締め日を 1 日ずらした先。今月の外へは出ない
+     *               ので、1 日と末日では片方が null になる。
      */
-    public function getVariableExpenseComparison($user_id, $limit)
+    public function getVariableExpenseComparison($user_id, $limit, $day = null)
     {
-        $period = $this->buildComparisonPeriod(date('Y-m'));
+        $period = $this->buildComparisonPeriod(date('Y-m'), $day);
 
         $current = $this->sumVariableExpenseByGroup($user_id, $period['begin_date'], $period['end_date']);
         $previous = $this->sumVariableExpenseByGroup($user_id, $period['previous_begin_date'], $period['previous_end_date']);
@@ -986,7 +999,28 @@ class ActivityService
             'group_count' => sizeof($groups),
             'largest_amount' => $this->largestVariableExpense($visible_groups),
             'total' => $total,
-            'period' => $period
+            'period' => $period,
+            'adjacent_days' => $this->adjacentDays($period['end_date'])
+        ];
+    }
+
+    /**
+     * 締め日の前後の日。今月の外へは出さない。
+     *
+     * 前月へまたぐと比べる相手が前々月になり、「今月の変動支出」ではなくなる。
+     * 末日より先は来月で、まだ記録の付けようがない。
+     *
+     * @param string $end_date 今月の締め日 'Y-m-d'
+     * @return array ['previous' => int|null, 'next' => int|null]
+     */
+    private function adjacentDays($end_date)
+    {
+        $day = (int) date('j', strtotime($end_date));
+        $last_day = (int) date('t', strtotime($end_date));
+
+        return [
+            'previous' => $day > 1 ? $day - 1 : null,
+            'next' => $day < $last_day ? $day + 1 : null
         ];
     }
 
