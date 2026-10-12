@@ -220,28 +220,65 @@
 .variable-expense-days {
     align-items: center;
     display: flex;
-    gap: 8px;
+    gap: 6px;
     justify-content: flex-end;
     margin-bottom: 8px;
 }
 
 .variable-expense-days .date {
+    font-size: 0.875rem;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+}
+
+/*
+ * 前日・翌日は矢印だけの小さな枠にする。Bootstrap の btn-sm に「前日」
+ * 「翌日」を書くと 1 つが 48px の高さになり、見出しより目立って重かった。
+ * 主役は下の表で、ここは日をずらす補助でしかない。何をするボタンかは
+ * 日付を挟む位置と title で足りる。読み上げには aria-label で名前を渡す。
+ *
+ * 枠と地の色は下の表の囲みと罫線に揃える。
+ */
+.variable-expense-days .day_step {
+    align-items: center;
+    background-color: transparent;
+    border: 1px solid #dfd7ca;
+    border-radius: 4px;
+    color: #6c757d;
+    display: inline-flex;
+    font-size: 0.75rem;
+    height: 26px;
+    justify-content: center;
+    padding: 0;
+    width: 26px;
+}
+
+.variable-expense-days .day_step:hover:not(:disabled) {
+    background-color: #f8f5f0;
+    color: inherit;
+}
+
+/* 押せない側も場所は残す。消すと日付の位置が左右に動く。 */
+.variable-expense-days .day_step:disabled {
+    opacity: 0.35;
 }
 </style>
 {{-- 締め日は保持しない (クッキーにも URL にも持たない)。日は毎日進むため、
      持っておいた「13 日」は翌々日には過去になり、開いたときに今日ではない
      日で区切られた額が、今日の額のような顔をして出る。 --}}
 <div class="variable-expense-days">
-    {!! Form::button('<span class="bi bi-chevron-left" aria-hidden="true"></span> 前日', [
-        'class' => 'btn btn-secondary btn-sm day_step',
+    {!! Form::button('<span class="bi bi-chevron-left" aria-hidden="true"></span>', [
+        'class' => 'day_step',
+        'aria-label' => '前日',
+        'title' => '前日',
         'data-day' => $expense['adjacent_days']['previous'],
         'disabled' => $expense['adjacent_days']['previous'] === null,
     ]) !!}
     <span class="date">{{Html::date($expense['period']['end_date'])}} まで</span>
-    {!! Form::button('翌日 <span class="bi bi-chevron-right" aria-hidden="true"></span>', [
-        'class' => 'btn btn-secondary btn-sm day_step',
+    {!! Form::button('<span class="bi bi-chevron-right" aria-hidden="true"></span>', [
+        'class' => 'day_step',
+        'aria-label' => '翌日',
+        'title' => '翌日',
         'data-day' => $expense['adjacent_days']['next'],
         'disabled' => $expense['adjacent_days']['next'] === null,
     ]) !!}
