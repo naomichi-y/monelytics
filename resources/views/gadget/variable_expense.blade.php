@@ -209,7 +209,43 @@
     margin: 10px 0 0;
     text-align: right;
 }
+
+/*
+ * 締め日を動かす帯。表の上、右端に寄せる。表の数字が右揃えなので、どこまでの
+ * 額かを見る目の動きが短い。
+ *
+ * 帯は表の外に置く。データの無い日 (1 日など) へ動いたときも、帯が残らないと
+ * 戻れなくなる。
+ */
+.variable-expense-days {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+}
+
+.variable-expense-days .date {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
 </style>
+{{-- 締め日は保持しない (クッキーにも URL にも持たない)。日は毎日進むため、
+     持っておいた「13 日」は翌々日には過去になり、開いたときに今日ではない
+     日で区切られた額が、今日の額のような顔をして出る。 --}}
+<div class="variable-expense-days">
+    {!! Form::button('<span class="bi bi-chevron-left" aria-hidden="true"></span> 前日', [
+        'class' => 'btn btn-secondary btn-sm day_step',
+        'data-day' => $expense['adjacent_days']['previous'],
+        'disabled' => $expense['adjacent_days']['previous'] === null,
+    ]) !!}
+    <span class="date">{{Html::date($expense['period']['end_date'])}} まで</span>
+    {!! Form::button('翌日 <span class="bi bi-chevron-right" aria-hidden="true"></span>', [
+        'class' => 'btn btn-secondary btn-sm day_step',
+        'data-day' => $expense['adjacent_days']['next'],
+        'disabled' => $expense['adjacent_days']['next'] === null,
+    ]) !!}
+</div>
 @if (sizeof($expense['groups']))
     <div class="variable-expense">
         <table>

@@ -360,6 +360,83 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 締め日を動かすと、今月も先月も同じ日で切る。今日まででしか比べられず、
+     * 先月その先の 1 日で大きく使っていたかどうかが見えなかった (先月 12 日に
+     * 3 万円使っていて、11 日まででは今月が下回り、12 日まででは上回った)。
+     *
+     * 先の日まで進めると、日付を先にして登録した予定の支出も入る。
+     */
+    public function testVariableExpenseComparisonCutsBothMonthsAtTheGivenDay()
+    {
+        $group = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $previous_month = date('Y-m', strtotime(date('Y-m-01') . ' -1 month'));
+
+        DB::table('activities')->truncate();
+
+        $this->createActivity($group, date('Y-m-01'), -1000);
+        $this->createActivity($group, date('Y-m-02'), -300);
+        $this->createActivity($group, $previous_month . '-01', -2000);
+        $this->createActivity($group, $previous_month . '-02', -500);
+
+        $first = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, 1);
+
+        $this->assertSame(date('Y-m-01'), $first['period']['end_date']);
+        $this->assertSame($previous_month . '-01', $first['period']['previous_end_date']);
+        $this->assertSame(1000, $first['total']['amount']);
+        $this->assertSame(2000, $first['total']['previous_amount']);
+
+        $second = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, 2);
+
+        $this->assertSame(1300, $second['total']['amount']);
+        $this->assertSame(2500, $second['total']['previous_amount']);
+    }
+
+    /**
+     * 先月に同じ日が無ければ、先月は末日まで。今日で切るときと同じ丸め方で、
+     * 3/31 に対する 2 月が 3/3 (2/31 の繰り上がり) まで伸びない。
+     */
+    public function testVariableExpenseComparisonRoundsGivenDayToPreviousMonthEnd()
+    {
+        $last_day = (int) date('t');
+        $previous_begin_date = date('Y-m-01', strtotime(date('Y-m-01') . ' -1 month'));
+
+        $result = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, $last_day);
+
+        $this->assertSame(date('Y-m-t'), $result['period']['end_date']);
+        $this->assertSame(
+            date('Y-m-', strtotime($previous_begin_date)) . sprintf('%02d', min($last_day, (int) date('t', strtotime($previous_begin_date)))),
+            $result['period']['previous_end_date']
+        );
+    }
+
+    /**
+     * 前日・翌日は今月の中だけ。前月へまたぐと比べる相手が前々月になり、
+     * 末日の先は来月で記録の付けようがない。押せる先は Service が返し、
+     * 画面で日付を組み直さない (月の長さの扱いがずれる)。
+     */
+    public function testVariableExpenseComparisonStaysWithinCurrentMonth()
+    {
+        $last_day = (int) date('t');
+
+        $first = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, 1);
+        $this->assertSame(['previous' => null, 'next' => 2], $first['adjacent_days']);
+
+        $last = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5, $last_day);
+        $this->assertSame(['previous' => $last_day - 1, 'next' => null], $last['adjacent_days']);
+
+        // 省略したときは今日の前後。
+        $today = $this->activity->getVariableExpenseComparison($this->getUser()->id, 5);
+        $this->assertSame(date('Y-m-d'), $today['period']['end_date']);
+        $this->assertSame(
+            [
+                'previous' => (int) date('j') > 1 ? (int) date('j') - 1 : null,
+                'next' => (int) date('j') < $last_day ? (int) date('j') + 1 : null
+            ],
+            $today['adjacent_days']
+        );
+    }
+
+    /**
      * 前月を決められない条件では空で返す。
      */
     public function testPreviousMonthSummaryReturnsEmptyForUncomparableCondition()

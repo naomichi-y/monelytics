@@ -80,6 +80,59 @@ class GadgetControllerTest extends TestCase {
         $response->assertSeeInOrder(['</thead>', Html::amount(1000), Html::amount(400), Html::withUnit('+600')], false);
     }
 
+    /**
+     * ?day= で締め日を動かす。帯にその日と前後のボタンが出て、先月の額も
+     * 同じ日で切られる。
+     */
+    public function testVariableExpenseMovesCutOffDay()
+    {
+        $this->login();
+        $response = $this->call('GET', '/gadget/variable-expense', ['day' => 1]);
+        $this->logout();
+
+        $response->assertOk();
+        $response->assertSee(Html::date(date('Y-m-01')) . ' まで', false);
+
+        // 1 日より前へは動かせない。翌日は 2 日。
+        $response->assertSeeInOrder(['day_step', 'disabled', '前日'], false);
+        $response->assertSee('data-day="2"', false);
+    }
+
+    /**
+     * 記録の無い日へ動いても、前日・翌日の帯は残す。帯ごと消えると、
+     * 「データがありません」から戻る手段が無くなる。
+     */
+    public function testVariableExpenseKeepsDayStepWithoutRecord()
+    {
+        Activity::where('user_id', $this->getUser()->id)->delete();
+
+        $this->login();
+        $response = $this->call('GET', '/gadget/variable-expense', ['day' => 1]);
+        $this->logout();
+
+        $response->assertOk();
+        $response->assertSee('データがありません。');
+        $response->assertSee('翌日');
+    }
+
+    /**
+     * 日は今月の 1 から末日まで。範囲の外を日付に組み立てると、翌月や前月へ
+     * ずれた期間で黙って集計される (10/32 は 11/1 になる)。int 列と同じく
+     * 小数や指数表記も通さない。
+     */
+    public function testVariableExpenseRejectsInvalidDay()
+    {
+        $this->login();
+
+        foreach (['0', (string) ((int) date('t') + 1), '1.5', '1e1', 'abc'] as $day) {
+            $this->call('GET', '/gadget/variable-expense', ['day' => $day])->assertStatus(422);
+        }
+
+        $this->call('GET', '/gadget/variable-expense', ['day' => ['1']])->assertStatus(422);
+
+        $this->logout();
+    }
+
     public function testActivityHistory()
     {
         $this->assertUserOnlyContent('GET', '/gadget/activity-history');

@@ -266,6 +266,12 @@ $(function() {
   var TAB_WAITING_CLASS = "tab-waiting";
 
   /**
+   * 部品が取れなかったときの表示。空へ戻すと読み込む前と同じ見た目になり、
+   * 何も無いのと区別が付かなくなるため、必ずこれを出す。
+   */
+  var PANEL_ERROR_MARKUP = '<p class="panel-error" role="status">読み込めませんでした。</p>';
+
+  /**
    * 読み込み中であることを示す中身。
    *
    * 中身ごと入れ替える使い方と、上へ重ねる使い方の両方があるため、
@@ -320,7 +326,39 @@ $(function() {
         $panel.html(html);
       })
       .fail(function() {
-        $panel.html('<p class="panel-error" role="status">読み込めませんでした。</p>');
+        $panel.html(PANEL_ERROR_MARKUP);
+      });
+
+    return $panel;
+  };
+
+  /**
+   * 表示中の部品を、中身を残したまま取り直す。
+   *
+   * 部品の中のボタンで条件を変えるとき用 (変動支出の前日・翌日)。loadPanel
+   * のように読み込み中の表示へ置き換えると、部品の高さが 140px に縮んでから
+   * 戻るため、押したボタンが上下に飛んで続けて押せない。
+   *
+   * 待っている間は中身を薄くし、中のボタンを止める。止めないと連打した分の
+   * 応答が届いた順に上書きし、最後に押した日ではない表が残ることがある。
+   *
+   * @param {string} url
+   * @returns {jQuery}
+   */
+  $.fn.reloadPanel = function(url) {
+    var $panel = $(this).attr("aria-busy", "true");
+
+    $panel.find("button").prop("disabled", true);
+
+    $.get(url)
+      .done(function(html) {
+        $panel.html(html);
+      })
+      .fail(function() {
+        $panel.html(PANEL_ERROR_MARKUP);
+      })
+      .always(function() {
+        $panel.removeAttr("aria-busy");
       });
 
     return $panel;
