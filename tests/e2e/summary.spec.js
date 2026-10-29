@@ -371,6 +371,44 @@ test.describe('集計', () => {
     await expect(page.locator('#tabs')).not.toContainText('括弧');
   });
 
+  /**
+   * 今日のセルには色を付ける指定があったが、Bootstrap 5 のセルの規則に詳細度で
+   * 負けて、どの日とも同じ白で描かれていた。指定していた色も行ハイライトと
+   * 同じベージュで、当たっていても今日の週にマウスを乗せると見分けが付かない。
+   *
+   * 色はクラスの有無ではなく計算後の値で比べる。クラスはずっと付いていて、
+   * 壊れていたのは当たり方のほうだったため。
+   */
+  test('カレンダーの今日のセルは色が変わり、行にマウスを乗せても残る', async ({ page }) => {
+    const today = new Date();
+
+    await page.goto(`/summary/monthly?date_month=${formatMonth(today)}&tab=calendar`);
+
+    const cells = page.locator('#tabs td').filter({ has: page.locator('.amount-row') });
+    const todayCell = page.locator('#tabs td[aria-current="date"]');
+    await expect(todayCell).toHaveCount(1);
+    await expect(todayCell.locator('.date')).toContainText(String(today.getDate()));
+
+    // 背景は inset の box-shadow で重ねて描かれる。その色を読む。
+    const shade = (locator) => locator.evaluate((node) => getComputedStyle(node).boxShadow);
+
+    // マウスを表の外へ逃がし、どの行もハイライトされていない状態で比べる。
+    await page.mouse.move(0, 0);
+
+    const other = cells.filter({ hasNot: page.locator('[aria-current]') }).first();
+    const idle = await shade(other);
+    const marked = await shade(todayCell);
+    expect(marked).not.toBe(idle);
+
+    // ハイライトされたほかの行の色とも違う。
+    await other.hover();
+    expect(marked).not.toBe(await shade(other));
+
+    // 今日の週に乗せても、今日の色は上書きされない。
+    await todayCell.hover();
+    expect(await shade(todayCell)).toBe(marked);
+  });
+
   test('集計表の金額から日別集計へ検索条件が引き継がれる', async ({ page }) => {
     const month = formatMonth(new Date());
 
