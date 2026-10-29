@@ -1,7 +1,20 @@
 @if (sizeof($calendar))
     <style>
-        .current_date {
-            background-color: #f8f5f0;
+        /*
+         * 今日の色は --bs-table-bg-state で当てる。Bootstrap 5 はセルの色を
+         * background-color ではなく、この変数を使った inset の box-shadow で
+         * 重ねて描く。以前は .current_date に background-color を書いていたが、
+         * .table > :not(caption) > * > * (0,1,1) に詳細度で負けて当たって
+         * いなかった。行ハイライト (.table-hover) も同じ変数を使うため、
+         * 詳細度で上回っておけば、今日の週にマウスを乗せても色が消えない。
+         *
+         * 色は行ハイライトのベージュ (#f8f5f0) と分ける。以前の指定はそれと
+         * 同じ色で、当たっていたとしても乗せた行と見分けが付かなかった。
+         * 黄色系にしたのは、日付の文字色 (土曜の青、日曜の赤、祝日の緑) の
+         * どれとも重ならず、どの曜日に当たっても読めるため。
+         */
+        .table > tbody > tr > td.current_date {
+            --bs-table-bg-state: #fcf8e3;
         }
 
         .date {
@@ -78,7 +91,7 @@
                     <tr>
                         @for ($i = 0; $i < 7; $i++)
                             @if (isset($params[$i]) && $params[$i]['current_date'])
-                                <td class="current_date">
+                                <td class="current_date" aria-current="date">
                             @else
                                 <td>
                             @endif
