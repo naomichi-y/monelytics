@@ -96,7 +96,7 @@ function marker(prefix) {
  * シードを書き換えると、あとに走るテストの前提が崩れるため。
  *
  * @param {import('@playwright/test').Page} page
- * @param {{ groupName: string, amount: number|string, marker: string }} params
+ * @param {{ groupName: string, amount: number|string, marker: string, content?: string }} params
  */
 async function createVariableCost(page, params) {
   await page.goto('/cost/variable/create');
@@ -105,6 +105,10 @@ async function createVariableCost(page, params) {
   await page.locator('[name="activity_category_item_id[0]"]').selectOption({ label: params.groupName });
   await page.locator('[name="amount[0]"]').fill(String(params.amount));
   await page.locator('[name="location[0]"]').fill(params.marker);
+
+  if (params.content !== undefined) {
+    await page.locator('[name="content[0]"]').fill(params.content);
+  }
 
   await page.getByRole('button', { name: '登録' }).click();
 }

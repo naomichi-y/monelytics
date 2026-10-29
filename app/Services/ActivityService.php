@@ -1339,6 +1339,12 @@ class ActivityService
      * 押し出されていた。今月の変動支出 (@see ActivityService::buildComparisonPeriod)
      * も今日までで区切っており、ダッシュボードの 2 つで基準が食い違わないようにする。
      *
+     * 同じ日の中では後から登録したものを先に出す。発生日だけで並べても、
+     * 今は activity_date の索引を逆にたどるため結果的に id の降順になるが、
+     * それは実行計画の都合で、索引を足せば変わりうる。そうなると枠の境目に
+     * ある行が表示のたびに入れ替わり、今記録したものが同じ日の古い行に
+     * 押し出される。
+     *
      * @param int $user_id
      * @param int $limit
      * @return Collection
@@ -1348,6 +1354,7 @@ class ActivityService
         $builder = $this->activity->where('user_id', '=', $user_id)
             ->where('activity_date', '<=', date('Y-m-d'))
             ->orderBy('activity_date', 'desc')
+            ->orderBy('id', 'desc')
             ->limit($limit);
 
         return $builder->get();
