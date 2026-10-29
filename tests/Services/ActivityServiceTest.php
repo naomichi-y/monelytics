@@ -981,6 +981,34 @@ class ActivityServiceTest extends TestCase {
     }
 
     /**
+     * 同じ日の収支は、後から登録したものを先に出す。「最近の」履歴なので、
+     * 今記録したものが同じ日の古い行に押されて枠から外れてはいけない。
+     *
+     * 今の実行計画では、id での並べ替えを外してもこのテストは通る
+     * (activity_date の索引を逆にたどると、同じ日は id の降順で出てくる)。
+     * 守っているのは向きのほうで、id を昇順にしたり登録の新しさと関係の
+     * ない列で並べたりすると落ちる。
+     */
+    public function testHistoriesShowLatestRegisteredFirstWithinSameDay()
+    {
+        DB::table('activities')->truncate();
+
+        $group_id = ActivityCategoryItemTableSeeder::TYPE_VARIABLE_EXPENSE_CREDIT_DISABLE;
+        $limit = GadgetController::ACTIVITY_HISTORY_LIMIT;
+        $ids = [];
+
+        // 枠より 1 件多く、すべて同じ日に作る。
+        for ($i = 0; $i <= $limit; $i++) {
+            $ids[] = $this->createActivity($group_id, date('Y-m-d'), -100 - $i)->id;
+        }
+
+        $histories = $this->activity->getHistories($this->getUser()->id, $limit);
+
+        // 最初に作った 1 件だけが枠から外れる。
+        $this->assertSame(array_slice(array_reverse($ids), 0, $limit), $histories->pluck('id')->all());
+    }
+
+    /**
      * 前月・翌月のボタンは記録のある月の間だけを動く。画面のセレクトは記録の
      * ある月しか選択肢に持たないため、暦の上での隣を返すと、選択が「未指定」
      * へ落ちたまま別の月の集計が出る。
