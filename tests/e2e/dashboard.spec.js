@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { login } = require('./helpers');
+const { login, marker, createVariableCost } = require('./helpers');
 
 /**
  * 変動支出の並びの、列ごとの実寸。
@@ -53,6 +53,26 @@ function overflowWithSevenDigits(page) {
   });
 }
 
+/**
+ * 場所と用途の両方を埋めた変動収支を今日の日付で 1 件作り、ダッシュボードへ戻る。
+ *
+ * 以前はシードの「当月の食料品」を探していた。シードの行は月初の日付なので、
+ * 先に走るスペックが今日の日付で 5 件以上登録すると「最近の収支履歴」の枠
+ * (5 件) から押し出され、単体では通るのに全件では落ちた。
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{ location: string, content: string }>}
+ */
+async function createHistoryRow(page) {
+  const row = { location: marker('E2E-HISTORY'), content: '履歴の用途' };
+
+  await createVariableCost(page, { groupName: '食料品', amount: 321, marker: row.location, content: row.content });
+  await expect(page.getByText('登録が完了しました。')).toBeVisible();
+  await page.goto('/dashboard');
+
+  return row;
+}
+
 test.describe('ダッシュボード', () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
@@ -102,6 +122,8 @@ test.describe('ダッシュボード', () => {
    * 右端が切れた。どちらも 390px では起きない。狭いほうも一緒に測る。
    */
   test('スマホ幅でも場所と用途が読める', async ({ page }) => {
+    const created = await createHistoryRow(page);
+
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
 
@@ -115,10 +137,9 @@ test.describe('ダッシュボード', () => {
     await expect(visible).toHaveCount(4);
     await expect(visible.nth(3)).toHaveText('場所・用途', { useInnerText: true });
 
-    // その 1 つのセルに場所と用途が両方入ること。シードの当月の食料品は
-    // どちらも埋まっている。
-    const merged = table.locator('tbody tr').filter({ hasText: '当月の食料品' }).locator('td').nth(3);
-    await expect(merged).toHaveText('E2E スーパー / 当月の食料品', { useInnerText: true });
+    // その 1 つのセルに場所と用途が両方入ること。
+    const merged = table.locator('tbody tr').filter({ hasText: created.location }).locator('td').nth(3);
+    await expect(merged).toHaveText(`${created.location} / ${created.content}`, { useInnerText: true });
 
     // 表が入れ物に収まること。はみ出すと右端の列が読めない。
     for (const width of [320, 360, 390]) {
@@ -140,6 +161,8 @@ test.describe('ダッシュボード', () => {
    * 1 つのセルへ詰めることになる。
    */
   test('広い画面では場所と用途が別の列に戻る', async ({ page }) => {
+    const created = await createHistoryRow(page);
+
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.reload();
 
@@ -150,10 +173,10 @@ test.describe('ダッシュボード', () => {
     await expect(visible.nth(3)).toHaveText('場所', { useInnerText: true });
     await expect(visible.nth(4)).toHaveText('用途', { useInnerText: true });
 
-    const row = table.locator('tbody tr').filter({ hasText: '当月の食料品' });
+    const row = table.locator('tbody tr').filter({ hasText: created.location });
 
-    await expect(row.locator('td').nth(3)).toHaveText('E2E スーパー', { useInnerText: true });
-    await expect(row.locator('td').nth(4)).toHaveText('当月の食料品', { useInnerText: true });
+    await expect(row.locator('td').nth(3)).toHaveText(created.location, { useInnerText: true });
+    await expect(row.locator('td').nth(4)).toHaveText(created.content, { useInnerText: true });
   });
 
   /**
